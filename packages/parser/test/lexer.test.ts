@@ -2,6 +2,9 @@ import { describe, it, expect } from 'vitest';
 import {
   stripComments,
   buildLogicalLines,
+  readName,
+  readUntil,
+  skipWhitespace,
 } from '../src/lexer.js';
 
 // ---------------------------------------------------------------------------
@@ -117,5 +120,119 @@ describe('buildLogicalLines', () => {
     const result = buildLogicalLines(lines);
     expect(result).toHaveLength(3);
     expect(result[0]).toEqual({ text: '', startLine: 1 });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// skipWhitespace
+// ---------------------------------------------------------------------------
+describe('skipWhitespace', () => {
+  it('スペースとタブをスキップする', () => {
+    expect(skipWhitespace('   abc', 0)).toBe(3);
+    expect(skipWhitespace('\t\t x', 0)).toBe(3);
+    expect(skipWhitespace('abc', 0)).toBe(0);
+  });
+
+  it('pos から開始する', () => {
+    expect(skipWhitespace('ab  cd', 2)).toBe(4);
+  });
+
+  it('末尾まで達した場合は文字列長を返す', () => {
+    expect(skipWhitespace('   ', 0)).toBe(3);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// readName
+// ---------------------------------------------------------------------------
+describe('readName', () => {
+  it('クォートなしの識別子を読む（ASCII）', () => {
+    const r = readName('button', 0);
+    expect(r).not.toBeNull();
+    expect(r!.name).toBe('button');
+    expect(r!.end).toBe(6);
+  });
+
+  it('クォートなしの識別子を読む（日本語）', () => {
+    const r = readName('ホーム画面', 0);
+    expect(r).not.toBeNull();
+    expect(r!.name).toBe('ホーム画面');
+    expect(r!.end).toBe(5);
+  });
+
+  it('"..." で囲まれた name はクォートを除いた中身を返す', () => {
+    const r = readName('"スプラッシュ 画面"', 0);
+    expect(r).not.toBeNull();
+    expect(r!.name).toBe('スプラッシュ 画面');
+    // end はクローズクォートの次
+    expect(r!.end).toBe('"スプラッシュ 画面"'.length);
+  });
+
+  it('区切り文字の手前で止まる', () => {
+    const r = readName('home)', 0);
+    expect(r).not.toBeNull();
+    expect(r!.name).toBe('home');
+    expect(r!.end).toBe(4);
+  });
+
+  it('pos がスペースの場合は null', () => {
+    const r = readName(' abc', 0);
+    expect(r).toBeNull();
+  });
+
+  it('pos が文字列末尾の場合は null', () => {
+    const r = readName('abc', 3);
+    expect(r).toBeNull();
+  });
+
+  it('pos から先頭が区切り文字の場合は null', () => {
+    const r = readName('(abc', 0);
+    expect(r).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// readUntil
+// ---------------------------------------------------------------------------
+describe('readUntil', () => {
+  it('sep の手前まで読む', () => {
+    const r = readUntil('abc->def', 0, ['->']);
+    expect(r.text).toBe('abc');
+    expect(r.end).toBe(3);
+  });
+
+  it('sep が見つからなければ末尾まで', () => {
+    const r = readUntil('abcdef', 0, []);
+    expect(r.text).toBe('abcdef');
+    expect(r.end).toBe(6);
+  });
+
+  it('クォート内の sep は無視する', () => {
+    const r = readUntil('"foo->bar"->end', 0, ['->']);
+    expect(r.text).toBe('"foo->bar"');
+    expect(r.end).toBe(10);
+  });
+
+  it('複数の sep のうち最初に出現するもので止まる', () => {
+    const r = readUntil('a(b)->c', 0, ['(', '->']);
+    expect(r.text).toBe('a');
+    expect(r.end).toBe(1);
+  });
+
+  it('先頭の空白を含む場合は text にそのまま含まれる（trailing trim はしない）', () => {
+    const r = readUntil('abc ', 0, ['->']);
+    expect(r.text).toBe('abc ');
+  });
+
+  it('複数文字の sep（##）を正しく扱う', () => {
+    const r = readUntil('Component##Variation', 0, ['##']);
+    expect(r.text).toBe('Component');
+    expect(r.end).toBe(9);
+  });
+
+  it('クォート内の ( ) は区切り文字として扱わない', () => {
+    const r = readUntil('"foo (bar)")', 0, [')']);
+    expect(r.text).toBe('"foo (bar)"');
+    expect(r.end).toBe(11);
   });
 });
