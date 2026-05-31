@@ -1,0 +1,19 @@
+node_modules
+dist
+*.tsbuildinfo
+.turbo
+
+# Dependencies / build
+.pnpm-store
+build
+coverage
+
+# Python (docs checkers)
+__pycache__/
+*.pyc
+
+# Claude Code (local/personal)
+.claude/settings.local.json
+
+# macOS
+.DS_Store

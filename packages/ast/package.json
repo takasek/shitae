@@ -1,0 +1,13 @@
+{
+  "name": "@shitae/ast",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": "./dist/index.js",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}
