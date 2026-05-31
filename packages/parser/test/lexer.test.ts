@@ -59,6 +59,14 @@ describe('stripComments', () => {
     expect(stripComments(input)).toBe(input);
   });
 
+  it('行頭コメントも除去する', () => {
+    const input = '// これはコメント\nfoo';
+    const result = stripComments(input);
+    expect(result.length).toBe(input.length);
+    expect(result.slice(0, '// これはコメント'.length)).toMatch(/^ +$/);
+    expect(result.slice('// これはコメント'.length)).toBe('\nfoo');
+  });
+
   it('クォートの後のコメントは除去', () => {
     const input = 'タップ(button) -> push(home) // comment';
     const result = stripComments(input);
@@ -121,6 +129,14 @@ describe('buildLogicalLines', () => {
     expect(result).toHaveLength(3);
     expect(result[0]).toEqual({ text: '', startLine: 1 });
   });
+
+  it('未閉じブロックはエラーにならずフラッシュされる', () => {
+    const lines = ['始まり {', '中身'];
+    const result = buildLogicalLines(lines);
+    expect(result).toHaveLength(1);
+    expect(result[0].startLine).toBe(1);
+    expect(result[0].text).toBe('始まり {;中身');
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -139,6 +155,10 @@ describe('skipWhitespace', () => {
 
   it('末尾まで達した場合は文字列長を返す', () => {
     expect(skipWhitespace('   ', 0)).toBe(3);
+  });
+
+  it('改行（\\n）はスキップしない', () => {
+    expect(skipWhitespace('\n  foo', 0)).toBe(0);
   });
 });
 
@@ -170,6 +190,13 @@ describe('readName', () => {
 
   it('区切り文字の手前で止まる', () => {
     const r = readName('home)', 0);
+    expect(r).not.toBeNull();
+    expect(r!.name).toBe('home');
+    expect(r!.end).toBe(4);
+  });
+
+  it('-> セパレータ前で正しく止まる', () => {
+    const r = readName('home->next', 0);
     expect(r).not.toBeNull();
     expect(r!.name).toBe('home');
     expect(r!.end).toBe(4);

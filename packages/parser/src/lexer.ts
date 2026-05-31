@@ -15,6 +15,7 @@ export interface LogicalLine {
 // Separators recognised by the token scanner
 // ---------------------------------------------------------------------------
 const SEPS = ['->', '(', ')', '{', '}', '.', '?', ',', '@', '##', ';', '[', ']', '::'];
+// '#' は行頭でのみ component 定義として機能しセパレータではないため意図的に除外
 
 // ---------------------------------------------------------------------------
 // stripComments
@@ -211,7 +212,7 @@ export function readUntil(
       continue;
     }
 
-    // Check if any separator starts here
+    // seps は長いものを先に並べること（'##' を '#' より前に置くなど）
     const found = seps.find((sep) => source.startsWith(sep, i));
     if (found !== undefined) {
       return { text: source.slice(pos, i), end: i };
