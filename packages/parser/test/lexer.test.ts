@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   stripComments,
+  buildLogicalLines,
 } from '../src/lexer.js';
 
 // ---------------------------------------------------------------------------
@@ -62,5 +63,59 @@ describe('stripComments', () => {
     expect(result.slice(0, 'タップ(button) -> push(home) '.length)).toBe(
       'タップ(button) -> push(home) '
     );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// buildLogicalLines
+// ---------------------------------------------------------------------------
+describe('buildLogicalLines', () => {
+  it('{ } のない行は 1:1 変換', () => {
+    const lines = ['abc', 'def', 'ghi'];
+    const result = buildLogicalLines(lines);
+    expect(result).toHaveLength(3);
+    expect(result[0]).toEqual({ text: 'abc', startLine: 1 });
+    expect(result[1]).toEqual({ text: 'def', startLine: 2 });
+    expect(result[2]).toEqual({ text: 'ghi', startLine: 3 });
+  });
+
+  it('{ が開いた後 } で閉じるまで複数行を連結する', () => {
+    const lines = ['フィード: {', '  *サムネイル', '}'];
+    const result = buildLogicalLines(lines);
+    expect(result).toHaveLength(1);
+    expect(result[0].startLine).toBe(1);
+    expect(result[0].text).toBe('フィード: {;  *サムネイル;}');
+  });
+
+  it('} で閉じた後の行は新しい論理行になる', () => {
+    const lines = ['a: {', '  b', '}', 'c'];
+    const result = buildLogicalLines(lines);
+    expect(result).toHaveLength(2);
+    expect(result[0].startLine).toBe(1);
+    expect(result[0].text).toBe('a: {;  b;}');
+    expect(result[1]).toEqual({ text: 'c', startLine: 4 });
+  });
+
+  it('ネストした { { } } を正しく処理する', () => {
+    const lines = ['a: {', '  b: {', '    c', '  }', '}'];
+    const result = buildLogicalLines(lines);
+    expect(result).toHaveLength(1);
+    expect(result[0].startLine).toBe(1);
+    expect(result[0].text).toBe('a: {;  b: {;    c;  };}');
+  });
+
+  it('クォート内の { } は無視する', () => {
+    const lines = ['"foo {bar}" // still one line', 'next'];
+    const result = buildLogicalLines(lines);
+    expect(result).toHaveLength(2);
+    expect(result[0]).toEqual({ text: '"foo {bar}" // still one line', startLine: 1 });
+    expect(result[1]).toEqual({ text: 'next', startLine: 2 });
+  });
+
+  it('空行は単独の論理行になる', () => {
+    const lines = ['', 'abc', ''];
+    const result = buildLogicalLines(lines);
+    expect(result).toHaveLength(3);
+    expect(result[0]).toEqual({ text: '', startLine: 1 });
   });
 });
