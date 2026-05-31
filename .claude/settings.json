@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm:*)",
+      "Bash(npx vitest:*)",
+      "Bash(npx tsc:*)",
+      "Bash(python3 docs/check_refs.py)",
+      "Bash(python3 docs/check_modals.py)"
+    ]
+  }
+}
