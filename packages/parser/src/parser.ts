@@ -388,7 +388,8 @@ function parseInline(
   if (inner.endsWith('}')) inner = inner.slice(0, -1);
 
   // Split by ; (from buildLogicalLines multi-line joining)
-  const parts = inner.split(';');
+  // splitBySemicolon はクォート・括弧保護済み
+  const parts = splitBySemicolon(inner);
   const elements: ElementLine[] = [];
 
   for (const part of parts) {
