@@ -22,11 +22,11 @@ export function toMermaid(document: Document): string {
   // エッジ定義
   for (const comp of document.components) {
     // common body のエッジ
-    emitEdges(comp.common, comp.name, null, comp.name, lines);
+    emitEdges(comp.common, comp.name, null, comp.name, document, lines);
 
     // 各 variation のエッジ
     for (const v of comp.variations) {
-      emitEdges(v.body, comp.name, v.name, comp.name, lines);
+      emitEdges(v.body, comp.name, v.name, comp.name, document, lines);
     }
   }
 
@@ -42,14 +42,24 @@ function nodeId(componentName: string, variationName?: string): string {
   return variationName ? `${base}_${sanitizeId(variationName)}` : base;
 }
 
-function navTargetToNodeId(target: NavTarget, currentComponentName: string): string {
+function navTargetToNodeId(
+  target: NavTarget,
+  currentComponentName: string,
+  document: Document
+): string {
   if (target.kind === 'variation') {
     return nodeId(currentComponentName, target.name);
   }
   // kind === 'component'
-  return target.variation
-    ? nodeId(target.name, target.variation)
-    : nodeId(target.name);
+  if (target.variation) {
+    return nodeId(target.name, target.variation);
+  }
+  // variation 指定なしでも、対象コンポーネントが variation を持つなら最初の variation へ
+  const comp = document.components.find(c => c.name === target.name);
+  if (comp && comp.variations.length > 0) {
+    return nodeId(target.name, comp.variations[0].name);
+  }
+  return nodeId(target.name);
 }
 
 function actionLabel(action: Action): string {
@@ -62,6 +72,7 @@ function emitEdges(
   componentName: string,
   variationName: string | null,
   currentComponentName: string,
+  document: Document,
   lines: string[]
 ): void {
   const fromId = variationName
@@ -75,9 +86,8 @@ function emitEdges(
       if (result.body.kind !== 'transition') continue;
       const tr = result.body;
       if (!tr.target) continue;
-      const toId = navTargetToNodeId(tr.target, currentComponentName);
+      const toId = navTargetToNodeId(tr.target, currentComponentName, document);
       const label = result.label ? `[${result.label}]${baseLabel}` : baseLabel;
-      // Mermaid の edge ラベル内の " はエスケープ
       const safeLabel = label.replace(/"/g, '#quot;');
       lines.push(`  ${fromId} -->|"${safeLabel}"| ${toId}`);
     }

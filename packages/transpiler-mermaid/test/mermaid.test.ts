@@ -95,4 +95,13 @@ describe('toMermaid', () => {
       expect(out.length).toBeGreaterThan(200);
     }
   });
+
+  it('variation ありコンポーネントへの参照 → 最初の variation ノードへのエッジ', () => {
+    // push(商品詳細) で 商品詳細 が variation を持つ場合、商品詳細_読込中 へ向く
+    const src = '# 商品一覧\n---\nタップ -> push(商品詳細)\n# 商品詳細\n## 読込中\nスピナー\n## 表示\n画像\n';
+    const { document } = parse(src);
+    const out = toMermaid(document);
+    expect(out).toContain('商品一覧 -->|"タップ"| 商品詳細_読込中');
+    expect(out).not.toContain('-->|"タップ"| 商品詳細\n');
+  });
 });
