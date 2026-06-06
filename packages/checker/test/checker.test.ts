@@ -63,6 +63,16 @@ describe('check', () => {
     expect(w103).toHaveLength(1);
   });
 
+  it('W102: cross-module 参照（module::Name）は誤検知しない', () => {
+    // 'other::検索中' は別モジュールのコンポーネント参照なので W102 を出さない
+    // （ローカルに '検索中' という variation があっても）
+    const src = '# A\n---\n行動 -> goto(other::検索中)\n# マッチング\n## 検索中\n案内\n## 失敗\n案内\n';
+    const { document } = parse(src);
+    const diags = check(document, resolve(document));
+    const w102 = diags.filter(d => d.code === 'W102');
+    expect(w102).toHaveLength(0);
+  });
+
   it('両サンプルで severity=error なし', () => {
     const root = join(import.meta.dirname, '../../..');
     for (const f of ['docs/example-battle.shitae', 'docs/example-ecommerce.shitae']) {

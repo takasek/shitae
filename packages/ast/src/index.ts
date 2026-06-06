@@ -89,6 +89,8 @@ export interface Result {
 
 export type TransitionWord = 'push' | 'back' | 'goto' | 'exit' | 'present' | 'dismiss';
 
+export const TRANSITION_WORDS: readonly TransitionWord[] = ['push', 'present', 'goto', 'back', 'exit', 'dismiss'];
+
 export interface Transition {
   kind: 'transition';
   word: TransitionWord;

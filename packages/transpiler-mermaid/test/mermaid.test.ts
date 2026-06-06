@@ -104,4 +104,26 @@ describe('toMermaid', () => {
     expect(out).toContain('商品一覧 -->|"タップ"| 商品詳細_読込中');
     expect(out).not.toContain('-->|"タップ"| 商品詳細\n');
   });
+
+  it('cross-module 参照はモジュールプレフィックス付きノード ID になる', () => {
+    // goto(auth::Login) → "auth__Login" のような識別可能な ID
+    const src = '# A\nロゴ\n---\nログイン -> goto(auth::Login)\n';
+    const { document } = parse(src);
+    const out = toMermaid(document);
+    // cross-module の edge は auth__Login (または auth_Login) を参照する
+    expect(out).toMatch(/A -->.*auth.*Login/);
+  });
+
+  it('sanitizeId: 名前衝突があっても異なるノード ID を生成する', () => {
+    // 'Sign In' と 'Sign_In' は sanitize すると同じになる可能性がある
+    const src = '# Sign In\nロゴ\n---\n進む -> goto(Sign_In)\n# Sign_In\nフォーム\n';
+    const { document } = parse(src);
+    const out = toMermaid(document);
+    // 2つのコンポーネントが定義されているので 2つの別ノードが存在する
+    const nodeLines = out.split('\n').filter(l => l.includes('["#'));
+    expect(nodeLines).toHaveLength(2);
+    // それぞれの ID が異なる
+    const ids = nodeLines.map(l => l.trim().split('[')[0].trim());
+    expect(ids[0]).not.toBe(ids[1]);
+  });
 });

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { parse } from '../src/index.js';
+import { TRANSITION_WORDS } from '@shitae/ast';
 import type {
   Document,
   Component,
@@ -517,5 +518,36 @@ describe('sample files smoke test', () => {
     const errors = diagnostics.filter((d) => d.severity === 'error');
     expect(errors).toHaveLength(0);
     expect(document.components.length).toBeGreaterThan(0);
+  });
+
+  it('TRANSITION_WORDS は @shitae/ast からインポートできる', () => {
+    expect(TRANSITION_WORDS).toContain('push');
+    expect(TRANSITION_WORDS).toContain('back');
+    expect(TRANSITION_WORDS).toContain('goto');
+    expect(TRANSITION_WORDS).toContain('exit');
+    expect(TRANSITION_WORDS).toContain('present');
+    expect(TRANSITION_WORDS).toContain('dismiss');
+  });
+
+  it('E007: component の前に variation を書くとエラー', () => {
+    const { diagnostics } = parse('## Loading\nspinner\n# Screen\nfoo\n');
+    const e007 = diagnostics.filter((d) => d.code === 'E007');
+    expect(e007.length).toBeGreaterThan(0);
+    expect(e007[0].severity).toBe('error');
+  });
+
+  it('E008: コンポーネント名が空（bare #）はエラー', () => {
+    const { diagnostics } = parse('#\nfoo\n');
+    const e008 = diagnostics.filter((d) => d.code === 'E008');
+    expect(e008.length).toBeGreaterThan(0);
+    expect(e008[0].severity).toBe('error');
+  });
+
+  it('E009: 不正な import 構文はエラー診断を出す', () => {
+    // "import foo" は "as alias" がないので不正
+    const { diagnostics } = parse('import foo\n# A\nbar\n');
+    const e009 = diagnostics.filter((d) => d.code === 'E009');
+    expect(e009.length).toBeGreaterThan(0);
+    expect(e009[0].severity).toBe('error');
   });
 });

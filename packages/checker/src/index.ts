@@ -64,6 +64,7 @@ function checkVariationAsComponent(
       if (result.body.kind !== 'transition') continue;
       const target = result.body.target;
       if (!target || target.kind !== 'component') continue;
+      if (target.module !== null) continue; // cross-module refs are not locally checkable
       const name = target.name;
       if (resolved.componentIndex.has(name)) continue;
       // variation として存在するか

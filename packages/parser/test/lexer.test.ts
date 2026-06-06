@@ -75,6 +75,19 @@ describe('stripComments', () => {
       'タップ(button) -> push(home) '
     );
   });
+
+  it('未閉クォートは行末で終わり、後続行のコメントを消費しない', () => {
+    // 1行目: 閉じていないクォート (bug があると 2行目の // もクォート内として扱われる)
+    // 2行目: 正常な // コメントがある行 → コメント部分は空白に置換されるべき
+    const input = '"unterminated\nfoo // comment';
+    const result = stripComments(input);
+    const resultLines = result.split('\n');
+    expect(resultLines).toHaveLength(2);
+    // 2行目の // コメントは正しく空白に置換される
+    expect(resultLines[1].trimEnd()).toBe('foo');
+    // 行長は保持される
+    expect(resultLines[1].length).toBe('foo // comment'.length);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -261,5 +274,20 @@ describe('readUntil', () => {
     const r = readUntil('"foo (bar)")', 0, [')']);
     expect(r.text).toBe('"foo (bar)"');
     expect(r.end).toBe(11);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// buildLogicalLines: known limitation
+// ---------------------------------------------------------------------------
+describe('buildLogicalLines: 余分な } がある不正入力の既知動作', () => {
+  it('行内に余分な } があるとブロックが途中でフラッシュされる（known limitation）', () => {
+    // 不正入力: ブロック内に余分な } がある
+    // 正しい shitae では発生しない。フラッシュは早まるが後続行への影響はない
+    const lines = ['elem: {', '  inner1', '  } }'];
+    const result = buildLogicalLines(lines);
+    // 余分な } でフラッシュが発生し、1つの logical line になる
+    expect(result).toHaveLength(1);
+    expect(result[0].text).toContain('inner1');
   });
 });

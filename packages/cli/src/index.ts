@@ -37,6 +37,10 @@ if (command === 'check') {
     }
     process.exit(1);
   }
+  const checkDiags = check(document, resolve(document));
+  for (const d of checkDiags) {
+    process.stderr.write(`${filePath}:${d.span.line}: [${d.severity}] ${d.code}: ${d.message}\n`);
+  }
   process.stdout.write(toMermaid(document) + '\n');
   process.exit(0);
 } else {

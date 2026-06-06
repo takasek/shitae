@@ -32,14 +32,14 @@ export function stripComments(source: string): string {
     const ch = source[i];
 
     if (ch === '"') {
-      // Skip quoted string verbatim
+      // Skip quoted string verbatim — stop at \n to avoid consuming subsequent lines
       result.push(ch);
       i++;
-      while (i < source.length && source[i] !== '"') {
+      while (i < source.length && source[i] !== '"' && source[i] !== '\n') {
         result.push(source[i]);
         i++;
       }
-      if (i < source.length) {
+      if (i < source.length && source[i] === '"') {
         result.push(source[i]); // closing "
         i++;
       }

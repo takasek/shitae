@@ -68,4 +68,21 @@ describe('shitae mermaid', () => {
     expect(code).toBe(1);
     expect(stderr).toContain('unknown command');
   });
+
+  it('mermaid コマンドで checker の警告が stderr に出る', async () => {
+    // W102: variation 名をコンポーネント名として参照している → 警告出るはず
+    const tmp = '/tmp/shitae_mermaid_warning_test.shitae';
+    writeFileSync(tmp, '# A\n---\n行動 -> goto(検索中)\n# マッチング\n## 検索中\n案内\n## 失敗\n案内\n');
+    try {
+      const { code, stderr, stdout } = await runCli(['mermaid', tmp]);
+      // mermaid 自体は成功（exit 0）
+      expect(code).toBe(0);
+      // stdout は flowchart
+      expect(stdout).toMatch(/^flowchart LR/);
+      // W102 警告が stderr に出る
+      expect(stderr).toContain('W102');
+    } finally {
+      unlinkSync(tmp);
+    }
+  });
 });

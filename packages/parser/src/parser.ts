@@ -22,6 +22,7 @@ import type {
   Span,
   Diagnostic,
 } from '@shitae/ast';
+import { TRANSITION_WORDS } from '@shitae/ast';
 
 import {
   stripComments,
@@ -77,6 +78,16 @@ export function parseDocument(source: string): { document: Document; diagnostics
   }
 
   function finalizeVariation(): void {
+    if (variationBuilder && !componentBuilder) {
+      diagnostics.push({
+        severity: 'error',
+        code: 'E007',
+        message: `variation '${variationBuilder.name}' が component の外で定義されています`,
+        span: variationBuilder.span,
+      });
+      variationBuilder = null;
+      return;
+    }
     if (variationBuilder && componentBuilder) {
       const v: Variation = {
         name: variationBuilder.name,
@@ -167,6 +178,15 @@ export function parseDocument(source: string): { document: Document; diagnostics
       finalizeComponent();
       seenFirstComponent = true;
       const name = raw.slice(2).trim();
+      if (name === '') {
+        diagnostics.push({
+          severity: 'error',
+          code: 'E008',
+          message: 'component 名が空です（# の後に名前を書いてください）',
+          span,
+        });
+        continue;
+      }
       componentBuilder = {
         name,
         span,
@@ -283,11 +303,19 @@ export function parseDocument(source: string): { document: Document; diagnostics
 function parseImport(
   line: string,
   span: Span,
-  _diagnostics: Diagnostic[]
+  diagnostics: Diagnostic[]
 ): Import | null {
   // "import モジュール名 as 別名"
   const m = line.match(/^import\s+(\S+)\s+as\s+(\S+)/);
-  if (!m) return null;
+  if (!m) {
+    diagnostics.push({
+      severity: 'error',
+      code: 'E009',
+      message: `不正な import 構文です（正しい形式: import <モジュール> as <別名>）`,
+      span,
+    });
+    return null;
+  }
   return { module: m[1], alias: m[2], span };
 }
 
@@ -609,8 +637,6 @@ function splitBySemicolon(text: string): string[] {
 // ---------------------------------------------------------------------------
 // parseResult
 // ---------------------------------------------------------------------------
-const TRANSITION_WORDS: TransitionWord[] = ['push', 'present', 'goto', 'back', 'exit', 'dismiss'];
-
 function parseResult(
   text: string,
   span: Span,
