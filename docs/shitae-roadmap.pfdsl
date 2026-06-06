@@ -1,0 +1,35 @@
+---
+artifact:
+  spec:           { label: "SPEC.md (言語仕様)",               status: done }
+  samples:        { label: "example-*.shitae (検証済みサンプル)", status: done }
+  ast_pkg:        { label: "@shitae/ast",                      status: done }
+  parser_pkg:     { label: "@shitae/parser",                   status: done }
+  resolver_pkg:   { label: "@shitae/resolver",                 status: done }
+  mermaid_pkg:    { label: "@shitae/transpiler-mermaid",       status: done }
+  checker_pkg:    { label: "@shitae/checker",                  status: done }
+  cli_pkg:        { label: "@shitae/cli",                      status: done }
+  mmd_files:      { label: "*.mmd (Mermaid フローチャート)",     status: done }
+  xstate_pkg:     { label: "@shitae/transpiler-xstate",        status: todo }
+  xstate_files:   { label: "*.ts (XState 状態機械)",            status: todo }
+  cross_resolver: { label: "cross-file import 解決",            status: todo }
+  span_fix:       { label: "Span 精度 (offset/col)",            status: todo }
+
+process:
+  design:  { label: "言語設計" }
+  phase1:  { label: "Phase 1: AST + Parser" }
+  phase2:  { label: "Phase 2: resolver / mermaid / checker / cli" }
+  phase3:  { label: "Phase 3: XState transpiler" }
+  phase4:  { label: "Phase 4: cross-file + polish" }
+
+statusStyles:
+  done: { fillcolor: "#d4edda", style: filled }
+  wip:  { fillcolor: "#fff3cd", style: filled }
+  todo: { fillcolor: "#f8f9fa", style: filled }
+---
+spec >> design -> samples
+[spec, samples] >> phase1 -> [ast_pkg, parser_pkg]
+[ast_pkg, parser_pkg] >> phase2 -> [resolver_pkg, mermaid_pkg, checker_pkg, cli_pkg]
+[resolver_pkg, mermaid_pkg] >> phase2 -> mmd_files
+[ast_pkg, parser_pkg, resolver_pkg] >> phase3 -> [xstate_pkg, xstate_files]
+[parser_pkg, resolver_pkg] >> phase4 -> cross_resolver
+parser_pkg >> phase4 -> span_fix
