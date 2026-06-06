@@ -21,11 +21,78 @@ importers:
         specifier: ^5.8.3
         version: 5.9.3
 
+  packages/checker:
+    dependencies:
+      '@shitae/ast':
+        specifier: workspace:*
+        version: link:../ast
+      '@shitae/resolver':
+        specifier: workspace:*
+        version: link:../resolver
+    devDependencies:
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.3
+        version: 3.2.4
+
+  packages/cli:
+    dependencies:
+      '@shitae/ast':
+        specifier: workspace:*
+        version: link:../ast
+      '@shitae/checker':
+        specifier: workspace:*
+        version: link:../checker
+      '@shitae/parser':
+        specifier: workspace:*
+        version: link:../parser
+      '@shitae/resolver':
+        specifier: workspace:*
+        version: link:../resolver
+      '@shitae/transpiler-mermaid':
+        specifier: workspace:*
+        version: link:../transpiler-mermaid
+    devDependencies:
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+
   packages/parser:
     dependencies:
       '@shitae/ast':
         specifier: workspace:*
         version: link:../ast
+    devDependencies:
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.3
+        version: 3.2.4
+
+  packages/resolver:
+    dependencies:
+      '@shitae/ast':
+        specifier: workspace:*
+        version: link:../ast
+    devDependencies:
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.3
+        version: 3.2.4
+
+  packages/transpiler-mermaid:
+    dependencies:
+      '@shitae/ast':
+        specifier: workspace:*
+        version: link:../ast
+      '@shitae/resolver':
+        specifier: workspace:*
+        version: link:../resolver
     devDependencies:
       typescript:
         specifier: ^5.8.3

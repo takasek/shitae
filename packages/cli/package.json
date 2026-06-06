@@ -1,0 +1,24 @@
+{
+  "name": "@shitae/cli",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": "./dist/index.js",
+  "bin": {
+    "shitae": "./dist/index.js"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@shitae/ast": "workspace:*",
+    "@shitae/parser": "workspace:*",
+    "@shitae/resolver": "workspace:*",
+    "@shitae/transpiler-mermaid": "workspace:*",
+    "@shitae/checker": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}
