@@ -30,6 +30,9 @@ importers:
         specifier: workspace:*
         version: link:../resolver
     devDependencies:
+      '@shitae/parser':
+        specifier: workspace:*
+        version: link:../parser
       typescript:
         specifier: ^5.8.3
         version: 5.9.3
