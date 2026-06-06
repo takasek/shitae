@@ -78,6 +78,9 @@ importers:
         specifier: workspace:*
         version: link:../ast
     devDependencies:
+      '@shitae/parser':
+        specifier: workspace:*
+        version: link:../parser
       typescript:
         specifier: ^5.8.3
         version: 5.9.3

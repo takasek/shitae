@@ -13,6 +13,7 @@
     "@shitae/ast": "workspace:*"
   },
   "devDependencies": {
+    "@shitae/parser": "workspace:*",
     "typescript": "^5.8.3",
     "vitest": "^3.2.3"
   }
