@@ -70,6 +70,20 @@ describe('toMermaid', () => {
     expect(out).toContain('設定');
   });
 
+  it('back(target) → エッジあり', () => {
+    const { document } = parse('# A\n---\n戻る -> back(B)\n');
+    const out = toMermaid(document);
+    expect(out).toContain('A -->');
+    expect(out).toContain('| B');
+  });
+
+  it('dismiss() → エッジなし', () => {
+    const { document } = parse('# A\n---\n閉じる -> dismiss()\n');
+    const out = toMermaid(document);
+    const edges = out.split('\n').filter(l => l.includes('-->'));
+    expect(edges).toHaveLength(0);
+  });
+
   it('両サンプルが flowchart LR を出力する', () => {
     const root = join(import.meta.dirname, '../../..');
     const battle = readFileSync(join(root, 'docs/example-battle.shitae'), 'utf8');

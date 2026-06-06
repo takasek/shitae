@@ -34,7 +34,7 @@ export function toMermaid(document: Document): string {
 }
 
 function sanitizeId(name: string): string {
-  return name.replace(/[\s#()/:\.@\[\]]/g, '_');
+  return name.replace(/[\s#()/:\.@\[\]";,{}]/g, '_');
 }
 
 function nodeId(componentName: string, variationName?: string): string {
