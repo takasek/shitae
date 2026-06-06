@@ -9,7 +9,8 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "vitest run"
   },
   "dependencies": {
     "@shitae/ast": "workspace:*",
@@ -19,6 +20,8 @@
     "@shitae/checker": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.8.3"
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.3",
+    "vitest": "^2.0.0"
   }
 }
