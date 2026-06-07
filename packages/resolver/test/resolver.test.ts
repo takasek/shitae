@@ -59,3 +59,28 @@ describe('resolve', () => {
     expect(elems?.get('foo')?.value).toMatchObject({ kind: 'ref', name: '共通' });
   });
 });
+
+describe('bodyElementIndex', () => {
+  it('common の alias は null キーで引ける', () => {
+    const { document } = parse('# A\nfoo: 共通\n');
+    const result = resolve(document);
+    const commonMap = result.bodyElementIndex.get('A')?.get(null);
+    expect(commonMap?.get('foo')?.value).toMatchObject({ kind: 'ref', name: '共通' });
+  });
+
+  it('variation の alias は variation name キーで引ける', () => {
+    const { document } = parse('# A\n## 姿1\ncontent: 本体\n');
+    const result = resolve(document);
+    const varMap = result.bodyElementIndex.get('A')?.get('姿1');
+    expect(varMap?.get('content')?.value).toMatchObject({ kind: 'ref', name: '本体' });
+  });
+
+  it('common と variation で同名 alias でもそれぞれ独立して引ける', () => {
+    const { document } = parse('# A\nfoo: 共通\n## 姿1\nfoo: 固有\n');
+    const result = resolve(document);
+    const commonFoo = result.bodyElementIndex.get('A')?.get(null)?.get('foo');
+    const varFoo = result.bodyElementIndex.get('A')?.get('姿1')?.get('foo');
+    expect(commonFoo?.value).toMatchObject({ kind: 'ref', name: '共通' });
+    expect(varFoo?.value).toMatchObject({ kind: 'ref', name: '固有' });
+  });
+});

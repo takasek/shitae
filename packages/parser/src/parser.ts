@@ -528,13 +528,21 @@ function parseAction(
 
 function findLastOpenParen(text: string): number {
   let inQuote = false;
-  let lastIdx = -1;
+  let depth = 0;
+  let lastTopLevelIdx = -1;
   for (let i = 0; i < text.length; i++) {
     const ch = text[i];
     if (ch === '"') inQuote = !inQuote;
-    else if (!inQuote && ch === '(') lastIdx = i;
+    else if (!inQuote) {
+      if (ch === '(') {
+        if (depth === 0) lastTopLevelIdx = i;
+        depth++;
+      } else if (ch === ')') {
+        depth--;
+      }
+    }
   }
-  return lastIdx;
+  return lastTopLevelIdx;
 }
 
 function findCloseParen(text: string): number {
@@ -584,7 +592,8 @@ function parseReference(
   // Check .member
   const dotIdx = t.indexOf('.');
   if (dotIdx !== -1) {
-    member = t.slice(dotIdx + 1).trim();
+    const memberStr = t.slice(dotIdx + 1).trim();
+    member = memberStr === '' ? null : memberStr;
     t = t.slice(0, dotIdx).trim();
   }
 

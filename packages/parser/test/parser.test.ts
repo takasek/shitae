@@ -187,6 +187,25 @@ describe('interaction', () => {
     expect(action.target!.name).toBe('設定');
   });
 
+  it('action テキスト内のネスト () では外側の () が Reference として解釈される', () => {
+    // "foo(bar(Target))" → 外側 () が reference → text="foo", target.name="bar(Target)"
+    // バグ: 現状 findLastOpenParen が内側 ( を返し text="foo(bar" になる
+    const { document } = parseDoc('# A\n---\nfoo(bar(Target)) -> back()');
+    const action = document.components[0].common.interactions[0].action;
+    expect(action.text).toBe('foo');
+    expect(action.target).not.toBeNull();
+    expect(action.target!.name).toBe('bar(Target)');
+  });
+
+  it('parseReference: 末尾ドットで member が空になる場合 null を返す', () => {
+    // "Screen." → member は null (空文字ではない)
+    const { document } = parseDoc('# A\n---\n行動(Screen.) -> back()');
+    const action = document.components[0].common.interactions[0].action;
+    expect(action.target).not.toBeNull();
+    expect(action.target!.name).toBe('Screen');
+    expect(action.target!.member).toBeNull();
+  });
+
   it('Effect result', () => {
     const { document } = parseDoc('# A\n---\n更新 -> リストが更新される');
     const results = document.components[0].common.interactions[0].results;
