@@ -157,3 +157,45 @@ describe('reduce: back(X) 指定先まで戻る', () => {
     expect(s1.frames).toHaveLength(s.frames.length);
   });
 });
+
+// ──────────────────────────────────────────────────
+// T3: goto replace
+// ──────────────────────────────────────────────────
+
+describe('reduce: goto', () => {
+  it('goto(X) で末尾フレームを X に置換（スタック長維持）', () => {
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('push', navComp('A'))));
+    const { state: s1 } = reduce(s, tr('goto', navComp('B')));
+    expect(s1.frames).toHaveLength(2); // ホーム + B（A が B に置換）
+    expect(s1.frames[1]!.location.component).toBe('B');
+  });
+
+  it('goto 後に back しても goto 先は残らない（戻り先は goto 前の1段下）', () => {
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('push', navComp('A'))));
+    ({ state: s } = reduce(s, tr('goto', navComp('B')))); // A→B（置換）
+    const { state: s1 } = reduce(s, tr('back'));
+    // B が置換なので back するとホームへ
+    expect(s1.frames).toHaveLength(1);
+    expect(s1.frames[0]!.location.component).toBe('ホーム');
+  });
+
+  it('goto フレームは wall=false, beginsSession=null', () => {
+    let s = initialState(loc('ホーム'));
+    const { state: s1 } = reduce(s, tr('goto', navComp('A')));
+    const top = s1.frames[s1.frames.length - 1]!;
+    expect(top.wall).toBe(false);
+    expect(top.beginsSession).toBeNull();
+    expect(top.word).toBe('goto');
+  });
+
+  it('goto(##姿) で同一 component 内の姿を切替', () => {
+    let s = initialState(loc('対戦', '開始'));
+    const { state: s1 } = reduce(s, tr('goto', navVar('対戦中')));
+    expect(s1.frames).toHaveLength(1);
+    const top = s1.frames[0]!;
+    expect(top.location.component).toBe('対戦'); // component は変わらない
+    expect(top.location.variation).toBe('対戦中');
+  });
+});
