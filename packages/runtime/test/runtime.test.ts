@@ -329,3 +329,52 @@ describe('reduce: dismiss (無名セッション LIFO)', () => {
     expect(s1.frames[0]!.location.component).toBe('ホーム');
   });
 });
+
+// ──────────────────────────────────────────────────
+// T6: nav-target normalization
+// ──────────────────────────────────────────────────
+
+describe('nav-target normalization', () => {
+  it('component nav-target → Location {module:null, component:name, variation:null}', () => {
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('push', navComp('詳細'))));
+    const top = s.frames[s.frames.length - 1]!;
+    expect(top.location).toEqual({ module: null, component: '詳細', variation: null });
+  });
+
+  it('component##姿 nav-target → variation が設定される', () => {
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('push', { kind: 'component', module: null, name: '対戦', variation: '開始' })));
+    const top = s.frames[s.frames.length - 1]!;
+    expect(top.location).toEqual({ module: null, component: '対戦', variation: '開始' });
+  });
+
+  it('##姿 nav-target (variation only) → 現 component の姿を切替', () => {
+    // push で 現在地「対戦」に移動してから ##対戦中 で姿切替
+    let s = initialState(loc('対戦', '開始'));
+    const { state: s1 } = reduce(s, tr('goto', navVar('対戦中')));
+    const top = s1.frames[s1.frames.length - 1]!;
+    expect(top.location.component).toBe('対戦');
+    expect(top.location.variation).toBe('対戦中');
+  });
+
+  it('module::component nav-target → Location に module が設定される', () => {
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('push', { kind: 'component', module: 'auth', name: 'ログイン', variation: null })));
+    const top = s.frames[s.frames.length - 1]!;
+    expect(top.location).toEqual({ module: 'auth', component: 'ログイン', variation: null });
+  });
+
+  it('module::component##姿 nav-target → module/component/variation すべて設定', () => {
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('push', { kind: 'component', module: 'shop', name: '商品詳細', variation: '読込中' })));
+    const top = s.frames[s.frames.length - 1]!;
+    expect(top.location).toEqual({ module: 'shop', component: '商品詳細', variation: '読込中' });
+  });
+
+  it('target が null の push は状態変化なし（no-op）', () => {
+    const s = initialState(loc('ホーム'));
+    const { state: s1 } = reduce(s, tr('push'));
+    expect(s1.frames).toHaveLength(1);
+  });
+});
