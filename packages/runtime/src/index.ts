@@ -180,10 +180,15 @@ export function reduce(state: RuntimeState, transition: Transition): ReduceResul
 
     case 'exit': {
       // exit(@S) — 末尾から最初の name===S のフレームの1つ手前まで巻き戻し
+      // exit は push で開いたセッションを閉じる正規形。present で開いたのを exit で閉じるとねじれ(R001)
       const sessionName = session?.name ?? null;
       for (let i = frames.length - 1; i >= 0; i--) {
         const f = frames[i]!;
         if (f.beginsSession !== null && f.beginsSession.name === sessionName) {
+          // ねじれ検出: present (wall=true) を exit で閉じる
+          if (f.word === 'present') {
+            diags.push(warn('R001', `ねじれ: present で開いたセッションを exit で閉じている`, span));
+          }
           return { state: { frames: frames.slice(0, i) }, diagnostics: diags };
         }
       }
@@ -196,10 +201,15 @@ export function reduce(state: RuntimeState, transition: Transition): ReduceResul
     case 'dismiss': {
       // dismiss()  ≡ exit(@無名) → name===null の最新セッションを閉じる
       // dismiss(@S)              → name===S  の最新セッションを閉じる（exit(@S) と同等）
+      // dismiss は present で開いたセッションを閉じる正規形。push で開いたのを dismiss で閉じるとねじれ(R001)
       const targetSessionName = session?.name ?? null;
       for (let i = frames.length - 1; i >= 0; i--) {
         const f = frames[i]!;
         if (f.beginsSession !== null && f.beginsSession.name === targetSessionName) {
+          // ねじれ検出: push (wall=false) を dismiss で閉じる
+          if (f.word === 'push') {
+            diags.push(warn('R001', `ねじれ: push で開いたセッションを dismiss で閉じている`, span));
+          }
           return { state: { frames: frames.slice(0, i) }, diagnostics: diags };
         }
       }

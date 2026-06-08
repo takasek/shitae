@@ -378,3 +378,47 @@ describe('nav-target normalization', () => {
     expect(s1.frames).toHaveLength(1);
   });
 });
+
+// ──────────────────────────────────────────────────
+// T7: twist diagnostics (R001)
+// ──────────────────────────────────────────────────
+// ねじれ = セッション種別・壁の不一致（SPEC:276-278 「エラーにしない、warnしてよい」）
+
+describe('twist diagnostics (R001)', () => {
+  it('push で積んだフレームを dismiss で閉じようとするとねじれ warn (R001) + 実行は成功', () => {
+    // push(A,@s) → wall=false なのに dismiss で閉じる
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('push', navComp('A'), { name: 's' })));
+    // dismiss(@s) = 無名セッション検索 → @s は名前付きなので dismiss() は名前なしを探す
+    // dismiss() でなく dismiss(@s)? AST 上 dismiss(@s) = session.name='s'
+    // しかしここでは push で積んだ @s を dismiss(@s) で閉じる → ねじれ(push を dismiss)
+    const { state: s1, diagnostics } = reduce(s, tr('dismiss', undefined, { name: 's' }));
+    // ねじれ警告が出るが閉じること自体は成功（SPEC:278 エラーにしない）
+    expect(diagnostics.some(d => d.code === 'R001')).toBe(true);
+    expect(s1.frames).toHaveLength(1); // ホームに戻る
+  });
+
+  it('present で積んだフレームを exit(@S) で閉じるねじれ warn (R001)', () => {
+    // present(M,@m) → wall=true なのに exit(@m) で閉じる
+    // present は dismiss で閉じるのが正規、exit はねじれ
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('present', navComp('モーダル'), { name: 'm' })));
+    const { state: s1, diagnostics } = reduce(s, tr('exit', undefined, { name: 'm' }));
+    expect(diagnostics.some(d => d.code === 'R001')).toBe(true);
+    expect(s1.frames).toHaveLength(1); // ホームに戻る（動作は成功）
+  });
+
+  it('ねじれなし: push→exit, present→dismiss は正常（R001 なし）', () => {
+    // push(X,@s) + exit(@s) = 正規
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('push', navComp('A'), { name: 's' })));
+    const { diagnostics: d1 } = reduce(s, tr('exit', undefined, { name: 's' }));
+    expect(d1.some(d => d.code === 'R001')).toBe(false);
+
+    // present(X) + dismiss() = 正規
+    s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('present', navComp('M'))));
+    const { diagnostics: d2 } = reduce(s, tr('dismiss'));
+    expect(d2.some(d => d.code === 'R001')).toBe(false);
+  });
+});
