@@ -252,3 +252,80 @@ describe('reduce: named session push + exit', () => {
     expect(s1.frames).toHaveLength(s.frames.length); // 状態変化なし
   });
 });
+
+// ──────────────────────────────────────────────────
+// T5: present/dismiss wall + anonymous session
+// ──────────────────────────────────────────────────
+
+describe('reduce: present (壁あり + 無名セッション)', () => {
+  it('present(X) で wall=true, beginsSession.name=null, word="present"', () => {
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('present', navComp('モーダル'))));
+    const top = s.frames[s.frames.length - 1]!;
+    expect(top.wall).toBe(true);
+    expect(top.beginsSession).toEqual({ name: null });
+    expect(top.word).toBe('present');
+    expect(top.location.component).toBe('モーダル');
+  });
+
+  it('present(X,@S) で wall=true, beginsSession.name=S', () => {
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('present', navComp('ログインフロー'), { name: 'auth' })));
+    const top = s.frames[s.frames.length - 1]!;
+    expect(top.wall).toBe(true);
+    expect(top.beginsSession).toEqual({ name: 'auth' });
+  });
+
+  it('モーダル内で back() は no-op + R003 (壁の内側)', () => {
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('present', navComp('モーダル'))));
+    const { state: s1, diagnostics } = reduce(s, tr('back'));
+    expect(diagnostics.some(d => d.code === 'R003')).toBe(true);
+    // モーダルフレームは残ったまま
+    expect(s1.frames).toHaveLength(s.frames.length);
+    expect(s1.frames[s1.frames.length - 1]!.location.component).toBe('モーダル');
+  });
+});
+
+describe('reduce: dismiss (無名セッション LIFO)', () => {
+  it('dismiss() でモーダルを閉じる（begin フレームの1つ手前へ）', () => {
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('present', navComp('モーダル'))));
+    const { state: s1 } = reduce(s, tr('dismiss'));
+    expect(s1.frames).toHaveLength(1);
+    expect(s1.frames[0]!.location.component).toBe('ホーム');
+  });
+
+  it('多段 present で dismiss() は LIFO で直近1つだけ閉じる', () => {
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('present', navComp('M1'))));
+    ({ state: s } = reduce(s, tr('present', navComp('M2'))));
+    // ホーム / M1(wall,beginsSession=null) / M2(wall,beginsSession=null)
+    expect(s.frames).toHaveLength(3);
+    const { state: s1 } = reduce(s, tr('dismiss'));
+    // M2 だけ閉じる → ホーム / M1
+    expect(s1.frames).toHaveLength(2);
+    expect(s1.frames[1]!.location.component).toBe('M1');
+    const { state: s2 } = reduce(s1, tr('dismiss'));
+    // M1 も閉じる → ホーム
+    expect(s2.frames).toHaveLength(1);
+  });
+
+  it('dismiss 対象がない場合 R002 warn', () => {
+    let s = initialState(loc('ホーム'));
+    const { state: s1, diagnostics } = reduce(s, tr('dismiss'));
+    expect(diagnostics.some(d => d.code === 'R002')).toBe(true);
+    expect(s1.frames).toHaveLength(s.frames.length);
+  });
+
+  it('dismiss(@S) で名前付きセッションを閉じる', () => {
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('present', navComp('ログインフロー'), { name: 'auth' })));
+    ({ state: s } = reduce(s, tr('push', navComp('パスワード'))));
+    // ホーム / ログインフロー(auth,wall=true) / パスワード
+    expect(s.frames).toHaveLength(3);
+    const { state: s1 } = reduce(s, tr('dismiss', undefined, { name: 'auth' }));
+    expect(s1.frames).toHaveLength(1);
+    expect(s1.frames[0]!.location.component).toBe('ホーム');
+  });
+});

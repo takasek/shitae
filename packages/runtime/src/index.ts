@@ -194,24 +194,17 @@ export function reduce(state: RuntimeState, transition: Transition): ReduceResul
     }
 
     case 'dismiss': {
-      // dismiss() ≡ exit(@無名)。無名セッション（name===null）の直近を閉じる
+      // dismiss()  ≡ exit(@無名) → name===null の最新セッションを閉じる
+      // dismiss(@S)              → name===S  の最新セッションを閉じる（exit(@S) と同等）
+      const targetSessionName = session?.name ?? null;
       for (let i = frames.length - 1; i >= 0; i--) {
         const f = frames[i]!;
-        if (f.beginsSession !== null && f.beginsSession.name === null) {
+        if (f.beginsSession !== null && f.beginsSession.name === targetSessionName) {
           return { state: { frames: frames.slice(0, i) }, diagnostics: diags };
         }
       }
-      const targetName = session?.name ?? null;
-      if (targetName !== null) {
-        // dismiss(@S) — 名前付きセッションを閉じる（exit(@S) と同等）
-        for (let i = frames.length - 1; i >= 0; i--) {
-          const f = frames[i]!;
-          if (f.beginsSession !== null && f.beginsSession.name === targetName) {
-            return { state: { frames: frames.slice(0, i) }, diagnostics: diags };
-          }
-        }
-      }
-      diags.push(warn('R002', 'dismiss 対象のモーダルセッションがスタックに不在', span));
+      const label = targetSessionName !== null ? `@${targetSessionName}` : '(無名セッション)';
+      diags.push(warn('R002', `dismiss 対象セッション ${label} がスタックに不在`, span));
       return { state, diagnostics: diags };
     }
   }
