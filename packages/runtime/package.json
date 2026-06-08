@@ -1,0 +1,20 @@
+{
+  "name": "@shitae/runtime",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": "./dist/index.js",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@shitae/ast": "workspace:*"
+  },
+  "devDependencies": {
+    "@shitae/parser": "workspace:*",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.3"
+  }
+}

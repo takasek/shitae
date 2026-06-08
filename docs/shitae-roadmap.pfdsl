@@ -9,8 +9,10 @@ artifact:
   checker_pkg:    { label: "@shitae/checker",                  status: done }
   cli_pkg:        { label: "@shitae/cli",                      status: done }
   mmd_files:      { label: "*.mmd (Mermaid フローチャート)",     status: done }
-  cross_resolver: { label: "@shitae/resolver (cross-file対応)", status: todo }
-  runtime_pkg:    { label: "@shitae/runtime",                  status: todo,
+  cross_resolver: { label: "@shitae/resolver (cross-file対応)", status: done }
+  cli_crossfile:  { label: "cli import 自動ロード/project対応", status: done,
+                    description: "単一ファイル入口から import を辿り同ディレクトリ .shitae を自動ロードして resolveProject を呼ぶ。" }
+  runtime_pkg:    { label: "@shitae/runtime",                  status: done,
                     description: "push/back/goto/exit/dismiss のスタック意味論を実装する共通実行モデル。xstate transpiler と simulator の両方が依存する。" }
   xstate_pkg:     { label: "@shitae/transpiler-xstate",        status: todo }
   xstate_files:   { label: "*.ts (XState 状態機械)",            status: todo }
@@ -22,21 +24,26 @@ process:
   design:  { label: "言語設計" }
   phase1:  { label: "Phase 1: AST + Parser" }
   phase2:  { label: "Phase 2: resolver / mermaid / checker / cli" }
-  phase3:  { label: "Phase 3: cross-file resolver + runtime" }
-  phase4:  { label: "Phase 4: XState transpiler" }
-  phase5:  { label: "Phase 5: simulator" }
-  phase6:  { label: "Phase 6: polish" }
+  phase3:  { label: "Phase 3: runtime" }
+  phase4:  { label: "Phase 4: cross-file resolver + cli" }
+  phase5:  { label: "Phase 5: XState transpiler" }
+  phase6:  { label: "Phase 6: simulator" }
+  phase7:  { label: "Phase 7: polish" }
 
 statusStyles:
   done: { fillcolor: "#d4edda", style: filled }
   wip:  { fillcolor: "#fff3cd", style: filled }
   todo: { fillcolor: "#f8f9fa", style: filled }
+layout:
+  direction: td
+  maxWidth: 200
 ---
 spec >> design -> samples
 [spec, samples] >> phase1 -> [ast_pkg, parser_pkg]
 [ast_pkg, parser_pkg] >> phase2 -> [resolver_pkg, mermaid_pkg, checker_pkg, cli_pkg]
 [resolver_pkg, mermaid_pkg] >> phase2 -> mmd_files
-[resolver_pkg, parser_pkg] >> phase3 -> [cross_resolver, runtime_pkg]
-[ast_pkg, parser_pkg, cross_resolver, runtime_pkg] >> phase4 -> [xstate_pkg, xstate_files]
-[parser_pkg, cross_resolver, runtime_pkg] >> phase5 -> simulator
-parser_pkg >> phase6 -> span_fix
+[ast_pkg, parser_pkg] >> phase3 -> runtime_pkg
+[resolver_pkg, parser_pkg] >> phase4 -> [cross_resolver, cli_crossfile]
+[ast_pkg, parser_pkg, cross_resolver, runtime_pkg] >> phase5 -> [xstate_pkg, xstate_files]
+[parser_pkg, cross_resolver, runtime_pkg] >> phase6 -> simulator
+parser_pkg >> phase7 -> span_fix

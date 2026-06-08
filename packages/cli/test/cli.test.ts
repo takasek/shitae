@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
-import { writeFileSync, unlinkSync } from 'fs';
+import { writeFileSync, unlinkSync, mkdirSync, rmSync } from 'fs';
 import { join } from 'path';
 
 const execFileAsync = promisify(execFile);
@@ -83,6 +83,57 @@ describe('shitae mermaid', () => {
       expect(stderr).toContain('W102');
     } finally {
       unlinkSync(tmp);
+    }
+  });
+});
+
+describe('cross-file import', () => {
+  const tmpDir = '/tmp/shitae_crossfile_test';
+
+  it('import したファイルを自動ロードし check が exit 0', async () => {
+    mkdirSync(tmpDir, { recursive: true });
+    writeFileSync(join(tmpDir, 'auth.shitae'), '# ログイン\nID入力\n');
+    writeFileSync(
+      join(tmpDir, 'main.shitae'),
+      'import auth as auth\n# ホーム\n---\nタップ -> push(auth::ログイン)\n'
+    );
+    try {
+      const { code, stderr } = await runCli(['check', join(tmpDir, 'main.shitae')]);
+      expect(stderr).toBe('');
+      expect(code).toBe(0);
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  it('import ファイルが存在しない場合 stderr にエラー・exit 1', async () => {
+    mkdirSync(tmpDir, { recursive: true });
+    writeFileSync(
+      join(tmpDir, 'main.shitae'),
+      'import missing as m\n# ホーム\nロゴ\n'
+    );
+    try {
+      const { code, stderr } = await runCli(['check', join(tmpDir, 'main.shitae')]);
+      expect(code).toBe(1);
+      expect(stderr).toContain('missing');
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  it('cross-file import で mermaid が exit 0', async () => {
+    mkdirSync(tmpDir, { recursive: true });
+    writeFileSync(join(tmpDir, 'auth.shitae'), '# ログイン\nID入力\n');
+    writeFileSync(
+      join(tmpDir, 'main.shitae'),
+      'import auth as auth\n# ホーム\n---\nタップ -> push(auth::ログイン)\n'
+    );
+    try {
+      const { code, stdout } = await runCli(['mermaid', join(tmpDir, 'main.shitae')]);
+      expect(code).toBe(0);
+      expect(stdout).toMatch(/^flowchart LR/);
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true });
     }
   });
 });

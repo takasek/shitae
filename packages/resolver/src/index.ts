@@ -1,5 +1,11 @@
 import type { Document, Component, Variation, ElementLine } from '@shitae/ast';
 
+export interface ProjectResolveResult {
+  modules: Map<string, ResolveResult>;
+  getModule(moduleName: string): ResolveResult | undefined;
+  getByAlias(importingModule: string, alias: string): ResolveResult | undefined;
+}
+
 export interface ResolveResult {
   /** component name → Component ノード */
   componentIndex: Map<string, Component>;
@@ -63,4 +69,23 @@ export function resolve(document: Document): ResolveResult {
   }
 
   return { componentIndex, variationIndex, elementIndex, bodyElementIndex };
+}
+
+export function resolveProject(documents: Map<string, Document>): ProjectResolveResult {
+  const modules = new Map<string, ResolveResult>();
+  for (const [moduleName, doc] of documents) {
+    modules.set(moduleName, resolve(doc));
+  }
+
+  return {
+    modules,
+    getModule(moduleName: string): ResolveResult | undefined {
+      return modules.get(moduleName);
+    },
+    getByAlias(importingModule: string, alias: string): ResolveResult | undefined {
+      const imp = documents.get(importingModule)?.imports.find(i => i.alias === alias);
+      if (!imp) return undefined;
+      return modules.get(imp.module);
+    },
+  };
 }
