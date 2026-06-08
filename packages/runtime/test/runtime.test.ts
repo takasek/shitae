@@ -199,3 +199,56 @@ describe('reduce: goto', () => {
     expect(top.location.variation).toBe('対戦中');
   });
 });
+
+// ──────────────────────────────────────────────────
+// T4: named session push/exit
+// ──────────────────────────────────────────────────
+
+describe('reduce: named session push + exit', () => {
+  it('push(X,@S) で beginsSession={name:S} のフレームが積まれる', () => {
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('push', navComp('ログイン'), { name: 'auth' })));
+    const top = s.frames[s.frames.length - 1]!;
+    expect(top.beginsSession).toEqual({ name: 'auth' });
+    expect(top.wall).toBe(false);
+  });
+
+  it('exit(@S) でセッション開始フレームの1つ手前まで巻き戻す', () => {
+    // ホーム → push(A,@s) → push(B) → push(C)
+    // exit(@s) → ホームへ戻る（A を begin した地点の前）
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('push', navComp('A'), { name: 's' })));
+    ({ state: s } = reduce(s, tr('push', navComp('B'))));
+    ({ state: s } = reduce(s, tr('push', navComp('C'))));
+    expect(s.frames).toHaveLength(4); // ホーム/A/B/C
+    const { state: s1 } = reduce(s, tr('exit', undefined, { name: 's' }));
+    expect(s1.frames).toHaveLength(1);
+    expect(s1.frames[0]!.location.component).toBe('ホーム');
+  });
+
+  it('同名セッションが複数あるとき LIFO で最も新しいものを1つ破棄', () => {
+    // SPEC:240-243 LIFO が基底
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('push', navComp('A'), { name: 'flow' })));
+    ({ state: s } = reduce(s, tr('push', navComp('B'))));
+    ({ state: s } = reduce(s, tr('push', navComp('C'), { name: 'flow' })));
+    ({ state: s } = reduce(s, tr('push', navComp('D'))));
+    // 4フレーム: ホーム/A(flow)/B/C(flow)/D
+    expect(s.frames).toHaveLength(5);
+    // exit(@flow) → 最新の @flow (C) を begin 前まで: [ホーム/A(flow)/B] が残る
+    const { state: s1 } = reduce(s, tr('exit', undefined, { name: 'flow' }));
+    expect(s1.frames).toHaveLength(3);
+    expect(s1.frames[2]!.location.component).toBe('B');
+    // もう一度 exit(@flow) → [ホーム] が残る
+    const { state: s2 } = reduce(s1, tr('exit', undefined, { name: 'flow' }));
+    expect(s2.frames).toHaveLength(1);
+    expect(s2.frames[0]!.location.component).toBe('ホーム');
+  });
+
+  it('exit 対象セッションがスタックにない場合 R002 warn', () => {
+    let s = initialState(loc('ホーム'));
+    const { state: s1, diagnostics } = reduce(s, tr('exit', undefined, { name: '存在しない' }));
+    expect(diagnostics.some(d => d.code === 'R002')).toBe(true);
+    expect(s1.frames).toHaveLength(s.frames.length); // 状態変化なし
+  });
+});
