@@ -97,6 +97,22 @@ importers:
         specifier: ^3.2.3
         version: 3.2.4(@types/node@22.19.20)
 
+  packages/runtime:
+    dependencies:
+      '@shitae/ast':
+        specifier: workspace:*
+        version: link:../ast
+    devDependencies:
+      '@shitae/parser':
+        specifier: workspace:*
+        version: link:../parser
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.3
+        version: 3.2.4(@types/node@22.19.20)
+
   packages/transpiler-mermaid:
     dependencies:
       '@shitae/ast':
