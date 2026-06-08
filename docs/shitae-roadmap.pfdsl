@@ -12,7 +12,7 @@ artifact:
   cross_resolver: { label: "@shitae/resolver (cross-file対応)", status: todo }
   cli_crossfile:  { label: "cli import 自動ロード/project対応", status: todo,
                     description: "単一ファイル入口から import を辿り同ディレクトリ .shitae を自動ロードして resolveProject を呼ぶ。" }
-  runtime_pkg:    { label: "@shitae/runtime",                  status: todo,
+  runtime_pkg:    { label: "@shitae/runtime",                  status: done,
                     description: "push/back/goto/exit/dismiss のスタック意味論を実装する共通実行モデル。xstate transpiler と simulator の両方が依存する。" }
   xstate_pkg:     { label: "@shitae/transpiler-xstate",        status: todo }
   xstate_files:   { label: "*.ts (XState 状態機械)",            status: todo }
