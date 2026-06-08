@@ -14,7 +14,8 @@ artifact:
                     description: "単一ファイル入口から import を辿り同ディレクトリ .shitae を自動ロードして resolveProject を呼ぶ。" }
   runtime_pkg:    { label: "@shitae/runtime",                  status: done,
                     description: "push/back/goto/exit/dismiss のスタック意味論を実装する共通実行モデル。xstate transpiler と simulator の両方が依存する。" }
-  xstate_pkg:     { label: "@shitae/transpiler-xstate",        status: todo }
+  xstate_pkg:     { label: "@shitae/transpiler-xstate",        status: done,
+                    description: "XState v5 state machine を生成。push=context stack, back()=predecessor guards, goto=simple transition。1 Document = 1 Machine。" }
   xstate_files:   { label: "*.ts (XState 状態機械)",            status: todo }
   simulator:      { label: "shitae simulator",                  status: todo,
                     description: "shitae simulate <file> で単一 HTML 生成。現在地(component/variation)の要素とアクション一覧を表示し、クリックで状態遷移。複数 result はラベル付きボタンで選択。effect は画面留まりトースト表示。push/back でスタック管理。依存ゼロのブラウザ完結。" }
