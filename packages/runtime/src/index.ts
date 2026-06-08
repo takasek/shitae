@@ -73,6 +73,30 @@ function warn(code: string, message: string, span: Span): Diagnostic {
   return { severity: 'warning', code, message, span };
 }
 
+function closeSession(
+  frames: Frame[],
+  state: RuntimeState,
+  sessionName: string | null,
+  twistWord: TransitionWord,
+  twistMsg: string,
+  closerLabel: string,
+  span: Span,
+  diags: Diagnostic[],
+): ReduceResult {
+  for (let i = frames.length - 1; i >= 0; i--) {
+    const f = frames[i]!;
+    if (f.beginsSession !== null && f.beginsSession.name === sessionName) {
+      if (f.word === twistWord) {
+        diags.push(warn('R001', twistMsg, span));
+      }
+      return { state: { frames: frames.slice(0, i) }, diagnostics: diags };
+    }
+  }
+  const label = sessionName !== null ? `@${sessionName}` : '(無名セッション)';
+  diags.push(warn('R002', `${closerLabel} 対象セッション ${label} がスタックに不在`, span));
+  return { state, diagnostics: diags };
+}
+
 /** NavTarget を現在の Location を踏まえて Location へ正規化する */
 function navTargetToLocation(target: NavTarget, current: Location): Location {
   if (target.kind === 'variation') {
@@ -178,44 +202,20 @@ export function reduce(state: RuntimeState, transition: Transition): ReduceResul
       }
     }
 
-    case 'exit': {
-      // exit(@S) — 末尾から最初の name===S のフレームの1つ手前まで巻き戻し
+    case 'exit':
       // exit は push で開いたセッションを閉じる正規形。present で開いたのを exit で閉じるとねじれ(R001)
-      const sessionName = session?.name ?? null;
-      for (let i = frames.length - 1; i >= 0; i--) {
-        const f = frames[i]!;
-        if (f.beginsSession !== null && f.beginsSession.name === sessionName) {
-          // ねじれ検出: present (wall=true) を exit で閉じる
-          if (f.word === 'present') {
-            diags.push(warn('R001', `ねじれ: present で開いたセッションを exit で閉じている`, span));
-          }
-          return { state: { frames: frames.slice(0, i) }, diagnostics: diags };
-        }
-      }
-      // 対象不在 → R002
-      const label = sessionName !== null ? `@${sessionName}` : '(無名セッション)';
-      diags.push(warn('R002', `exit 対象セッション ${label} がスタックに不在`, span));
-      return { state, diagnostics: diags };
-    }
+      return closeSession(
+        frames, state, session?.name ?? null,
+        'present', 'ねじれ: present で開いたセッションを exit で閉じている',
+        'exit', span, diags,
+      );
 
-    case 'dismiss': {
-      // dismiss()  ≡ exit(@無名) → name===null の最新セッションを閉じる
-      // dismiss(@S)              → name===S  の最新セッションを閉じる（exit(@S) と同等）
+    case 'dismiss':
       // dismiss は present で開いたセッションを閉じる正規形。push で開いたのを dismiss で閉じるとねじれ(R001)
-      const targetSessionName = session?.name ?? null;
-      for (let i = frames.length - 1; i >= 0; i--) {
-        const f = frames[i]!;
-        if (f.beginsSession !== null && f.beginsSession.name === targetSessionName) {
-          // ねじれ検出: push (wall=false) を dismiss で閉じる
-          if (f.word === 'push') {
-            diags.push(warn('R001', `ねじれ: push で開いたセッションを dismiss で閉じている`, span));
-          }
-          return { state: { frames: frames.slice(0, i) }, diagnostics: diags };
-        }
-      }
-      const label = targetSessionName !== null ? `@${targetSessionName}` : '(無名セッション)';
-      diags.push(warn('R002', `dismiss 対象セッション ${label} がスタックに不在`, span));
-      return { state, diagnostics: diags };
-    }
+      return closeSession(
+        frames, state, session?.name ?? null,
+        'push', 'ねじれ: push で開いたセッションを dismiss で閉じている',
+        'dismiss', span, diags,
+      );
   }
 }

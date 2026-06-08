@@ -15,7 +15,6 @@ if (!command || !filePath) {
 }
 
 const entryPath = resolvePath(filePath);
-const entryDir = dirname(entryPath);
 const entryModule = basename(entryPath, '.shitae');
 
 function loadDocuments(): {
@@ -44,9 +43,9 @@ function loadDocuments(): {
     documents.set(moduleName, document);
     diagnosticsMap.set(moduleName, diagnostics);
 
+    const baseDir = dirname(absPath);
     for (const imp of document.imports) {
-      const importPath = resolvePath(entryDir, imp.module + '.shitae');
-      load(imp.module, importPath, visited);
+      load(imp.module, resolvePath(baseDir, imp.module + '.shitae'), visited);
     }
   }
 
@@ -63,7 +62,7 @@ if (failed) {
 const mainDoc = documents.get(entryModule)!;
 const parseDiags = diagnosticsMap.get(entryModule) ?? [];
 const project = resolveProject(documents);
-const mainResolved = project.modules.get(entryModule)!;
+const mainResolved = project.getModule(entryModule)!;
 
 if (command === 'check') {
   const checkDiags = check(mainDoc, mainResolved);
