@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { resolve } from '../src/index.js';
+import { resolve, resolveProject } from '../src/index.js';
 import { parse } from '../../parser/src/index.js';
 
 describe('resolve', () => {
@@ -82,5 +82,41 @@ describe('bodyElementIndex', () => {
     const varFoo = result.bodyElementIndex.get('A')?.get('姿1')?.get('foo');
     expect(commonFoo?.value).toMatchObject({ kind: 'ref', name: '共通' });
     expect(varFoo?.value).toMatchObject({ kind: 'ref', name: '固有' });
+  });
+});
+
+describe('resolveProject', () => {
+  it('単一 document → modules に 1 エントリ', () => {
+    const { document } = parse('# ホーム\nロゴ\n');
+    const result = resolveProject(new Map([['main', document]]));
+    expect(result.modules.size).toBe(1);
+    expect(result.modules.get('main')?.componentIndex.has('ホーム')).toBe(true);
+  });
+
+  it('2 document で getByAlias がインポート先 ResolveResult を返す', () => {
+    const { document: main } = parse('import auth as auth\n# ホーム\n---\nタップ -> push(auth::ログイン)\n');
+    const { document: auth } = parse('# ログイン\nID入力\n');
+    const result = resolveProject(new Map([['main', main], ['auth', auth]]));
+    const authResult = result.getByAlias('main', 'auth');
+    expect(authResult).toBeDefined();
+    expect(authResult?.componentIndex.has('ログイン')).toBe(true);
+  });
+
+  it('未知の alias → undefined', () => {
+    const { document } = parse('# A\nロゴ\n');
+    const result = resolveProject(new Map([['main', document]]));
+    expect(result.getByAlias('main', 'nonexistent')).toBeUndefined();
+  });
+
+  it('alias 宣言あり・ターゲット module が未ロード → undefined', () => {
+    const { document } = parse('import missing as m\n# A\nロゴ\n');
+    const result = resolveProject(new Map([['main', document]]));
+    expect(result.getByAlias('main', 'm')).toBeUndefined();
+  });
+
+  it('未知の importing module → undefined', () => {
+    const { document } = parse('# A\nロゴ\n');
+    const result = resolveProject(new Map([['main', document]]));
+    expect(result.getByAlias('unknown_module', 'auth')).toBeUndefined();
   });
 });

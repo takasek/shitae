@@ -9,8 +9,8 @@ artifact:
   checker_pkg:    { label: "@shitae/checker",                  status: done }
   cli_pkg:        { label: "@shitae/cli",                      status: done }
   mmd_files:      { label: "*.mmd (Mermaid フローチャート)",     status: done }
-  cross_resolver: { label: "@shitae/resolver (cross-file対応)", status: todo }
-  cli_crossfile:  { label: "cli import 自動ロード/project対応", status: todo,
+  cross_resolver: { label: "@shitae/resolver (cross-file対応)", status: done }
+  cli_crossfile:  { label: "cli import 自動ロード/project対応", status: done,
                     description: "単一ファイル入口から import を辿り同ディレクトリ .shitae を自動ロードして resolveProject を呼ぶ。" }
   runtime_pkg:    { label: "@shitae/runtime",                  status: done,
                     description: "push/back/goto/exit/dismiss のスタック意味論を実装する共通実行モデル。xstate transpiler と simulator の両方が依存する。" }
