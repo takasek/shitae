@@ -54,44 +54,43 @@ function loadDocuments(): {
   return { documents, diagnostics: diagnosticsMap, failed };
 }
 
+function printDiags(diags: Diagnostic[]): void {
+  for (const d of diags) {
+    process.stderr.write(`${filePath}:${d.span.line}: [${d.severity}] ${d.code}: ${d.message}\n`);
+  }
+}
+
 const { documents, diagnostics: diagnosticsMap, failed } = loadDocuments();
 
 if (failed) {
   process.exit(1);
 }
 
-const mainDoc = documents.get(entryModule)!;
 const parseDiags = diagnosticsMap.get(entryModule) ?? [];
-const project = resolveProject(documents);
-const mainResolved = project.getModule(entryModule)!;
 
 if (command === 'check') {
-  const checkDiags = check(mainDoc, mainResolved);
+  const project = resolveProject(documents);
+  const mainResolved = project.getModule(entryModule)!;
+  const checkDiags = check(documents.get(entryModule)!, mainResolved);
   const all = [...parseDiags, ...checkDiags];
-  for (const d of all) {
-    process.stderr.write(`${filePath}:${d.span.line}: [${d.severity}] ${d.code}: ${d.message}\n`);
-  }
+  printDiags(all);
   process.exit(all.filter(d => d.severity === 'error').length > 0 ? 1 : 0);
 } else if (command === 'mermaid') {
   const errors = parseDiags.filter(d => d.severity === 'error');
   if (errors.length > 0) {
-    for (const d of errors) {
-      process.stderr.write(`${filePath}:${d.span.line}: [error] ${d.code}: ${d.message}\n`);
-    }
+    printDiags(errors);
     process.exit(1);
   }
-  const checkDiags = check(mainDoc, mainResolved);
-  for (const d of checkDiags) {
-    process.stderr.write(`${filePath}:${d.span.line}: [${d.severity}] ${d.code}: ${d.message}\n`);
-  }
-  process.stdout.write(toMermaid(mainDoc) + '\n');
+  const project = resolveProject(documents);
+  const mainResolved = project.getModule(entryModule)!;
+  const checkDiags = check(documents.get(entryModule)!, mainResolved);
+  printDiags(checkDiags);
+  process.stdout.write(toMermaid(documents.get(entryModule)!) + '\n');
   process.exit(0);
 } else if (command === 'simulate') {
   const errors = parseDiags.filter(d => d.severity === 'error');
   if (errors.length > 0) {
-    for (const d of errors) {
-      process.stderr.write(`${filePath}:${d.span.line}: [error] ${d.code}: ${d.message}\n`);
-    }
+    printDiags(errors);
     process.exit(1);
   }
   process.stdout.write(toSimulator(documents, entryModule) + '\n');

@@ -3,7 +3,10 @@ import type { Document, Component, Interaction, Result } from '@shitae/ast';
 export interface SimTransition {
   type: 'transition';
   word: string;
-  target: { module: string | null; component: string; variation: string | null } | null;
+  target:
+    | { kind: 'full'; module: string | null; component: string; variation: string | null }
+    | { kind: 'variation'; variation: string }
+    | null;
   session: string | null;
 }
 
@@ -55,9 +58,10 @@ function convertResult(r: Result): SimResult {
     let target: SimTransition['target'] = null;
     if (body.target) {
       if (body.target.kind === 'variation') {
-        target = { module: null, component: '', variation: body.target.name };
+        target = { kind: 'variation', variation: body.target.name };
       } else {
         target = {
+          kind: 'full',
           module: body.target.module ?? null,
           component: body.target.name,
           variation: body.target.variation ?? null,

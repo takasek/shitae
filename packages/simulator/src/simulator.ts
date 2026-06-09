@@ -50,6 +50,8 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
 <div class="toast" id="toast"></div>
 <script>
 const DATA = ${json};
+const app = document.getElementById('app');
+const toastEl = document.getElementById('toast');
 
 // ── stack frame: { module, component, variation, wall, sessionName }
 let stack = [{
@@ -60,7 +62,7 @@ let stack = [{
   sessionName: null,
 }];
 
-let pendingChoice = null; // { interactionIdx, actionText, results }
+let pendingChoice = null; // { idx, actionText, results }
 let toastTimer = null;
 
 function getComp(module, name) {
@@ -71,12 +73,19 @@ function currentFrame() {
   return stack[stack.length - 1];
 }
 
+function currentInteractions() {
+  const frame = currentFrame();
+  const comp = getComp(frame.module, frame.component);
+  const common = comp?.commonInteractions ?? [];
+  const variation = frame.variation ? (comp?.variations[frame.variation]?.interactions ?? []) : [];
+  return [...common, ...variation];
+}
+
 function resolveTarget(result, currentModule, currentComponent) {
   if (!result || result.type !== 'transition') return null;
   const t = result.target;
   if (!t) return null;
-  if (t.component === '' && t.variation !== null) {
-    // variation-only target (## 姿) — same component
+  if (t.kind === 'variation') {
     return { module: currentModule, component: currentComponent, variation: t.variation };
   }
   return {
@@ -99,12 +108,9 @@ function applyTransition(result) {
   const word = result.word;
   const target = resolveTarget(result, mod, comp);
 
-  if (word === 'push') {
+  if (word === 'push' || word === 'present') {
     if (!target) return;
-    stack = [...stack, { module: target.module, component: target.component, variation: target.variation ?? null, wall: false, sessionName: result.session }];
-  } else if (word === 'present') {
-    if (!target) return;
-    stack = [...stack, { module: target.module, component: target.component, variation: target.variation ?? null, wall: true, sessionName: result.session ?? null }];
+    stack = [...stack, { module: target.module, component: target.component, variation: target.variation ?? null, wall: word === 'present', sessionName: result.session ?? null }];
   } else if (word === 'goto') {
     if (!target) return;
     const newFrame = { ...frame, component: target.component, variation: target.variation ?? null, module: target.module, sessionName: null };
@@ -136,34 +142,37 @@ function applyTransition(result) {
 }
 
 function showToast(text) {
-  const el = document.getElementById('toast');
-  el.textContent = text;
-  el.classList.add('show');
+  toastEl.textContent = text;
+  toastEl.classList.add('show');
   if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2500);
 }
 
-function handleInteraction(idx, interactions) {
-  const interaction = interactions[idx];
+function handleInteraction(idx) {
+  const interaction = currentInteractions()[idx];
   if (!interaction) return;
   if (interaction.results.length === 1) {
-    const r = interaction.results[0];
-    applyTransition(r.body);
+    applyTransition(interaction.results[0].body);
   } else {
     pendingChoice = { idx, actionText: interaction.actionText, results: interaction.results };
     render();
   }
 }
 
-function handleChoice(result) {
+function handleChoice(idx) {
+  if (!pendingChoice) return;
+  const result = pendingChoice.results[idx];
   pendingChoice = null;
   applyTransition(result.body);
+}
+
+function goBack() {
+  applyTransition({ type: 'transition', word: 'back', target: null, session: null });
 }
 
 function render() {
   const frame = currentFrame();
   const comp = getComp(frame.module, frame.component);
-  const app = document.getElementById('app');
 
   // breadcrumb
   const breadcrumb = stack.map((f, i) => {
@@ -184,9 +193,7 @@ function render() {
   }
 
   // interactions
-  const commonInter = comp?.commonInteractions ?? [];
-  const varInter = frame.variation ? (comp?.variations[frame.variation]?.interactions ?? []) : [];
-  const allInter = [...commonInter, ...varInter];
+  const allInter = currentInteractions();
 
   let actionsHtml = '';
   if (allInter.length === 0) {
@@ -194,12 +201,12 @@ function render() {
   } else {
     actionsHtml = '<div class="actions">';
     allInter.forEach((inter, idx) => {
-      actionsHtml += '<button class="action-btn" onclick="handleInteraction(' + idx + ', allInteractions)">' + esc(inter.actionText) + '</button>';
+      actionsHtml += '<button class="action-btn" onclick="handleInteraction(' + idx + ')">' + esc(inter.actionText) + '</button>';
     });
     actionsHtml += '</div>';
     if (pendingChoice) {
-      const choices = pendingChoice.results.map(r =>
-        '<button class="choice-btn" onclick=\'handleChoice(' + JSON.stringify(r) + ')\'>' +
+      const choices = pendingChoice.results.map((r, idx) =>
+        '<button class="choice-btn" onclick="handleChoice(' + idx + ')">' +
         esc(r.label ?? '(ラベルなし)') + '</button>'
       ).join('');
       actionsHtml += '<div class="choice-panel"><div class="choice-label">' + esc(pendingChoice.actionText) + ' の結果を選択:</div><div class="choices">' + choices + '</div></div>';
@@ -221,18 +228,6 @@ function render() {
       actionsHtml +
       backBtn +
     '</div>';
-
-  // expose current interactions for onclick handlers
-  window.allInteractions = allInter;
-}
-
-function goBack() {
-  if (stack.length <= 1) return;
-  const top = stack[stack.length - 1];
-  if (top.wall) { showToast('壁があるため back できません'); return; }
-  stack = stack.slice(0, -1);
-  pendingChoice = null;
-  render();
 }
 
 function esc(s) {
