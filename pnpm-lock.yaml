@@ -54,6 +54,9 @@ importers:
       '@shitae/resolver':
         specifier: workspace:*
         version: link:../resolver
+      '@shitae/simulator':
+        specifier: workspace:*
+        version: link:../simulator
       '@shitae/transpiler-mermaid':
         specifier: workspace:*
         version: link:../transpiler-mermaid
@@ -106,6 +109,28 @@ importers:
       '@shitae/parser':
         specifier: workspace:*
         version: link:../parser
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.3
+        version: 3.2.4(@types/node@22.19.20)
+
+  packages/simulator:
+    dependencies:
+      '@shitae/ast':
+        specifier: workspace:*
+        version: link:../ast
+      '@shitae/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+    devDependencies:
+      '@shitae/parser':
+        specifier: workspace:*
+        version: link:../parser
+      '@shitae/resolver':
+        specifier: workspace:*
+        version: link:../resolver
       typescript:
         specifier: ^5.8.3
         version: 5.9.3

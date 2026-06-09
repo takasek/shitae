@@ -5,12 +5,13 @@ import { parse } from '@shitae/parser';
 import { resolveProject } from '@shitae/resolver';
 import { check } from '@shitae/checker';
 import { toMermaid } from '@shitae/transpiler-mermaid';
+import { toSimulator } from '@shitae/simulator';
 import type { Document, Diagnostic } from '@shitae/ast';
 
 const [, , command, filePath] = process.argv;
 
 if (!command || !filePath) {
-  process.stderr.write('Usage: shitae <check|mermaid> <file>\n');
+  process.stderr.write('Usage: shitae <check|mermaid|simulate> <file>\n');
   process.exit(1);
 }
 
@@ -85,7 +86,17 @@ if (command === 'check') {
   }
   process.stdout.write(toMermaid(mainDoc) + '\n');
   process.exit(0);
+} else if (command === 'simulate') {
+  const errors = parseDiags.filter(d => d.severity === 'error');
+  if (errors.length > 0) {
+    for (const d of errors) {
+      process.stderr.write(`${filePath}:${d.span.line}: [error] ${d.code}: ${d.message}\n`);
+    }
+    process.exit(1);
+  }
+  process.stdout.write(toSimulator(documents, entryModule) + '\n');
+  process.exit(0);
 } else {
-  process.stderr.write(`Error: unknown command '${command}'. Use 'check' or 'mermaid'.\n`);
+  process.stderr.write(`Error: unknown command '${command}'. Use 'check', 'mermaid', or 'simulate'.\n`);
   process.exit(1);
 }

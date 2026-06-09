@@ -17,7 +17,8 @@
     "@shitae/parser": "workspace:*",
     "@shitae/resolver": "workspace:*",
     "@shitae/transpiler-mermaid": "workspace:*",
-    "@shitae/checker": "workspace:*"
+    "@shitae/checker": "workspace:*",
+    "@shitae/simulator": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
