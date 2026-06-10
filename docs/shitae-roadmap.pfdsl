@@ -19,7 +19,7 @@ artifact:
   xstate_files:   { label: "*.ts (XState 状態機械)",            status: todo }
   simulator:      { label: "shitae simulator",                  status: todo,
                     description: "shitae simulate <file> で単一 HTML 生成。現在地(component/variation)の要素とアクション一覧を表示し、クリックで状態遷移。複数 result はラベル付きボタンで選択。effect は画面留まりトースト表示。push/back でスタック管理。依存ゼロのブラウザ完結。" }
-  span_fix:       { label: "Span 精度 (offset/col)",            status: todo }
+  span_fix:       { label: "Span 精度 (offset/col)",            status: done }
 
 process:
   design:  { label: "言語設計" }
