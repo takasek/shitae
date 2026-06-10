@@ -134,6 +134,23 @@ function countBraceDepthChange(line: string): number {
 }
 
 // ---------------------------------------------------------------------------
+// buildLineOffsets
+//
+// Returns an array where result[i] is the character offset of line i+1 (1-based)
+// in source. Preserves the same positions as stripComments output since
+// comments are replaced with spaces of identical length.
+// ---------------------------------------------------------------------------
+export function buildLineOffsets(source: string): number[] {
+  const offsets = [0];
+  for (let i = 0; i < source.length; i++) {
+    if (source[i] === '\n') {
+      offsets.push(i + 1);
+    }
+  }
+  return offsets;
+}
+
+// ---------------------------------------------------------------------------
 // skipWhitespace
 //
 // Return the next position after skipping spaces and tabs.

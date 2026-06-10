@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   stripComments,
   buildLogicalLines,
+  buildLineOffsets,
   readName,
   readUntil,
   skipWhitespace,
@@ -289,5 +290,31 @@ describe('buildLogicalLines: 余分な } がある不正入力の既知動作', 
     // 余分な } でフラッシュが発生し、1つの logical line になる
     expect(result).toHaveLength(1);
     expect(result[0].text).toContain('inner1');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// buildLineOffsets
+// ---------------------------------------------------------------------------
+describe('buildLineOffsets', () => {
+  it('単一行: [0]', () => {
+    expect(buildLineOffsets('abc')).toEqual([0]);
+  });
+
+  it('2行: [0, 4]', () => {
+    expect(buildLineOffsets('abc\ndef')).toEqual([0, 4]);
+  });
+
+  it('末尾改行あり: [0, 4]', () => {
+    expect(buildLineOffsets('abc\n')).toEqual([0, 4]);
+  });
+
+  it('空文字: [0]', () => {
+    expect(buildLineOffsets('')).toEqual([0]);
+  });
+
+  it('3行 + 末尾改行: 各行先頭 offset', () => {
+    // '# Foo\n## Bar\nButton\n': line1=0, line2=6, line3=13, trailing=20
+    expect(buildLineOffsets('# Foo\n## Bar\nButton\n')).toEqual([0, 6, 13, 20]);
   });
 });

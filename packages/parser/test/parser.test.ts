@@ -570,3 +570,41 @@ describe('sample files smoke test', () => {
     expect(e009[0].severity).toBe('error');
   });
 });
+
+// ---------------------------------------------------------------------------
+// 10. Span 精度 (offset / col)
+// ---------------------------------------------------------------------------
+describe('Span 精度 (offset / col)', () => {
+  it('component header: 1行目 offset=0 col=1 length=5', () => {
+    const { document } = parseDoc('# Foo\n');
+    expect(document.components[0].span).toEqual({ offset: 0, length: 5, line: 1, col: 1 });
+  });
+
+  it('variation header: 2行目 offset=6 col=1 length=6', () => {
+    const { document } = parseDoc('# Foo\n## Bar\n');
+    expect(document.components[0].variations[0].span).toEqual({ offset: 6, length: 6, line: 2, col: 1 });
+  });
+
+  it('element line: 2行目 offset=6 col=1 length=6', () => {
+    const { document } = parseDoc('# Foo\nButton\n');
+    expect(document.components[0].common.elements[0].span).toEqual({ offset: 6, length: 6, line: 2, col: 1 });
+  });
+
+  it('インデント付き element: col は先頭非空白文字の 1-based 列', () => {
+    // '# Foo\n  Button\n': line2 starts at offset 6, '  Button' → firstNonSpace=2 → col=3, offset=8, length=6
+    const { document } = parseDoc('# Foo\n  Button\n');
+    expect(document.components[0].common.elements[0].span).toEqual({ offset: 8, length: 6, line: 2, col: 3 });
+  });
+
+  it('interaction line span', () => {
+    // '# Foo\n---\nclick -> push(Bar)\n': '---\n'=4chars, line3 starts at offset 10
+    const { document } = parseDoc('# Foo\n---\nclick -> push(Bar)\n');
+    expect(document.components[0].common.interactions[0].span).toEqual({ offset: 10, length: 18, line: 3, col: 1 });
+  });
+
+  it('3行目 component: offset は累積行長', () => {
+    // '# A\n# B\n# C\n': line1=4, line2=4, line3 starts at 8
+    const { document } = parseDoc('# A\n# B\n# C\n');
+    expect(document.components[2].span).toEqual({ offset: 8, length: 3, line: 3, col: 1 });
+  });
+});

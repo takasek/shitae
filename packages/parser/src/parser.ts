@@ -27,6 +27,7 @@ import { TRANSITION_WORDS } from '@shitae/ast';
 import {
   stripComments,
   buildLogicalLines,
+  buildLineOffsets,
   skipWhitespace,
   readName,
   readUntil,
@@ -59,6 +60,7 @@ interface VariationBuilder {
 export function parseDocument(source: string): { document: Document; diagnostics: Diagnostic[] } {
   const diagnostics: Diagnostic[] = [];
   const stripped = stripComments(source);
+  const lineOffsets = buildLineOffsets(stripped);
   const rawLines = stripped.split('\n');
   const logicalLines = buildLogicalLines(rawLines);
 
@@ -71,10 +73,9 @@ export function parseDocument(source: string): { document: Document; diagnostics
   let lastInteraction: Interaction | null = null;
   let seenFirstComponent = false;
 
-  function makeSpan(startLine: number): Span {
-    // Simple span: offset approximation based on line number
-    // We use line number (1-based) and col=0 as approximation
-    return { offset: 0, length: 0, line: startLine, col: 0 };
+  function makeSpan(startLine: number, col: number, length: number): Span {
+    const offset = (lineOffsets[startLine - 1] ?? 0) + (col - 1);
+    return { offset, length, line: startLine, col };
   }
 
   function finalizeVariation(): void {
@@ -163,7 +164,10 @@ export function parseDocument(source: string): { document: Document; diagnostics
   for (const ll of logicalLines) {
     const raw = ll.text;
     const trimmed = raw.trim();
-    const span = makeSpan(ll.startLine);
+    const firstNonSpace = raw.search(/\S/);
+    const spanCol = firstNonSpace === -1 ? 1 : firstNonSpace + 1;
+    const spanLen = firstNonSpace === -1 ? 0 : raw.trimEnd().length - firstNonSpace;
+    const span = makeSpan(ll.startLine, spanCol, spanLen);
 
     // Empty line
     if (trimmed === '') {
@@ -258,13 +262,13 @@ export function parseDocument(source: string): { document: Document; diagnostics
         });
         // Still parse as element? Actually per spec it's a warning; treat as element-line
       }
-      const el = parseElementLine(ll, diagnostics);
+      const el = parseElementLine(ll, lineOffsets, diagnostics);
       if (el) currentElements().push(el);
     } else {
       // interaction section
       if (trimmed.includes('->')) {
         // New interaction
-        const interaction = parseInteractionLine(ll, diagnostics);
+        const interaction = parseInteractionLine(ll, lineOffsets, diagnostics);
         if (interaction) {
           currentInteractions().push(interaction);
           lastInteraction = interaction;
@@ -324,10 +328,16 @@ function parseImport(
 // ---------------------------------------------------------------------------
 function parseElementLine(
   ll: LogicalLine,
+  lineOffsets: number[],
   diagnostics: Diagnostic[]
 ): ElementLine | null {
-  const span: Span = { offset: 0, length: 0, line: ll.startLine, col: 0 };
-  let text = ll.text.trim();
+  const raw = ll.text;
+  const firstNonSpace = raw.search(/\S/);
+  const col = firstNonSpace === -1 ? 1 : firstNonSpace + 1;
+  const offset = (lineOffsets[ll.startLine - 1] ?? 0) + (col - 1);
+  const length = firstNonSpace === -1 ? 0 : raw.trimEnd().length - firstNonSpace;
+  const span: Span = { offset, length, line: ll.startLine, col };
+  let text = raw.trim();
 
   // Collection flag
   let collection = false;
@@ -351,7 +361,7 @@ function parseElementLine(
   }
 
   // Parse value: inline or ref
-  const value = parseElementValue(valueText, span, diagnostics);
+  const value = parseElementValue(valueText, span, lineOffsets, diagnostics);
   if (!value) return null;
 
   return { collection, alias, value, span };
@@ -380,13 +390,14 @@ function findColonOutside(text: string): number {
 function parseElementValue(
   text: string,
   span: Span,
+  lineOffsets: number[],
   diagnostics: Diagnostic[]
 ): Ref | Inline | null {
   const t = text.trim();
 
   if (t.startsWith('{')) {
     // Inline
-    return parseInline(t, span, diagnostics);
+    return parseInline(t, span, lineOffsets, diagnostics);
   }
 
   // Ref (possibly quoted)
@@ -407,6 +418,7 @@ function parseElementValue(
 function parseInline(
   text: string,
   span: Span,
+  lineOffsets: number[],
   diagnostics: Diagnostic[]
 ): Inline {
   // text: "{ content }" or "{ ... ; ... }"
@@ -425,6 +437,7 @@ function parseInline(
     if (trimPart === '') continue;
     const el = parseElementLine(
       { text: trimPart, startLine: span.line },
+      lineOffsets,
       diagnostics
     );
     if (el) elements.push(el);
@@ -438,10 +451,16 @@ function parseInline(
 // ---------------------------------------------------------------------------
 function parseInteractionLine(
   ll: LogicalLine,
+  lineOffsets: number[],
   diagnostics: Diagnostic[]
 ): Interaction | null {
-  const span: Span = { offset: 0, length: 0, line: ll.startLine, col: 0 };
-  const text = ll.text.trim();
+  const raw = ll.text;
+  const firstNonSpace = raw.search(/\S/);
+  const col = firstNonSpace === -1 ? 1 : firstNonSpace + 1;
+  const offset = (lineOffsets[ll.startLine - 1] ?? 0) + (col - 1);
+  const length = firstNonSpace === -1 ? 0 : raw.trimEnd().length - firstNonSpace;
+  const span: Span = { offset, length, line: ll.startLine, col };
+  const text = raw.trim();
 
   // Split on first ->
   const arrowIdx = findFirstArrow(text);
