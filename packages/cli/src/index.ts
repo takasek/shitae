@@ -5,12 +5,13 @@ import { parse } from '@shitae/parser';
 import { resolveProject } from '@shitae/resolver';
 import { check } from '@shitae/checker';
 import { toMermaid } from '@shitae/transpiler-mermaid';
+import { toSimulator } from '@shitae/simulator';
 import type { Document, Diagnostic } from '@shitae/ast';
 
 const [, , command, filePath] = process.argv;
 
 if (!command || !filePath) {
-  process.stderr.write('Usage: shitae <check|mermaid> <file>\n');
+  process.stderr.write('Usage: shitae <check|mermaid|simulate> <file>\n');
   process.exit(1);
 }
 
@@ -53,39 +54,48 @@ function loadDocuments(): {
   return { documents, diagnostics: diagnosticsMap, failed };
 }
 
+function printDiags(diags: Diagnostic[]): void {
+  for (const d of diags) {
+    process.stderr.write(`${filePath}:${d.span.line}: [${d.severity}] ${d.code}: ${d.message}\n`);
+  }
+}
+
 const { documents, diagnostics: diagnosticsMap, failed } = loadDocuments();
 
 if (failed) {
   process.exit(1);
 }
 
-const mainDoc = documents.get(entryModule)!;
 const parseDiags = diagnosticsMap.get(entryModule) ?? [];
-const project = resolveProject(documents);
-const mainResolved = project.getModule(entryModule)!;
 
 if (command === 'check') {
-  const checkDiags = check(mainDoc, mainResolved);
+  const project = resolveProject(documents);
+  const mainResolved = project.getModule(entryModule)!;
+  const checkDiags = check(documents.get(entryModule)!, mainResolved);
   const all = [...parseDiags, ...checkDiags];
-  for (const d of all) {
-    process.stderr.write(`${filePath}:${d.span.line}: [${d.severity}] ${d.code}: ${d.message}\n`);
-  }
+  printDiags(all);
   process.exit(all.filter(d => d.severity === 'error').length > 0 ? 1 : 0);
 } else if (command === 'mermaid') {
   const errors = parseDiags.filter(d => d.severity === 'error');
   if (errors.length > 0) {
-    for (const d of errors) {
-      process.stderr.write(`${filePath}:${d.span.line}: [error] ${d.code}: ${d.message}\n`);
-    }
+    printDiags(errors);
     process.exit(1);
   }
-  const checkDiags = check(mainDoc, mainResolved);
-  for (const d of checkDiags) {
-    process.stderr.write(`${filePath}:${d.span.line}: [${d.severity}] ${d.code}: ${d.message}\n`);
+  const project = resolveProject(documents);
+  const mainResolved = project.getModule(entryModule)!;
+  const checkDiags = check(documents.get(entryModule)!, mainResolved);
+  printDiags(checkDiags);
+  process.stdout.write(toMermaid(documents.get(entryModule)!) + '\n');
+  process.exit(0);
+} else if (command === 'simulate') {
+  const errors = parseDiags.filter(d => d.severity === 'error');
+  if (errors.length > 0) {
+    printDiags(errors);
+    process.exit(1);
   }
-  process.stdout.write(toMermaid(mainDoc) + '\n');
+  process.stdout.write(toSimulator(documents, entryModule) + '\n');
   process.exit(0);
 } else {
-  process.stderr.write(`Error: unknown command '${command}'. Use 'check' or 'mermaid'.\n`);
+  process.stderr.write(`Error: unknown command '${command}'. Use 'check', 'mermaid', or 'simulate'.\n`);
   process.exit(1);
 }

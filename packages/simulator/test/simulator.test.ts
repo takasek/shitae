@@ -1,0 +1,46 @@
+import { describe, it, expect } from 'vitest';
+import { parse } from '@shitae/parser';
+import { toSimulator } from '../src/simulator.js';
+
+function parseOk(src: string) {
+  const { document, diagnostics } = parse(src);
+  const errors = diagnostics.filter((d) => d.severity === 'error');
+  if (errors.length > 0) throw new Error(`parse error: ${errors[0]!.message}`);
+  return document;
+}
+
+describe('toSimulator', () => {
+  it('returns a complete HTML document', () => {
+    const doc = parseOk('# ホーム\n---\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).toContain('<!DOCTYPE html>');
+    expect(html).toContain('<html');
+    expect(html).toContain('</html>');
+  });
+
+  it('embeds simulator data as JSON', () => {
+    const doc = parseOk('# ホーム\n---\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).toContain('"entryComponent"');
+    expect(html).toContain('"ホーム"');
+  });
+
+  it('contains script tag with JS runtime', () => {
+    const doc = parseOk('# ホーム\n---\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).toContain('<script>');
+  });
+
+  it('renders component name in the page', () => {
+    const doc = parseOk('# マイページ\nアイコン\n---\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).toContain('マイページ');
+  });
+
+  it('is self-contained (no external resource links)', () => {
+    const doc = parseOk('# A\n---\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).not.toMatch(/src="https?:/);
+    expect(html).not.toMatch(/href="https?:/);
+  });
+});

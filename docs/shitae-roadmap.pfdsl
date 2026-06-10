@@ -17,9 +17,13 @@ artifact:
   xstate_pkg:     { label: "@shitae/transpiler-xstate",        status: done,
                     description: "XState v5 state machine を生成。push=context stack, back()=predecessor guards, goto=simple transition。1 Document = 1 Machine。" }
   xstate_files:   { label: "*.ts (XState 状態機械)",            status: todo }
-  simulator:      { label: "shitae simulator",                  status: todo,
+  simulator:      { label: "@shitae/simulator",                 status: done,
                     description: "shitae simulate <file> で単一 HTML 生成。現在地(component/variation)の要素とアクション一覧を表示し、クリックで状態遷移。複数 result はラベル付きボタンで選択。effect は画面留まりトースト表示。push/back でスタック管理。依存ゼロのブラウザ完結。" }
   span_fix:       { label: "Span 精度 (offset/col)",            status: done }
+  sim_shitae:     { label: "simulator.shitae (ドッグフード設計図)", status: todo,
+                    description: "simulator 自体の画面フローを .shitae で書く。設計者が shitae を使って揉み、言語の不足・不満をフィードバックして仕様に反映する。" }
+  sim_polished:   { label: "@shitae/simulator (polish済み)",    status: todo,
+                    description: "sim_shitae のドッグフードで発見したバグ・UX 問題を修正。セッション/back の壁の視覚化、variation 初期表示、エラー表示等。" }
 
 process:
   design:  { label: "言語設計" }
@@ -29,7 +33,9 @@ process:
   phase4:  { label: "Phase 4: cross-file resolver + cli" }
   phase5:  { label: "Phase 5: XState transpiler" }
   phase6:  { label: "Phase 6: simulator" }
-  phase7:  { label: "Phase 7: polish" }
+  phase7:  { label: "Phase 7: span精度" }
+  phase8:  { label: "Phase 8: dogfood" }
+  phase9:  { label: "Phase 9: simulator polish" }
 
 statusStyles:
   done: { fillcolor: "#d4edda", style: filled }
@@ -48,3 +54,5 @@ spec >> design -> samples
 [ast_pkg, parser_pkg, cross_resolver, runtime_pkg] >> phase5 -> [xstate_pkg, xstate_files]
 [parser_pkg, cross_resolver, runtime_pkg] >> phase6 -> simulator
 parser_pkg >> phase7 -> span_fix
+simulator >> phase8 -> sim_shitae
+sim_shitae >> phase9 -> sim_polished
