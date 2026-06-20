@@ -20,7 +20,7 @@ const loc = (component: string, variation?: string, module?: string): Location =
   variation: variation ?? null,
 });
 
-const dummySpan: Span = { line: 1 };
+const dummySpan: Span = { offset: 0, length: 0, line: 1, col: 1 };
 
 const navComp = (name: string, variation?: string, module?: string): NavTarget => ({
   kind: 'component',
