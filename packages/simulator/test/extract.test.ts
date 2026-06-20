@@ -60,7 +60,10 @@ describe('extractSimData', () => {
     expect(result.body.type).toBe('transition');
     if (result.body.type === 'transition') {
       expect(result.body.word).toBe('push');
-      expect(result.body.target?.component).toBe('B');
+      expect(result.body.target?.kind).toBe('full');
+      if (result.body.target?.kind === 'full') {
+        expect(result.body.target.component).toBe('B');
+      }
     }
   });
 
