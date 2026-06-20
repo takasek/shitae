@@ -8,8 +8,9 @@
     "shitae": "./dist/index.js"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -p tsconfig.test.json",
     "build": "tsc",
+    "pretest": "pnpm --filter \"@shitae/cli...\" build",
     "test": "vitest run"
   },
   "dependencies": {

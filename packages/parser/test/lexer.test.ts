@@ -4,8 +4,8 @@ import {
   buildLogicalLines,
   buildLineOffsets,
   readName,
-  readUntil,
-  skipWhitespace,
+  scanTopLevel,
+  splitTopLevel,
 } from '../src/lexer.js';
 
 // ---------------------------------------------------------------------------
@@ -154,29 +154,6 @@ describe('buildLogicalLines', () => {
 });
 
 // ---------------------------------------------------------------------------
-// skipWhitespace
-// ---------------------------------------------------------------------------
-describe('skipWhitespace', () => {
-  it('スペースとタブをスキップする', () => {
-    expect(skipWhitespace('   abc', 0)).toBe(3);
-    expect(skipWhitespace('\t\t x', 0)).toBe(3);
-    expect(skipWhitespace('abc', 0)).toBe(0);
-  });
-
-  it('pos から開始する', () => {
-    expect(skipWhitespace('ab  cd', 2)).toBe(4);
-  });
-
-  it('末尾まで達した場合は文字列長を返す', () => {
-    expect(skipWhitespace('   ', 0)).toBe(3);
-  });
-
-  it('改行（\\n）はスキップしない', () => {
-    expect(skipWhitespace('\n  foo', 0)).toBe(0);
-  });
-});
-
-// ---------------------------------------------------------------------------
 // readName
 // ---------------------------------------------------------------------------
 describe('readName', () => {
@@ -233,48 +210,49 @@ describe('readName', () => {
 });
 
 // ---------------------------------------------------------------------------
-// readUntil
+// scanTopLevel
 // ---------------------------------------------------------------------------
-describe('readUntil', () => {
-  it('sep の手前まで読む', () => {
-    const r = readUntil('abc->def', 0, ['->']);
-    expect(r.text).toBe('abc');
-    expect(r.end).toBe(3);
+describe('scanTopLevel', () => {
+  it('各文字を depth（その文字の手前までの括弧の深さ）付きで列挙する', () => {
+    const got = [...scanTopLevel('a(b)c', '()')].map((t) => [t.ch, t.i, t.depth]);
+    expect(got).toEqual([
+      ['a', 0, 0],
+      ['(', 1, 0],
+      ['b', 2, 1],
+      [')', 3, 1],
+      ['c', 4, 0],
+    ]);
   });
 
-  it('sep が見つからなければ末尾まで', () => {
-    const r = readUntil('abcdef', 0, []);
-    expect(r.text).toBe('abcdef');
-    expect(r.end).toBe(6);
+  it('クォート内の文字は列挙しない', () => {
+    const chars = [...scanTopLevel('a"b;c"d', '()')].map((t) => t.ch);
+    expect(chars).toEqual(['a', 'd']);
   });
 
-  it('クォート内の sep は無視する', () => {
-    const r = readUntil('"foo->bar"->end', 0, ['->']);
-    expect(r.text).toBe('"foo->bar"');
-    expect(r.end).toBe(10);
+  it('brackets に含まれない括弧は深さに影響しない', () => {
+    const got = [...scanTopLevel('[a]', '()')].map((t) => t.depth);
+    expect(got).toEqual([0, 0, 0]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// splitTopLevel
+// ---------------------------------------------------------------------------
+describe('splitTopLevel', () => {
+  it('トップレベルの区切り文字で分割する', () => {
+    expect(splitTopLevel('a;b;c', ';', '()[]{}')).toEqual(['a', 'b', 'c']);
   });
 
-  it('複数の sep のうち最初に出現するもので止まる', () => {
-    const r = readUntil('a(b)->c', 0, ['(', '->']);
-    expect(r.text).toBe('a');
-    expect(r.end).toBe(1);
+  it('括弧の内側の区切り文字では分割しない', () => {
+    expect(splitTopLevel('f(a,b),c', ',', '()')).toEqual(['f(a,b)', 'c']);
   });
 
-  it('先頭の空白を含む場合は text にそのまま含まれる（trailing trim はしない）', () => {
-    const r = readUntil('abc ', 0, ['->']);
-    expect(r.text).toBe('abc ');
+  it('クォート内の区切り文字では分割しない', () => {
+    expect(splitTopLevel('"a;b";c', ';', '()')).toEqual(['"a;b"', 'c']);
   });
 
-  it('複数文字の sep（##）を正しく扱う', () => {
-    const r = readUntil('Component##Variation', 0, ['##']);
-    expect(r.text).toBe('Component');
-    expect(r.end).toBe(9);
-  });
-
-  it('クォート内の ( ) は区切り文字として扱わない', () => {
-    const r = readUntil('"foo (bar)")', 0, [')']);
-    expect(r.text).toBe('"foo (bar)"');
-    expect(r.end).toBe(11);
+  it('区切り文字がなければ単一要素', () => {
+    expect(splitTopLevel('abc', ';', '()')).toEqual(['abc']);
   });
 });
 
