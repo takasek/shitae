@@ -134,6 +134,66 @@ function countBraceDepthChange(line: string): number {
 }
 
 // ---------------------------------------------------------------------------
+// scanTopLevel
+//
+// Iterate over `text` yielding every character that is *not* inside a
+// double-quoted string, together with its index and the bracket nesting
+// `depth` measured immediately before that character.
+//
+// `brackets` selects which bracket pairs contribute to the depth count
+// (e.g. '()' for parens only, '()[]{}' for all). This single primitive
+// backs every "find the X at top level" / "split on Y at top level" scan
+// in the parser, so the quote/bracket bookkeeping lives in exactly one place.
+// ---------------------------------------------------------------------------
+const OPEN_BRACKETS = '([{';
+const CLOSE_BRACKETS = ')]}';
+
+export interface TopLevelChar {
+  ch: string;
+  i: number;
+  depth: number;
+}
+
+export function* scanTopLevel(text: string, brackets: string): Generator<TopLevelChar> {
+  let depth = 0;
+  let inQuote = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === '"') {
+      inQuote = !inQuote;
+      continue;
+    }
+    if (inQuote) continue;
+
+    yield { ch, i, depth };
+
+    if (brackets.includes(ch)) {
+      if (OPEN_BRACKETS.includes(ch)) depth++;
+      else if (CLOSE_BRACKETS.includes(ch)) depth--;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// splitTopLevel
+//
+// Split `text` on every occurrence of the single-character `delimiter` that
+// appears at bracket depth 0 and outside quotes.
+// ---------------------------------------------------------------------------
+export function splitTopLevel(text: string, delimiter: string, brackets: string): string[] {
+  const parts: string[] = [];
+  let start = 0;
+  for (const { ch, i, depth } of scanTopLevel(text, brackets)) {
+    if (ch === delimiter && depth === 0) {
+      parts.push(text.slice(start, i));
+      start = i + 1;
+    }
+  }
+  parts.push(text.slice(start));
+  return parts;
+}
+
+// ---------------------------------------------------------------------------
 // skipWhitespace
 //
 // Return the next position after skipping spaces and tabs.

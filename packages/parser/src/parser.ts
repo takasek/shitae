@@ -27,11 +27,15 @@ import { TRANSITION_WORDS } from '@shitae/ast';
 import {
   stripComments,
   buildLogicalLines,
-  skipWhitespace,
   readName,
-  readUntil,
+  scanTopLevel,
+  splitTopLevel,
   type LogicalLine,
 } from './lexer.js';
+
+// Bracket sets used by the top-level scanners below.
+const ALL_BRACKETS = '()[]{}';
+const PARENS = '()';
 
 // ---------------------------------------------------------------------------
 // Internal builders
@@ -362,17 +366,8 @@ function parseElementLine(
  * Returns -1 if not found.
  */
 function findColonOutside(text: string): number {
-  let depth = 0;
-  let inQuote = false;
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    if (ch === '"') {
-      inQuote = !inQuote;
-    } else if (!inQuote) {
-      if (ch === '{') depth++;
-      else if (ch === '}') depth--;
-      else if (ch === ':' && depth === 0) return i;
-    }
+  for (const { ch, i, depth } of scanTopLevel(text, '{}')) {
+    if (ch === ':' && depth === 0) return i;
   }
   return -1;
 }
@@ -416,8 +411,8 @@ function parseInline(
   if (inner.endsWith('}')) inner = inner.slice(0, -1);
 
   // Split by ; (from buildLogicalLines multi-line joining)
-  // splitBySemicolon はクォート・括弧保護済み
-  const parts = splitBySemicolon(inner);
+  // splitTopLevel はクォート・括弧保護済み
+  const parts = splitTopLevel(inner, ';', ALL_BRACKETS);
   const elements: ElementLine[] = [];
 
   for (const part of parts) {
@@ -482,19 +477,8 @@ function parseInteractionLine(
  * Find the index of the first '->' that is not inside quotes or parentheses.
  */
 function findFirstArrow(text: string): number {
-  let depth = 0;
-  let inQuote = false;
-  for (let i = 0; i < text.length - 1; i++) {
-    const ch = text[i];
-    if (ch === '"') {
-      inQuote = !inQuote;
-    } else if (!inQuote) {
-      if (ch === '(' || ch === '[' || ch === '{') depth++;
-      else if (ch === ')' || ch === ']' || ch === '}') depth--;
-      else if (ch === '-' && text[i + 1] === '>' && depth === 0) {
-        return i;
-      }
-    }
+  for (const { ch, i, depth } of scanTopLevel(text, ALL_BRACKETS)) {
+    if (ch === '-' && text[i + 1] === '>' && depth === 0) return i;
   }
   return -1;
 }
@@ -527,37 +511,16 @@ function parseAction(
 }
 
 function findLastOpenParen(text: string): number {
-  let inQuote = false;
-  let depth = 0;
   let lastTopLevelIdx = -1;
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    if (ch === '"') inQuote = !inQuote;
-    else if (!inQuote) {
-      if (ch === '(') {
-        if (depth === 0) lastTopLevelIdx = i;
-        depth++;
-      } else if (ch === ')') {
-        depth--;
-      }
-    }
+  for (const { ch, i, depth } of scanTopLevel(text, PARENS)) {
+    if (ch === '(' && depth === 0) lastTopLevelIdx = i;
   }
   return lastTopLevelIdx;
 }
 
 function findCloseParen(text: string): number {
-  let depth = 0;
-  let inQuote = false;
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    if (ch === '"') inQuote = !inQuote;
-    else if (!inQuote) {
-      if (ch === '(') depth++;
-      else if (ch === ')') {
-        if (depth === 0) return i;
-        depth--;
-      }
-    }
+  for (const { ch, i, depth } of scanTopLevel(text, PARENS)) {
+    if (ch === ')' && depth === 0) return i;
   }
   return -1;
 }
@@ -610,7 +573,7 @@ function parseResultList(
   diagnostics: Diagnostic[]
 ): Result[] {
   // Split by ';' outside quotes and brackets
-  const tokens = splitBySemicolon(text);
+  const tokens = splitTopLevel(text, ';', ALL_BRACKETS);
   const results: Result[] = [];
   for (const token of tokens) {
     const t = token.trim();
@@ -619,28 +582,6 @@ function parseResultList(
     if (r) results.push(r);
   }
   return results;
-}
-
-function splitBySemicolon(text: string): string[] {
-  const parts: string[] = [];
-  let depth = 0;
-  let inQuote = false;
-  let start = 0;
-
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    if (ch === '"') inQuote = !inQuote;
-    else if (!inQuote) {
-      if (ch === '(' || ch === '[' || ch === '{') depth++;
-      else if (ch === ')' || ch === ']' || ch === '}') depth--;
-      else if (ch === ';' && depth === 0) {
-        parts.push(text.slice(start, i));
-        start = i + 1;
-      }
-    }
-  }
-  parts.push(text.slice(start));
-  return parts;
 }
 
 // ---------------------------------------------------------------------------
@@ -704,7 +645,7 @@ function parseTransition(
   span: Span,
   diagnostics: Diagnostic[]
 ): Transition {
-  const args = splitArgs(argsText.trim());
+  const args = splitTopLevel(argsText.trim(), ',', PARENS);
 
   switch (word) {
     case 'push':
@@ -739,31 +680,6 @@ function parseTransition(
       return { kind: 'transition', word, target: null, session, span };
     }
   }
-}
-
-/**
- * Split comma-separated arguments, respecting parentheses and quotes.
- */
-function splitArgs(text: string): string[] {
-  const parts: string[] = [];
-  let depth = 0;
-  let inQuote = false;
-  let start = 0;
-
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    if (ch === '"') inQuote = !inQuote;
-    else if (!inQuote) {
-      if (ch === '(') depth++;
-      else if (ch === ')') depth--;
-      else if (ch === ',' && depth === 0) {
-        parts.push(text.slice(start, i));
-        start = i + 1;
-      }
-    }
-  }
-  if (start <= text.length) parts.push(text.slice(start));
-  return parts;
 }
 
 // ---------------------------------------------------------------------------
