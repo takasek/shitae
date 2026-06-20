@@ -101,8 +101,7 @@ export function parseDocument(source: string): { document: Document; diagnostics
         span: variationBuilder.span,
       };
       // Check duplicate variation
-      const dupes = componentBuilder.variations.filter((x) => x.name === v.name);
-      if (dupes.length > 0) {
+      if (componentBuilder.variations.some((x) => x.name === v.name)) {
         diagnostics.push({
           severity: 'error',
           code: 'E006',
@@ -128,8 +127,7 @@ export function parseDocument(source: string): { document: Document; diagnostics
         span: componentBuilder.span,
       };
       // Check duplicate component
-      const dupes = components.filter((x) => x.name === c.name);
-      if (dupes.length > 0) {
+      if (components.some((x) => x.name === c.name)) {
         diagnostics.push({
           severity: 'error',
           code: 'E005',
