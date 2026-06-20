@@ -194,18 +194,6 @@ export function splitTopLevel(text: string, delimiter: string, brackets: string)
 }
 
 // ---------------------------------------------------------------------------
-// skipWhitespace
-//
-// Return the next position after skipping spaces and tabs.
-// ---------------------------------------------------------------------------
-export function skipWhitespace(source: string, pos: number): number {
-  while (pos < source.length && (source[pos] === ' ' || source[pos] === '\t')) {
-    pos++;
-  }
-  return pos;
-}
-
-// ---------------------------------------------------------------------------
 // readName
 //
 // Read a name (identifier) from `source` at `pos`.
@@ -247,41 +235,6 @@ export function readName(
 
   if (i === pos) return null;
   return { name: source.slice(pos, i), end: i };
-}
-
-// ---------------------------------------------------------------------------
-// readUntil
-//
-// Read from `pos` until one of `seps` is found (outside quoted strings).
-// Returns the text before the separator and the position at the separator.
-// If no separator is found, returns the rest of the string.
-// ---------------------------------------------------------------------------
-export function readUntil(
-  source: string,
-  pos: number,
-  seps: string[]
-): { text: string; end: number } {
-  let i = pos;
-
-  while (i < source.length) {
-    if (source[i] === '"') {
-      // Skip quoted string
-      i++;
-      while (i < source.length && source[i] !== '"') i++;
-      if (i < source.length) i++; // skip closing "
-      continue;
-    }
-
-    // seps は長いものを先に並べること（'##' を '#' より前に置くなど）
-    const found = seps.find((sep) => source.startsWith(sep, i));
-    if (found !== undefined) {
-      return { text: source.slice(pos, i), end: i };
-    }
-
-    i++;
-  }
-
-  return { text: source.slice(pos), end: i };
 }
 
 // ---------------------------------------------------------------------------
