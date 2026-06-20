@@ -10,6 +10,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "build": "tsc",
+    "pretest": "pnpm --filter \"@shitae/cli...\" build",
     "test": "vitest run"
   },
   "dependencies": {
