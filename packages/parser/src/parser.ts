@@ -335,6 +335,7 @@ function parseElementLine(
   lineOffsets: number[],
   diagnostics: Diagnostic[]
 ): ElementLine | null {
+<<<<<<< HEAD
   const raw = ll.text;
   const firstNonSpace = raw.search(/\S/);
   const col = firstNonSpace === -1 ? 1 : firstNonSpace + 1;
@@ -342,6 +343,10 @@ function parseElementLine(
   const length = firstNonSpace === -1 ? 0 : raw.trimEnd().length - firstNonSpace;
   const span: Span = { offset, length, line: ll.startLine, col };
   let text = raw.trim();
+=======
+  const span: Span = { line: ll.startLine };
+  let text = ll.text.trim();
+>>>>>>> feb2ee8 (refactor(ast): Span を line のみに縮小（YAGNI）)
 
   // Collection flag
   let collection = false;
@@ -449,6 +454,7 @@ function parseInteractionLine(
   lineOffsets: number[],
   diagnostics: Diagnostic[]
 ): Interaction | null {
+<<<<<<< HEAD
   const raw = ll.text;
   const firstNonSpace = raw.search(/\S/);
   const col = firstNonSpace === -1 ? 1 : firstNonSpace + 1;
@@ -456,6 +462,10 @@ function parseInteractionLine(
   const length = firstNonSpace === -1 ? 0 : raw.trimEnd().length - firstNonSpace;
   const span: Span = { offset, length, line: ll.startLine, col };
   const text = raw.trim();
+=======
+  const span: Span = { line: ll.startLine };
+  const text = ll.text.trim();
+>>>>>>> feb2ee8 (refactor(ast): Span を line のみに縮小（YAGNI）)
 
   // Split on first ->
   const arrowIdx = findFirstArrow(text);

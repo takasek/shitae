@@ -1,8 +1,6 @@
 export interface Span {
-  offset: number;
-  length: number;
+  /** 1-based 行番号。列・オフセットは未使用のため持たない（必要になれば足す） */
   line: number;
-  col: number;
 }
 
 export interface Diagnostic {
