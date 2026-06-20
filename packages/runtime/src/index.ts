@@ -67,8 +67,6 @@ export function entryFromDocument(doc: Document): Location {
 // 内部ユーティリティ
 // ──────────────────────────────────────────────────
 
-const ZERO_SPAN: Span = { offset: 0, length: 0, line: 0, col: 0 };
-
 function warn(code: string, message: string, span: Span): Diagnostic {
   return { severity: 'warning', code, message, span };
 }

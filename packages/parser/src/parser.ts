@@ -76,9 +76,7 @@ export function parseDocument(source: string): { document: Document; diagnostics
   let seenFirstComponent = false;
 
   function makeSpan(startLine: number): Span {
-    // Simple span: offset approximation based on line number
-    // We use line number (1-based) and col=0 as approximation
-    return { offset: 0, length: 0, line: startLine, col: 0 };
+    return { line: startLine };
   }
 
   function finalizeVariation(): void {
@@ -330,7 +328,7 @@ function parseElementLine(
   ll: LogicalLine,
   diagnostics: Diagnostic[]
 ): ElementLine | null {
-  const span: Span = { offset: 0, length: 0, line: ll.startLine, col: 0 };
+  const span: Span = { line: ll.startLine };
   let text = ll.text.trim();
 
   // Collection flag
@@ -435,7 +433,7 @@ function parseInteractionLine(
   ll: LogicalLine,
   diagnostics: Diagnostic[]
 ): Interaction | null {
-  const span: Span = { offset: 0, length: 0, line: ll.startLine, col: 0 };
+  const span: Span = { line: ll.startLine };
   const text = ll.text.trim();
 
   // Split on first ->
