@@ -1,4 +1,4 @@
-import type { Document, Component, Variation, ElementLine } from '@shitae/ast';
+import type { Document, Component, Variation, ElementLine, Interaction, Result } from '@shitae/ast';
 
 export interface ProjectResolveResult {
   modules: Map<string, ResolveResult>;
@@ -88,4 +88,31 @@ export function resolveProject(documents: Map<string, Document>): ProjectResolve
       return modules.get(imp.module);
     },
   };
+}
+
+/**
+ * Compute effective labels for results in an interaction by carrying forward
+ * the most recent explicit label through subsequent unlabeled results.
+ *
+ * According to SPEC ("未定・分岐"), a [label] applies to itself and all
+ * subsequent results until a different label appears. This function propagates
+ * that semantic forward.
+ */
+export function effectiveResults(
+  interaction: Interaction,
+): Array<{ label: string | null; result: Result }> {
+  let currentLabel: string | null = null;
+  const effective: Array<{ label: string | null; result: Result }> = [];
+
+  for (const result of interaction.results) {
+    if (result.label !== null) {
+      currentLabel = result.label;
+    }
+    effective.push({
+      label: currentLabel,
+      result,
+    });
+  }
+
+  return effective;
 }

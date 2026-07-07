@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { resolve, resolveProject } from '../src/index.js';
+import { resolve, resolveProject, effectiveResults } from '../src/index.js';
 import { parse } from '../../parser/src/index.js';
 
 describe('resolve', () => {
@@ -118,5 +118,58 @@ describe('resolveProject', () => {
     const { document } = parse('# A\nロゴ\n');
     const result = resolveProject(new Map([['main', document]]));
     expect(result.getByAlias('unknown_module', 'auth')).toBeUndefined();
+  });
+});
+
+describe('effectiveResults', () => {
+  it('no labels at all → all results have null effective label', () => {
+    const { document } = parse('# A\n> タップ -> back() ; goto(B)');
+    const interaction = document.components[0].common.interactions[0];
+    const effective = effectiveResults(interaction);
+    expect(effective).toHaveLength(2);
+    expect(effective[0].label).toBeNull();
+    expect(effective[1].label).toBeNull();
+  });
+
+  it('first label partway through → leading results stay null, rest inherit', () => {
+    const { document } = parse('# A\n> タップ ->\n> back() ; [成功] goto(B)');
+    const interaction = document.components[0].common.interactions[0];
+    const effective = effectiveResults(interaction);
+    expect(effective).toHaveLength(2);
+    expect(effective[0].label).toBeNull();
+    expect(effective[0].result.label).toBeNull();
+    expect(effective[1].label).toBe('成功');
+    expect(effective[1].result.label).toBe('成功');
+  });
+
+  it('one label applies across multiple results', () => {
+    const { document } = parse('# A\n> タップ -> [成功] goto(A) ; back() ; exit()');
+    const interaction = document.components[0].common.interactions[0];
+    const effective = effectiveResults(interaction);
+    expect(effective).toHaveLength(3);
+    expect(effective[0].label).toBe('成功');
+    expect(effective[1].label).toBe('成功');
+    expect(effective[2].label).toBe('成功');
+  });
+
+  it('multiple labels switch partway through', () => {
+    const { document } = parse('# X\n> タップ(X) ->\n> [成功] A ; goto(B)\n> [失敗] C');
+    const interaction = document.components[0].common.interactions[0];
+    const effective = effectiveResults(interaction);
+    expect(effective).toHaveLength(3);
+    expect(effective[0].label).toBe('成功');
+    expect(effective[0].result.label).toBe('成功');
+    expect(effective[1].label).toBe('成功');
+    expect(effective[1].result.label).toBeNull();
+    expect(effective[2].label).toBe('失敗');
+    expect(effective[2].result.label).toBe('失敗');
+  });
+
+  it('preserves original Result objects (not copied)', () => {
+    const { document } = parse('# A\n> タップ -> [成功] goto(B) ; back()');
+    const interaction = document.components[0].common.interactions[0];
+    const effective = effectiveResults(interaction);
+    expect(effective[0].result).toBe(interaction.results[0]);
+    expect(effective[1].result).toBe(interaction.results[1]);
   });
 });
