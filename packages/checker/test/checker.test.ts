@@ -7,7 +7,7 @@ import { join } from 'path';
 
 describe('check', () => {
   it('クリーンなファイルで警告なし', () => {
-    const { document } = parse('# ホーム\nロゴ\n---\nタップ -> push(設定)\n# 設定\n項目\n');
+    const { document } = parse('# ホーム\nロゴ\n> タップ -> push(設定)\n# 設定\n項目\n');
     const diags = check(document, resolve(document));
     expect(diags).toHaveLength(0);
   });
@@ -30,7 +30,7 @@ describe('check', () => {
 
   it('W102: variation 名を component として参照', () => {
     // '検索中' は component でなく マッチング の variation
-    const src = '# A\n---\n行動 -> goto(検索中)\n# マッチング\n## 検索中\n案内\n## 失敗\n案内\n';
+    const src = '# A\n> 行動 -> goto(検索中)\n# マッチング\n## 検索中\n案内\n## 失敗\n案内\n';
     const { document } = parse(src);
     const diags = check(document, resolve(document));
     const w102 = diags.filter(d => d.code === 'W102');
@@ -41,7 +41,7 @@ describe('check', () => {
 
   it('W102: component として存在するなら警告なし', () => {
     // '検索中' が component として定義されている
-    const src = '# A\n---\n行動 -> goto(検索中)\n# 検索中\n結果\n';
+    const src = '# A\n> 行動 -> goto(検索中)\n# 検索中\n結果\n';
     const { document } = parse(src);
     const diags = check(document, resolve(document));
     const w102 = diags.filter(d => d.code === 'W102');
@@ -66,7 +66,7 @@ describe('check', () => {
   it('W102: cross-module 参照（module::Name）は誤検知しない', () => {
     // 'other::検索中' は別モジュールのコンポーネント参照なので W102 を出さない
     // （ローカルに '検索中' という variation があっても）
-    const src = '# A\n---\n行動 -> goto(other::検索中)\n# マッチング\n## 検索中\n案内\n## 失敗\n案内\n';
+    const src = '# A\n> 行動 -> goto(other::検索中)\n# マッチング\n## 検索中\n案内\n## 失敗\n案内\n';
     const { document } = parse(src);
     const diags = check(document, resolve(document));
     const w102 = diags.filter(d => d.code === 'W102');
