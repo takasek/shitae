@@ -1,6 +1,6 @@
 // 例：EC アプリ — 集合・inline・モーダル・アンカー（フロー畳み）の実例
 //
-// *集合 / inline によるグルーピング / 姿(##) / present・dismiss（モーダル糖衣）/
+// *集合 / inline によるグルーピング / 姿(##) / present・dismiss（モーダル複合語）/
 // セッション(@S)で複数階層を一気に破棄 / back(component) / goto による置き換え
 // が登場する。
 
