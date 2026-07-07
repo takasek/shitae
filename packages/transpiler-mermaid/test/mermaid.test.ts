@@ -26,59 +26,59 @@ describe('toMermaid', () => {
   });
 
   it('goto → エッジ', () => {
-    const { document } = parse('# A\nロゴ\n---\n起動 -> goto(B)\n');
+    const { document } = parse('# A\nロゴ\n> 起動 -> goto(B)\n');
     const out = toMermaid(document);
     expect(out).toContain('A -->|"起動"| B');
   });
 
   it('push → エッジ', () => {
-    const { document } = parse('# A\n---\nタップ(設定) -> push(B)\n');
+    const { document } = parse('# A\n> タップ(設定) -> push(B)\n');
     const out = toMermaid(document);
     expect(out).toContain('-->|"タップ(設定)"| B');
   });
 
   it('goto ##姿 → 同 component の variation ノードへのエッジ', () => {
-    const { document } = parse('# A\n## x\n---\n行動 -> goto(##y)\n## y\n完了\n');
+    const { document } = parse('# A\n## x\n> 行動 -> goto(##y)\n## y\n完了\n');
     const out = toMermaid(document);
     expect(out).toContain('A_x -->|"行動"| A_y');
   });
 
   it('back() target なし → エッジなし', () => {
-    const { document } = parse('# A\n要素\n---\n戻る -> back()\n');
+    const { document } = parse('# A\n要素\n> 戻る -> back()\n');
     const out = toMermaid(document);
     const edges = out.split('\n').filter(l => l.includes('-->'));
     expect(edges).toHaveLength(0);
   });
 
   it('exit() → エッジなし', () => {
-    const { document } = parse('# A\n---\n終了 -> exit(@s)\n');
+    const { document } = parse('# A\n> 終了 -> exit(@s)\n');
     const out = toMermaid(document);
     const edges = out.split('\n').filter(l => l.includes('-->'));
     expect(edges).toHaveLength(0);
   });
 
   it('条件ラベルあり → [ラベル]action', () => {
-    const { document } = parse('# A\n---\n保存 -> [成功] goto(B)\n');
+    const { document } = parse('# A\n> 保存 -> [成功] goto(B)\n');
     const out = toMermaid(document);
     expect(out).toContain('"[成功]保存"');
   });
 
   it('present → エッジ', () => {
-    const { document } = parse('# A\n---\nタップ(設定) -> present(設定, @settings)\n');
+    const { document } = parse('# A\n> タップ(設定) -> present(設定, @settings)\n');
     const out = toMermaid(document);
     expect(out).toContain('-->');
     expect(out).toContain('設定');
   });
 
   it('back(target) → エッジあり', () => {
-    const { document } = parse('# A\n---\n戻る -> back(B)\n');
+    const { document } = parse('# A\n> 戻る -> back(B)\n');
     const out = toMermaid(document);
     expect(out).toContain('A -->');
     expect(out).toContain('| B');
   });
 
   it('dismiss() → エッジなし', () => {
-    const { document } = parse('# A\n---\n閉じる -> dismiss()\n');
+    const { document } = parse('# A\n> 閉じる -> dismiss()\n');
     const out = toMermaid(document);
     const edges = out.split('\n').filter(l => l.includes('-->'));
     expect(edges).toHaveLength(0);
@@ -98,7 +98,7 @@ describe('toMermaid', () => {
 
   it('variation ありコンポーネントへの参照 → 最初の variation ノードへのエッジ', () => {
     // push(商品詳細) で 商品詳細 が variation を持つ場合、商品詳細_読込中 へ向く
-    const src = '# 商品一覧\n---\nタップ -> push(商品詳細)\n# 商品詳細\n## 読込中\nスピナー\n## 表示\n画像\n';
+    const src = '# 商品一覧\n> タップ -> push(商品詳細)\n# 商品詳細\n## 読込中\nスピナー\n## 表示\n画像\n';
     const { document } = parse(src);
     const out = toMermaid(document);
     expect(out).toContain('商品一覧 -->|"タップ"| 商品詳細_読込中');
@@ -107,7 +107,7 @@ describe('toMermaid', () => {
 
   it('cross-module 参照はモジュールプレフィックス付きノード ID になる', () => {
     // goto(auth::Login) → "auth__Login" のような識別可能な ID
-    const src = '# A\nロゴ\n---\nログイン -> goto(auth::Login)\n';
+    const src = '# A\nロゴ\n> ログイン -> goto(auth::Login)\n';
     const { document } = parse(src);
     const out = toMermaid(document);
     // cross-module の edge は auth__Login (または auth_Login) を参照する
@@ -116,7 +116,7 @@ describe('toMermaid', () => {
 
   it('sanitizeId: 名前衝突があっても異なるノード ID を生成する', () => {
     // 'Sign In' と 'Sign_In' は sanitize すると同じになる可能性がある
-    const src = '# Sign In\nロゴ\n---\n進む -> goto(Sign_In)\n# Sign_In\nフォーム\n';
+    const src = '# Sign In\nロゴ\n> 進む -> goto(Sign_In)\n# Sign_In\nフォーム\n';
     const { document } = parse(src);
     const out = toMermaid(document);
     // 2つのコンポーネントが定義されているので 2つの別ノードが存在する
