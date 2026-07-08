@@ -121,6 +121,9 @@ importers:
       '@shitae/ast':
         specifier: workspace:*
         version: link:../ast
+      '@shitae/resolver':
+        specifier: workspace:*
+        version: link:../resolver
       '@shitae/runtime':
         specifier: workspace:*
         version: link:../runtime
@@ -128,9 +131,6 @@ importers:
       '@shitae/parser':
         specifier: workspace:*
         version: link:../parser
-      '@shitae/resolver':
-        specifier: workspace:*
-        version: link:../resolver
       typescript:
         specifier: ^5.8.3
         version: 5.9.3

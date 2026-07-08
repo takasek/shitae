@@ -62,7 +62,7 @@ let stack = [{
   sessionName: null,
 }];
 
-let pendingChoice = null; // { idx, actionText, results }
+let pendingChoice = null; // { actionText, choices }
 let toastTimer = null;
 
 function getComp(module, name) {
@@ -137,6 +137,11 @@ function applyTransition(result) {
       }
     }
   }
+}
+
+// 選択肢 1 つ分の result 群を順に全部起こす
+function runResults(bodies) {
+  for (const body of bodies) applyTransition(body);
   pendingChoice = null;
   render();
 }
@@ -151,23 +156,28 @@ function showToast(text) {
 function handleInteraction(idx) {
   const interaction = currentInteractions()[idx];
   if (!interaction) return;
-  if (interaction.results.length === 1) {
-    applyTransition(interaction.results[0].body);
+  // prelude（最初のラベルより前の result 群）は常に成立
+  for (const body of interaction.prelude) applyTransition(body);
+  if (interaction.choices.length === 0) {
+    pendingChoice = null;
+    render();
+  } else if (interaction.choices.length === 1) {
+    runResults(interaction.choices[0].results);
   } else {
-    pendingChoice = { idx, actionText: interaction.actionText, results: interaction.results };
+    pendingChoice = { actionText: interaction.actionText, choices: interaction.choices };
     render();
   }
 }
 
 function handleChoice(idx) {
   if (!pendingChoice) return;
-  const result = pendingChoice.results[idx];
+  const choice = pendingChoice.choices[idx];
   pendingChoice = null;
-  applyTransition(result.body);
+  runResults(choice.results);
 }
 
 function goBack() {
-  applyTransition({ type: 'transition', word: 'back', target: null, session: null });
+  runResults([{ type: 'transition', word: 'back', target: null, session: null }]);
 }
 
 function render() {
@@ -205,9 +215,9 @@ function render() {
     });
     actionsHtml += '</div>';
     if (pendingChoice) {
-      const choices = pendingChoice.results.map((r, idx) =>
+      const choices = pendingChoice.choices.map((c, idx) =>
         '<button class="choice-btn" onclick="handleChoice(' + idx + ')">' +
-        esc(r.label ?? '(ラベルなし)') + '</button>'
+        esc('[' + c.label + ']') + '</button>'
       ).join('');
       actionsHtml += '<div class="choice-panel"><div class="choice-label">' + esc(pendingChoice.actionText) + ' の結果を選択:</div><div class="choices">' + choices + '</div></div>';
     }
