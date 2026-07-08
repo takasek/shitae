@@ -201,6 +201,26 @@ describe('multiple results', () => {
   });
 });
 
+// ───── label inheritance (記法 v2: ラベルは次のラベルまでスコープ) ─────
+
+describe('label inheritance', () => {
+  it('unlabeled result inherits the nearest preceding label (goto edge reflects it)', () => {
+    const doc = parseOk(
+      '# A\n> タップ(保存) -> [成功] 保存する ; goto(B)\n\n# B\n',
+    );
+    const out = toXState(doc);
+    const start = out.indexOf("'タップ(保存)':");
+    expect(start).toBeGreaterThanOrEqual(0);
+    const end = out.indexOf('],', start);
+    const block = out.slice(start, end);
+    // goto(B) has no explicit label of its own, but inherits [成功]
+    // from the preceding labeled result — both the label and the
+    // goto target must appear together in the same event's transitions.
+    expect(block).toContain("target: 'B'");
+    expect(block).toContain('成功');
+  });
+});
+
 // ───── custom options ─────────────────────────────────────────────────
 
 describe('options', () => {
