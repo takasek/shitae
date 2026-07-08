@@ -11,7 +11,7 @@ function parseOk(src: string) {
 
 describe('extractSimData', () => {
   it('single component no variation', () => {
-    const doc = parseOk('# ホーム\nロゴ\n---\nタップ(ロゴ) -> push(設定)\n');
+    const doc = parseOk('# ホーム\nロゴ\n> タップ(ロゴ) -> push(設定)\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
     expect(data.entryModule).toBe('main');
     expect(data.entryComponent).toBe('ホーム');
@@ -23,7 +23,7 @@ describe('extractSimData', () => {
   });
 
   it('component with variations', () => {
-    const doc = parseOk('# 詳細\n## 読込中\nスピナー\n---\n## 表示\nコンテンツ\n---\nタップ(コンテンツ) -> push(次)\n');
+    const doc = parseOk('# 詳細\n## 読込中\nスピナー\n## 表示\nコンテンツ\n> タップ(コンテンツ) -> push(次)\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
     const comp = data.modules['main']!.components['詳細']!;
     expect(Object.keys(comp.variations)).toEqual(['読込中', '表示']);
@@ -33,7 +33,7 @@ describe('extractSimData', () => {
   });
 
   it('common elements appear in commonElements', () => {
-    const doc = parseOk('# プロフィール\nヘッダ\n---\nタップ(ヘッダ) -> back()\n## 未フォロー\nフォローボタン\n---\n');
+    const doc = parseOk('# プロフィール\nヘッダ\n> タップ(ヘッダ) -> back()\n## 未フォロー\nフォローボタン\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
     const comp = data.modules['main']!.components['プロフィール']!;
     expect(comp.commonElements).toContain('ヘッダ');
@@ -42,7 +42,7 @@ describe('extractSimData', () => {
   });
 
   it('interaction with multiple results', () => {
-    const doc = parseOk('# 保存\n---\nタップ(保存) -> [成功] goto(完了) ; [失敗] エラー表示\n');
+    const doc = parseOk('# 保存\n保存\n> タップ(保存) -> [成功] goto(完了) ; [失敗] エラー表示\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
     const comp = data.modules['main']!.components['保存']!;
     const interaction = comp.commonInteractions[0]!;
@@ -54,7 +54,7 @@ describe('extractSimData', () => {
   });
 
   it('transition result contains word and target', () => {
-    const doc = parseOk('# A\n---\nタップ -> push(B)\n');
+    const doc = parseOk('# A\n> タップ -> push(B)\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
     const result = data.modules['main']!.components['A']!.commonInteractions[0]!.results[0]!;
     expect(result.body.type).toBe('transition');
@@ -68,7 +68,7 @@ describe('extractSimData', () => {
   });
 
   it('entryComponent is first component', () => {
-    const doc = parseOk('# ログイン\n---\n\n# ホーム\n---\n');
+    const doc = parseOk('# ログイン\nID入力\n\n# ホーム\nフィード\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
     expect(data.entryComponent).toBe('ログイン');
   });
