@@ -127,3 +127,50 @@ describe('toMermaid', () => {
     expect(ids[0]).not.toBe(ids[1]);
   });
 });
+
+describe('ラベル継承（次のラベルまでスコープ）', () => {
+  it('無ラベルの遷移 result が直前のラベルを継承したエッジラベルになる', () => {
+    const src =
+      '# A\n保存\n> タップ(保存) ->\n>     [成功] 保存する ; goto(B)\n>     [失敗] エラーを表示する\n# B\n完了\n';
+    const { document } = parse(src);
+    const out = toMermaid(document);
+    expect(out).toContain('A -->|"[成功]タップ(保存)"| B');
+  });
+
+  it('最初のラベルより前の result はラベルなしのまま', () => {
+    const src = '# A\n> タップ ->\n>     goto(B)\n>     [失敗] エラーを表示する\n# B\nx\n';
+    const { document } = parse(src);
+    const out = toMermaid(document);
+    expect(out).toContain('A -->|"タップ"| B');
+    expect(out).not.toContain('[失敗]タップ');
+  });
+});
+
+describe('shadow 合成（姿固有が共通に勝つ）', () => {
+  const src = [
+    '# M',
+    '戻る',
+    '> タップ(戻る) -> goto(A)',
+    '## 検索中',
+    '> タップ(戻る) -> goto(B)',
+    '## 失敗',
+    '案内',
+    '# A',
+    'x',
+    '# B',
+    'y',
+  ].join('\n');
+
+  it('shadow した姿からは姿固有エッジだけが出る', () => {
+    const out = toMermaid(parse(src).document);
+    expect(out).toContain('M_検索中 -->|"タップ(戻る)"| B');
+    expect(out).not.toContain('M_検索中 -->|"タップ(戻る)"| A');
+  });
+
+  it('shadow していない姿では共通エッジがその姿ノードから出る', () => {
+    const out = toMermaid(parse(src).document);
+    expect(out).toContain('M_失敗 -->|"タップ(戻る)"| A');
+    // 姿を持つ component の共通エッジは幻のベースノード（subgraph 外の未定義 id）からは出ない
+    expect(out).not.toMatch(/^ {2}M -->/m);
+  });
+});
