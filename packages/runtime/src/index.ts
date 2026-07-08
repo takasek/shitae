@@ -160,13 +160,16 @@ export function reduce(state: RuntimeState, transition: Transition): ReduceResul
     case 'goto': {
       if (!target) return { state, diagnostics: diags };
       const loc = navTargetToLocation(target, current);
+      const top = frames[frames.length - 1]!;
+      // SPEC:264 — ##姿 への goto は「積まれた時点のスタックエントリの姿を書き換える」だけ。
+      // wall・beginsSession・word（begin 地点であること自体）は保存する。
+      // component への goto（別 component への置換）は begin 地点を消す全置換のまま。
+      const newTop: Frame =
+        target.kind === 'variation'
+          ? { ...top, location: loc }
+          : { location: loc, wall: false, beginsSession: null, word: 'goto' };
       return {
-        state: {
-          frames: [
-            ...frames.slice(0, -1),
-            { location: loc, wall: false, beginsSession: null, word: 'goto' },
-          ],
-        },
+        state: { frames: [...frames.slice(0, -1), newTop] },
         diagnostics: diags,
       };
     }

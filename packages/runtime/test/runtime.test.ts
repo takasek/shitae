@@ -198,6 +198,64 @@ describe('reduce: goto', () => {
     expect(top.location.component).toBe('対戦'); // component は変わらない
     expect(top.location.variation).toBe('対戦中');
   });
+
+  // SPEC:264 goto(##姿) は「現在のスタックエントリの姿を書き換える」のみ。
+  // wall / beginsSession / word は保存される（present の壁・begin 地点が消えてはいけない）。
+  it('present で入った後 goto(##姿) しても wall と beginsSession が保存される（姿だけ変わる）', () => {
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('present', navComp('モーダル'), { name: 's' })));
+    const { state: s1 } = reduce(s, tr('goto', navVar('別姿')));
+    expect(s1.frames).toHaveLength(1 + 1);
+    const top = s1.frames[s1.frames.length - 1]!;
+    expect(top.location.component).toBe('モーダル');
+    expect(top.location.variation).toBe('別姿');
+    expect(top.wall).toBe(true);
+    expect(top.beginsSession).toEqual({ name: 's' });
+  });
+
+  it('present→goto(##姿) の後 exit(@S) が begin 地点へ正しく戻る（R002 が出ない）', () => {
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('present', navComp('モーダル'), { name: 's' })));
+    ({ state: s } = reduce(s, tr('goto', navVar('別姿'))));
+    const { state: s1, diagnostics } = reduce(s, tr('exit', undefined, { name: 's' }));
+    expect(diagnostics.some(d => d.code === 'R002')).toBe(false);
+    expect(s1.frames).toHaveLength(1);
+    expect(s1.frames[0]!.location.component).toBe('ホーム');
+  });
+
+  it('push(X,@S) で入った後 goto(##姿) しても beginsSession が保存される', () => {
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('push', navComp('画面'), { name: 's' })));
+    const { state: s1 } = reduce(s, tr('goto', navVar('別姿')));
+    const top = s1.frames[s1.frames.length - 1]!;
+    expect(top.wall).toBe(false);
+    expect(top.beginsSession).toEqual({ name: 's' });
+    expect(top.location.variation).toBe('別姿');
+  });
+
+  it('goto(component) は従来どおり全置換（beginsSession が消える。既存挙動の回帰）', () => {
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('present', navComp('モーダル'), { name: 's' })));
+    const { state: s1 } = reduce(s, tr('goto', navComp('別画面')));
+    const top = s1.frames[s1.frames.length - 1]!;
+    expect(top.location.component).toBe('別画面');
+    expect(top.wall).toBe(false);
+    expect(top.beginsSession).toBeNull();
+    expect(top.word).toBe('goto');
+  });
+
+  it('goto(##姿) 後に push → back で戻ると書き換え後の姿が見える', () => {
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('present', navComp('モーダル'), { name: 's' })));
+    ({ state: s } = reduce(s, tr('goto', navVar('別姿'))));
+    ({ state: s } = reduce(s, tr('push', navComp('サブ画面'))));
+    const { state: s1 } = reduce(s, tr('back'));
+    const top = s1.frames[s1.frames.length - 1]!;
+    expect(top.location.component).toBe('モーダル');
+    expect(top.location.variation).toBe('別姿');
+    expect(top.wall).toBe(true);
+    expect(top.beginsSession).toEqual({ name: 's' });
+  });
 });
 
 // ──────────────────────────────────────────────────

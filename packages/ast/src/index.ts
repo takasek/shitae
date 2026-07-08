@@ -39,7 +39,6 @@ export interface Variation {
 export interface Body {
   elements: ElementLine[];
   interactions: Interaction[];
-  hasInteractionSection: boolean;
 }
 
 export interface ElementLine {

@@ -10,7 +10,8 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@shitae/ast": "workspace:*"
+    "@shitae/ast": "workspace:*",
+    "@shitae/resolver": "workspace:*"
   },
   "devDependencies": {
     "@shitae/parser": "workspace:*",

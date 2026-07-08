@@ -1,13 +1,13 @@
 import type {
   Document,
   Component,
-  Body,
   Interaction,
   Result,
   Action,
   NavTarget,
   Reference,
 } from '@shitae/ast';
+import { effectiveResults, mergeInteractions } from '@shitae/resolver';
 
 export interface XStateOptions {
   id?: string;
@@ -77,8 +77,8 @@ function resolveNavTarget(
 function buildPredecessors(doc: Document): Map<string, string[]> {
   const pred = new Map<string, string[]>();
 
-  function processBody(body: Body, sourceId: string) {
-    for (const interaction of body.interactions) {
+  function processInteractions(interactions: Interaction[], sourceId: string) {
+    for (const interaction of interactions) {
       for (const result of interaction.results) {
         if (result.body.kind !== 'transition') continue;
         const tr = result.body;
@@ -97,12 +97,16 @@ function buildPredecessors(doc: Document): Map<string, string[]> {
 
   for (const comp of doc.components) {
     if (comp.variations.length === 0) {
-      processBody(comp.common, stateId(comp.name));
+      processInteractions(comp.common.interactions, stateId(comp.name));
     } else {
       for (const v of comp.variations) {
         const sid = stateId(comp.name, v.name);
-        processBody(comp.common, sid);
-        processBody(v.body, sid);
+        // Same shadow merge as state-node generation: a shadowed common
+        // push/present must not register a predecessor edge (v2)
+        processInteractions(
+          mergeInteractions(comp.common.interactions, v.body.interactions),
+          sid,
+        );
       }
     }
   }
@@ -211,18 +215,21 @@ function generateInteractionBlock(
 ): string {
   if (interactions.length === 0) return '';
 
-  // Group by event name
-  const eventMap = new Map<string, Result[]>();
+  // Group by event name. Labels follow v2 semantics: a [label] applies to
+  // itself and all subsequent unlabeled results (effectiveResults).
+  const eventMap = new Map<string, Array<{ label: string | null; result: Result }>>();
   for (const interaction of interactions) {
     const name = eventName(interaction.action);
     const list = eventMap.get(name) ?? [];
-    eventMap.set(name, list.concat(interaction.results));
+    eventMap.set(name, list.concat(effectiveResults(interaction)));
   }
 
   const eventLines: string[] = [];
   for (const [name, results] of eventMap) {
-    const transitions = results.flatMap((r) =>
-      generateTransition(r, sourceId, doc, predecessors),
+    const transitions = results.flatMap(({ label, result }) =>
+      generateTransition(result, sourceId, doc, predecessors).map((t) =>
+        label ? `${t} /* [${label}] */` : t,
+      ),
     );
     eventLines.push(
       `${ind(3)}${q(name)}: [\n${transitions.join(',\n')},\n${ind(3)}],`,
@@ -260,8 +267,12 @@ export function toXState(doc: Document, options?: XStateOptions): string {
     } else {
       for (const v of comp.variations) {
         const sid = stateId(comp.name, v.name);
-        // Interactions from common body + variation body
-        const interactions = [...comp.common.interactions, ...v.body.interactions];
+        // Common body + variation body, with variation-specific interactions
+        // shadowing common ones on (action.text, target) exact match (v2)
+        const interactions = mergeInteractions(
+          comp.common.interactions,
+          v.body.interactions,
+        );
         stateNodes.push(generateStateNode(sid, interactions, doc, predecessors));
       }
     }

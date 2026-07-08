@@ -33,7 +33,7 @@ describe('shitae check', () => {
 
   it('構文エラーで exit 1', async () => {
     const tmp = '/tmp/shitae_cli_test.shitae';
-    writeFileSync(tmp, '# A\n---\n行動 -> exit()\n');
+    writeFileSync(tmp, '# A\n行動 -> exit()\n');
     try {
       const { code, stderr } = await runCli(['check', tmp]);
       expect(code).toBe(1);
@@ -72,7 +72,7 @@ describe('shitae mermaid', () => {
   it('mermaid コマンドで checker の警告が stderr に出る', async () => {
     // W102: variation 名をコンポーネント名として参照している → 警告出るはず
     const tmp = '/tmp/shitae_mermaid_warning_test.shitae';
-    writeFileSync(tmp, '# A\n---\n行動 -> goto(検索中)\n# マッチング\n## 検索中\n案内\n## 失敗\n案内\n');
+    writeFileSync(tmp, '# A\n> 行動 -> goto(検索中)\n# マッチング\n## 検索中\n案内\n## 失敗\n案内\n');
     try {
       const { code, stderr, stdout } = await runCli(['mermaid', tmp]);
       // mermaid 自体は成功（exit 0）
@@ -95,7 +95,7 @@ describe('cross-file import', () => {
     writeFileSync(join(tmpDir, 'auth.shitae'), '# ログイン\nID入力\n');
     writeFileSync(
       join(tmpDir, 'main.shitae'),
-      'import auth as auth\n# ホーム\n---\nタップ -> push(auth::ログイン)\n'
+      'import auth as auth\n# ホーム\n> タップ -> push(auth::ログイン)\n'
     );
     try {
       const { code, stderr } = await runCli(['check', join(tmpDir, 'main.shitae')]);
@@ -126,7 +126,7 @@ describe('cross-file import', () => {
     writeFileSync(join(tmpDir, 'auth.shitae'), '# ログイン\nID入力\n');
     writeFileSync(
       join(tmpDir, 'main.shitae'),
-      'import auth as auth\n# ホーム\n---\nタップ -> push(auth::ログイン)\n'
+      'import auth as auth\n# ホーム\n> タップ -> push(auth::ログイン)\n'
     );
     try {
       const { code, stdout } = await runCli(['mermaid', join(tmpDir, 'main.shitae')]);

@@ -1,4 +1,5 @@
 import type { Document, Component, Interaction, Result } from '@shitae/ast';
+import { effectiveResults, mergeInteractions } from '@shitae/resolver';
 
 export interface SimTransition {
   type: 'transition';
@@ -15,14 +16,20 @@ export interface SimEffect {
   text: string;
 }
 
-export interface SimResult {
-  label: string | null;
-  body: SimTransition | SimEffect;
+export type SimResultBody = SimTransition | SimEffect;
+
+/** 同一有効ラベルの result 群 ＝ 1 つの選択肢（選ぶと results が順に全部起こる） */
+export interface SimChoice {
+  label: string;
+  results: SimResultBody[];
 }
 
 export interface SimInteraction {
   actionText: string;
-  results: SimResult[];
+  /** 最初のラベルより前の result 群。常に成立（分岐に依らず順に全部起こる） */
+  prelude: SimResultBody[];
+  /** 条件ラベル付きの選択肢。ラベル継承（effectiveResults）済み */
+  choices: SimChoice[];
 }
 
 export interface SimVariation {
@@ -34,6 +41,8 @@ export interface SimComponent {
   commonElements: string[];
   commonInteractions: SimInteraction[];
   variations: Record<string, SimVariation>;
+  /** 最初に定義された姿。姿指定なしで入ったときの初期姿。姿を持たなければ null */
+  initialVariation: string | null;
 }
 
 export interface SimModuleData {
@@ -52,8 +61,8 @@ function elementDisplayName(el: import('@shitae/ast').ElementLine): string {
   return '{...}';
 }
 
-function convertResult(r: Result): SimResult {
-  const { label, body } = r;
+function convertResultBody(r: Result): SimResultBody {
+  const { body } = r;
   if (body.kind === 'transition') {
     let target: SimTransition['target'] = null;
     if (body.target) {
@@ -69,25 +78,39 @@ function convertResult(r: Result): SimResult {
       }
     }
     return {
-      label,
-      body: {
-        type: 'transition',
-        word: body.word,
-        target,
-        session: body.session?.name ?? null,
-      },
+      type: 'transition',
+      word: body.word,
+      target,
+      session: body.session?.name ?? null,
     };
   } else {
-    return { label, body: { type: 'effect', text: body.text } };
+    return { type: 'effect', text: body.text };
   }
 }
 
 function convertInteraction(i: Interaction): SimInteraction {
   const action = i.action;
   const targetPart = action.target ? `(${action.target.name})` : '';
+  const prelude: SimResultBody[] = [];
+  const choices: SimChoice[] = [];
+  for (const { label, result } of effectiveResults(i)) {
+    const body = convertResultBody(result);
+    if (label === null) {
+      // effectiveResults はラベルを前方に引き継ぐため、null は最初のラベルより前だけ
+      prelude.push(body);
+    } else {
+      const last = choices[choices.length - 1];
+      if (last && last.label === label) {
+        last.results.push(body);
+      } else {
+        choices.push({ label, results: [body] });
+      }
+    }
+  }
   return {
     actionText: `${action.text}${targetPart}`,
-    results: i.results.map(convertResult),
+    prelude,
+    choices,
   };
 }
 
@@ -98,10 +121,19 @@ function convertComponent(comp: Component): SimComponent {
   for (const v of comp.variations) {
     variations[v.name] = {
       elements: v.body.elements.map(elementDisplayName),
-      interactions: v.body.interactions.map(convertInteraction),
+      // 姿で有効な interaction 一覧 = mergeInteractions(共通, 姿固有)。
+      // 同一 (行動, 対象) は姿固有が共通を shadow する
+      interactions: mergeInteractions(comp.common.interactions, v.body.interactions).map(
+        convertInteraction,
+      ),
     };
   }
-  return { commonElements, commonInteractions, variations };
+  return {
+    commonElements,
+    commonInteractions,
+    variations,
+    initialVariation: comp.variations[0]?.name ?? null,
+  };
 }
 
 export function extractSimData(

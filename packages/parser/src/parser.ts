@@ -46,7 +46,6 @@ interface ComponentBuilder {
   span: Span;
   commonElements: ElementLine[];
   commonInteractions: Interaction[];
-  commonHasInteractionSection: boolean;
   variations: Variation[];
 }
 
@@ -55,7 +54,6 @@ interface VariationBuilder {
   span: Span;
   elements: ElementLine[];
   interactions: Interaction[];
-  hasInteractionSection: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -73,7 +71,6 @@ export function parseDocument(source: string): { document: Document; diagnostics
 
   let componentBuilder: ComponentBuilder | null = null;
   let variationBuilder: VariationBuilder | null = null;
-  let section: 'element' | 'interaction' = 'element';
   let lastInteraction: Interaction | null = null;
   let seenFirstComponent = false;
 
@@ -99,7 +96,6 @@ export function parseDocument(source: string): { document: Document; diagnostics
         body: {
           elements: variationBuilder.elements,
           interactions: variationBuilder.interactions,
-          hasInteractionSection: variationBuilder.hasInteractionSection,
         },
         span: variationBuilder.span,
       };
@@ -124,7 +120,6 @@ export function parseDocument(source: string): { document: Document; diagnostics
         common: {
           elements: componentBuilder.commonElements,
           interactions: componentBuilder.commonInteractions,
-          hasInteractionSection: componentBuilder.commonHasInteractionSection,
         },
         variations: componentBuilder.variations,
         span: componentBuilder.span,
@@ -155,11 +150,20 @@ export function parseDocument(source: string): { document: Document; diagnostics
     return [];
   }
 
-  function setHasInteractionSection(): void {
-    if (variationBuilder) {
-      variationBuilder.hasInteractionSection = true;
-    } else if (componentBuilder) {
-      componentBuilder.commonHasInteractionSection = true;
+  // An interaction's result-list may be empty on its own "> action ->" line and
+  // still be valid, as long as continuation lines (`>` lines without `->`) fill
+  // it in afterwards (canonical multi-line branching). So E003 can only be
+  // decided once we know no more continuation lines will arrive for it — i.e.
+  // when the interaction stops being `lastInteraction` (a new interaction
+  // starts, the enclosing body ends, or the document ends).
+  function checkEmptyResultList(interaction: Interaction | null): void {
+    if (interaction && interaction.results.length === 0) {
+      diagnostics.push({
+        severity: 'error',
+        code: 'E003',
+        message: '空の result-list: -> の後に結果がありません',
+        span: interaction.span,
+      });
     }
   }
 
@@ -173,13 +177,12 @@ export function parseDocument(source: string): { document: Document; diagnostics
 
     // Empty line
     if (trimmed === '') {
-      // End of result continuation
-      lastInteraction = null;
       continue;
     }
 
     // Component header: "# name"
     if (raw.startsWith('# ') || raw === '#') {
+      checkEmptyResultList(lastInteraction);
       finalizeVariation();
       finalizeComponent();
       seenFirstComponent = true;
@@ -198,17 +201,16 @@ export function parseDocument(source: string): { document: Document; diagnostics
         span,
         commonElements: [],
         commonInteractions: [],
-        commonHasInteractionSection: false,
         variations: [],
       };
       variationBuilder = null;
-      section = 'element';
       lastInteraction = null;
       continue;
     }
 
     // Variation header: "## name"
     if (raw.startsWith('## ') || raw === '##') {
+      checkEmptyResultList(lastInteraction);
       finalizeVariation();
       const name = raw.slice(3).trim();
       variationBuilder = {
@@ -216,17 +218,7 @@ export function parseDocument(source: string): { document: Document; diagnostics
         span,
         elements: [],
         interactions: [],
-        hasInteractionSection: false,
       };
-      section = 'element';
-      lastInteraction = null;
-      continue;
-    }
-
-    // Section separator: "---" (only hyphens, 3+)
-    if (/^-{3,}$/.test(trimmed)) {
-      setHasInteractionSection();
-      section = 'interaction';
       lastInteraction = null;
       continue;
     }
@@ -253,47 +245,52 @@ export function parseDocument(source: string): { document: Document; diagnostics
       continue;
     }
 
-    if (section === 'element') {
-      // Check for -> in element section → W001
-      if (trimmed.includes('->')) {
-        diagnostics.push({
-          severity: 'warning',
-          code: 'W001',
-          message: '--- の前（要素節）に -> を含む行があります',
-          span,
-        });
-        // Still parse as element? Actually per spec it's a warning; treat as element-line
-      }
-      const el = parseElementLine(ll, lineOffsets, diagnostics);
-      if (el) currentElements().push(el);
-    } else {
-      // interaction section
-      if (trimmed.includes('->')) {
-        // New interaction
-        const interaction = parseInteractionLine(ll, lineOffsets, diagnostics);
+    if (trimmed.startsWith('>')) {
+      // Interaction line: leading '>' marker, subsequent whitespace/indent is non-meaningful.
+      const content = trimmed.slice(1).replace(/^[ \t]+/, '');
+      if (findFirstArrow(content) !== -1) {
+        // Contains '->' at top level → new interaction
+        checkEmptyResultList(lastInteraction);
+        const interaction = parseInteractionLine(ll, lineOffsets, content, diagnostics);
         if (interaction) {
           currentInteractions().push(interaction);
           lastInteraction = interaction;
+        } else {
+          lastInteraction = null;
         }
       } else {
-        // Continuation of previous interaction result list
+        // Continuation of the previous interaction's result-list (same body only)
         if (lastInteraction === null) {
           diagnostics.push({
-            severity: 'warning',
-            code: 'W002',
-            message: 'interaction が開始されていない継続行です',
+            severity: 'error',
+            code: 'E010',
+            message:
+              '継続行の前に interaction がありません（新しい interaction は行頭 > の後に action -> result が必要です）',
             span,
           });
         } else {
-          // Parse as additional results
-          const additionalResults = parseResultList(trimmed, span, diagnostics);
+          const additionalResults = parseResultList(content, span, diagnostics);
           lastInteraction.results.push(...additionalResults);
         }
       }
+    } else {
+      // Element line
+      if (containsArrowOutsideQuotes(trimmed)) {
+        diagnostics.push({
+          severity: 'error',
+          code: 'E011',
+          message:
+            '要素行に -> を含めることはできません（ヒント: インタラクション行は行頭 > が必要です）',
+          span,
+        });
+      }
+      const el = parseElementLine(ll, lineOffsets, diagnostics);
+      if (el) currentElements().push(el);
     }
   }
 
   // Finalize last component/variation
+  checkEmptyResultList(lastInteraction);
   finalizeVariation();
   finalizeComponent();
 
@@ -445,6 +442,7 @@ function parseInline(
 function parseInteractionLine(
   ll: LogicalLine,
   lineOffsets: number[],
+  content: string,
   diagnostics: Diagnostic[]
 ): Interaction | null {
   const raw = ll.text;
@@ -453,7 +451,9 @@ function parseInteractionLine(
   const offset = (lineOffsets[ll.startLine - 1] ?? 0) + (col - 1);
   const length = firstNonSpace === -1 ? 0 : raw.trimEnd().length - firstNonSpace;
   const span: Span = { offset, length, line: ll.startLine, col };
-  const text = raw.trim();
+  // `content` is the text after the leading '>' marker (marker and following
+  // whitespace/indent already stripped by the caller — non-meaningful per 記号一覧).
+  const text = content.trim();
 
   // Split on first ->
   const arrowIdx = findFirstArrow(text);
@@ -475,18 +475,12 @@ function parseInteractionLine(
 
   const action = parseAction(actionText, span, diagnostics);
 
-  // Check E003: empty result list
-  if (resultsText === '') {
-    diagnostics.push({
-      severity: 'error',
-      code: 'E003',
-      message: '空の result-list: -> の後に結果がありません',
-      span,
-    });
-    return { action, results: [], span };
-  }
-
-  const results = parseResultList(resultsText, span, diagnostics);
+  // Empty result-list is not necessarily an error here: continuation lines
+  // (`>` lines without `->`) may still fill it in (canonical multi-line
+  // branching, see SPEC.md「未定・分岐」). E003 is decided later, once the
+  // caller knows no more continuation lines are coming (see
+  // checkEmptyResultList in parseDocument).
+  const results = resultsText === '' ? [] : parseResultList(resultsText, span, diagnostics);
   return { action, results, span };
 }
 
@@ -498,6 +492,18 @@ function findFirstArrow(text: string): number {
     if (ch === '-' && text[i + 1] === '>' && depth === 0) return i;
   }
   return -1;
+}
+
+/**
+ * Detect '->' anywhere outside quoted strings (E011: element lines may not
+ * contain '->' at all — unlike interaction lines this is not restricted to
+ * top-level / outside-parens; only quoted text is exempt).
+ */
+function containsArrowOutsideQuotes(text: string): boolean {
+  for (const { ch, i } of scanTopLevel(text, '')) {
+    if (ch === '-' && text[i + 1] === '>') return true;
+  }
+  return false;
 }
 
 // ---------------------------------------------------------------------------

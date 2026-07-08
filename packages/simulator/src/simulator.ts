@@ -53,16 +53,22 @@ const DATA = ${json};
 const app = document.getElementById('app');
 const toastEl = document.getElementById('toast');
 
+// 姿指定なしで component に入ったら、最初に定義された姿を初期姿として扱う
+function initialVariation(module, component) {
+  const comp = DATA.modules[module]?.components[component];
+  return comp?.initialVariation ?? null;
+}
+
 // ── stack frame: { module, component, variation, wall, sessionName }
 let stack = [{
   module: DATA.entryModule,
   component: DATA.entryComponent,
-  variation: null,
+  variation: initialVariation(DATA.entryModule, DATA.entryComponent),
   wall: false,
   sessionName: null,
 }];
 
-let pendingChoice = null; // { idx, actionText, results }
+let pendingChoice = null; // { actionText, choices }
 let toastTimer = null;
 
 function getComp(module, name) {
@@ -76,9 +82,10 @@ function currentFrame() {
 function currentInteractions() {
   const frame = currentFrame();
   const comp = getComp(frame.module, frame.component);
-  const common = comp?.commonInteractions ?? [];
-  const variation = frame.variation ? (comp?.variations[frame.variation]?.interactions ?? []) : [];
-  return [...common, ...variation];
+  if (!comp) return [];
+  // 姿の interactions は抽出時に mergeInteractions(共通, 姿固有) 済み（shadow 合成）
+  if (frame.variation) return comp.variations[frame.variation]?.interactions ?? [];
+  return comp.commonInteractions;
 }
 
 function resolveTarget(result, currentModule, currentComponent) {
@@ -110,10 +117,13 @@ function applyTransition(result) {
 
   if (word === 'push' || word === 'present') {
     if (!target) return;
-    stack = [...stack, { module: target.module, component: target.component, variation: target.variation ?? null, wall: word === 'present', sessionName: result.session ?? null }];
+    const variation = target.variation ?? initialVariation(target.module, target.component);
+    stack = [...stack, { module: target.module, component: target.component, variation, wall: word === 'present', sessionName: result.session ?? null }];
   } else if (word === 'goto') {
     if (!target) return;
-    const newFrame = { ...frame, component: target.component, variation: target.variation ?? null, module: target.module, sessionName: null };
+    // 同一 component 内の姿替え（goto(##姿)）以外は初期姿の解決を行う
+    const variation = target.variation ?? initialVariation(target.module, target.component);
+    const newFrame = { ...frame, component: target.component, variation, module: target.module, sessionName: null };
     stack = [...stack.slice(0, -1), newFrame];
   } else if (word === 'back') {
     if (stack.length <= 1) return;
@@ -131,12 +141,17 @@ function applyTransition(result) {
       if (stack[i].sessionName === sessionName) {
         stack = stack.slice(0, i);
         if (stack.length === 0) {
-          stack = [{ module: DATA.entryModule, component: DATA.entryComponent, variation: null, wall: false, sessionName: null }];
+          stack = [{ module: DATA.entryModule, component: DATA.entryComponent, variation: initialVariation(DATA.entryModule, DATA.entryComponent), wall: false, sessionName: null }];
         }
         break;
       }
     }
   }
+}
+
+// 選択肢 1 つ分の result 群を順に全部起こす
+function runResults(bodies) {
+  for (const body of bodies) applyTransition(body);
   pendingChoice = null;
   render();
 }
@@ -151,23 +166,28 @@ function showToast(text) {
 function handleInteraction(idx) {
   const interaction = currentInteractions()[idx];
   if (!interaction) return;
-  if (interaction.results.length === 1) {
-    applyTransition(interaction.results[0].body);
+  // prelude（最初のラベルより前の result 群）は常に成立
+  for (const body of interaction.prelude) applyTransition(body);
+  if (interaction.choices.length === 0) {
+    pendingChoice = null;
+    render();
+  } else if (interaction.choices.length === 1) {
+    runResults(interaction.choices[0].results);
   } else {
-    pendingChoice = { idx, actionText: interaction.actionText, results: interaction.results };
+    pendingChoice = { actionText: interaction.actionText, choices: interaction.choices };
     render();
   }
 }
 
 function handleChoice(idx) {
   if (!pendingChoice) return;
-  const result = pendingChoice.results[idx];
+  const choice = pendingChoice.choices[idx];
   pendingChoice = null;
-  applyTransition(result.body);
+  runResults(choice.results);
 }
 
 function goBack() {
-  applyTransition({ type: 'transition', word: 'back', target: null, session: null });
+  runResults([{ type: 'transition', word: 'back', target: null, session: null }]);
 }
 
 function render() {
@@ -205,9 +225,9 @@ function render() {
     });
     actionsHtml += '</div>';
     if (pendingChoice) {
-      const choices = pendingChoice.results.map((r, idx) =>
+      const choices = pendingChoice.choices.map((c, idx) =>
         '<button class="choice-btn" onclick="handleChoice(' + idx + ')">' +
-        esc(r.label ?? '(ラベルなし)') + '</button>'
+        esc('[' + c.label + ']') + '</button>'
       ).join('');
       actionsHtml += '<div class="choice-panel"><div class="choice-label">' + esc(pendingChoice.actionText) + ' の結果を選択:</div><div class="choices">' + choices + '</div></div>';
     }

@@ -11,7 +11,7 @@ function parseOk(src: string) {
 
 describe('extractSimData', () => {
   it('single component no variation', () => {
-    const doc = parseOk('# ホーム\nロゴ\n---\nタップ(ロゴ) -> push(設定)\n');
+    const doc = parseOk('# ホーム\nロゴ\n> タップ(ロゴ) -> push(設定)\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
     expect(data.entryModule).toBe('main');
     expect(data.entryComponent).toBe('ホーム');
@@ -23,7 +23,7 @@ describe('extractSimData', () => {
   });
 
   it('component with variations', () => {
-    const doc = parseOk('# 詳細\n## 読込中\nスピナー\n---\n## 表示\nコンテンツ\n---\nタップ(コンテンツ) -> push(次)\n');
+    const doc = parseOk('# 詳細\n## 読込中\nスピナー\n## 表示\nコンテンツ\n> タップ(コンテンツ) -> push(次)\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
     const comp = data.modules['main']!.components['詳細']!;
     expect(Object.keys(comp.variations)).toEqual(['読込中', '表示']);
@@ -33,7 +33,7 @@ describe('extractSimData', () => {
   });
 
   it('common elements appear in commonElements', () => {
-    const doc = parseOk('# プロフィール\nヘッダ\n---\nタップ(ヘッダ) -> back()\n## 未フォロー\nフォローボタン\n---\n');
+    const doc = parseOk('# プロフィール\nヘッダ\n> タップ(ヘッダ) -> back()\n## 未フォロー\nフォローボタン\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
     const comp = data.modules['main']!.components['プロフィール']!;
     expect(comp.commonElements).toContain('ヘッダ');
@@ -41,34 +41,105 @@ describe('extractSimData', () => {
     expect(comp.variations['未フォロー']!.elements).toContain('フォローボタン');
   });
 
-  it('interaction with multiple results', () => {
-    const doc = parseOk('# 保存\n---\nタップ(保存) -> [成功] goto(完了) ; [失敗] エラー表示\n');
+  it('interaction with multiple labeled results → 1 ラベル 1 choice', () => {
+    const doc = parseOk('# 保存\n保存\n> タップ(保存) -> [成功] goto(完了) ; [失敗] エラー表示\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
     const comp = data.modules['main']!.components['保存']!;
     const interaction = comp.commonInteractions[0]!;
-    expect(interaction.results).toHaveLength(2);
-    expect(interaction.results[0]!.label).toBe('成功');
-    expect(interaction.results[0]!.body.type).toBe('transition');
-    expect(interaction.results[1]!.label).toBe('失敗');
-    expect(interaction.results[1]!.body.type).toBe('effect');
+    expect(interaction.prelude).toHaveLength(0);
+    expect(interaction.choices).toHaveLength(2);
+    expect(interaction.choices[0]!.label).toBe('成功');
+    expect(interaction.choices[0]!.results[0]!.type).toBe('transition');
+    expect(interaction.choices[1]!.label).toBe('失敗');
+    expect(interaction.choices[1]!.results[0]!.type).toBe('effect');
   });
 
   it('transition result contains word and target', () => {
-    const doc = parseOk('# A\n---\nタップ -> push(B)\n');
+    const doc = parseOk('# A\n> タップ -> push(B)\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
-    const result = data.modules['main']!.components['A']!.commonInteractions[0]!.results[0]!;
-    expect(result.body.type).toBe('transition');
-    if (result.body.type === 'transition') {
-      expect(result.body.word).toBe('push');
-      expect(result.body.target?.kind).toBe('full');
-      if (result.body.target?.kind === 'full') {
-        expect(result.body.target.component).toBe('B');
+    const body = data.modules['main']!.components['A']!.commonInteractions[0]!.prelude[0]!;
+    expect(body.type).toBe('transition');
+    if (body.type === 'transition') {
+      expect(body.word).toBe('push');
+      expect(body.target?.kind).toBe('full');
+      if (body.target?.kind === 'full') {
+        expect(body.target.component).toBe('B');
       }
     }
   });
 
+  it('ラベル継承: 無ラベル result は直前のラベルを引き継ぎ同じ choice にまとまる', () => {
+    const doc = parseOk(
+      '# A\nX\n> タップ(X) ->\n> [成功] 保存する ; goto(B)\n> [失敗] エラーを表示する\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const interaction = data.modules['main']!.components['A']!.commonInteractions[0]!;
+    expect(interaction.prelude).toHaveLength(0);
+    expect(interaction.choices).toHaveLength(2);
+    expect(interaction.choices[0]!.label).toBe('成功');
+    expect(interaction.choices[0]!.results).toHaveLength(2);
+    expect(interaction.choices[0]!.results[0]!.type).toBe('effect');
+    expect(interaction.choices[0]!.results[1]!.type).toBe('transition');
+    expect(interaction.choices[1]!.label).toBe('失敗');
+    expect(interaction.choices[1]!.results).toHaveLength(1);
+  });
+
+  it('ラベル継承: 最初のラベルより前の result は prelude（常に成立）', () => {
+    const doc = parseOk('# A\nX\n> タップ(X) -> ログを送る ; [成功] goto(B) ; [失敗] エラー\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const interaction = data.modules['main']!.components['A']!.commonInteractions[0]!;
+    expect(interaction.prelude).toHaveLength(1);
+    expect(interaction.prelude[0]!.type).toBe('effect');
+    expect(interaction.choices).toHaveLength(2);
+  });
+
+  it('ラベルなしの複数 result はすべて prelude（分岐ではなく順に全部起こる）', () => {
+    const doc = parseOk('# A\nX\n> タップ(X) -> 保存する ; back()\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const interaction = data.modules['main']!.components['A']!.commonInteractions[0]!;
+    expect(interaction.prelude).toHaveLength(2);
+    expect(interaction.choices).toHaveLength(0);
+  });
+
+  it('shadow 合成: 各姿の interactions は共通と姿固有の mergeInteractions 結果', () => {
+    const doc = parseOk(
+      '# プロフィール\n戻る\n> タップ(戻る) -> back()\n> 長押し -> メニューを出す\n## 特殊\n> タップ(戻る) -> goto(別画面)\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const comp = data.modules['main']!.components['プロフィール']!;
+    const merged = comp.variations['特殊']!.interactions;
+    // 共通の タップ(戻る) は姿固有に shadow され、残るのは 長押し（共通）+ タップ(戻る)（姿固有）
+    expect(merged).toHaveLength(2);
+    expect(merged[0]!.actionText).toBe('長押し');
+    expect(merged[1]!.actionText).toBe('タップ(戻る)');
+    const body = merged[1]!.prelude[0]!;
+    expect(body.type).toBe('transition');
+    if (body.type === 'transition') expect(body.word).toBe('goto');
+  });
+
+  it('shadow 合成: (行動, 対象) が一致しなければ共通も姿固有も両方残る', () => {
+    const doc = parseOk(
+      '# A\nX\n> タップ(X) -> back()\n## 姿1\n> 長押し(X) -> goto(B)\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const merged = data.modules['main']!.components['A']!.variations['姿1']!.interactions;
+    expect(merged).toHaveLength(2);
+  });
+
+  it('初期姿: initialVariation は最初に定義された姿', () => {
+    const doc = parseOk('# 詳細\n## 読込中\nスピナー\n## 表示\nコンテンツ\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.modules['main']!.components['詳細']!.initialVariation).toBe('読込中');
+  });
+
+  it('初期姿: 姿を持たない component の initialVariation は null', () => {
+    const doc = parseOk('# ホーム\nロゴ\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.modules['main']!.components['ホーム']!.initialVariation).toBeNull();
+  });
+
   it('entryComponent is first component', () => {
-    const doc = parseOk('# ログイン\n---\n\n# ホーム\n---\n');
+    const doc = parseOk('# ログイン\nID入力\n\n# ホーム\nフィード\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
     expect(data.entryComponent).toBe('ログイン');
   });

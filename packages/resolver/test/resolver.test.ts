@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { resolve, resolveProject } from '../src/index.js';
+import { resolve, resolveProject, effectiveResults, mergeInteractions } from '../src/index.js';
 import { parse } from '../../parser/src/index.js';
 
 describe('resolve', () => {
@@ -118,5 +118,161 @@ describe('resolveProject', () => {
     const { document } = parse('# A\nロゴ\n');
     const result = resolveProject(new Map([['main', document]]));
     expect(result.getByAlias('unknown_module', 'auth')).toBeUndefined();
+  });
+});
+
+describe('effectiveResults', () => {
+  it('no labels at all → all results have null effective label', () => {
+    const { document } = parse('# A\n> タップ -> back() ; goto(B)');
+    const interaction = document.components[0].common.interactions[0];
+    const effective = effectiveResults(interaction);
+    expect(effective).toHaveLength(2);
+    expect(effective[0].label).toBeNull();
+    expect(effective[1].label).toBeNull();
+  });
+
+  it('first label partway through → leading results stay null, rest inherit', () => {
+    const { document } = parse('# A\n> タップ ->\n> back() ; [成功] goto(B)');
+    const interaction = document.components[0].common.interactions[0];
+    const effective = effectiveResults(interaction);
+    expect(effective).toHaveLength(2);
+    expect(effective[0].label).toBeNull();
+    expect(effective[0].result.label).toBeNull();
+    expect(effective[1].label).toBe('成功');
+    expect(effective[1].result.label).toBe('成功');
+  });
+
+  it('one label applies across multiple results', () => {
+    const { document } = parse('# A\n> タップ -> [成功] goto(A) ; back() ; exit()');
+    const interaction = document.components[0].common.interactions[0];
+    const effective = effectiveResults(interaction);
+    expect(effective).toHaveLength(3);
+    expect(effective[0].label).toBe('成功');
+    expect(effective[1].label).toBe('成功');
+    expect(effective[2].label).toBe('成功');
+  });
+
+  it('multiple labels switch partway through', () => {
+    const { document } = parse('# X\n> タップ(X) ->\n> [成功] A ; goto(B)\n> [失敗] C');
+    const interaction = document.components[0].common.interactions[0];
+    const effective = effectiveResults(interaction);
+    expect(effective).toHaveLength(3);
+    expect(effective[0].label).toBe('成功');
+    expect(effective[0].result.label).toBe('成功');
+    expect(effective[1].label).toBe('成功');
+    expect(effective[1].result.label).toBeNull();
+    expect(effective[2].label).toBe('失敗');
+    expect(effective[2].result.label).toBe('失敗');
+  });
+
+  it('preserves original Result objects (not copied)', () => {
+    const { document } = parse('# A\n> タップ -> [成功] goto(B) ; back()');
+    const interaction = document.components[0].common.interactions[0];
+    const effective = effectiveResults(interaction);
+    expect(effective[0].result).toBe(interaction.results[0]);
+    expect(effective[1].result).toBe(interaction.results[1]);
+  });
+});
+
+describe('mergeInteractions', () => {
+  it('shadow: identical action.text and target → common dropped, specific used', () => {
+    const { document: commonDoc } = parse('# A\n> タップ(X) -> goto(B)');
+    const { document: specDoc } = parse('# A\n> タップ(X) -> goto(C)');
+    const common = commonDoc.components[0].common.interactions;
+    const specific = specDoc.components[0].common.interactions;
+    const merged = mergeInteractions(common, specific);
+    expect(merged).toHaveLength(1);
+    expect(merged[0].results[0].body).toMatchObject({ word: 'goto' });
+    expect((merged[0].results[0].body as any).target.name).toBe('C');
+  });
+
+  it('shadow: null target on both sides → still shadows', () => {
+    const { document: commonDoc } = parse('# A\n> タップ -> back()');
+    const { document: specDoc } = parse('# A\n> タップ -> goto(B)');
+    const common = commonDoc.components[0].common.interactions;
+    const specific = specDoc.components[0].common.interactions;
+    const merged = mergeInteractions(common, specific);
+    expect(merged).toHaveLength(1);
+    expect(merged[0].results[0].body).toMatchObject({ word: 'goto' });
+  });
+
+  it('different action.text → NOT shadowed, both remain', () => {
+    const { document: commonDoc } = parse('# A\n> タップ -> back()');
+    const { document: specDoc } = parse('# A\n> 長押し -> goto(B)');
+    const common = commonDoc.components[0].common.interactions;
+    const specific = specDoc.components[0].common.interactions;
+    const merged = mergeInteractions(common, specific);
+    expect(merged).toHaveLength(2);
+    expect(merged[0].action.text).toBe('タップ');
+    expect(merged[1].action.text).toBe('長押し');
+  });
+
+  it('different target → NOT shadowed, both remain', () => {
+    const { document: commonDoc } = parse('# A\nX\n> タップ(X) -> back()');
+    const { document: specDoc } = parse('# A\nY\n> タップ(Y) -> goto(B)');
+    const common = commonDoc.components[0].common.interactions;
+    const specific = specDoc.components[0].common.interactions;
+    const merged = mergeInteractions(common, specific);
+    expect(merged).toHaveLength(2);
+  });
+
+  it('existsGated differs but reference otherwise equal → still shadows', () => {
+    const { document: commonDoc } = parse('# A\nX\n> タップ(X) -> back()');
+    const { document: specDoc } = parse('# A\nX\n> タップ(X?) -> goto(B)');
+    const common = commonDoc.components[0].common.interactions;
+    const specific = specDoc.components[0].common.interactions;
+    const merged = mergeInteractions(common, specific);
+    expect(merged).toHaveLength(1);
+    expect(merged[0].results[0].body).toMatchObject({ word: 'goto' });
+  });
+
+  it('common-only interactions with no matching specific → all pass through', () => {
+    const { document: commonDoc } = parse('# A\n> タップ -> back()\n> 長押し -> goto(B)');
+    const { document: specDoc } = parse('# A\n> スワイプ -> exit()');
+    const common = commonDoc.components[0].common.interactions;
+    const specific = specDoc.components[0].common.interactions;
+    const merged = mergeInteractions(common, specific);
+    expect(merged).toHaveLength(3);
+  });
+
+  it('specific-only interactions with no matching common → all pass through', () => {
+    const { document: commonDoc } = parse('# A\n> タップ -> back()');
+    const { document: specDoc } = parse('# A\n> 長押し -> goto(B)\n> スワイプ -> exit()');
+    const common = commonDoc.components[0].common.interactions;
+    const specific = specDoc.components[0].common.interactions;
+    const merged = mergeInteractions(common, specific);
+    expect(merged).toHaveLength(3);
+  });
+
+  it('order: survived common first, then all specific', () => {
+    const { document: commonDoc } = parse('# A\n> タップ -> back()\n> 長押し -> goto(B)');
+    const { document: specDoc } = parse('# A\n> タップ -> exit()');
+    const common = commonDoc.components[0].common.interactions;
+    const specific = specDoc.components[0].common.interactions;
+    const merged = mergeInteractions(common, specific);
+    expect(merged).toHaveLength(2);
+    expect(merged[0].action.text).toBe('長押し');
+    expect(merged[1].action.text).toBe('タップ');
+  });
+
+  it('both common and specific empty → empty result', () => {
+    const merged = mergeInteractions([], []);
+    expect(merged).toHaveLength(0);
+  });
+
+  it('specific empty → all common preserved', () => {
+    const { document: commonDoc } = parse('# A\n> タップ -> back()');
+    const common = commonDoc.components[0].common.interactions;
+    const merged = mergeInteractions(common, []);
+    expect(merged).toHaveLength(1);
+    expect(merged[0].action.text).toBe('タップ');
+  });
+
+  it('common empty → all specific preserved', () => {
+    const { document: specDoc } = parse('# A\n> タップ -> back()');
+    const specific = specDoc.components[0].common.interactions;
+    const merged = mergeInteractions([], specific);
+    expect(merged).toHaveLength(1);
+    expect(merged[0].action.text).toBe('タップ');
   });
 });

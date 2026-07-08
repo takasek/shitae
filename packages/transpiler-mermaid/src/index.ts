@@ -1,4 +1,5 @@
-import type { Document, Body, Action, NavTarget } from '@shitae/ast';
+import type { Document, Action, Interaction, NavTarget } from '@shitae/ast';
+import { effectiveResults, mergeInteractions } from '@shitae/resolver';
 
 export function toMermaid(document: Document): string {
   const lines: string[] = ['flowchart LR'];
@@ -21,11 +22,16 @@ export function toMermaid(document: Document): string {
 
   lines.push('');
 
-  // エッジ定義
+  // エッジ定義。姿を持つ component は、共通と姿固有を shadow 合成した
+  // interaction 群を各姿ノードから出す（共通だけのベースノードは存在しない）
   for (const comp of document.components) {
-    emitEdges(comp.common, comp.name, null, comp.name, document, idMap, lines);
-    for (const v of comp.variations) {
-      emitEdges(v.body, comp.name, v.name, comp.name, document, idMap, lines);
+    if (comp.variations.length === 0) {
+      emitEdges(comp.common.interactions, comp.name, null, comp.name, document, idMap, lines);
+    } else {
+      for (const v of comp.variations) {
+        const merged = mergeInteractions(comp.common.interactions, v.body.interactions);
+        emitEdges(merged, comp.name, v.name, comp.name, document, idMap, lines);
+      }
     }
   }
 
@@ -90,7 +96,7 @@ function actionLabel(action: Action): string {
 }
 
 function emitEdges(
-  body: Body,
+  interactions: Interaction[],
   componentName: string,
   variationName: string | null,
   currentComponentName: string,
@@ -102,15 +108,16 @@ function emitEdges(
     ? nodeId(idMap, componentName, variationName)
     : (idMap.get(componentName) ?? sanitizeId(componentName));
 
-  for (const interaction of body.interactions) {
+  for (const interaction of interactions) {
     const baseLabel = actionLabel(interaction.action);
 
-    for (const result of interaction.results) {
+    // ラベルは「次のラベルまで」スコープ — 有効ラベルを継承展開して読む
+    for (const { label: effLabel, result } of effectiveResults(interaction)) {
       if (result.body.kind !== 'transition') continue;
       const tr = result.body;
       if (!tr.target) continue;
       const toId = navTargetToNodeId(tr.target, currentComponentName, document, idMap);
-      const label = result.label ? `[${result.label}]${baseLabel}` : baseLabel;
+      const label = effLabel ? `[${effLabel}]${baseLabel}` : baseLabel;
       const safeLabel = label.replace(/"/g, '#quot;');
       lines.push(`  ${fromId} -->|"${safeLabel}"| ${toId}`);
     }

@@ -58,18 +58,16 @@ describe('component / variation / section', () => {
     expect(c.variations[0].body.elements).toHaveLength(1);
   });
 
-  it('interaction 節がある common body', () => {
-    const { document } = parseDoc('# A\n要素\n---\nタップ -> back()');
+  it('common body に要素行とインタラクション行が混在できる', () => {
+    const { document } = parseDoc('# A\n要素\n> タップ -> back()');
     const c = getComponent(document, 'A');
-    expect(c.common.hasInteractionSection).toBe(true);
     expect(c.common.interactions).toHaveLength(1);
     expect(c.common.elements).toHaveLength(1);
   });
 
-  it('--- がなければ hasInteractionSection = false', () => {
+  it('> 行がなければ interactions は空', () => {
     const { document } = parseDoc('# A\n要素');
     const c = getComponent(document, 'A');
-    expect(c.common.hasInteractionSection).toBe(false);
     expect(c.common.interactions).toHaveLength(0);
   });
 
@@ -96,10 +94,9 @@ describe('component / variation / section', () => {
     expect((c.variations[0].body.elements[0].value as Ref).name).toBe('固有要素');
   });
 
-  it('variation の interaction 節', () => {
-    const { document } = parseDoc('# A\n## B\n要素\n---\nタップ -> back()');
+  it('variation body に要素行とインタラクション行が混在できる', () => {
+    const { document } = parseDoc('# A\n## B\n要素\n> タップ -> back()');
     const c = getComponent(document, 'A');
-    expect(c.variations[0].body.hasInteractionSection).toBe(true);
     expect(c.variations[0].body.interactions).toHaveLength(1);
   });
 });
@@ -172,7 +169,7 @@ describe('element-line', () => {
 // ---------------------------------------------------------------------------
 describe('interaction', () => {
   it('シンプルな interaction', () => {
-    const { document } = parseDoc('# A\n---\nタップ -> back()');
+    const { document } = parseDoc('# A\n> タップ -> back()');
     const interactions = document.components[0].common.interactions;
     expect(interactions).toHaveLength(1);
     expect(interactions[0].action.text).toBe('タップ');
@@ -180,7 +177,7 @@ describe('interaction', () => {
   });
 
   it('action に target (Reference)', () => {
-    const { document } = parseDoc('# A\n---\nタップ(設定) -> back()');
+    const { document } = parseDoc('# A\n> タップ(設定) -> back()');
     const action = document.components[0].common.interactions[0].action;
     expect(action.text).toBe('タップ');
     expect(action.target).not.toBeNull();
@@ -190,7 +187,7 @@ describe('interaction', () => {
   it('action テキスト内のネスト () では外側の () が Reference として解釈される', () => {
     // "foo(bar(Target))" → 外側 () が reference → text="foo", target.name="bar(Target)"
     // バグ: 現状 findLastOpenParen が内側 ( を返し text="foo(bar" になる
-    const { document } = parseDoc('# A\n---\nfoo(bar(Target)) -> back()');
+    const { document } = parseDoc('# A\n> foo(bar(Target)) -> back()');
     const action = document.components[0].common.interactions[0].action;
     expect(action.text).toBe('foo');
     expect(action.target).not.toBeNull();
@@ -199,7 +196,7 @@ describe('interaction', () => {
 
   it('parseReference: 末尾ドットで member が空になる場合 null を返す', () => {
     // "Screen." → member は null (空文字ではない)
-    const { document } = parseDoc('# A\n---\n行動(Screen.) -> back()');
+    const { document } = parseDoc('# A\n> 行動(Screen.) -> back()');
     const action = document.components[0].common.interactions[0].action;
     expect(action.target).not.toBeNull();
     expect(action.target!.name).toBe('Screen');
@@ -207,7 +204,7 @@ describe('interaction', () => {
   });
 
   it('Effect result', () => {
-    const { document } = parseDoc('# A\n---\n更新 -> リストが更新される');
+    const { document } = parseDoc('# A\n> 更新 -> リストが更新される');
     const results = document.components[0].common.interactions[0].results;
     expect(results).toHaveLength(1);
     expect(results[0].body.kind).toBe('effect');
@@ -216,14 +213,14 @@ describe('interaction', () => {
   });
 
   it('条件ラベル付き result', () => {
-    const { document } = parseDoc('# A\n---\n行動 -> [成功] 完了する');
+    const { document } = parseDoc('# A\n> 行動 -> [成功] 完了する');
     const result = document.components[0].common.interactions[0].results[0];
     expect(result.label).toBe('成功');
     expect(result.body.kind).toBe('effect');
   });
 
   it('; で複数の result', () => {
-    const { document } = parseDoc('# A\n---\nタップ(保存) -> [成功] goto(詳細) ; [失敗] エラーを表示する');
+    const { document } = parseDoc('# A\n> タップ(保存) -> [成功] goto(詳細) ; [失敗] エラーを表示する');
     const results = document.components[0].common.interactions[0].results;
     expect(results).toHaveLength(2);
     expect(results[0].label).toBe('成功');
@@ -232,8 +229,8 @@ describe('interaction', () => {
     expect(results[1].body.kind).toBe('effect');
   });
 
-  it('result の継続行（改行で並ぶ）', () => {
-    const { document } = parseDoc('# A\n---\n行動 -> [成功] goto(A)\n[失敗] back()');
+  it('result の継続行（> 行で並ぶ）', () => {
+    const { document } = parseDoc('# A\n> 行動 -> [成功] goto(A)\n> [失敗] back()');
     const results = document.components[0].common.interactions[0].results;
     expect(results).toHaveLength(2);
     expect(results[0].label).toBe('成功');
@@ -241,17 +238,78 @@ describe('interaction', () => {
   });
 
   it('複数の interaction', () => {
-    const { document } = parseDoc('# A\n---\nタップ -> back()\n長押し -> goto(B)');
+    const { document } = parseDoc('# A\n> タップ -> back()\n> 長押し -> goto(B)');
     const interactions = document.components[0].common.interactions;
     expect(interactions).toHaveLength(2);
   });
 
-  it('空行で result-list 終了後、次の interaction が始まる', () => {
-    const { document } = parseDoc('# A\n---\nタップ -> [成功] back()\n[失敗] goto(B)\n\n長押し -> goto(C)');
+  it('空行を挟んでも継続行は同じ body 内の直前 interaction に積まれる', () => {
+    const { document } = parseDoc('# A\n> タップ -> [成功] back()\n> [失敗] goto(B)\n\n> 長押し -> goto(C)');
     const interactions = document.components[0].common.interactions;
     expect(interactions).toHaveLength(2);
     expect(interactions[0].results).toHaveLength(2);
     expect(interactions[1].action.text).toBe('長押し');
+  });
+
+  it('新しい interaction: > タップ(X) -> push(Y)', () => {
+    const { document } = parseDoc('# X\n> タップ(X) -> push(Y)');
+    const interaction = document.components[0].common.interactions[0];
+    expect(interaction.action.text).toBe('タップ');
+    expect(interaction.action.target!.name).toBe('X');
+    const t = interaction.results[0].body as Transition;
+    expect(t.kind).toBe('transition');
+    expect(t.word).toBe('push');
+    expect((t.target as NavTarget & { kind: 'component' }).name).toBe('Y');
+  });
+
+  it('継続行が複数行にわたって 1 つの interaction の results に積まれる', () => {
+    const { document } = parseDoc(
+      '# X\n> タップ(X) ->\n> [成功] A ; goto(B)\n> [失敗] C'
+    );
+    const interactions = document.components[0].common.interactions;
+    expect(interactions).toHaveLength(1);
+    const results = interactions[0].results;
+    expect(results).toHaveLength(3);
+    expect(results[0].label).toBe('成功');
+    expect((results[0].body as Effect).text).toBe('A');
+    expect(results[1].label).toBeNull();
+    expect((results[1].body as Transition).word).toBe('goto');
+    expect(results[2].label).toBe('失敗');
+    expect((results[2].body as Effect).text).toBe('C');
+  });
+
+  it('要素行とインタラクション行が混在しても両方正しく積まれる', () => {
+    const { document } = parseDoc(
+      '# A\n要素1\n> タップ -> back()\n要素2\n> 長押し -> goto(B)'
+    );
+    const c = document.components[0];
+    expect(c.common.elements).toHaveLength(2);
+    expect((c.common.elements[0].value as Ref).name).toBe('要素1');
+    expect((c.common.elements[1].value as Ref).name).toBe('要素2');
+    expect(c.common.interactions).toHaveLength(2);
+    expect(c.common.interactions[0].action.text).toBe('タップ');
+    expect(c.common.interactions[1].action.text).toBe('長押し');
+  });
+
+  it('> の後の空白・インデント量は結果に影響しない', () => {
+    const a = parseDoc('# A\n>タップ->back()').document;
+    const b = parseDoc('# A\n>      タップ   ->   back()').document;
+    expect(a.components[0].common.interactions[0].action.text).toBe('タップ');
+    expect(a.components[0].common.interactions[0].action.text).toBe(
+      b.components[0].common.interactions[0].action.text
+    );
+    expect((a.components[0].common.interactions[0].results[0].body as Transition).word).toBe(
+      (b.components[0].common.interactions[0].results[0].body as Transition).word
+    );
+  });
+
+  it('単独行の --- は "---" という名の要素行として読まれる', () => {
+    const { document, diagnostics } = parseDoc('# A\n---\n要素');
+    const c = document.components[0];
+    expect(c.common.elements).toHaveLength(2);
+    expect((c.common.elements[0].value as Ref).name).toBe('---');
+    expect((c.common.elements[1].value as Ref).name).toBe('要素');
+    expect(diagnostics.filter((d) => d.severity === 'error')).toHaveLength(0);
   });
 });
 
@@ -260,7 +318,7 @@ describe('interaction', () => {
 // ---------------------------------------------------------------------------
 describe('transition', () => {
   it('back() — target null, session null', () => {
-    const { document } = parseDoc('# A\n---\nタップ -> back()');
+    const { document } = parseDoc('# A\n> タップ -> back()');
     const result = document.components[0].common.interactions[0].results[0];
     const t = result.body as Transition;
     expect(t.kind).toBe('transition');
@@ -270,7 +328,7 @@ describe('transition', () => {
   });
 
   it('back(X) — target non-null', () => {
-    const { document } = parseDoc('# A\n---\nタップ -> back(ホーム)');
+    const { document } = parseDoc('# A\n> タップ -> back(ホーム)');
     const t = document.components[0].common.interactions[0].results[0].body as Transition;
     expect(t.word).toBe('back');
     expect(t.target).not.toBeNull();
@@ -278,7 +336,7 @@ describe('transition', () => {
   });
 
   it('push(X) — target, session null', () => {
-    const { document } = parseDoc('# A\n---\nタップ -> push(ホーム)');
+    const { document } = parseDoc('# A\n> タップ -> push(ホーム)');
     const t = document.components[0].common.interactions[0].results[0].body as Transition;
     expect(t.word).toBe('push');
     expect(t.target).not.toBeNull();
@@ -286,7 +344,7 @@ describe('transition', () => {
   });
 
   it('push(X, @S) — target and session', () => {
-    const { document } = parseDoc('# A\n---\nタップ -> push(ホーム, @login)');
+    const { document } = parseDoc('# A\n> タップ -> push(ホーム, @login)');
     const t = document.components[0].common.interactions[0].results[0].body as Transition;
     expect(t.word).toBe('push');
     expect((t.target as NavTarget & { kind: 'component' }).name).toBe('ホーム');
@@ -295,7 +353,7 @@ describe('transition', () => {
   });
 
   it('goto(X) — target, session null', () => {
-    const { document } = parseDoc('# A\n---\nタップ -> goto(B)');
+    const { document } = parseDoc('# A\n> タップ -> goto(B)');
     const t = document.components[0].common.interactions[0].results[0].body as Transition;
     expect(t.word).toBe('goto');
     expect((t.target as NavTarget & { kind: 'component' }).name).toBe('B');
@@ -303,7 +361,7 @@ describe('transition', () => {
   });
 
   it('exit(@S) — target null, session non-null', () => {
-    const { document } = parseDoc('# A\n---\nタップ -> exit(@settings)');
+    const { document } = parseDoc('# A\n> タップ -> exit(@settings)');
     const t = document.components[0].common.interactions[0].results[0].body as Transition;
     expect(t.word).toBe('exit');
     expect(t.target).toBeNull();
@@ -311,7 +369,7 @@ describe('transition', () => {
   });
 
   it('present(X) — target, session null', () => {
-    const { document } = parseDoc('# A\n---\nタップ -> present(設定)');
+    const { document } = parseDoc('# A\n> タップ -> present(設定)');
     const t = document.components[0].common.interactions[0].results[0].body as Transition;
     expect(t.word).toBe('present');
     expect((t.target as NavTarget & { kind: 'component' }).name).toBe('設定');
@@ -319,7 +377,7 @@ describe('transition', () => {
   });
 
   it('present(X, @S)', () => {
-    const { document } = parseDoc('# A\n---\nタップ(設定) -> present(設定, @settings)');
+    const { document } = parseDoc('# A\n> タップ(設定) -> present(設定, @settings)');
     const t = document.components[0].common.interactions[0].results[0].body as Transition;
     expect(t.word).toBe('present');
     expect((t.target as NavTarget & { kind: 'component' }).name).toBe('設定');
@@ -327,7 +385,7 @@ describe('transition', () => {
   });
 
   it('dismiss() — target null, session null', () => {
-    const { document } = parseDoc('# A\n---\nタップ -> dismiss()');
+    const { document } = parseDoc('# A\n> タップ -> dismiss()');
     const t = document.components[0].common.interactions[0].results[0].body as Transition;
     expect(t.word).toBe('dismiss');
     expect(t.target).toBeNull();
@@ -335,7 +393,7 @@ describe('transition', () => {
   });
 
   it('dismiss(@S) — target null, session non-null', () => {
-    const { document } = parseDoc('# A\n---\nタップ -> dismiss(@share)');
+    const { document } = parseDoc('# A\n> タップ -> dismiss(@share)');
     const t = document.components[0].common.interactions[0].results[0].body as Transition;
     expect(t.word).toBe('dismiss');
     expect(t.session!.name).toBe('share');
@@ -347,7 +405,7 @@ describe('transition', () => {
 // ---------------------------------------------------------------------------
 describe('nav-target', () => {
   it('シンプルな component 参照', () => {
-    const { document } = parseDoc('# A\n---\nタップ -> push(ホーム)');
+    const { document } = parseDoc('# A\n> タップ -> push(ホーム)');
     const t = document.components[0].common.interactions[0].results[0].body as Transition;
     const target = t.target as NavTarget & { kind: 'component' };
     expect(target.kind).toBe('component');
@@ -357,7 +415,7 @@ describe('nav-target', () => {
   });
 
   it('component##variation', () => {
-    const { document } = parseDoc('# A\n---\nタップ -> goto(対戦##開始)');
+    const { document } = parseDoc('# A\n> タップ -> goto(対戦##開始)');
     const t = document.components[0].common.interactions[0].results[0].body as Transition;
     const target = t.target as NavTarget & { kind: 'component' };
     expect(target.kind).toBe('component');
@@ -366,7 +424,7 @@ describe('nav-target', () => {
   });
 
   it('##variation — same-component variation', () => {
-    const { document } = parseDoc('# A\n---\nタップ -> goto(##失敗)');
+    const { document } = parseDoc('# A\n> タップ -> goto(##失敗)');
     const t = document.components[0].common.interactions[0].results[0].body as Transition;
     const target = t.target as NavTarget & { kind: 'variation' };
     expect(target.kind).toBe('variation');
@@ -374,7 +432,7 @@ describe('nav-target', () => {
   });
 
   it('module::component', () => {
-    const { document } = parseDoc('# A\n---\nタップ -> push(auth::ログイン)');
+    const { document } = parseDoc('# A\n> タップ -> push(auth::ログイン)');
     const t = document.components[0].common.interactions[0].results[0].body as Transition;
     const target = t.target as NavTarget & { kind: 'component' };
     expect(target.kind).toBe('component');
@@ -384,7 +442,7 @@ describe('nav-target', () => {
   });
 
   it('module::component##variation', () => {
-    const { document } = parseDoc('# A\n---\nタップ -> push(auth::ログイン##入力)');
+    const { document } = parseDoc('# A\n> タップ -> push(auth::ログイン##入力)');
     const t = document.components[0].common.interactions[0].results[0].body as Transition;
     const target = t.target as NavTarget & { kind: 'component' };
     expect(target.module).toBe('auth');
@@ -398,7 +456,7 @@ describe('nav-target', () => {
 // ---------------------------------------------------------------------------
 describe('reference', () => {
   it('シンプルな name', () => {
-    const { document } = parseDoc('# A\n---\nタップ(設定) -> back()');
+    const { document } = parseDoc('# A\n> タップ(設定) -> back()');
     const ref = document.components[0].common.interactions[0].action.target!;
     expect(ref.module).toBeNull();
     expect(ref.name).toBe('設定');
@@ -407,21 +465,21 @@ describe('reference', () => {
   });
 
   it('name.member', () => {
-    const { document } = parseDoc('# A\n---\nタップ(フィード.サムネイル) -> back()');
+    const { document } = parseDoc('# A\n> タップ(フィード.サムネイル) -> back()');
     const ref = document.components[0].common.interactions[0].action.target!;
     expect(ref.name).toBe('フィード');
     expect(ref.member).toBe('サムネイル');
   });
 
   it('name? — existsGated', () => {
-    const { document } = parseDoc('# A\n---\nタップ(button?) -> back()');
+    const { document } = parseDoc('# A\n> タップ(button?) -> back()');
     const ref = document.components[0].common.interactions[0].action.target!;
     expect(ref.name).toBe('button');
     expect(ref.existsGated).toBe(true);
   });
 
   it('module::name', () => {
-    const { document } = parseDoc('# A\n---\nタップ(auth::Login) -> back()');
+    const { document } = parseDoc('# A\n> タップ(auth::Login) -> back()');
     const ref = document.components[0].common.interactions[0].action.target!;
     expect(ref.module).toBe('auth');
     expect(ref.name).toBe('Login');
@@ -429,7 +487,7 @@ describe('reference', () => {
   });
 
   it('module::name.member', () => {
-    const { document } = parseDoc('# A\n---\nタップ(auth::Login.form) -> back()');
+    const { document } = parseDoc('# A\n> タップ(auth::Login.form) -> back()');
     const ref = document.components[0].common.interactions[0].action.target!;
     expect(ref.module).toBe('auth');
     expect(ref.name).toBe('Login');
@@ -442,21 +500,21 @@ describe('reference', () => {
 // ---------------------------------------------------------------------------
 describe('diagnostics', () => {
   it('E001: 二重矢印（継続行に -> がある）', () => {
-    const { diagnostics } = parseDoc('# A\n---\n行動 -> 結果\n-> 別結果');
+    const { diagnostics } = parseDoc('# A\n> 行動 -> 結果\n> -> 別結果');
     const e001 = diagnostics.filter((d) => d.code === 'E001');
     expect(e001.length).toBeGreaterThan(0);
     expect(e001[0].severity).toBe('error');
   });
 
   it('E002: exit() の引数が空', () => {
-    const { diagnostics } = parseDoc('# A\n---\nタップ -> exit()');
+    const { diagnostics } = parseDoc('# A\n> タップ -> exit()');
     const e002 = diagnostics.filter((d) => d.code === 'E002');
     expect(e002.length).toBeGreaterThan(0);
     expect(e002[0].severity).toBe('error');
   });
 
   it('E003: 空 result-list', () => {
-    const { diagnostics } = parseDoc('# A\n---\n行動 ->');
+    const { diagnostics } = parseDoc('# A\n> 行動 ->');
     const e003 = diagnostics.filter((d) => d.code === 'E003');
     expect(e003.length).toBeGreaterThan(0);
     expect(e003[0].severity).toBe('error');
@@ -484,18 +542,39 @@ describe('diagnostics', () => {
     expect(c.variations.filter((v) => v.name === 'B')).toHaveLength(2);
   });
 
-  it('W001: --- の前の interaction 行', () => {
-    const { diagnostics } = parseDoc('# A\nタップ -> back()\n---\n別タップ -> goto(B)');
-    const w001 = diagnostics.filter((d) => d.code === 'W001');
-    expect(w001.length).toBeGreaterThan(0);
-    expect(w001[0].severity).toBe('warning');
+  it('E011: 要素行に -> を含めると構文エラー（ヒント付き）', () => {
+    const { diagnostics } = parseDoc('# A\nタップ -> back()');
+    const e011 = diagnostics.filter((d) => d.code === 'E011');
+    expect(e011.length).toBeGreaterThan(0);
+    expect(e011[0].severity).toBe('error');
+    expect(e011[0].message).toContain('>');
   });
 
-  it('W002: stray 継続行（interaction 未開始）', () => {
-    const { diagnostics } = parseDoc('# A\n---\n[失敗] エラー表示');
-    const w002 = diagnostics.filter((d) => d.code === 'W002');
-    expect(w002.length).toBeGreaterThan(0);
-    expect(w002[0].severity).toBe('warning');
+  it('E011: コメント内の -> はエラーにならない（コメントは事前に除去される）', () => {
+    const { diagnostics } = parseDoc('# A\n要素 // 矢印 -> はコメント内');
+    const e011 = diagnostics.filter((d) => d.code === 'E011');
+    expect(e011).toHaveLength(0);
+  });
+
+  it('E011: quoted name 内の -> はエラーにならない', () => {
+    const { diagnostics } = parseDoc('# A\n"矢印 -> 矢印"');
+    const e011 = diagnostics.filter((d) => d.code === 'E011');
+    expect(e011).toHaveLength(0);
+  });
+
+  it('E010: 先行する interaction がない継続行はエラー', () => {
+    const { diagnostics } = parseDoc('# A\n> [失敗] エラー表示');
+    const e010 = diagnostics.filter((d) => d.code === 'E010');
+    expect(e010.length).toBeGreaterThan(0);
+    expect(e010[0].severity).toBe('error');
+  });
+
+  it('E010: 姿（##）をまたぐ継続行はエラー', () => {
+    const { diagnostics } = parseDoc(
+      '# A\n## B\n> タップ -> back()\n## C\n> [失敗] goto(B)'
+    );
+    const e010 = diagnostics.filter((d) => d.code === 'E010');
+    expect(e010.length).toBeGreaterThan(0);
   });
 });
 
@@ -597,9 +676,9 @@ describe('Span 精度 (offset / col)', () => {
   });
 
   it('interaction line span', () => {
-    // '# Foo\n---\nclick -> push(Bar)\n': '---\n'=4chars, line3 starts at offset 10
-    const { document } = parseDoc('# Foo\n---\nclick -> push(Bar)\n');
-    expect(document.components[0].common.interactions[0].span).toEqual({ offset: 10, length: 18, line: 3, col: 1 });
+    // '# Foo\n> click -> push(Bar)\n': '# Foo\n'=6chars, line2 starts at offset 6
+    const { document } = parseDoc('# Foo\n> click -> push(Bar)\n');
+    expect(document.components[0].common.interactions[0].span).toEqual({ offset: 6, length: 20, line: 2, col: 1 });
   });
 
   it('3行目 component: offset は累積行長', () => {
