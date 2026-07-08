@@ -1,5 +1,5 @@
 import type { Document, Component, Interaction, Result } from '@shitae/ast';
-import { effectiveResults } from '@shitae/resolver';
+import { effectiveResults, mergeInteractions } from '@shitae/resolver';
 
 export interface SimTransition {
   type: 'transition';
@@ -119,7 +119,11 @@ function convertComponent(comp: Component): SimComponent {
   for (const v of comp.variations) {
     variations[v.name] = {
       elements: v.body.elements.map(elementDisplayName),
-      interactions: v.body.interactions.map(convertInteraction),
+      // 姿で有効な interaction 一覧 = mergeInteractions(共通, 姿固有)。
+      // 同一 (行動, 対象) は姿固有が共通を shadow する
+      interactions: mergeInteractions(comp.common.interactions, v.body.interactions).map(
+        convertInteraction,
+      ),
     };
   }
   return { commonElements, commonInteractions, variations };

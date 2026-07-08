@@ -76,9 +76,10 @@ function currentFrame() {
 function currentInteractions() {
   const frame = currentFrame();
   const comp = getComp(frame.module, frame.component);
-  const common = comp?.commonInteractions ?? [];
-  const variation = frame.variation ? (comp?.variations[frame.variation]?.interactions ?? []) : [];
-  return [...common, ...variation];
+  if (!comp) return [];
+  // 姿の interactions は抽出時に mergeInteractions(共通, 姿固有) 済み（shadow 合成）
+  if (frame.variation) return comp.variations[frame.variation]?.interactions ?? [];
+  return comp.commonInteractions;
 }
 
 function resolveTarget(result, currentModule, currentComponent) {
