@@ -101,6 +101,31 @@ describe('extractSimData', () => {
     expect(interaction.choices).toHaveLength(0);
   });
 
+  it('shadow 合成: 各姿の interactions は共通と姿固有の mergeInteractions 結果', () => {
+    const doc = parseOk(
+      '# プロフィール\n戻る\n> タップ(戻る) -> back()\n> 長押し -> メニューを出す\n## 特殊\n> タップ(戻る) -> goto(別画面)\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const comp = data.modules['main']!.components['プロフィール']!;
+    const merged = comp.variations['特殊']!.interactions;
+    // 共通の タップ(戻る) は姿固有に shadow され、残るのは 長押し（共通）+ タップ(戻る)（姿固有）
+    expect(merged).toHaveLength(2);
+    expect(merged[0]!.actionText).toBe('長押し');
+    expect(merged[1]!.actionText).toBe('タップ(戻る)');
+    const body = merged[1]!.prelude[0]!;
+    expect(body.type).toBe('transition');
+    if (body.type === 'transition') expect(body.word).toBe('goto');
+  });
+
+  it('shadow 合成: (行動, 対象) が一致しなければ共通も姿固有も両方残る', () => {
+    const doc = parseOk(
+      '# A\nX\n> タップ(X) -> back()\n## 姿1\n> 長押し(X) -> goto(B)\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const merged = data.modules['main']!.components['A']!.variations['姿1']!.interactions;
+    expect(merged).toHaveLength(2);
+  });
+
   it('entryComponent is first component', () => {
     const doc = parseOk('# ログイン\nID入力\n\n# ホーム\nフィード\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
