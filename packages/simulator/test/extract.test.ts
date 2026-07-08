@@ -126,6 +126,18 @@ describe('extractSimData', () => {
     expect(merged).toHaveLength(2);
   });
 
+  it('初期姿: initialVariation は最初に定義された姿', () => {
+    const doc = parseOk('# 詳細\n## 読込中\nスピナー\n## 表示\nコンテンツ\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.modules['main']!.components['詳細']!.initialVariation).toBe('読込中');
+  });
+
+  it('初期姿: 姿を持たない component の initialVariation は null', () => {
+    const doc = parseOk('# ホーム\nロゴ\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.modules['main']!.components['ホーム']!.initialVariation).toBeNull();
+  });
+
   it('entryComponent is first component', () => {
     const doc = parseOk('# ログイン\nID入力\n\n# ホーム\nフィード\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
