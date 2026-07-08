@@ -162,6 +162,9 @@ importers:
       '@shitae/ast':
         specifier: workspace:*
         version: link:../ast
+      '@shitae/resolver':
+        specifier: workspace:*
+        version: link:../resolver
     devDependencies:
       '@shitae/parser':
         specifier: workspace:*

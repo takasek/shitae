@@ -8,6 +8,7 @@ import type {
   NavTarget,
   Reference,
 } from '@shitae/ast';
+import { effectiveResults } from '@shitae/resolver';
 
 export interface XStateOptions {
   id?: string;
@@ -211,18 +212,21 @@ function generateInteractionBlock(
 ): string {
   if (interactions.length === 0) return '';
 
-  // Group by event name
-  const eventMap = new Map<string, Result[]>();
+  // Group by event name. Labels follow v2 semantics: a [label] applies to
+  // itself and all subsequent unlabeled results (effectiveResults).
+  const eventMap = new Map<string, Array<{ label: string | null; result: Result }>>();
   for (const interaction of interactions) {
     const name = eventName(interaction.action);
     const list = eventMap.get(name) ?? [];
-    eventMap.set(name, list.concat(interaction.results));
+    eventMap.set(name, list.concat(effectiveResults(interaction)));
   }
 
   const eventLines: string[] = [];
   for (const [name, results] of eventMap) {
-    const transitions = results.flatMap((r) =>
-      generateTransition(r, sourceId, doc, predecessors),
+    const transitions = results.flatMap(({ label, result }) =>
+      generateTransition(result, sourceId, doc, predecessors).map((t) =>
+        label ? `${t} /* [${label}] */` : t,
+      ),
     );
     eventLines.push(
       `${ind(3)}${q(name)}: [\n${transitions.join(',\n')},\n${ind(3)}],`,
