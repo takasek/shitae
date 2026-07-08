@@ -15,6 +15,9 @@ def analyze(path):
         m = re.match(r'^#\s+(\S.*)$', line)
         if m and not line.startswith('##'):
             cur_comp = m.group(1).strip()
+        # インタラクション行（行頭 '>'）を剥がす。継続行（'->' なし）も
+        # present/goto を含み得るため抽出対象に含める
+        line = re.sub(r'^>\s*', '', line)
         for mm in re.finditer(r'\bpresent\s*\(([^)]*)\)', line):
             args = [a.strip() for a in mm.group(1).split(',')]
             target = args[0]
@@ -33,6 +36,7 @@ def analyze(path):
         if m and not line.startswith('##'):
             cur_comp = m.group(1).strip()
             continue
+        line = re.sub(r'^>\s*', '', line)
         if cur_comp in presented:
             for mm in re.finditer(r'\bgoto\s*\(([^)]*)\)', line):
                 arg = mm.group(1).strip()

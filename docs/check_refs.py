@@ -6,10 +6,14 @@ def parse_and_check(path):
     cur_comp = None
     cur_variations = set()
 
-    # --- パス1: component と姿を収集 ---
+    # パス1: component と姿を収集
     for raw in lines:
         # 行コメント除去
         line = raw.split('//')[0].rstrip()
+        if not line.strip():
+            continue
+        # インタラクション行（行頭 '>'）は姿収集に無関係なので剥がして無視
+        line = re.sub(r'^>\s*', '', line)
         if not line.strip():
             continue
         # 姿定義 ## 名前
@@ -47,6 +51,9 @@ def check_refs(path):
         if m and not line.startswith('##'):
             cur_comp = m.group(1).strip()
             continue
+        # インタラクション行（行頭 '>'）を剥がす。'->' の有無に関わらず
+        # （継続行も遷移語を含み得るため）遷移抽出の対象にする
+        line = re.sub(r'^>\s*', '', line)
 
         for mm in nav_pat.finditer(line):
             word, arg = mm.group(1), mm.group(2).strip()
