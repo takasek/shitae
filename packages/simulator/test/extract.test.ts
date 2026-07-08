@@ -41,30 +41,64 @@ describe('extractSimData', () => {
     expect(comp.variations['未フォロー']!.elements).toContain('フォローボタン');
   });
 
-  it('interaction with multiple results', () => {
+  it('interaction with multiple labeled results → 1 ラベル 1 choice', () => {
     const doc = parseOk('# 保存\n保存\n> タップ(保存) -> [成功] goto(完了) ; [失敗] エラー表示\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
     const comp = data.modules['main']!.components['保存']!;
     const interaction = comp.commonInteractions[0]!;
-    expect(interaction.results).toHaveLength(2);
-    expect(interaction.results[0]!.label).toBe('成功');
-    expect(interaction.results[0]!.body.type).toBe('transition');
-    expect(interaction.results[1]!.label).toBe('失敗');
-    expect(interaction.results[1]!.body.type).toBe('effect');
+    expect(interaction.prelude).toHaveLength(0);
+    expect(interaction.choices).toHaveLength(2);
+    expect(interaction.choices[0]!.label).toBe('成功');
+    expect(interaction.choices[0]!.results[0]!.type).toBe('transition');
+    expect(interaction.choices[1]!.label).toBe('失敗');
+    expect(interaction.choices[1]!.results[0]!.type).toBe('effect');
   });
 
   it('transition result contains word and target', () => {
     const doc = parseOk('# A\n> タップ -> push(B)\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
-    const result = data.modules['main']!.components['A']!.commonInteractions[0]!.results[0]!;
-    expect(result.body.type).toBe('transition');
-    if (result.body.type === 'transition') {
-      expect(result.body.word).toBe('push');
-      expect(result.body.target?.kind).toBe('full');
-      if (result.body.target?.kind === 'full') {
-        expect(result.body.target.component).toBe('B');
+    const body = data.modules['main']!.components['A']!.commonInteractions[0]!.prelude[0]!;
+    expect(body.type).toBe('transition');
+    if (body.type === 'transition') {
+      expect(body.word).toBe('push');
+      expect(body.target?.kind).toBe('full');
+      if (body.target?.kind === 'full') {
+        expect(body.target.component).toBe('B');
       }
     }
+  });
+
+  it('ラベル継承: 無ラベル result は直前のラベルを引き継ぎ同じ choice にまとまる', () => {
+    const doc = parseOk(
+      '# A\nX\n> タップ(X) ->\n> [成功] 保存する ; goto(B)\n> [失敗] エラーを表示する\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const interaction = data.modules['main']!.components['A']!.commonInteractions[0]!;
+    expect(interaction.prelude).toHaveLength(0);
+    expect(interaction.choices).toHaveLength(2);
+    expect(interaction.choices[0]!.label).toBe('成功');
+    expect(interaction.choices[0]!.results).toHaveLength(2);
+    expect(interaction.choices[0]!.results[0]!.type).toBe('effect');
+    expect(interaction.choices[0]!.results[1]!.type).toBe('transition');
+    expect(interaction.choices[1]!.label).toBe('失敗');
+    expect(interaction.choices[1]!.results).toHaveLength(1);
+  });
+
+  it('ラベル継承: 最初のラベルより前の result は prelude（常に成立）', () => {
+    const doc = parseOk('# A\nX\n> タップ(X) -> ログを送る ; [成功] goto(B) ; [失敗] エラー\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const interaction = data.modules['main']!.components['A']!.commonInteractions[0]!;
+    expect(interaction.prelude).toHaveLength(1);
+    expect(interaction.prelude[0]!.type).toBe('effect');
+    expect(interaction.choices).toHaveLength(2);
+  });
+
+  it('ラベルなしの複数 result はすべて prelude（分岐ではなく順に全部起こる）', () => {
+    const doc = parseOk('# A\nX\n> タップ(X) -> 保存する ; back()\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const interaction = data.modules['main']!.components['A']!.commonInteractions[0]!;
+    expect(interaction.prelude).toHaveLength(2);
+    expect(interaction.choices).toHaveLength(0);
   });
 
   it('entryComponent is first component', () => {
