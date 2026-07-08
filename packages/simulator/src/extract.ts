@@ -41,6 +41,8 @@ export interface SimComponent {
   commonElements: string[];
   commonInteractions: SimInteraction[];
   variations: Record<string, SimVariation>;
+  /** 最初に定義された姿。姿指定なしで入ったときの初期姿。姿を持たなければ null */
+  initialVariation: string | null;
 }
 
 export interface SimModuleData {
@@ -126,7 +128,12 @@ function convertComponent(comp: Component): SimComponent {
       ),
     };
   }
-  return { commonElements, commonInteractions, variations };
+  return {
+    commonElements,
+    commonInteractions,
+    variations,
+    initialVariation: comp.variations[0]?.name ?? null,
+  };
 }
 
 export function extractSimData(

@@ -53,11 +53,17 @@ const DATA = ${json};
 const app = document.getElementById('app');
 const toastEl = document.getElementById('toast');
 
+// 姿指定なしで component に入ったら、最初に定義された姿を初期姿として扱う
+function initialVariation(module, component) {
+  const comp = DATA.modules[module]?.components[component];
+  return comp?.initialVariation ?? null;
+}
+
 // ── stack frame: { module, component, variation, wall, sessionName }
 let stack = [{
   module: DATA.entryModule,
   component: DATA.entryComponent,
-  variation: null,
+  variation: initialVariation(DATA.entryModule, DATA.entryComponent),
   wall: false,
   sessionName: null,
 }];
@@ -111,10 +117,13 @@ function applyTransition(result) {
 
   if (word === 'push' || word === 'present') {
     if (!target) return;
-    stack = [...stack, { module: target.module, component: target.component, variation: target.variation ?? null, wall: word === 'present', sessionName: result.session ?? null }];
+    const variation = target.variation ?? initialVariation(target.module, target.component);
+    stack = [...stack, { module: target.module, component: target.component, variation, wall: word === 'present', sessionName: result.session ?? null }];
   } else if (word === 'goto') {
     if (!target) return;
-    const newFrame = { ...frame, component: target.component, variation: target.variation ?? null, module: target.module, sessionName: null };
+    // 同一 component 内の姿替え（goto(##姿)）以外は初期姿の解決を行う
+    const variation = target.variation ?? initialVariation(target.module, target.component);
+    const newFrame = { ...frame, component: target.component, variation, module: target.module, sessionName: null };
     stack = [...stack.slice(0, -1), newFrame];
   } else if (word === 'back') {
     if (stack.length <= 1) return;
@@ -132,7 +141,7 @@ function applyTransition(result) {
       if (stack[i].sessionName === sessionName) {
         stack = stack.slice(0, i);
         if (stack.length === 0) {
-          stack = [{ module: DATA.entryModule, component: DATA.entryComponent, variation: null, wall: false, sessionName: null }];
+          stack = [{ module: DATA.entryModule, component: DATA.entryComponent, variation: initialVariation(DATA.entryModule, DATA.entryComponent), wall: false, sessionName: null }];
         }
         break;
       }
