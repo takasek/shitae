@@ -221,6 +221,45 @@ describe('label inheritance', () => {
   });
 });
 
+// ───── shadow composition (記法 v2: 姿固有が共通を shadow) ────────────
+
+describe('shadow composition', () => {
+  it('variation-specific interaction shadows common interaction with same action', () => {
+    const doc = parseOk(
+      '# A\n> タップ(設定) -> goto(共通行き先)\n## x\n\n## y\n> タップ(設定) -> goto(専用行き先)\n\n# 共通行き先\n\n# 専用行き先\n',
+    );
+    const out = toXState(doc);
+
+    const xStart = out.indexOf("'A__x':");
+    const yStart = out.indexOf("'A__y':");
+    expect(xStart).toBeGreaterThanOrEqual(0);
+    expect(yStart).toBeGreaterThan(xStart);
+    const xBlock = out.slice(xStart, yStart);
+    const yBlock = out.slice(yStart);
+
+    // x has no override — inherits the common interaction
+    expect(xBlock).toContain("target: '共通行き先'");
+
+    // y overrides the common interaction (same action) — common is shadowed,
+    // so only the variation-specific target should appear for y's state node.
+    expect(yBlock).toContain("target: '専用行き先'");
+    expect(yBlock).not.toContain("target: '共通行き先'");
+  });
+
+  it('shadowed common push does not register as a predecessor for back()', () => {
+    const doc = parseOk(
+      '# A\n> タップ(設定) -> push(共通行き先)\n## x\n> タップ(設定) -> push(設定画面)\n\n# 共通行き先\n> タップ(戻る) -> back()\n\n# 設定画面\n',
+    );
+    const out = toXState(doc);
+    // A__x's specific push(設定画面) shadows the common push(共通行き先),
+    // so 共通行き先 is never pushed to — its back() must not guard on A__x.
+    const backStart = out.indexOf("'タップ(戻る)':");
+    expect(backStart).toBeGreaterThanOrEqual(0);
+    const backBlock = out.slice(backStart, out.indexOf('],', backStart));
+    expect(backBlock).not.toContain("'A__x'");
+  });
+});
+
 // ───── custom options ─────────────────────────────────────────────────
 
 describe('options', () => {
