@@ -49,6 +49,22 @@ shitae は 2 つの階層でできている。
 
 遷移は「component の間」も「同一 component の姿の間」も同じ遷移語で書く（行き先で区別しない）。遷移語はコア 4 語（`push`/`back`/`goto`/`exit`）＋複合 2 語（`present`/`dismiss`）の計 6 語。一覧は「遷移語」を参照。
 
+### document 共通部（最初の `#` より前）
+
+最初の `#` より前に書いた要素行・インタラクション行は、**そのファイルの全 component に共通**する部分になる。`##` より前が全姿に共通であるのと相似形で、共通性は 3 階層になる：**姿固有 > component 共通（`##` より前） > document 共通（`#` より前）**。
+
+用途は「どの画面でも起こるインタラクション」——deep link、プッシュ通知、セッション切れによる強制ログアウトなど。エントリポイントはファイル先頭の component の 1 つだが、任意の画面から始まりうる遷移（deep link 等）は document 共通のインタラクションとして表せる。
+
+```
+> プッシュ通知をタップ -> push(記事詳細)
+> セッション切れ -> goto(ログイン)
+
+# スプラッシュ
+...
+```
+
+shadow 規則も同じ原理で拡張される：（行動文字列, 対象参照）が完全一致する定義が複数の階層にあれば、より特化した階層が勝つ（姿固有 > component 共通 > document 共通）。
+
 ---
 
 ## 記号一覧（これで全部）
@@ -91,7 +107,8 @@ shitae は 2 つの階層でできている。
 ## 文法（EBNF 風）
 
 ```ebnf
-document        = { import } , { component } ;
+document        = { import } , document-common , { component } ;
+document-common = single-body ;                      (* 最初の "#" より前。全 component に共通。空でもよい *)
 
 import          = "import" , module-name , "as" , alias-name ;
 module-name     = (* 同ディレクトリの .shitae ファイル名（拡張子省略）またはパス *) ;
