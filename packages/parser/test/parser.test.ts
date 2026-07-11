@@ -651,6 +651,25 @@ describe('diagnostics', () => {
     const e015 = diagnostics.filter((d) => d.code === 'E015');
     expect(e015).toHaveLength(0);
   });
+
+  it('E016: back(X##v) は構文エラー（戻り先の variant はスタックが決める）', () => {
+    const { diagnostics } = parseDoc('# A\n> タップ -> back(X##v)');
+    const e016 = diagnostics.filter((d) => d.code === 'E016');
+    expect(e016.length).toBeGreaterThan(0);
+    expect(e016[0].severity).toBe('error');
+  });
+
+  it('E016: back(##v) も構文エラー', () => {
+    const { diagnostics } = parseDoc('# A\n> タップ -> back(##v)');
+    const e016 = diagnostics.filter((d) => d.code === 'E016');
+    expect(e016.length).toBeGreaterThan(0);
+  });
+
+  it('E016: back(X) は ## を含まないのでエラーにならない', () => {
+    const { diagnostics } = parseDoc('# A\n> タップ -> back(X)');
+    const e016 = diagnostics.filter((d) => d.code === 'E016');
+    expect(e016).toHaveLength(0);
+  });
 });
 
 // ---------------------------------------------------------------------------

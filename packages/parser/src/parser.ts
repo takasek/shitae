@@ -751,7 +751,7 @@ function parseTransition(
       return { kind: 'transition', word, target, session: null, span };
     }
     case 'back': {
-      const target = args[0] ? parseNavTarget(args[0].trim(), span, diagnostics) : null;
+      const target = args[0] ? parseBackTarget(args[0].trim(), span, diagnostics) : null;
       return { kind: 'transition', word, target, session: null, span };
     }
     case 'exit': {
@@ -824,6 +824,43 @@ function parseNavTarget(
   }
 
   return { kind: 'component', module, name, variant };
+}
+
+// ---------------------------------------------------------------------------
+// parseBackTarget
+//
+// back-target = [ module-name , "::" ] , name ;  ("##variant" は書けない——
+// 戻り先の variant はスタックが決める。SPEC「文法（EBNF 風）」参照)
+// ---------------------------------------------------------------------------
+function parseBackTarget(
+  text: string,
+  span: Span,
+  diagnostics: Diagnostic[]
+): NavTarget {
+  const t = text.trim();
+
+  if (t.includes('##')) {
+    diagnostics.push({
+      severity: 'error',
+      code: 'E016',
+      message:
+        'back の引数に ## (variant) は書けません（戻り先の variant はスタックが決めます。back-target は [module::] name のみ）',
+      span,
+    });
+  }
+
+  // Parse "[module::] name", ignoring any "##..." suffix (error already reported above).
+  let module: string | null = null;
+  let rest = t;
+  const dcIdx = t.indexOf('::');
+  if (dcIdx !== -1) {
+    module = stripQuotes(t.slice(0, dcIdx).trim());
+    rest = t.slice(dcIdx + 2).trim();
+  }
+  const hashIdx = rest.indexOf('##');
+  const namePart = hashIdx !== -1 ? rest.slice(0, hashIdx).trim() : rest;
+
+  return { kind: 'component', module, name: stripQuotes(namePart), variant: null };
 }
 
 // ---------------------------------------------------------------------------
