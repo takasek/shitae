@@ -1,4 +1,11 @@
-import type { Diagnostic, Document, NavTarget, Span, Transition, TransitionWord } from '@shitae/ast';
+import type {
+  Diagnostic,
+  Document,
+  NavTarget,
+  Overlay,
+  Span,
+  Transition,
+} from '@shitae/ast';
 
 // ──────────────────────────────────────────────────
 // 型定義
@@ -11,25 +18,37 @@ export interface Location {
   variant: string | null;
 }
 
-/** present/dismiss 由来は name=null（無名セッション） */
+/** present/dismiss 由来（無名）は name=null */
 export interface SessionMarker {
   name: string | null;
 }
 
-/** 画面スタックの1フレーム */
+/** フレームの製法。root はエントリの無名フレームのみが持つ（SPEC「フレーム木」） */
+export type FrameOrigin = 'root' | 'push' | 'present' | 'switch';
+
+/**
+ * フレーム木の1ノード。
+ * stack は (component, variant) の列（下→上、最後が現在の姿）。
+ * id は作成順序も兼ねる（switch resume-or-create・遠隔破棄の「最も新しいフレーム」判定に使う）。
+ */
 export interface Frame {
-  location: Location;
-  /** push→false / present→true（back の壁）*/
-  wall: boolean;
-  /** この遷移が begin したセッション（SPEC:219）*/
+  id: number;
+  parentId: number | null;
+  stack: Location[];
+  /** push→false / present・switch→true（back の壁）*/
+  barrier: boolean;
+  /** この遷移が begin したセッション（root フレームのみ null） */
   beginsSession: SessionMarker | null;
-  /** 振る舞い正規化後も元語を保持 */
-  word: TransitionWord;
+  origin: FrameOrigin;
 }
 
-/** runtime 実行状態。frames 末尾 = 現在地。空禁止 */
+/** runtime 実行状態。frames は木を平坦化したもの。activeFrameId は必ず frames 内に存在する。 */
 export interface RuntimeState {
   frames: Frame[];
+  activeFrameId: number;
+  nextFrameId: number;
+  /** 掲示中の component 名の集合（SPEC「オーバーレイ」。フレーム木の走査対象には入らない） */
+  overlays: ReadonlySet<string>;
 }
 
 export interface ReduceResult {
@@ -43,15 +62,19 @@ export interface ReduceResult {
 
 /** エントリ画面から初期状態を構築する。起点は呼び手が決める（SPEC 未規定）。 */
 export function initialState(entry: Location): RuntimeState {
+  const root: Frame = {
+    id: 0,
+    parentId: null,
+    stack: [entry],
+    barrier: false,
+    beginsSession: null,
+    origin: 'root',
+  };
   return {
-    frames: [
-      {
-        location: entry,
-        wall: false,
-        beginsSession: null,
-        word: 'push',
-      },
-    ],
+    frames: [root],
+    activeFrameId: 0,
+    nextFrameId: 1,
+    overlays: new Set(),
   };
 }
 
@@ -64,32 +87,55 @@ export function entryFromDocument(doc: Document): Location {
 }
 
 // ──────────────────────────────────────────────────
+// 検査用の最小ヘルパ（テスト表明・デバッグ用に export）
+// ──────────────────────────────────────────────────
+
+export function getFrame(state: RuntimeState, id: number): Frame {
+  const f = state.frames.find((fr) => fr.id === id);
+  if (!f) throw new Error(`frame ${id} が state.frames に存在しない（内部不変条件違反）`);
+  return f;
+}
+
+/** 現在アクティブなフレームオブジェクト */
+export function activeFrame(state: RuntimeState): Frame {
+  return getFrame(state, state.activeFrameId);
+}
+
+/** 現在アクティブな画面の Location（アクティブフレームの stack 最上段） */
+export function activeLocation(state: RuntimeState): Location {
+  const f = activeFrame(state);
+  return f.stack[f.stack.length - 1]!;
+}
+
+/** 木を人間可読な文字列にする（デバッグ・テスト表明用）。
+ *  記法は docs/stress-test/oracle/frame-tree-cases.md に合わせる:
+ *  名前[製法,barrier,@session]{stack}。`*` はアクティブフレーム。 */
+export function formatTree(state: RuntimeState): string {
+  const children = (id: number) => state.frames.filter((f) => f.parentId === id);
+  const fmtLoc = (l: Location) => (l.variant ? `${l.component}##${l.variant}` : l.component);
+  const fmtFrame = (f: Frame): string => {
+    const stackStr = f.stack.map(fmtLoc).join(',');
+    const sess = f.beginsSession ? `@${f.beginsSession.name ?? '(無名)'}` : '-';
+    const bar = f.barrier ? 'barrier' : 'no-barrier';
+    const active = f.id === state.activeFrameId ? '*' : '';
+    return `F${f.id}${active}[${f.origin},${bar},${sess}]{${stackStr}}`;
+  };
+  const lines: string[] = [];
+  const walk = (id: number, depth: number) => {
+    lines.push('  '.repeat(depth) + fmtFrame(getFrame(state, id)));
+    for (const c of children(id)) walk(c.id, depth + 1);
+  };
+  const root = state.frames.find((f) => f.parentId === null);
+  if (root) walk(root.id, 0);
+  return lines.join('\n');
+}
+
+// ──────────────────────────────────────────────────
 // 内部ユーティリティ
 // ──────────────────────────────────────────────────
 
 function warn(code: string, message: string, span: Span): Diagnostic {
   return { severity: 'warning', code, message, span };
-}
-
-// ADR-0006 B4: named session の exit(@S)/dismiss(@S) は開始 verb（push/present/switch）を
-// 問わず同義 —— 開始・終了 verb を比較してのねじれ警告（旧 R001）は撤去した。
-function closeSession(
-  frames: Frame[],
-  state: RuntimeState,
-  sessionName: string | null,
-  closerLabel: string,
-  span: Span,
-  diags: Diagnostic[],
-): ReduceResult {
-  for (let i = frames.length - 1; i >= 0; i--) {
-    const f = frames[i]!;
-    if (f.beginsSession !== null && f.beginsSession.name === sessionName) {
-      return { state: { frames: frames.slice(0, i) }, diagnostics: diags };
-    }
-  }
-  const label = sessionName !== null ? `@${sessionName}` : '(無名セッション)';
-  diags.push(warn('R002', `${closerLabel} 対象セッション ${label} がスタックに不在`, span));
-  return { state, diagnostics: diags };
 }
 
 /** NavTarget を現在の Location を踏まえて Location へ正規化する */
@@ -105,115 +151,266 @@ function navTargetToLocation(target: NavTarget, current: Location): Location {
   };
 }
 
+/** 指定フレームの stack だけを差し替えた新 state を返す */
+function updateFrameStack(state: RuntimeState, id: number, stack: Location[]): RuntimeState {
+  return {
+    ...state,
+    frames: state.frames.map((f) => (f.id === id ? { ...f, stack } : f)),
+  };
+}
+
+/** 新規フレームを追加した新 state を返す（nextFrameId も進む） */
+function addFrame(state: RuntimeState, frame: Frame): RuntimeState {
+  return {
+    ...state,
+    frames: [...state.frames, frame],
+    nextFrameId: state.nextFrameId + 1,
+  };
+}
+
+/** rootId とその子孫フレームを全部破棄した新 state を返す（activeFrameId は呼び手が設定し直す） */
+function removeSubtree(state: RuntimeState, rootId: number): RuntimeState {
+  const toRemove = new Set<number>();
+  const collect = (id: number) => {
+    toRemove.add(id);
+    for (const f of state.frames) {
+      if (f.parentId === id) collect(f.id);
+    }
+  };
+  collect(rootId);
+  return { ...state, frames: state.frames.filter((f) => !toRemove.has(f.id)) };
+}
+
 // ──────────────────────────────────────────────────
-// reduce — 純粋スタックマシン
+// back(X) — アクティブパスを走査し、barrier なしのフレーム境界は越えて遡る
 // ──────────────────────────────────────────────────
 
-export function reduce(state: RuntimeState, transition: Transition): ReduceResult {
+type BackSearchResult =
+  | { kind: 'found'; frameId: number; index: number; crossed: number[] }
+  | { kind: 'blocked' }
+  | { kind: 'not-found' };
+
+function findBackTarget(state: RuntimeState, targetComponent: string): BackSearchResult {
+  const crossed: number[] = [];
+  let frameId = state.activeFrameId;
+  for (;;) {
+    const f = getFrame(state, frameId);
+    let index = -1;
+    for (let i = f.stack.length - 1; i >= 0; i--) {
+      if (f.stack[i]!.component === targetComponent) {
+        index = i;
+        break;
+      }
+    }
+    if (index !== -1) return { kind: 'found', frameId, index, crossed };
+    if (f.barrier) return { kind: 'blocked' };
+    if (f.parentId === null) return { kind: 'not-found' };
+    crossed.push(frameId);
+    frameId = f.parentId;
+  }
+}
+
+// ──────────────────────────────────────────────────
+// exit / dismiss 共通: アクティブパス「新しい方から最初の @S」→ 無ければ遠隔破棄
+// ──────────────────────────────────────────────────
+
+function closeSession(
+  state: RuntimeState,
+  sessionName: string | null,
+  closerLabel: string,
+  span: Span,
+  diags: Diagnostic[],
+): ReduceResult {
+  // アクティブパスを現在フレームから祖先方向へ走査。
+  // sessionName === null（dismiss()）は「直近の無名セッション」を探し、
+  // named session（beginsSession.name !== null）は素通りする。
+  let frameId: number | null = state.activeFrameId;
+  while (frameId !== null) {
+    const f = getFrame(state, frameId);
+    if (f.beginsSession !== null) {
+      const matches = sessionName === null ? f.beginsSession.name === null : f.beginsSession.name === sessionName;
+      if (matches) {
+        const parentId = f.parentId; // root は beginsSession=null なので必ず非 null
+        const newState = removeSubtree(state, f.id);
+        return { state: { ...newState, activeFrameId: parentId! }, diagnostics: diags };
+      }
+    }
+    frameId = f.parentId;
+  }
+
+  // アクティブパスで見つからない: named session のみ木全体から遠隔破棄を試みる
+  if (sessionName !== null) {
+    const candidates = state.frames.filter((f) => f.beginsSession?.name === sessionName);
+    if (candidates.length > 0) {
+      const target = candidates.reduce((a, b) => (b.id > a.id ? b : a));
+      const newState = removeSubtree(state, target.id);
+      // 遠隔破棄: アクティブフレームは動かない
+      return { state: newState, diagnostics: diags };
+    }
+  }
+
+  const label = sessionName !== null ? `@${sessionName}` : '(無名セッション)';
+  diags.push(warn('R002', `${closerLabel} 対象セッション ${label} がスタックに不在`, span));
+  return { state, diagnostics: diags };
+}
+
+// ──────────────────────────────────────────────────
+// reduce — フレーム木マシン
+// ──────────────────────────────────────────────────
+
+export function reduce(state: RuntimeState, action: Transition | Overlay): ReduceResult {
+  if (action.kind === 'overlay') {
+    return reduceOverlay(state, action);
+  }
+  return reduceTransition(state, action);
+}
+
+function reduceOverlay(state: RuntimeState, overlay: Overlay): ReduceResult {
+  const name = overlay.target.name;
+  if (overlay.verb === 'show') {
+    const overlays = new Set(state.overlays);
+    overlays.add(name);
+    return { state: { ...state, overlays }, diagnostics: [] };
+  }
+  // hide
+  if (!state.overlays.has(name)) {
+    return { state, diagnostics: [] };
+  }
+  const overlays = new Set(state.overlays);
+  overlays.delete(name);
+  return { state: { ...state, overlays }, diagnostics: [] };
+}
+
+function reduceTransition(state: RuntimeState, transition: Transition): ReduceResult {
   const { word, target, session, span } = transition;
-  const frames = state.frames;
-  const current = frames[frames.length - 1]!.location;
+  const current = activeLocation(state);
   const diags: Diagnostic[] = [];
 
   switch (word) {
     case 'push': {
       if (!target) return { state, diagnostics: diags };
       const loc = navTargetToLocation(target, current);
-      return {
-        state: {
-          frames: [
-            ...frames,
-            {
-              location: loc,
-              wall: false,
-              beginsSession: session ? { name: session.name } : null,
-              word: 'push',
-            },
-          ],
-        },
-        diagnostics: diags,
+      if (!session) {
+        // セッションなし: 現在フレームのスタックに積む
+        const cur = activeFrame(state);
+        const newState = updateFrameStack(state, cur.id, [...cur.stack, loc]);
+        return { state: newState, diagnostics: diags };
+      }
+      // セッションあり: 現在フレームの子フレームを新規作成（barrier なし）
+      const child: Frame = {
+        id: state.nextFrameId,
+        parentId: state.activeFrameId,
+        stack: [loc],
+        barrier: false,
+        beginsSession: { name: session.name },
+        origin: 'push',
       };
+      const newState = addFrame(state, child);
+      return { state: { ...newState, activeFrameId: child.id }, diagnostics: diags };
     }
 
     case 'present': {
       if (!target) return { state, diagnostics: diags };
       const loc = navTargetToLocation(target, current);
-      return {
-        state: {
-          frames: [
-            ...frames,
-            {
-              location: loc,
-              wall: true,
-              beginsSession: session ? { name: session.name } : { name: null },
-              word: 'present',
-            },
-          ],
-        },
-        diagnostics: diags,
+      const child: Frame = {
+        id: state.nextFrameId,
+        parentId: state.activeFrameId,
+        stack: [loc],
+        barrier: true,
+        beginsSession: session ? { name: session.name } : { name: null },
+        origin: 'present',
       };
+      const newState = addFrame(state, child);
+      return { state: { ...newState, activeFrameId: child.id }, diagnostics: diags };
     }
 
     case 'goto': {
       if (!target) return { state, diagnostics: diags };
       const loc = navTargetToLocation(target, current);
-      const top = frames[frames.length - 1]!;
-      // SPEC 対応表 goto 行（ADR-0006 B2）— ##姿 に限らず component への goto も
-      // 最上段の location だけを置き換える（積まない）。wall・beginsSession（begin 地点であること自体）は保存する。
-      const newTop: Frame = { ...top, location: loc };
-      return {
-        state: { frames: [...frames.slice(0, -1), newTop] },
-        diagnostics: diags,
-      };
+      const cur = activeFrame(state);
+      // 最上段を置換するのみ。barrier・beginsSession（フレームの属性）は保存される（ADR-0006 B2）。
+      const newStack = [...cur.stack.slice(0, -1), loc];
+      const newState = updateFrameStack(state, cur.id, newStack);
+      return { state: newState, diagnostics: diags };
     }
 
     case 'back': {
       if (!target) {
-        // back() — 壁を越えずに1段 pop
-        if (frames.length <= 1) {
-          // 最小スタック維持
-          return { state, diagnostics: diags };
+        const cur = activeFrame(state);
+        if (cur.stack.length > 1) {
+          const newState = updateFrameStack(state, cur.id, cur.stack.slice(0, -1));
+          return { state: newState, diagnostics: diags };
         }
-        const top = frames[frames.length - 1]!;
-        if (top.wall) {
-          // 壁の内側: no-op + R003
+        // これ以上フレーム内を降りられない
+        if (cur.barrier) {
           diags.push(warn('R003', 'back() が壁に阻まれ no-op', span));
           return { state, diagnostics: diags };
         }
-        return { state: { frames: frames.slice(0, -1) }, diagnostics: diags };
-      } else {
-        // back(X) — 明示先まで pop。ADR-0001: barrier は越えられない。
-        // 末尾から targetComponent を探しつつ、target に当たる前に wall に阻まれたら no-op。
-        const targetLoc = navTargetToLocation(target, current);
-        for (let i = frames.length - 1; i >= 0; i--) {
-          const f = frames[i]!;
-          if (f.location.component === targetLoc.component) {
-            return { state: { frames: frames.slice(0, i + 1) }, diagnostics: diags };
-          }
-          if (f.wall) {
-            // target に届く前に barrier に当たった → 越えられず no-op
-            diags.push(warn('R003', `back(${targetLoc.component}) が壁に阻まれ no-op`, span));
-            return { state, diagnostics: diags };
-          }
+        if (cur.parentId === null) {
+          // ルート最下段: no-op（SPEC「戻り先が無いとき」。警告は任意でここでは出さない）
+          return { state, diagnostics: diags };
         }
-        // barrier に阻まれずスタック全体を探しても見つからない → R004
-        diags.push(warn('R004', `back 対象 "${targetLoc.component}" がスタックに不在`, span));
+        const parentId = cur.parentId;
+        const newState = removeSubtree(state, cur.id);
+        return { state: { ...newState, activeFrameId: parentId }, diagnostics: diags };
+      }
+
+      // back(X)
+      const targetLoc = navTargetToLocation(target, current);
+      const result = findBackTarget(state, targetLoc.component);
+      if (result.kind === 'found') {
+        let newState = state;
+        for (const id of result.crossed) {
+          newState = removeSubtree(newState, id);
+        }
+        const f = getFrame(newState, result.frameId);
+        newState = updateFrameStack(newState, result.frameId, f.stack.slice(0, result.index + 1));
+        newState = { ...newState, activeFrameId: result.frameId };
+        return { state: newState, diagnostics: diags };
+      }
+      if (result.kind === 'blocked') {
+        diags.push(warn('R003', `back(${targetLoc.component}) が壁に阻まれ no-op`, span));
         return { state, diagnostics: diags };
       }
+      diags.push(warn('R004', `back 対象 "${targetLoc.component}" がスタックに不在`, span));
+      return { state, diagnostics: diags };
     }
 
     case 'exit':
       // named session なので開始 verb（push/present/switch）を問わず dismiss(@S) と同義（ADR-0006 B4）
-      return closeSession(frames, state, session?.name ?? null, 'exit', span, diags);
+      return closeSession(state, session?.name ?? null, 'exit', span, diags);
 
     case 'dismiss':
       // 無名セッションは常に present 由来。named session は exit(@S) と同義（ADR-0006 B4）
-      return closeSession(frames, state, session?.name ?? null, 'dismiss', span, diags);
+      return closeSession(state, session?.name ?? null, 'dismiss', span, diags);
 
-    case 'switch':
-      // switch（中断と復帰）は frame 木を要する（兄弟規則・resume-or-create）。
-      // この線形スタック reduce では未実装 — frame 木化する後続タスクで対応する。
-      // 現状は no-op（型の網羅性のためのプレースホルダ）。
-      return { state, diagnostics: diags };
+    case 'switch': {
+      const sessionName = session?.name ?? null;
+      if (sessionName === null) {
+        // E019 により本来到達しない（session は必須）。防御的に no-op。
+        return { state, diagnostics: diags };
+      }
+      const candidates = state.frames.filter((f) => f.beginsSession?.name === sessionName);
+      if (candidates.length > 0) {
+        // resume: 最も新しいフレームへ復帰（木の形は不変。target X は無視される）
+        const resumeFrame = candidates.reduce((a, b) => (b.id > a.id ? b : a));
+        return { state: { ...state, activeFrameId: resumeFrame.id }, diagnostics: diags };
+      }
+      // create: 兄弟規則（現在フレームが switch 製なら兄弟、でなければ子）
+      if (!target) return { state, diagnostics: diags };
+      const loc = navTargetToLocation(target, current);
+      const cur = activeFrame(state);
+      const parentId = cur.origin === 'switch' ? cur.parentId! : cur.id;
+      const child: Frame = {
+        id: state.nextFrameId,
+        parentId,
+        stack: [loc],
+        barrier: true,
+        beginsSession: { name: sessionName },
+        origin: 'switch',
+      };
+      const newState = addFrame(state, child);
+      return { state: { ...newState, activeFrameId: child.id }, diagnostics: diags };
+    }
   }
 }
