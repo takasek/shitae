@@ -1,0 +1,12 @@
+// C07: import の境界（エントリファイル側）。
+// a: 循環 import（このファイルと c07-import-edges-b が相互 import）
+// b: 同名 alias の二重 import
+// c: `::` と `##` と `.` の合成 — m::comp##v は EBNF 可。m::comp##v.要素 は不可のはず（reference に ## が無い）
+// d: import 先ファイルの document common は、そちらの component へ遷移した後に効くのか（ファイル単位の適用範囲が未規定 ⚠️ 予測）
+
+import c07-import-edges-b as m
+import c07-import-edges-b as m   // b: 同名 alias 再定義
+
+# 入口
+> すすむ -> push(m::相手##裏)      // c: :: と ## の合成
+> 要素をつつく -> タップされる ; push(m::相手)

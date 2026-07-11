@@ -1,0 +1,13 @@
+// C07 の相手側。c07-import-edges-a を逆 import して循環を作る。
+
+import c07-import-edges-a as back_ref
+
+> どこでも通知 -> push(相手)      // d: この document common は import 元から来た遷移にも効くか
+
+# 相手
+表面
+## 表
+なかみ
+## 裏
+うら
+> もどる -> push(back_ref::入口)

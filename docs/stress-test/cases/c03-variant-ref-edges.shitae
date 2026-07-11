@@ -1,0 +1,19 @@
+// C03: variant 参照の境界。
+// a: variant を持たない component への ##指定遷移 goto(単一##何か)
+// b: 存在しない variant への遷移 goto(##無いvariant)
+// d: document common からの ##variant 参照 — 「同一 component 内」が存在しない文脈でどの component の variant か
+// spec 字義: a/b はエラーとも警告とも書かれていない。d は未規定（⚠️ 予測）。
+
+> 通知タップ -> goto(##通知面)    // d: document common に ##参照
+
+# 入口
+開始
+> タップ(開始) -> goto(単一##特別)   // a: 単一 variant component への variant 指定
+> すすむ -> goto(##無いvariant)      // b: この component に無い variant
+
+# 単一
+なかみ
+
+# 通知面持ち
+## 通知面
+通知一覧

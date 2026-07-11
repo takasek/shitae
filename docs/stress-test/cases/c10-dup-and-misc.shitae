@@ -1,0 +1,17 @@
+// C10: 宣言の重複ほか。
+// a: 同名 component の二重定義 — spec に規定なし（⚠️ 予測: 未規定）
+// b: 同名 variant の二重定義
+// c: 要素行の同名重複（alias なし）
+// d: presence gate を遷移先に付ける push(X?) — EBNF 上 nav-target に ? は無い → 構文エラーのはず
+
+# 画面
+本文
+本文                       // c: 同名要素 2 行
+> すすむ -> push(次?)      // d: nav-target への ?
+## A
+x
+## A
+y
+
+# 画面
+別の中身                   // a: component 二重定義
