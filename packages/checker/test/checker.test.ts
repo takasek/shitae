@@ -73,9 +73,9 @@ describe('check', () => {
     expect(w102).toHaveLength(0);
   });
 
-  it('両サンプルで severity=error なし', () => {
+  it('全サンプルで severity=error なし', () => {
     const root = join(import.meta.dirname, '../../..');
-    for (const f of ['docs/examples/battle.shitae', 'docs/examples/ecommerce.shitae']) {
+    for (const f of ['docs/examples/battle.shitae', 'docs/examples/ecommerce.shitae', 'docs/examples/music.shitae']) {
       const src = readFileSync(join(root, f), 'utf8');
       const { document } = parse(src);
       const diags = check(document, resolve(document));

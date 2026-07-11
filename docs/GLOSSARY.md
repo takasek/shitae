@@ -31,6 +31,8 @@ shitae の概念語の正準名。SPEC・AI_GUIDE・スキル・examples はこ�
 |------|------|------|
 | **transition verb** | — | 遷移を表す予約語。コア 4 語 `push` `back` `goto` `exit` ＋ compound verb 3 語 |
 | **compound verb** | — | 壁・セッションにまつわる意図を一語に束ねた複合遷移語: `present` `dismiss` `switch` |
+| **overlay verb** | `show` / `hide` | フレーム木を操作しない別カテゴリの予約語。掲示中 component 集合に対する追加・除去 |
+| **overlay / オーバーレイ集合** | `show(X)` / `hide(X)` | アクティブフレームと独立に常時表示される component の集合（ミニプレイヤー・PiP・バナー等）。フレームではないので `back`/`exit` の走査対象外。`hide` で明示的に外すまで残る |
 | **session** | `@S` | 開始して、まとめて破棄する、ひとまとまりの期間。`push`/`present`/`switch`（新規作成時）で開始し `exit`/`dismiss` で破棄 |
 | **back barrier** | — | モード内から通常の `back` で外に出られない性質。旧称: back の壁。`present` と `switch` が立てる |
 | **frame / frame tree** | — | 処理系の内部モデル。frame ＝ (component, variant) を積むスタック 1 本＋barrier の有無。frame が木をなす |
@@ -41,7 +43,7 @@ shitae の概念語の正準名。SPEC・AI_GUIDE・スキル・examples はこ�
 
 | 用語 | 記号 | 意味 |
 |------|------|------|
-| **presence gate** | `行動(対象?)` | opt-in の静的な注記。その variant に対象が存在する時だけ行動が有効。旧称: 存在ゲート |
+| **presence gate** | `行動(対象?)` | opt-in の構造的 presence（式・値比較を評価しない）。参照解決先の現在 variant の実効 body に対象があるとき行動が有効。旧称: 存在ゲート／静的な注記 |
 | **always-on** | `?` なし | presence gate を付けない行動の既定。書かれた variant のスコープで常に有効。旧称: 常在 |
 | **condition label** | `[...]` | 分岐の目印となる注記。評価しない。旧称: 条件ラベル／分岐ガード |
 

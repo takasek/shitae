@@ -84,11 +84,12 @@ describe('toMermaid', () => {
     expect(edges).toHaveLength(0);
   });
 
-  it('両サンプルが flowchart LR を出力する', () => {
+  it('全サンプルが flowchart LR を出力する', () => {
     const root = join(import.meta.dirname, '../../..');
     const battle = readFileSync(join(root, 'docs/examples/battle.shitae'), 'utf8');
     const ecommerce = readFileSync(join(root, 'docs/examples/ecommerce.shitae'), 'utf8');
-    for (const src of [battle, ecommerce]) {
+    const music = readFileSync(join(root, 'docs/examples/music.shitae'), 'utf8');
+    for (const src of [battle, ecommerce, music]) {
       const { document } = parse(src);
       const out = toMermaid(document);
       expect(out).toMatch(/^flowchart LR/);

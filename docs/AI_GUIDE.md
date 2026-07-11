@@ -19,6 +19,7 @@
 予約語：
 - transition verb（コア）：`push` `back` `goto` `exit`
 - transition verb（複合）：`present`（barrier ありセッションの開始）`dismiss`（直近の無名セッションの破棄）`switch`（フレームの中断と復帰。タブ等）。糖衣ではなく、コア 4 語に「barrier」「中断・復帰」を組み合わせた compound verb。
+- overlay verb：`show(X)` / `hide(X)`（フレーム木を操作しない別カテゴリ）。ミニプレイヤー・PiP・バナー等、アクティブ画面と独立に常時表示する component の掲示・掲示解除。`hide` するまで残る（`back`/`exit` では消えない）。
 - 構造：`import` `as`
 
 これ以外のキーワードを発明しない。表現できないものは自然文で書く。

@@ -5,6 +5,7 @@ import { parse } from '../src/index.js';
 
 const battleSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/battle.shitae'), 'utf8');
 const ecommerceSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/ecommerce.shitae'), 'utf8');
+const musicSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/music.shitae'), 'utf8');
 
 describe('integration: examples/battle.shitae', () => {
   it('parses without errors', () => {
@@ -78,5 +79,47 @@ describe('integration: examples/ecommerce.shitae', () => {
     );
     expect(interaction).toBeDefined();
     expect(interaction!.results.length).toBeGreaterThanOrEqual(2);
+  });
+});
+
+describe('integration: examples/music.shitae（overlay・switch・document common の実例）', () => {
+  it('parses without errors', () => {
+    const { diagnostics } = parse(musicSrc);
+    const errors = diagnostics.filter(d => d.severity === 'error');
+    expect(errors).toHaveLength(0);
+  });
+
+  it('document common に present(再生画面) のインタラクションを持つ', () => {
+    const { document } = parse(musicSrc);
+    expect(document.common.interactions.length).toBeGreaterThan(0);
+    const dc = document.common.interactions[0];
+    expect(dc.results[0].body.kind).toBe('transition');
+  });
+
+  it('タブバー部品が switch の interaction を持つ', () => {
+    const { document } = parse(musicSrc);
+    const tabbar = document.components.find(c => c.name === 'タブバー');
+    expect(tabbar).toBeDefined();
+    const switchResult = tabbar!.common.interactions
+      .flatMap(i => i.results)
+      .find(r => r.body.kind === 'transition' && r.body.word === 'switch');
+    expect(switchResult).toBeDefined();
+  });
+
+  it('再生開始インタラクションが show(ミニプレイヤー) の overlay result を持つ', () => {
+    const { document } = parse(musicSrc);
+    const overlayResult = document.components
+      .flatMap(c => [c.common, ...c.variants.map(v => v.body)])
+      .flatMap(b => b.interactions)
+      .flatMap(i => i.results)
+      .find(r => r.body.kind === 'overlay' && r.body.verb === 'show');
+    expect(overlayResult).toBeDefined();
+  });
+
+  it('再生画面 has シャッフルON/OFF の 2 variants', () => {
+    const { document } = parse(musicSrc);
+    const player = document.components.find(c => c.name === '再生画面');
+    expect(player).toBeDefined();
+    expect(player!.variants).toHaveLength(2);
   });
 });
