@@ -133,6 +133,18 @@ expect マッチング##検索中
 - **シナリオの本体構文への追加**: 本体文法の不変性を優先し別ファイルに隔離。
 - **同名 `@S` の LIFO 規則の一意制約化**: 今回のスコープ外として見送り。
 
+## 残タスク（Plan B/C への持ち越し）
+
+Plan A（文書反映、2026-07-11 に main へ merge 済み）の実行で確定・発生した持ち越し。
+
+- Plan B 本体: parser（document 共通部の正式対応 — 現行 parser は当該行をエラーにせず黙って通す。switch 語の遷移語化）、resolver/simulator（フレーム木）、transpiler-xstate（history state）、transpiler-mermaid（switch エッジ）、checker（遷移語忘れ lint = 結果の自然文が既存 component 名と完全一致で warning）。
+- Plan B で規定する意味論の残り: アクティブパス外に同名 `@S` が複数ある場合の木全体探索の順序（SPEC は未規定。極端なエッジケース）。
+- Plan B で直すツール: `docs/check_modals.py` が switch を壁（モード）として認識しない。あわせて `docs/check_refs.py` / `check_modals.py`（checker パッケージと別系統の Python 簡易実装で、遷移語追加のたびに手動同期が要る）を CLI ベースの検証に置換するか判断する。
+- Plan B 完了後: `docs/example-*.mmd` の再生成（現行 transpiler が switch 未対応のため意図的に保留中。example と `.mmd` は現在不整合）。
+- SPEC 字面 polish 候補: フレーム木節の「begin 地点へ戻る」は遠隔破棄時には成立しない（直前の bullet で挙動は明示済み。誤読リスク低）。
+- example に `import`/`::` の使用例が依然不在（Plan A でスコープ外送り。dogfooding の穴が残っている）。モジュール分割を含む example の追加を検討する。
+- Plan C: 本文書の項目 6（stroke）全体。
+
 ## 影響範囲
 
 - SPEC.md: 遷移語 6→7、「セッションスタックと LIFO」節をフレーム木で全面改稿、document 共通ブロックの文法追加（EBNF の `document` 規則変更）、姿の独立性の段落追加、`?` の motivation 追記。
