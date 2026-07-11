@@ -342,7 +342,8 @@ function parseImport(
 function parseElementLine(
   ll: LogicalLine,
   lineOffsets: number[],
-  diagnostics: Diagnostic[]
+  diagnostics: Diagnostic[],
+  inlineDepth = 0
 ): ElementLine | null {
   const raw = ll.text;
   const firstNonSpace = raw.search(/\S/);
@@ -374,7 +375,7 @@ function parseElementLine(
   }
 
   // Parse value: inline or ref
-  const value = parseElementValue(valueText, span, lineOffsets, diagnostics);
+  const value = parseElementValue(valueText, span, lineOffsets, diagnostics, inlineDepth);
   if (!value) return null;
 
   return { collection, alias, value, span };
@@ -395,13 +396,24 @@ function parseElementValue(
   text: string,
   span: Span,
   lineOffsets: number[],
-  diagnostics: Diagnostic[]
+  diagnostics: Diagnostic[],
+  inlineDepth = 0
 ): Ref | Inline | null {
   const t = text.trim();
 
   if (t.startsWith('{')) {
-    // Inline
-    return parseInline(t, span, lineOffsets, diagnostics);
+    // Inline — 入れ子は 1 段まで（SPEC「inline component とグルーピング」）。
+    // inlineDepth はこの要素行が既にいくつの inline の中にいるかを表す。
+    // 1 以上（＝すでに inline の中）でさらに inline を開くのは 2 段目なので E015。
+    if (inlineDepth >= 1) {
+      diagnostics.push({
+        severity: 'error',
+        code: 'E015',
+        message: 'inline の入れ子は 1 段までです（{ { ... } } は書けません）',
+        span,
+      });
+    }
+    return parseInline(t, span, lineOffsets, diagnostics, inlineDepth + 1);
   }
 
   // Ref (possibly quoted)
@@ -423,7 +435,8 @@ function parseInline(
   text: string,
   span: Span,
   lineOffsets: number[],
-  diagnostics: Diagnostic[]
+  diagnostics: Diagnostic[],
+  inlineDepth = 1
 ): Inline {
   // text: "{ content }" or "{ ... ; ... }"
   // Strip outer { }
@@ -442,7 +455,8 @@ function parseInline(
     const el = parseElementLine(
       { text: trimPart, startLine: span.line },
       lineOffsets,
-      diagnostics
+      diagnostics,
+      inlineDepth
     );
     if (el) elements.push(el);
   }

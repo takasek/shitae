@@ -638,6 +638,19 @@ describe('diagnostics', () => {
     expect(ref.name).toBe('箱');
     expect(ref.member).toBe('内箱');
   });
+
+  it('E015: inline の入れ子は 1 段まで（{ { a } } は構文エラー）', () => {
+    const { diagnostics } = parseDoc('# A\n枠: { { a } }');
+    const e015 = diagnostics.filter((d) => d.code === 'E015');
+    expect(e015.length).toBeGreaterThan(0);
+    expect(e015[0].severity).toBe('error');
+  });
+
+  it('E015: 1 段の inline はエラーにならない', () => {
+    const { diagnostics } = parseDoc('# A\n枠: { a ; b }');
+    const e015 = diagnostics.filter((d) => d.code === 'E015');
+    expect(e015).toHaveLength(0);
+  });
 });
 
 // ---------------------------------------------------------------------------

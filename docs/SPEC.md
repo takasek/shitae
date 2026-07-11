@@ -632,7 +632,7 @@ import auth as auth          // auth.shitae を読み込む
 | E012 | 矢印重複（`-> R -> R`。「未定・分岐」参照） | error |
 | E013 | nav-target への `?`（例 `push(次?)`。「操作は variant に属する」参照） | error |
 | E014 | 参照の `.` が 1 段を超える（例 `箱.内箱.b`。「記号一覧」参照） | error |
-| コード未割当（実装時に採番） | inline の入れ子が 1 段を超える（「inline component とグルーピング」参照） | error |
+| E015 | inline の入れ子が 1 段を超える（「inline component とグルーピング」参照） | error |
 | コード未割当（実装時に採番） | 同名 alias の再 import（「モジュール化」参照） | error |
 | コード未割当（実装時に採番） | component を 1 つも持たない文書（「initial variant とエントリポイント」参照） | error |
 
