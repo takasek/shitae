@@ -1,11 +1,14 @@
 // frame 意味論オラクル: runtime reduce に遷移列を食わせ、最終状態と警告を実測する。
 // 使い方: node docs/stress-test/oracle/run-oracle.mjs（要 pnpm -r build）
-import { initialState, reduce } from '../../../packages/runtime/dist/index.js';
+//
+// runtime がフレーム木モデルに書き換わったため（frame-tree-cases.md T1-T7）、
+// ここでの出力も「アクティブ画面」＋「木全体」の2段に分けて表示する形に追随した。
+import { initialState, reduce, activeLocation, formatTree } from '../../../packages/runtime/dist/index.js';
 
 const span = { offset: 0, length: 0, line: 0, col: 0 };
 const comp = (name, variant = null) => ({ kind: 'component', module: null, name, variant });
 const vari = (name) => ({ kind: 'variant', name });
-const t = (word, target = null, session = null) => ({ word, target, session: session ? { name: session } : null, span });
+const t = (word, target = null, session = null) => ({ kind: 'transition', word, target, session: session ? { name: session } : null, span });
 
 function run(label, seq) {
   let state = initialState({ module: null, component: 'ホーム', variant: null });
@@ -15,10 +18,9 @@ function run(label, seq) {
     state = r.state;
     warns.push(...r.diagnostics.map((d) => `${d.code}:${d.message}`));
   }
-  const stack = state.frames
-    .map((f) => `${f.location.component}${f.location.variant ? '##' + f.location.variant : ''}${f.wall ? '|wall' : ''}${f.beginsSession ? `|@${f.beginsSession.name ?? '(無名)'}` : ''}`)
-    .join(' > ');
-  console.log(`${label}\n  stack: ${stack}\n  warns: ${warns.length ? warns.join(' / ') : 'なし'}\n`);
+  const loc = activeLocation(state);
+  const active = `${loc.component}${loc.variant ? '##' + loc.variant : ''}`;
+  console.log(`${label}\n  active: ${active}\n  warns: ${warns.length ? warns.join(' / ') : 'なし'}\n  tree:\n${formatTree(state).replace(/^/gm, '    ')}\n`);
 }
 
 // Q1: present の barrier 床での back()
