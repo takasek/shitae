@@ -45,6 +45,12 @@ runtime（`packages/runtime/src/index.ts` back(X) 分岐）はコメント付き
 SPEC「戻り先が無いとき」は「`back()` / `back(X)` / … で戻り先が見つからない場合（back barrier に当たる、…）は no-op」と back(X) も barrier 対象に読める。
 ただし spec 側も「barrier に当たる」が back() のみを指すのか back(X) を含むのか一文で曖昧（⚠️ 併記）。どちらかに明示決定が要る。
 
+### S21 ❌ runtime R001 が SPEC の正典例（present → exit）を「ねじれ」警告する
+
+SPEC の mismatch 節がねじれに挙げるのは「push を dismiss で閉じる」「present を back で戻る」であり、ログイン後フローの正典例は `present(ホーム, @loggedIn)` を `exit(@loggedIn)` で閉じる（battle.shitae も同型）。
+runtime の closeSession は exit に対し `word === 'present'` なら R001 を出すため、この正典例そのものが警告される（oracle-q6 実測: `R001: ねじれ: present で開いたセッションを exit で閉じている`）。
+music プローブの被験者も「named session なら exit と dismiss は同義か」を読み切れず exit に統一しており、spec 側の対応関係の明文（named なら同義、無名 dismiss のみ特別）と実装の警告条件の修正の両方が要る。
+
 ---
 
 ## 2. 暗黙になっており定義したほうがよい制約
