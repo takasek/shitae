@@ -725,9 +725,22 @@ function parseTransition(
 function parseNavTarget(
   text: string,
   span: Span,
-  _diagnostics: Diagnostic[]
+  diagnostics: Diagnostic[]
 ): NavTarget {
-  const t = text.trim();
+  let t = text.trim();
+
+  // "?" (presence gate) is only valid on an action target, never on a
+  // nav-target — reject a bare trailing "?" here (E013).
+  if (t.endsWith('?')) {
+    diagnostics.push({
+      severity: 'error',
+      code: 'E013',
+      message:
+        'nav-target に ? は書けません（presence gate は行動対象にのみ有効です。「操作は variant に属する」参照）',
+      span,
+    });
+    t = t.slice(0, -1).trim();
+  }
 
   // "##variant" — same-component variant
   if (t.startsWith('##')) {

@@ -589,6 +589,19 @@ describe('diagnostics', () => {
     const e012 = diagnostics.filter((d) => d.code === 'E012');
     expect(e012.length).toBeGreaterThan(0);
   });
+
+  it('E013: nav-target への ? は構文エラー（push(次?)）', () => {
+    const { diagnostics } = parseDoc('# A\n次\n> タップ -> push(次?)');
+    const e013 = diagnostics.filter((d) => d.code === 'E013');
+    expect(e013.length).toBeGreaterThan(0);
+    expect(e013[0].severity).toBe('error');
+  });
+
+  it('E013: goto(##variant?) も構文エラー', () => {
+    const { diagnostics } = parseDoc('# A\n## B\n> タップ -> goto(##B?)');
+    const e013 = diagnostics.filter((d) => d.code === 'E013');
+    expect(e013.length).toBeGreaterThan(0);
+  });
 });
 
 // ---------------------------------------------------------------------------
