@@ -627,6 +627,17 @@ describe('diagnostics', () => {
     const e013 = diagnostics.filter((d) => d.code === 'E013');
     expect(e013.length).toBeGreaterThan(0);
   });
+
+  it('E014: 参照の . は 1 段まで（箱.内箱.b は構文エラー）', () => {
+    const { document, diagnostics } = parseDoc('# A\n箱\n> タップ(箱.内箱.b) -> back()');
+    const e014 = diagnostics.filter((d) => d.code === 'E014');
+    expect(e014.length).toBeGreaterThan(0);
+    expect(e014[0].severity).toBe('error');
+    // 復旧: member は 1 段目（内箱）だけを保持する
+    const ref = document.components[0].common.interactions[0].action.target!;
+    expect(ref.name).toBe('箱');
+    expect(ref.member).toBe('内箱');
+  });
 });
 
 // ---------------------------------------------------------------------------

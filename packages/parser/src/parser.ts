@@ -582,7 +582,7 @@ function findCloseParen(text: string): number {
 function parseReference(
   text: string,
   span: Span,
-  _diagnostics: Diagnostic[]
+  diagnostics: Diagnostic[]
 ): Reference {
   // "[module "::"] name ["." member] ["?"]"
   let t = text.trim();
@@ -603,16 +603,43 @@ function parseReference(
     t = t.slice(dcIdx + 2).trim();
   }
 
-  // Check .member
+  // Check .member — "." は 1 段まで（SPEC「記号一覧」）。member 側にさらに
+  // 頂上レベルの "." があれば（箱.内箱.b）2 段以上の深さで構文エラー（E014）。
   const dotIdx = t.indexOf('.');
   if (dotIdx !== -1) {
     const memberStr = t.slice(dotIdx + 1).trim();
-    member = memberStr === '' ? null : stripQuotes(memberStr);
     t = t.slice(0, dotIdx).trim();
+    if (memberStr === '') {
+      member = null;
+    } else {
+      const secondDotIdx = findTopLevelChar(memberStr, '.');
+      if (secondDotIdx !== -1) {
+        diagnostics.push({
+          severity: 'error',
+          code: 'E014',
+          message:
+            '参照の深さは 1 段まで（例: 箱.内箱.b は不可）。member 参照は alias.要素alias の 1 段に留めてください',
+          span,
+        });
+        member = stripQuotes(memberStr.slice(0, secondDotIdx).trim());
+      } else {
+        member = stripQuotes(memberStr);
+      }
+    }
   }
 
   const name = stripQuotes(t);
   return { module, name, member, existsGated, span };
+}
+
+/**
+ * Find the index of the first occurrence of `ch` that is outside quotes.
+ */
+function findTopLevelChar(text: string, ch: string): number {
+  for (const t of scanTopLevel(text, '')) {
+    if (t.ch === ch) return t.i;
+  }
+  return -1;
 }
 
 // ---------------------------------------------------------------------------
