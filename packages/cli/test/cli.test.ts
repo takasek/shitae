@@ -6,8 +6,8 @@ import { join } from 'path';
 
 const execFileAsync = promisify(execFile);
 const CLI = join(import.meta.dirname, '../dist/index.js');
-const BATTLE = join(import.meta.dirname, '../../../docs/example-battle.shitae');
-const ECOMMERCE = join(import.meta.dirname, '../../../docs/example-ecommerce.shitae');
+const BATTLE = join(import.meta.dirname, '../../../docs/examples/battle.shitae');
+const ECOMMERCE = join(import.meta.dirname, '../../../docs/examples/ecommerce.shitae');
 
 async function runCli(args: string[]): Promise<{ stdout: string; stderr: string; code: number }> {
   try {

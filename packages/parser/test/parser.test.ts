@@ -594,10 +594,10 @@ describe('comment stripping', () => {
 // 9. 実サンプル（smoke test）
 // ---------------------------------------------------------------------------
 describe('sample files smoke test', () => {
-  it('example-battle.shitae — エラーが出ない', async () => {
+  it('examples/battle.shitae — エラーが出ない', async () => {
     const { readFile } = await import('fs/promises');
     const source = await readFile(
-      new URL('../../../docs/example-battle.shitae', import.meta.url),
+      new URL('../../../docs/examples/battle.shitae', import.meta.url),
       'utf-8'
     );
     const { document, diagnostics } = parse(source);
@@ -606,10 +606,10 @@ describe('sample files smoke test', () => {
     expect(document.components.length).toBeGreaterThan(0);
   });
 
-  it('example-ecommerce.shitae — エラーが出ない', async () => {
+  it('examples/ecommerce.shitae — エラーが出ない', async () => {
     const { readFile } = await import('fs/promises');
     const source = await readFile(
-      new URL('../../../docs/example-ecommerce.shitae', import.meta.url),
+      new URL('../../../docs/examples/ecommerce.shitae', import.meta.url),
       'utf-8'
     );
     const { document, diagnostics } = parse(source);

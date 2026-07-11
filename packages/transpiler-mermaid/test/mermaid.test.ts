@@ -86,8 +86,8 @@ describe('toMermaid', () => {
 
   it('両サンプルが flowchart LR を出力する', () => {
     const root = join(import.meta.dirname, '../../..');
-    const battle = readFileSync(join(root, 'docs/example-battle.shitae'), 'utf8');
-    const ecommerce = readFileSync(join(root, 'docs/example-ecommerce.shitae'), 'utf8');
+    const battle = readFileSync(join(root, 'docs/examples/battle.shitae'), 'utf8');
+    const ecommerce = readFileSync(join(root, 'docs/examples/ecommerce.shitae'), 'utf8');
     for (const src of [battle, ecommerce]) {
       const { document } = parse(src);
       const out = toMermaid(document);

@@ -3,10 +3,10 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { parse } from '../src/index.js';
 
-const battleSrc = readFileSync(join(import.meta.dirname, '../../../docs/example-battle.shitae'), 'utf8');
-const ecommerceSrc = readFileSync(join(import.meta.dirname, '../../../docs/example-ecommerce.shitae'), 'utf8');
+const battleSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/battle.shitae'), 'utf8');
+const ecommerceSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/ecommerce.shitae'), 'utf8');
 
-describe('integration: example-battle.shitae', () => {
+describe('integration: examples/battle.shitae', () => {
   it('parses without errors', () => {
     const { diagnostics } = parse(battleSrc);
     const errors = diagnostics.filter(d => d.severity === 'error');
@@ -44,7 +44,7 @@ describe('integration: example-battle.shitae', () => {
   });
 });
 
-describe('integration: example-ecommerce.shitae', () => {
+describe('integration: examples/ecommerce.shitae', () => {
   it('parses without errors', () => {
     const { diagnostics } = parse(ecommerceSrc);
     const errors = diagnostics.filter(d => d.severity === 'error');

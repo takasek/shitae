@@ -8,8 +8,8 @@ function loadSample(name: string): string {
   return readFileSync(resolve(__dirname, `../../../docs/${name}`), 'utf-8');
 }
 
-describe('integration: example-battle.shitae', () => {
-  const src = loadSample('example-battle.shitae');
+describe('integration: examples/battle.shitae', () => {
+  const src = loadSample('examples/battle.shitae');
   const { document, diagnostics } = parse(src);
   const errors = diagnostics.filter((d) => d.severity === 'error');
 
@@ -73,8 +73,8 @@ describe('integration: example-battle.shitae', () => {
   });
 });
 
-describe('integration: example-ecommerce.shitae', () => {
-  const src = loadSample('example-ecommerce.shitae');
+describe('integration: examples/ecommerce.shitae', () => {
+  const src = loadSample('examples/ecommerce.shitae');
   const { document, diagnostics } = parse(src);
   const errors = diagnostics.filter((d) => d.severity === 'error');
 
