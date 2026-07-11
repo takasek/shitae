@@ -322,6 +322,17 @@ export function parseDocument(source: string): { document: Document; diagnostics
   finalizeVariant();
   finalizeComponent();
 
+  // E018: component を 1 つも持たない文書は不正（エントリポイントが定まらない。
+  // 「initial variant とエントリポイント」参照）。
+  if (components.length === 0) {
+    diagnostics.push({
+      severity: 'error',
+      code: 'E018',
+      message: 'component を 1 つも持たない文書です（エントリポイントが定まりません）',
+      span: makeSpan(1, 1, 0),
+    });
+  }
+
   return {
     document: { imports, components },
     diagnostics,

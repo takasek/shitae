@@ -683,6 +683,25 @@ describe('diagnostics', () => {
     const e016 = diagnostics.filter((d) => d.code === 'E016');
     expect(e016).toHaveLength(0);
   });
+
+  it('E018: component を 1 つも持たない文書はエラー（空文字列）', () => {
+    const { diagnostics } = parseDoc('');
+    const e018 = diagnostics.filter((d) => d.code === 'E018');
+    expect(e018.length).toBeGreaterThan(0);
+    expect(e018[0].severity).toBe('error');
+  });
+
+  it('E018: import しかない文書もエラー（component が無いのでエントリポイントが無い）', () => {
+    const { diagnostics } = parseDoc('import x as m\n');
+    const e018 = diagnostics.filter((d) => d.code === 'E018');
+    expect(e018.length).toBeGreaterThan(0);
+  });
+
+  it('E018: component が 1 つでもあればエラーにならない', () => {
+    const { diagnostics } = parseDoc('# A\n要素');
+    const e018 = diagnostics.filter((d) => d.code === 'E018');
+    expect(e018).toHaveLength(0);
+  });
 });
 
 // ---------------------------------------------------------------------------

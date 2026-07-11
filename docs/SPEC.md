@@ -635,7 +635,7 @@ import auth as auth          // auth.shitae を読み込む
 | E015 | inline の入れ子が 1 段を超える（「inline component とグルーピング」参照） | error |
 | E016 | `back` の引数に `##variant` を含む（back-target に `##` は書けない。「push / goto と行き先」参照） | error |
 | E017 | 同名 alias の再 import（「モジュール化」参照） | error |
-| コード未割当（実装時に採番） | component を 1 つも持たない文書（「initial variant とエントリポイント」参照） | error |
+| E018 | component を 1 つも持たない文書（「initial variant とエントリポイント」参照） | error |
 
 ### lint 推奨
 
