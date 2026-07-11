@@ -117,6 +117,19 @@ describe('extractSimData', () => {
     if (body.type === 'transition') expect(body.word).toBe('goto');
   });
 
+  it('未定・分岐: 非隣接の同名ラベルは同じ choice に合流する（[成功] A ; [失敗] B ; [成功] C → 2 選択肢）', () => {
+    const doc = parseOk(
+      '# 保存\n保存\n> タップ(保存) -> [成功] ログを送る ; [失敗] エラー表示 ; [成功] 完了へ進む\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const interaction = data.modules['main']!.components['保存']!.commonInteractions[0]!;
+    expect(interaction.choices).toHaveLength(2);
+    expect(interaction.choices[0]!.label).toBe('成功');
+    expect(interaction.choices[0]!.results).toHaveLength(2);
+    expect(interaction.choices[1]!.label).toBe('失敗');
+    expect(interaction.choices[1]!.results).toHaveLength(1);
+  });
+
   it('shadow 合成: (行動, 対象) が一致しなければ共通も姿固有も両方残る', () => {
     const doc = parseOk(
       '# A\nX\n> タップ(X) -> back()\n## 姿1\n> 長押し(X) -> goto(B)\n',

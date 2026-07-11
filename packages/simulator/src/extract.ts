@@ -99,9 +99,10 @@ function convertInteraction(i: Interaction): SimInteraction {
       // effectiveResults はラベルを前方に引き継ぐため、null は最初のラベルより前だけ
       prelude.push(body);
     } else {
-      const last = choices[choices.length - 1];
-      if (last && last.label === label) {
-        last.results.push(body);
+      // SPEC「未定・分岐」— 同一ラベルの再出現は同じ条件への合流（隣接に限らない）
+      const existing = choices.find((c) => c.label === label);
+      if (existing) {
+        existing.results.push(body);
       } else {
         choices.push({ label, results: [body] });
       }
