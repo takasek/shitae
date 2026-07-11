@@ -552,6 +552,19 @@ describe('diagnostics', () => {
     expect(e004[0].severity).toBe('error');
   });
 
+  it('E017: 同名 alias の再 import はエラー', () => {
+    const { diagnostics } = parseDoc('import x as m\nimport y as m\n# A\n要素');
+    const e017 = diagnostics.filter((d) => d.code === 'E017');
+    expect(e017.length).toBeGreaterThan(0);
+    expect(e017[0].severity).toBe('error');
+  });
+
+  it('E017: 異なる alias の import はエラーにならない', () => {
+    const { diagnostics } = parseDoc('import x as m\nimport y as n\n# A\n要素');
+    const e017 = diagnostics.filter((d) => d.code === 'E017');
+    expect(e017).toHaveLength(0);
+  });
+
   it('E005: 重複 component — 両方 AST に残る', () => {
     const { document, diagnostics } = parseDoc('# A\n要素\n# A\n別要素');
     const e005 = diagnostics.filter((d) => d.code === 'E005');

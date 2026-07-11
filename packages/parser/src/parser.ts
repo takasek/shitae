@@ -82,6 +82,7 @@ export function parseDocument(source: string): { document: Document; diagnostics
 
   const imports: Import[] = [];
   const components: Component[] = [];
+  const seenImportAliases = new Set<string>();
 
   let componentBuilder: ComponentBuilder | null = null;
   let variantBuilder: VariantBuilder | null = null;
@@ -249,7 +250,20 @@ export function parseDocument(source: string): { document: Document; diagnostics
         // still parse it
       }
       const imp = parseImport(trimmed, span, diagnostics);
-      if (imp) imports.push(imp);
+      if (imp) {
+        // E017: 同名 alias の再 import はエラー（「モジュール化」参照）。
+        if (seenImportAliases.has(imp.alias)) {
+          diagnostics.push({
+            severity: 'error',
+            code: 'E017',
+            message: `同名 alias の再 import です: '${imp.alias}'（同じ別名で複数のモジュールを import すると衝突します）`,
+            span,
+          });
+        } else {
+          seenImportAliases.add(imp.alias);
+        }
+        imports.push(imp);
+      }
       continue;
     }
 
