@@ -205,13 +205,12 @@ describe('reduce: goto', () => {
     expect(s1.frames[0]!.location.component).toBe('ホーム');
   });
 
-  it('goto フレームは wall=false, beginsSession=null', () => {
+  it('goto フレームは wall=false, beginsSession=null（元フレームがそうだった場合）', () => {
     let s = initialState(loc('ホーム'));
     const { state: s1 } = reduce(s, tr('goto', navComp('A')));
     const top = s1.frames[s1.frames.length - 1]!;
     expect(top.wall).toBe(false);
     expect(top.beginsSession).toBeNull();
-    expect(top.word).toBe('goto');
   });
 
   it('goto(##姿) で同一 component 内の姿を切替', () => {
@@ -257,15 +256,25 @@ describe('reduce: goto', () => {
     expect(top.location.variant).toBe('別姿');
   });
 
-  it('goto(component) は従来どおり全置換（beginsSession が消える。既存挙動の回帰）', () => {
+  // ADR-0006 B2: goto(component) は location だけ置き換え、wall・beginsSession は保存する
+  it('goto(component) は begin マーカーと barrier を保存する（location だけ置換）', () => {
     let s = initialState(loc('ホーム'));
     ({ state: s } = reduce(s, tr('present', navComp('モーダル'), { name: 's' })));
     const { state: s1 } = reduce(s, tr('goto', navComp('別画面')));
     const top = s1.frames[s1.frames.length - 1]!;
     expect(top.location.component).toBe('別画面');
-    expect(top.wall).toBe(false);
-    expect(top.beginsSession).toBeNull();
-    expect(top.word).toBe('goto');
+    expect(top.wall).toBe(true);
+    expect(top.beginsSession).toEqual({ name: 's' });
+  });
+
+  it('push(X,@S) → goto(component) → exit(@S) が begin 地点へ正しく戻る（R002 が出ない。オラクル Q3）', () => {
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('push', navComp('A'), { name: 'S' })));
+    ({ state: s } = reduce(s, tr('goto', navComp('B'))));
+    const { state: s1, diagnostics } = reduce(s, tr('exit', undefined, { name: 'S' }));
+    expect(diagnostics.some(d => d.code === 'R002')).toBe(false);
+    expect(s1.frames).toHaveLength(1);
+    expect(s1.frames[0]!.location.component).toBe('ホーム');
   });
 
   it('goto(##姿) 後に push → back で戻ると書き換え後の姿が見える', () => {
