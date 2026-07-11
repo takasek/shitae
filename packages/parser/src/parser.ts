@@ -39,6 +39,20 @@ const ALL_BRACKETS = '()[]{}';
 const PARENS = '()';
 
 // ---------------------------------------------------------------------------
+// stripQuotes
+//
+// quoted name (`"..."`) の正準値は quote を剥いだ文字列で、bare の同名と
+// 同一の name として照合される（SPEC「記号一覧」）。component 名・variant
+// 名・alias・参照・行動対象・セッション名など、すべての name 位置で使う。
+// ---------------------------------------------------------------------------
+function stripQuotes(s: string): string {
+  if (s.length >= 2 && s.startsWith('"') && s.endsWith('"')) {
+    return s.slice(1, -1);
+  }
+  return s;
+}
+
+// ---------------------------------------------------------------------------
 // Internal builders
 // ---------------------------------------------------------------------------
 interface ComponentBuilder {
@@ -319,7 +333,7 @@ function parseImport(
     });
     return null;
   }
-  return { module: m[1], alias: m[2], span };
+  return { module: stripQuotes(m[1]), alias: stripQuotes(m[2]), span };
 }
 
 // ---------------------------------------------------------------------------
@@ -353,7 +367,7 @@ function parseElementLine(
   let valueText: string;
 
   if (colonIdx !== -1) {
-    alias = text.slice(0, colonIdx).trim();
+    alias = stripQuotes(text.slice(0, colonIdx).trim());
     valueText = text.slice(colonIdx + 1).trim();
   } else {
     valueText = text;
@@ -585,7 +599,7 @@ function parseReference(
   // Check module:: prefix
   const dcIdx = t.indexOf('::');
   if (dcIdx !== -1) {
-    module = t.slice(0, dcIdx).trim();
+    module = stripQuotes(t.slice(0, dcIdx).trim());
     t = t.slice(dcIdx + 2).trim();
   }
 
@@ -593,11 +607,11 @@ function parseReference(
   const dotIdx = t.indexOf('.');
   if (dotIdx !== -1) {
     const memberStr = t.slice(dotIdx + 1).trim();
-    member = memberStr === '' ? null : memberStr;
+    member = memberStr === '' ? null : stripQuotes(memberStr);
     t = t.slice(0, dotIdx).trim();
   }
 
-  const name = t;
+  const name = stripQuotes(t);
   return { module, name, member, existsGated, span };
 }
 
@@ -744,7 +758,7 @@ function parseNavTarget(
 
   // "##variant" — same-component variant
   if (t.startsWith('##')) {
-    const name = t.slice(2).trim();
+    const name = stripQuotes(t.slice(2).trim());
     return { kind: 'variant', name };
   }
 
@@ -753,7 +767,7 @@ function parseNavTarget(
   let rest = t;
   const dcIdx = t.indexOf('::');
   if (dcIdx !== -1) {
-    module = t.slice(0, dcIdx).trim();
+    module = stripQuotes(t.slice(0, dcIdx).trim());
     rest = t.slice(dcIdx + 2).trim();
   }
 
@@ -762,10 +776,10 @@ function parseNavTarget(
   let name: string;
   let variant: string | null = null;
   if (hashIdx !== -1) {
-    name = rest.slice(0, hashIdx).trim();
-    variant = rest.slice(hashIdx + 2).trim();
+    name = stripQuotes(rest.slice(0, hashIdx).trim());
+    variant = stripQuotes(rest.slice(hashIdx + 2).trim());
   } else {
-    name = rest;
+    name = stripQuotes(rest);
   }
 
   return { kind: 'component', module, name, variant };
@@ -777,8 +791,8 @@ function parseNavTarget(
 function parseSession(text: string, span: Span, _diagnostics: Diagnostic[]): Session {
   const t = text.trim();
   if (t.startsWith('@')) {
-    return { name: t.slice(1), span };
+    return { name: stripQuotes(t.slice(1)), span };
   }
   // No @ prefix — return as-is (edge case)
-  return { name: t || null, span };
+  return { name: t ? stripQuotes(t) : null, span };
 }

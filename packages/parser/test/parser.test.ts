@@ -162,6 +162,12 @@ describe('element-line', () => {
     const { document } = parseDoc('# A\n要素1\n要素2\n要素3');
     expect(document.components[0].common.elements).toHaveLength(3);
   });
+
+  it('quoted alias は quote を剥いだ名前になる', () => {
+    const { document } = parseDoc('# A\n"別名": Ref');
+    const el = document.components[0].common.elements[0];
+    expect(el.alias).toBe('別名');
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -398,6 +404,12 @@ describe('transition', () => {
     expect(t.word).toBe('dismiss');
     expect(t.session!.name).toBe('share');
   });
+
+  it('quoted なセッション名は quote を剥いだ名前になる', () => {
+    const { document } = parseDoc('# A\n> タップ -> exit(@"my session")');
+    const t = document.components[0].common.interactions[0].results[0].body as Transition;
+    expect(t.session!.name).toBe('my session');
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -449,6 +461,13 @@ describe('nav-target', () => {
     expect(target.name).toBe('ログイン');
     expect(target.variant).toBe('入力');
   });
+
+  it('quoted な nav-target は quote を剥いだ名前になる', () => {
+    const { document } = parseDoc('# A\n> タップ -> push("次の画面")');
+    const t = document.components[0].common.interactions[0].results[0].body as Transition;
+    const target = t.target as NavTarget & { kind: 'component' };
+    expect(target.name).toBe('次の画面');
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -492,6 +511,12 @@ describe('reference', () => {
     expect(ref.module).toBe('auth');
     expect(ref.name).toBe('Login');
     expect(ref.member).toBe('form');
+  });
+
+  it('quoted name は正準化され bare の同名と一致する（quote を剥ぐ）', () => {
+    const { document } = parseDoc('# A\n> タップ("戻る") -> back()');
+    const ref = document.components[0].common.interactions[0].action.target!;
+    expect(ref.name).toBe('戻る');
   });
 });
 
