@@ -16,7 +16,14 @@ export interface SimEffect {
   text: string;
 }
 
-export type SimResultBody = SimTransition | SimEffect;
+/** オーバーレイ（show / hide）。掲示中 component 集合を更新する（SPEC「オーバーレイ」） */
+export interface SimOverlay {
+  type: 'overlay';
+  op: 'show' | 'hide';
+  component: string;
+}
+
+export type SimResultBody = SimTransition | SimEffect | SimOverlay;
 
 /** 同一有効ラベルの result 群 ＝ 1 つの選択肢（選ぶと results が順に全部起こる） */
 export interface SimChoice {
@@ -53,6 +60,8 @@ export interface SimulatorData {
   modules: Record<string, SimModuleData>;
   entryModule: string;
   entryComponent: string;
+  /** document common（最初の # より前）のインタラクション。どの画面でも常に有効（SPEC「document common」） */
+  documentCommon: SimInteraction[];
 }
 
 function elementDisplayName(el: import('@shitae/ast').ElementLine): string {
@@ -84,10 +93,9 @@ function convertResultBody(r: Result): SimResultBody {
       session: body.session?.name ?? null,
     };
   } else if (body.kind === 'overlay') {
-    // オーバーレイ集合の表示は後続タスクで実装する。現状は結果ラベルとして
-    // `show(名前)` / `hide(名前)` を表示する（挙動ではなく注記としての最小対応）。
-    const suffix = body.target.variant ? `##${body.target.variant}` : '';
-    return { type: 'effect', text: `${body.verb}(${body.target.name}${suffix})` };
+    // 掲示中 component 集合を更新する（ブラウザ側で常駐オーバーレイ帯に表示）。
+    // variant は掲示時の姿だが simulator の帯表示は component 名だけを扱う。
+    return { type: 'overlay', op: body.verb, component: body.target.name };
   } else {
     return { type: 'effect', text: body.text };
   }
@@ -157,6 +165,7 @@ export function extractSimData(
 
   const entryDoc = documents.get(entryModule);
   const entryComponent = entryDoc?.components[0]?.name ?? '';
+  const documentCommon = (entryDoc?.common.interactions ?? []).map(convertInteraction);
 
-  return { modules, entryModule, entryComponent };
+  return { modules, entryModule, entryComponent, documentCommon };
 }

@@ -50,4 +50,34 @@ describe('toSimulator', () => {
     expect(html).not.toMatch(/src="https?:/);
     expect(html).not.toMatch(/href="https?:/);
   });
+
+  it('document common を data に含め、常時アクションとして描画する', () => {
+    const doc = parseOk('> 通知をタップ -> push(詳細)\n\n# ホーム\nロゴ\n\n# 詳細\n本文\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).toContain('"documentCommon"');
+    expect(html).toContain('通知をタップ');
+    expect(html).toContain('handleDocCommon');
+  });
+
+  it('switch を transition として扱う（effect 落ちしない）分岐が生成物に含まれる', () => {
+    const doc = parseOk('# ホーム\n> タブ -> switch(検索, @s)\n\n# 検索\n欄\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).toContain("word === 'switch'");
+    expect(html).toContain('"word":"switch"');
+  });
+
+  it('overlay（show/hide）を overlay result body として埋め込み、掲示帯を持つ', () => {
+    const doc = parseOk('# P\n> 再生 -> show(ミニプレイヤー)\n> 停止 -> hide(ミニプレイヤー)\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).toContain('"type":"overlay"');
+    expect(html).toContain('"op":"show"');
+    expect(html).toContain('overlay-bar');
+  });
+
+  it('back(X) は wall を越えない（barrier 停止のロジックを含む）', () => {
+    const doc = parseOk('# A\n要素\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    // back(X) 走査ループが wall で break する（runtime 整合）
+    expect(html).toContain('if (stack[i].wall) break;');
+  });
 });

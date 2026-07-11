@@ -43,6 +43,12 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
 .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; }
 .toast.show { opacity: 1; }
 .no-actions { color: #bbb; font-size: 13px; font-style: italic; }
+.doc-common { margin-top: 12px; padding-top: 10px; border-top: 1px dashed #ddd; }
+.doc-common-label { font-size: 11px; color: #999; margin-bottom: 6px; }
+.dc-btn { background: #eef; }
+.dc-btn:hover { background: #dde; }
+.overlay-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #222; color: #fff; padding: 8px 16px; display: flex; gap: 12px; font-size: 12px; }
+.overlay-item { background: #444; padding: 2px 10px; border-radius: 10px; }
 </style>
 </head>
 <body>
@@ -70,6 +76,7 @@ let stack = [{
 
 let pendingChoice = null; // { actionText, choices }
 let toastTimer = null;
+let overlays = new Set(); // 掲示中 component 名（SPEC「オーバーレイ」。フレーム木とは別軸）
 
 function getComp(module, name) {
   return DATA.modules[module]?.components[name];
@@ -112,6 +119,13 @@ function applyTransition(result) {
     return;
   }
 
+  if (result.type === 'overlay') {
+    // 掲示中集合を更新（show 追加 / hide 除去 / hide 空打ち no-op）。フレーム木は動かさない。
+    if (result.op === 'show') overlays.add(result.component);
+    else overlays.delete(result.component);
+    return;
+  }
+
   const word = result.word;
   const target = resolveTarget(result, mod, comp);
 
@@ -119,11 +133,24 @@ function applyTransition(result) {
     if (!target) return;
     const variant = target.variant ?? initialVariant(target.module, target.component);
     stack = [...stack, { module: target.module, component: target.component, variant, wall: word === 'present', sessionName: result.session ?? null }];
+  } else if (word === 'switch') {
+    // 近似: 線形 stack 上で resume-or-create。stack 内に同名 sessionName が生存
+    // していればそこまで戻る（resume 近似）、無ければ新規に積む（create、wall=true）。
+    // 正確な兄弟規則・中断フレームの保持は @shitae/runtime（frame 木）の領分。
+    if (!target || !result.session) return;
+    const idx = stack.findLastIndex(f => f.sessionName === result.session);
+    if (idx >= 0) {
+      stack = stack.slice(0, idx + 1);
+    } else {
+      const variant = target.variant ?? initialVariant(target.module, target.component);
+      stack = [...stack, { module: target.module, component: target.component, variant, wall: true, sessionName: result.session }];
+    }
   } else if (word === 'goto') {
     if (!target) return;
-    // 同一 component 内の姿替え（goto(##姿)）以外は初期姿の解決を行う
+    // 同一 component 内の姿替え（goto(##姿)）以外は初期姿の解決を行う。
+    // begin マーカー（sessionName）と wall は保存する（ADR-0006 B2）。
     const variant = target.variant ?? initialVariant(target.module, target.component);
-    const newFrame = { ...frame, component: target.component, variant, module: target.module, sessionName: null };
+    const newFrame = { ...frame, component: target.component, variant, module: target.module };
     stack = [...stack.slice(0, -1), newFrame];
   } else if (word === 'back') {
     if (stack.length <= 1) return;
@@ -132,8 +159,14 @@ function applyTransition(result) {
       if (top.wall) { showToast('back() が壁に阻まれました'); return; }
       stack = stack.slice(0, -1);
     } else {
-      const idx = stack.findLastIndex(f => f.component === target.component);
-      if (idx >= 0) stack = stack.slice(0, idx + 1);
+      // back(X): アクティブパスを遡るが barrier（wall）は越えない（runtime に整合）。
+      let found = -1;
+      for (let i = stack.length - 1; i >= 0; i--) {
+        if (stack[i].component === target.component) { found = i; break; }
+        if (stack[i].wall) break; // 壁に阻まれ、これ以上遡れない
+      }
+      if (found >= 0) stack = stack.slice(0, found + 1);
+      else showToast('back(' + target.component + ') の戻り先が見つかりません');
     }
   } else if (word === 'exit' || word === 'dismiss') {
     const sessionName = result.session ?? null;
@@ -190,6 +223,26 @@ function goBack() {
   runResults([{ type: 'transition', word: 'back', target: null, session: null }]);
 }
 
+// document common（最初の # より前）のインタラクション。どの画面でも常に有効。
+function docCommonInteractions() {
+  return DATA.documentCommon ?? [];
+}
+
+function handleDocCommon(idx) {
+  const interaction = docCommonInteractions()[idx];
+  if (!interaction) return;
+  for (const body of interaction.prelude) applyTransition(body);
+  if (interaction.choices.length === 0) {
+    pendingChoice = null;
+    render();
+  } else if (interaction.choices.length === 1) {
+    runResults(interaction.choices[0].results);
+  } else {
+    pendingChoice = { actionText: interaction.actionText, choices: interaction.choices };
+    render();
+  }
+}
+
 function render() {
   const frame = currentFrame();
   const comp = getComp(frame.module, frame.component);
@@ -233,6 +286,24 @@ function render() {
     }
   }
 
+  // document common アクション（どの画面でも常に有効。画面固有アクションとは別枠）
+  let docCommonHtml = '';
+  const dc = docCommonInteractions();
+  if (dc.length > 0) {
+    docCommonHtml = '<div class="doc-common"><div class="doc-common-label">どの画面でも</div>' +
+      dc.map((inter, idx) =>
+        '<button class="action-btn dc-btn" onclick="handleDocCommon(' + idx + ')">' + esc(inter.actionText) + '</button>'
+      ).join('') + '</div>';
+  }
+
+  // オーバーレイ帯（掲示中 component。画面下部に常駐）
+  let overlayHtml = '';
+  if (overlays.size > 0) {
+    overlayHtml = '<div class="overlay-bar">' +
+      [...overlays].map(n => '<span class="overlay-item">▸ ' + esc(n) + '</span>').join('') +
+      '</div>';
+  }
+
   // back button
   const canBack = stack.length > 1 && !currentFrame().wall;
   const backBtn = '<button class="back-btn" onclick="goBack()" ' + (canBack ? '' : 'disabled') + '>← 戻る</button>';
@@ -246,8 +317,10 @@ function render() {
       variantLabel +
       elements +
       actionsHtml +
+      docCommonHtml +
       backBtn +
-    '</div>';
+    '</div>' +
+    overlayHtml;
 }
 
 function esc(s) {
