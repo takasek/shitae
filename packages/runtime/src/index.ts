@@ -209,5 +209,11 @@ export function reduce(state: RuntimeState, transition: Transition): ReduceResul
     case 'dismiss':
       // 無名セッションは常に present 由来。named session は exit(@S) と同義（ADR-0006 B4）
       return closeSession(frames, state, session?.name ?? null, 'dismiss', span, diags);
+
+    case 'switch':
+      // switch（中断と復帰）は frame 木を要する（兄弟規則・resume-or-create）。
+      // この線形スタック reduce では未実装 — frame 木化する後続タスクで対応する。
+      // 現状は no-op（型の網羅性のためのプレースホルダ）。
+      return { state, diagnostics: diags };
   }
 }

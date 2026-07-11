@@ -154,6 +154,12 @@ function generateTransition(
     return [`${ind(4)}{}`];
   }
 
+  // overlay（show / hide）は frame 木・遷移グラフを操作しないので、
+  // xstate の状態遷移としては空アクション扱いにする（SPEC「オーバーレイ」）。
+  if (body.kind === 'overlay') {
+    return [`${ind(4)}{} /* ${body.verb}(${body.target.name}) */`];
+  }
+
   // transition
   const tr = body;
   const word = tr.word;

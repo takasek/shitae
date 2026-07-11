@@ -83,6 +83,11 @@ function convertResultBody(r: Result): SimResultBody {
       target,
       session: body.session?.name ?? null,
     };
+  } else if (body.kind === 'overlay') {
+    // オーバーレイ集合の表示は後続タスクで実装する。現状は結果ラベルとして
+    // `show(名前)` / `hide(名前)` を表示する（挙動ではなく注記としての最小対応）。
+    const suffix = body.target.variant ? `##${body.target.variant}` : '';
+    return { type: 'effect', text: `${body.verb}(${body.target.name}${suffix})` };
   } else {
     return { type: 'effect', text: body.text };
   }
