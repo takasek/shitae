@@ -40,7 +40,7 @@ def check_refs(path):
 
     # 全遷移先参照を集める
     # 遷移語(行き先) を拾う。行き先は component / component##姿 / ##姿 / module::component[##姿]
-    nav_pat = re.compile(r'\b(push|goto|present|back)\s*\(([^)]*)\)')
+    nav_pat = re.compile(r'\b(push|goto|present|back|switch)\s*\(([^)]*)\)')
 
     for i, raw in enumerate(lines, 1):
         line = raw.split('//')[0]
