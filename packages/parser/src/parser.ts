@@ -15,6 +15,9 @@ import type {
   Reference,
   Result,
   Transition,
+  Overlay,
+  OverlayVerb,
+  OverlayTarget,
   Effect,
   TransitionWord,
   NavTarget,
@@ -22,7 +25,7 @@ import type {
   Span,
   Diagnostic,
 } from '@shitae/ast';
-import { TRANSITION_WORDS } from '@shitae/ast';
+import { TRANSITION_WORDS, OVERLAY_VERBS } from '@shitae/ast';
 
 import {
   stripComments,
@@ -83,6 +86,9 @@ export function parseDocument(source: string): { document: Document; diagnostics
   const imports: Import[] = [];
   const components: Component[] = [];
   const seenImportAliases = new Set<string>();
+  // document common（最初の "#" より前の要素行・インタラクション行。SPEC「document common」）
+  const documentCommonElements: ElementLine[] = [];
+  const documentCommonInteractions: Interaction[] = [];
 
   let componentBuilder: ComponentBuilder | null = null;
   let variantBuilder: VariantBuilder | null = null;
@@ -156,13 +162,15 @@ export function parseDocument(source: string): { document: Document; diagnostics
   function currentElements(): ElementLine[] {
     if (variantBuilder) return variantBuilder.elements;
     if (componentBuilder) return componentBuilder.commonElements;
-    return [];
+    // 最初の "#" より前 — document common（SPEC「document common」）
+    return documentCommonElements;
   }
 
   function currentInteractions(): Interaction[] {
     if (variantBuilder) return variantBuilder.interactions;
     if (componentBuilder) return componentBuilder.commonInteractions;
-    return [];
+    // 最初の "#" より前 — document common（SPEC「document common」）
+    return documentCommonInteractions;
   }
 
   // An interaction's result-list may be empty on its own "> action ->" line and
@@ -267,12 +275,9 @@ export function parseDocument(source: string): { document: Document; diagnostics
       continue;
     }
 
-    // Lines within a component/variant
-    if (!componentBuilder) {
-      // Outside any component — ignore (or could warn)
-      continue;
-    }
-
+    // Lines within a component/variant, or — before the first "#" — document
+    // common (SPEC「document common」). currentElements()/currentInteractions()
+    // route to the right target array in either case.
     if (trimmed.startsWith('>')) {
       // Interaction line: leading '>' marker, subsequent whitespace/indent is non-meaningful.
       const content = trimmed.slice(1).replace(/^[ \t]+/, '');
@@ -334,7 +339,11 @@ export function parseDocument(source: string): { document: Document; diagnostics
   }
 
   return {
-    document: { imports, components },
+    document: {
+      imports,
+      common: { elements: documentCommonElements, interactions: documentCommonInteractions },
+      components,
+    },
     diagnostics,
   };
 }
@@ -623,11 +632,18 @@ function parseReference(
   span: Span,
   diagnostics: Diagnostic[]
 ): Reference {
-  // "[module "::"] name ["." member] ["?"]"
+  // "["*"] [module "::"] name ["." member] ["?"]"
   let t = text.trim();
   let existsGated = false;
+  let collection = false;
   let module: string | null = null;
   let member: string | null = null;
+
+  // 先頭 "*" は collection 全体への参照（宣言側の "*" と対称。SPEC「collection」）。
+  if (t.startsWith('*')) {
+    collection = true;
+    t = t.slice(1).trim();
+  }
 
   // Check existsGated (trailing ?)
   if (t.endsWith('?')) {
@@ -668,7 +684,7 @@ function parseReference(
   }
 
   const name = stripQuotes(t);
-  return { module, name, member, existsGated, span };
+  return { module, name, member, existsGated, collection, span };
 }
 
 /**
@@ -729,28 +745,34 @@ function parseResultBody(
   text: string,
   span: Span,
   diagnostics: Diagnostic[]
-): Transition | Effect {
+): Transition | Overlay | Effect {
   // Check if it starts with a transition word
   for (const word of TRANSITION_WORDS) {
     if (text === word || text.startsWith(word + '(') || text.startsWith(word + ' ')) {
       // It's a transition
-      const afterWord = text.slice(word.length).trim();
-      // afterWord should be "(args...)"
-      let argsText = '';
-      if (afterWord.startsWith('(')) {
-        const closeIdx = findCloseParen(afterWord.slice(1));
-        if (closeIdx !== -1) {
-          argsText = afterWord.slice(1, closeIdx + 1);
-        } else {
-          argsText = afterWord.slice(1);
-        }
-      }
+      const argsText = extractArgsText(text, word);
       return parseTransition(word as TransitionWord, argsText, span, diagnostics);
+    }
+  }
+
+  // Check if it starts with an overlay verb (show / hide — SPEC「オーバーレイ」)
+  for (const verb of OVERLAY_VERBS) {
+    if (text === verb || text.startsWith(verb + '(') || text.startsWith(verb + ' ')) {
+      const argsText = extractArgsText(text, verb);
+      return parseOverlay(verb as OverlayVerb, argsText, span, diagnostics);
     }
   }
 
   // Otherwise it's an effect
   return { kind: 'effect', text, span };
+}
+
+/** "word(args...)" から "args..." 部分（丸括弧の中身）を取り出す。 */
+function extractArgsText(text: string, word: string): string {
+  const afterWord = text.slice(word.length).trim();
+  if (!afterWord.startsWith('(')) return '';
+  const closeIdx = findCloseParen(afterWord.slice(1));
+  return closeIdx !== -1 ? afterWord.slice(1, closeIdx + 1) : afterWord.slice(1);
 }
 
 // ---------------------------------------------------------------------------
@@ -796,7 +818,78 @@ function parseTransition(
       const session = args[0] ? parseSession(args[0].trim(), span, diagnostics) : null;
       return { kind: 'transition', word, target: null, session, span };
     }
+    case 'switch': {
+      // switch-nav = "switch" "(" nav-target "," session ")" — session はセッション
+      // 辞書のキーとなるため省略不可（SPEC「文法（EBNF 風）」）。省略は E019。
+      const target = args[0] ? parseNavTarget(args[0].trim(), span, diagnostics) : null;
+      if (!args[1] || args[1].trim() === '') {
+        diagnostics.push({
+          severity: 'error',
+          code: 'E019',
+          message: 'switch() には @session 引数が必要です（session を省略できません。「switch（中断と復帰）」参照）',
+          span,
+        });
+        return { kind: 'transition', word, target, session: null, span };
+      }
+      const session = parseSession(args[1].trim(), span, diagnostics);
+      return { kind: 'transition', word, target, session, span };
+    }
   }
+}
+
+// ---------------------------------------------------------------------------
+// parseOverlay
+//
+// overlay = show-nav | hide-nav（フレーム木を操作しない別カテゴリ。SPEC「オーバーレイ」）。
+// show-nav = "show" "(" [module::] name ["##" name] ")"
+// hide-nav = "hide" "(" [module::] name ")"（##variant 指定は E020）
+// ---------------------------------------------------------------------------
+function parseOverlay(
+  verb: OverlayVerb,
+  argsText: string,
+  span: Span,
+  diagnostics: Diagnostic[]
+): Overlay {
+  const target = parseOverlayTarget(verb, argsText.trim(), span, diagnostics);
+  return { kind: 'overlay', verb, target, span };
+}
+
+function parseOverlayTarget(
+  verb: OverlayVerb,
+  text: string,
+  span: Span,
+  diagnostics: Diagnostic[]
+): OverlayTarget {
+  let t = text.trim();
+
+  let module: string | null = null;
+  const dcIdx = t.indexOf('::');
+  if (dcIdx !== -1) {
+    module = stripQuotes(t.slice(0, dcIdx).trim());
+    t = t.slice(dcIdx + 2).trim();
+  }
+
+  const hashIdx = t.indexOf('##');
+  let name: string;
+  let variant: string | null = null;
+  if (hashIdx !== -1) {
+    name = stripQuotes(t.slice(0, hashIdx).trim());
+    variant = stripQuotes(t.slice(hashIdx + 2).trim());
+    if (verb === 'hide') {
+      diagnostics.push({
+        severity: 'error',
+        code: 'E020',
+        message:
+          'hide() に ##variant は書けません（掲示解除に variant 指定は不要。「オーバーレイ」参照）',
+        span,
+      });
+      variant = null;
+    }
+  } else {
+    name = stripQuotes(t);
+  }
+
+  return { module, name, variant };
 }
 
 // ---------------------------------------------------------------------------
@@ -808,6 +901,19 @@ function parseNavTarget(
   diagnostics: Diagnostic[]
 ): NavTarget {
   let t = text.trim();
+
+  // 先頭 "*"（collection 全体参照）は遷移先には書けない——collection への遷移
+  // という概念は無い（SPEC「文法（EBNF 風）」nav-target）。E021。
+  if (t.startsWith('*')) {
+    diagnostics.push({
+      severity: 'error',
+      code: 'E021',
+      message:
+        'nav-target に * は書けません（collection への遷移という概念はありません。「collection」参照）',
+      span,
+    });
+    t = t.slice(1).trim();
+  }
 
   // "?" (presence gate) is only valid on an action target, never on a
   // nav-target — reject a bare trailing "?" here (E013).

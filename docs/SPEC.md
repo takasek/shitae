@@ -635,6 +635,9 @@ import auth as auth          // auth.shitae を読み込む
 | E016 | `back` の引数に `##variant` を含む（back-target に `##` は書けない。「push / goto と行き先」参照） | error |
 | E017 | 同名 alias の再 import（「モジュール化」参照） | error |
 | E018 | component を 1 つも持たない文書（「initial variant とエントリポイント」参照） | error |
+| E019 | `switch()` に `@session` 引数が無い（session は省略できない。「switch（中断と復帰）」参照） | error |
+| E020 | `hide()` に `##variant` を書いた（掲示解除に variant 指定は不要。「オーバーレイ」参照） | error |
+| E021 | nav-target に `*`（collection 全体参照）を書いた（collection への遷移は無い。「collection」参照） | error |
 
 ### lint 推奨
 

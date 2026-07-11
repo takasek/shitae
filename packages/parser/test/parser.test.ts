@@ -17,6 +17,7 @@ import type {
   Effect,
   NavTarget,
   Session,
+  Overlay,
 } from '@shitae/ast';
 
 // ---------------------------------------------------------------------------
@@ -98,6 +99,59 @@ describe('component / variant / section', () => {
     const { document } = parseDoc('# A\n## B\n要素\n> タップ -> back()');
     const c = getComponent(document, 'A');
     expect(c.variants[0].body.interactions).toHaveLength(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 1b. document common（最初の "#" より前）
+// ---------------------------------------------------------------------------
+describe('document common', () => {
+  it('最初の # より前のインタラクション行が document.common.interactions に入る', () => {
+    const { document } = parseDoc('> プッシュ通知をタップ -> push(記事詳細)\n\n# スプラッシュ\nロゴ');
+    expect(document.common.interactions).toHaveLength(1);
+    expect(document.common.interactions[0].action.text).toBe('プッシュ通知をタップ');
+    const t = document.common.interactions[0].results[0].body as Transition;
+    expect(t.kind).toBe('transition');
+    expect(t.word).toBe('push');
+  });
+
+  it('最初の # より前の要素行が document.common.elements に入る', () => {
+    const { document } = parseDoc('バナー\n\n# A\n要素');
+    expect(document.common.elements).toHaveLength(1);
+    expect((document.common.elements[0].value as Ref).name).toBe('バナー');
+  });
+
+  it('# が無ければ全行が document.common に入り component は 0（E018 は別途）', () => {
+    const { document, diagnostics } = parseDoc('> 通知 -> push(X)');
+    expect(document.common.interactions).toHaveLength(1);
+    expect(document.components).toHaveLength(0);
+    expect(diagnostics.some((d) => d.code === 'E018')).toBe(true);
+  });
+
+  it('document common には複数のインタラクション行・要素行を混在できる', () => {
+    const { document } = parseDoc(
+      '> プッシュ通知をタップ -> push(記事詳細)\n> セッション切れを検知 -> exit(@loggedIn)\n\n# スプラッシュ\nロゴ'
+    );
+    expect(document.common.interactions).toHaveLength(2);
+    expect(document.components).toHaveLength(1);
+  });
+
+  it('E010: document common 内の継続行境界規則（先行 interaction が無い継続行はエラー）', () => {
+    const { diagnostics } = parseDoc('> [失敗] エラー表示\n\n# A\n要素');
+    const e010 = diagnostics.filter((d) => d.code === 'E010');
+    expect(e010.length).toBeGreaterThan(0);
+  });
+
+  it('E010: document common → 最初の component をまたぐ継続行はエラー', () => {
+    const { diagnostics } = parseDoc('> 通知 -> push(X)\n\n# A\n> [失敗] goto(B)');
+    const e010 = diagnostics.filter((d) => d.code === 'E010');
+    expect(e010.length).toBeGreaterThan(0);
+  });
+
+  it('document common が空でも document.common は空の Body として存在する', () => {
+    const { document } = parseDoc('# A\n要素');
+    expect(document.common.elements).toEqual([]);
+    expect(document.common.interactions).toEqual([]);
   });
 });
 
@@ -409,6 +463,106 @@ describe('transition', () => {
     const { document } = parseDoc('# A\n> タップ -> exit(@"my session")');
     const t = document.components[0].common.interactions[0].results[0].body as Transition;
     expect(t.session!.name).toBe('my session');
+  });
+
+  it('switch(X, @S) — target と session を両方持つ transition になる', () => {
+    const { document, diagnostics } = parseDoc('# A\n> タップ -> switch(検索, @tabSearch)');
+    const t = document.components[0].common.interactions[0].results[0].body as Transition;
+    expect(t.kind).toBe('transition');
+    expect(t.word).toBe('switch');
+    expect((t.target as NavTarget & { kind: 'component' }).name).toBe('検索');
+    expect(t.session!.name).toBe('tabSearch');
+    expect(diagnostics.filter((d) => d.severity === 'error')).toHaveLength(0);
+  });
+
+  it('switch は TRANSITION_WORDS に含まれる（effect に落ちない）', () => {
+    expect(TRANSITION_WORDS).toContain('switch');
+  });
+
+  it('E019: switch(X) — session 引数が無いとエラー', () => {
+    const { diagnostics } = parseDoc('# A\n> タップ -> switch(検索)');
+    const e019 = diagnostics.filter((d) => d.code === 'E019');
+    expect(e019.length).toBeGreaterThan(0);
+    expect(e019[0].severity).toBe('error');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 4b. overlay (show / hide)
+// ---------------------------------------------------------------------------
+describe('overlay', () => {
+  it('show(X) — result body の種類は overlay、verb は show', () => {
+    const { document, diagnostics } = parseDoc('# A\n> 曲をタップ -> show(ミニプレイヤー)');
+    const body = document.components[0].common.interactions[0].results[0].body;
+    expect(body.kind).toBe('overlay');
+    const ov = body as Overlay;
+    expect(ov.verb).toBe('show');
+    expect(ov.target.name).toBe('ミニプレイヤー');
+    expect(ov.target.module).toBeNull();
+    expect(ov.target.variant).toBeNull();
+    expect(diagnostics.filter((d) => d.severity === 'error')).toHaveLength(0);
+  });
+
+  it('hide(X) — result body の種類は overlay、verb は hide', () => {
+    const { document, diagnostics } = parseDoc('# A\n> 停止 -> hide(ミニプレイヤー)');
+    const body = document.components[0].common.interactions[0].results[0].body;
+    expect(body.kind).toBe('overlay');
+    const ov = body as Overlay;
+    expect(ov.verb).toBe('hide');
+    expect(ov.target.name).toBe('ミニプレイヤー');
+    expect(diagnostics.filter((d) => d.severity === 'error')).toHaveLength(0);
+  });
+
+  it('show(X##v) — variant 指定を持てる', () => {
+    const { document } = parseDoc('# A\n> タップ -> show(カード詳細##拡大)');
+    const ov = document.components[0].common.interactions[0].results[0].body as Overlay;
+    expect(ov.target.name).toBe('カード詳細');
+    expect(ov.target.variant).toBe('拡大');
+  });
+
+  it('show(module::X) — module 指定を持てる', () => {
+    const { document } = parseDoc('# A\n> タップ -> show(other::トースト)');
+    const ov = document.components[0].common.interactions[0].results[0].body as Overlay;
+    expect(ov.target.module).toBe('other');
+    expect(ov.target.name).toBe('トースト');
+  });
+
+  it('E020: hide(X##v) — hide への ##variant 指定は構文エラー', () => {
+    const { diagnostics } = parseDoc('# A\n> タップ -> hide(カード詳細##拡大)');
+    const e020 = diagnostics.filter((d) => d.code === 'E020');
+    expect(e020.length).toBeGreaterThan(0);
+    expect(e020[0].severity).toBe('error');
+  });
+
+  it('show/hide は TRANSITION_WORDS には含まれない（別カテゴリの overlay verb）', () => {
+    expect(TRANSITION_WORDS).not.toContain('show');
+    expect(TRANSITION_WORDS).not.toContain('hide');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 4c. collection の対称参照（行動対象の先頭 "*"）
+// ---------------------------------------------------------------------------
+describe('collection reference (対称参照)', () => {
+  it('*サムネイル — 行動対象の先頭 * で collection = true', () => {
+    const { document, diagnostics } = parseDoc('# A\n> スクロール(*サムネイル) -> 続きを読む');
+    const target = document.components[0].common.interactions[0].action.target!;
+    expect(target.collection).toBe(true);
+    expect(target.name).toBe('サムネイル');
+    expect(diagnostics.filter((d) => d.severity === 'error')).toHaveLength(0);
+  });
+
+  it('* なしの参照は collection = false（1 インスタンス）', () => {
+    const { document } = parseDoc('# A\n> タップ(サムネイル) -> push(詳細)\n\n# 詳細\nx');
+    const target = document.components[0].common.interactions[0].action.target!;
+    expect(target.collection).toBe(false);
+  });
+
+  it('E021: nav-target への * は構文エラー（collection への遷移は無い）', () => {
+    const { diagnostics } = parseDoc('# A\n> だめ -> push(*一覧)');
+    const e021 = diagnostics.filter((d) => d.code === 'E021');
+    expect(e021.length).toBeGreaterThan(0);
+    expect(e021[0].severity).toBe('error');
   });
 });
 
