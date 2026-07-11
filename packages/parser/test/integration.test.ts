@@ -15,8 +15,8 @@ describe('integration: example-battle.shitae', () => {
 
   it('has correct component count', () => {
     const { document } = parse(battleSrc);
-    // スプラッシュ, ログイン, ホーム, マッチング, 対戦, 設定, 削除確認, マイページ, プロフィール編集, プロフィールカード, 記事詳細, カード詳細
-    expect(document.components).toHaveLength(12);
+    // スプラッシュ, ログイン, ホーム, マッチング, ランキング, 対戦, 設定, 削除確認, マイページ, プロフィール編集, プロフィールカード, 記事詳細, カード詳細
+    expect(document.components).toHaveLength(13);
   });
 
   it('マッチング has 2 variations', () => {
