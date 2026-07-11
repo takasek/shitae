@@ -576,6 +576,19 @@ describe('diagnostics', () => {
     const e010 = diagnostics.filter((d) => d.code === 'E010');
     expect(e010.length).toBeGreaterThan(0);
   });
+
+  it('E012: 1 行に矢印が 2 つ（-> R -> R）はエラー', () => {
+    const { diagnostics } = parseDoc('# A\n> タップ(保存) -> goto(詳細) -> back()');
+    const e012 = diagnostics.filter((d) => d.code === 'E012');
+    expect(e012.length).toBeGreaterThan(0);
+    expect(e012[0].severity).toBe('error');
+  });
+
+  it('E012: ; の後に来る 2 つめの矢印もエラー', () => {
+    const { diagnostics } = parseDoc('# A\n> タップ -> back() ; goto(次) -> push(先)');
+    const e012 = diagnostics.filter((d) => d.code === 'E012');
+    expect(e012.length).toBeGreaterThan(0);
+  });
 });
 
 // ---------------------------------------------------------------------------

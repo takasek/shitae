@@ -460,7 +460,7 @@ function parseInteractionLine(
   if (arrowIdx === -1) return null;
 
   const actionText = text.slice(0, arrowIdx).trim();
-  const resultsText = text.slice(arrowIdx + 2).trim();
+  let resultsText = text.slice(arrowIdx + 2).trim();
 
   // Check E001: empty action text means this is a bare "-> ..." continuation
   if (actionText === '') {
@@ -471,6 +471,20 @@ function parseInteractionLine(
       span,
     });
     return null;
+  }
+
+  // Check E012: a second top-level '->' in the same line (`-> R -> R`) is a
+  // syntax error — 1 行につき矢印は 1 つだけ（「未定・分岐」参照）。
+  // Recover by keeping only the result(s) before the offending arrow.
+  const secondArrowIdx = findFirstArrow(resultsText);
+  if (secondArrowIdx !== -1) {
+    diagnostics.push({
+      severity: 'error',
+      code: 'E012',
+      message: '矢印重複: 1 行に -> が 2 つ以上あります（分岐は ; または継続行で並べてください）',
+      span,
+    });
+    resultsText = resultsText.slice(0, secondArrowIdx).trim();
   }
 
   const action = parseAction(actionText, span, diagnostics);

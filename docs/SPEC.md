@@ -629,7 +629,7 @@ import auth as auth          // auth.shitae を読み込む
 | R002 | `exit`/`dismiss` の対象セッションがスタックに見つからない | warning |
 | R003 | `back()` が barrier に阻まれ no-op | warning |
 | R004 | `back(X)` の対象 component がスタックに見つからない | warning |
-| コード未割当（実装時に採番） | 矢印重複（`-> R -> R`。「未定・分岐」参照） | error |
+| E012 | 矢印重複（`-> R -> R`。「未定・分岐」参照） | error |
 | コード未割当（実装時に採番） | nav-target への `?`（例 `push(次?)`。「操作は variant に属する」参照） | error |
 | コード未割当（実装時に採番） | inline の入れ子が 1 段を超える（「inline component とグルーピング」参照） | error |
 | コード未割当（実装時に採番） | 同名 alias の再 import（「モジュール化」参照） | error |
