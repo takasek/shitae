@@ -70,7 +70,7 @@ shitae で行った判断（構文のゆらぎを削る、一つの意図に一�
 
 Flutter Navigator / GoRouter、React Navigation / Expo Router、SwiftUI NavigationStack。
 
-shitae の遷移語は実装フレームワークのナビゲーション概念と一致する。
+shitae の transition verb は実装フレームワークのナビゲーション概念と一致する。
 
 - `push` / `back` … stack の push / pop。
 - `goto`（積まない置き換え）… GoRouter の `go`（対象へジャンプして前のルートを破棄。`push` は上に積む）と同じ区別。
@@ -117,7 +117,7 @@ shitae は上記 5 領域の交点にある。
 先行技術が網羅性・厳密性・コード生成のために持つが、shitae が持たないもの。
 
 - コード生成（系譜 A の目的）
-- 形式検証・状態機械（IFML → PCN、XState）。状態は「姿」の列挙で表し、遷移のガード（式を評価して可否を制御する仕組み）を持たない。操作の可否は姿の構造で決まり（対象が存在する姿でのみ成立）、分岐（`[成功]` 等）は評価せず注記に留めて選択は外部に委ねる。
+- 形式検証・状態機械（IFML → PCN、XState）。状態は variant の列挙で表し、遷移のガード（式を評価して可否を制御する仕組み）を持たない。操作の可否は variant の構造で決まり（対象が存在する variant でのみ成立）、分岐（`[成功]` 等）は評価せず注記に留めて選択は外部に委ねる。
 - レイアウト・見た目・寸法・スタイル（BESSER、Figma）
 - 組み込みコンポーネント型（BESSER の Button / InputField / Form …）。すべての名前は対等。
 - 型・プロパティ・引数・データフロー（IFML の Parameter binding / Data flow）
