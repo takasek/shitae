@@ -625,7 +625,6 @@ import auth as auth          // auth.shitae を読み込む
 | W101 | 同一 body 内で alias が重複している | warning |
 | W102 | 遷移先の名前が component ではなく variant 名と一致する（`goto(##X)` の書き忘れの疑い） | warning |
 | W103 | component が要素もインタラクションも持たない | warning |
-| R001 | 開始と終了の形が食い違う mismatch（`push` で積んだ無名の範囲を `dismiss()` 等。named session の `exit(@S)`/`dismiss(@S)` は同義なので対象外——「セッションの mismatch」参照） | warning |
 | R002 | `exit`/`dismiss` の対象セッションがスタックに見つからない | warning |
 | R003 | `back()` が barrier に阻まれ no-op | warning |
 | R004 | `back(X)` の対象 component がスタックに見つからない | warning |

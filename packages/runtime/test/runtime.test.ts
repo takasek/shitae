@@ -471,35 +471,32 @@ describe('nav-target normalization', () => {
 });
 
 // ──────────────────────────────────────────────────
-// T7: twist diagnostics (R001)
+// T7: セッションの mismatch は R001 を出さない（ADR-0006 B4）
 // ──────────────────────────────────────────────────
-// ねじれ = セッション種別・壁の不一致（SPEC:276-278 「エラーにしない、warnしてよい」）
+// named session の exit(@S)/dismiss(@S) は開始 verb（push/present/switch）を問わず同義
+// （SPEC「present / dismiss は compound verb」「セッションの mismatch」）。
+// R001（旧: 開始・終了 verb のねじれ警告）は撤去した — SPEC の mismatch 例
+// （push で積んだ無名を dismiss()、present を back() で抜ける）はどちらも R002/R003 で
+// 説明がつき、verb 履歴を比較する追加の診断は不要かつ named session に対しては誤検知だった。
 
-describe('twist diagnostics (R001)', () => {
-  it('push で積んだフレームを dismiss で閉じようとするとねじれ warn (R001) + 実行は成功', () => {
-    // push(A,@s) → wall=false なのに dismiss で閉じる
+describe('セッションの mismatch は R001 を出さない（ADR-0006 B4）', () => {
+  it('push(X,@S) で開始したセッションを dismiss(@S) で閉じても警告なし（named は開始 verb を問わず同義）', () => {
     let s = initialState(loc('ホーム'));
     ({ state: s } = reduce(s, tr('push', navComp('A'), { name: 's' })));
-    // dismiss(@s) = 無名セッション検索 → @s は名前付きなので dismiss() は名前なしを探す
-    // dismiss() でなく dismiss(@s)? AST 上 dismiss(@s) = session.name='s'
-    // しかしここでは push で積んだ @s を dismiss(@s) で閉じる → ねじれ(push を dismiss)
     const { state: s1, diagnostics } = reduce(s, tr('dismiss', undefined, { name: 's' }));
-    // ねじれ警告が出るが閉じること自体は成功（SPEC:278 エラーにしない）
-    expect(diagnostics.some(d => d.code === 'R001')).toBe(true);
+    expect(diagnostics.some(d => d.code === 'R001')).toBe(false);
     expect(s1.frames).toHaveLength(1); // ホームに戻る
   });
 
-  it('present で積んだフレームを exit(@S) で閉じるねじれ warn (R001)', () => {
-    // present(M,@m) → wall=true なのに exit(@m) で閉じる
-    // present は dismiss で閉じるのが正規、exit はねじれ
+  it('present(X,@S) で開始したセッションを exit(@S) で閉じても警告なし（SPEC「セッションの mismatch」正規の対応）', () => {
     let s = initialState(loc('ホーム'));
     ({ state: s } = reduce(s, tr('present', navComp('モーダル'), { name: 'm' })));
     const { state: s1, diagnostics } = reduce(s, tr('exit', undefined, { name: 'm' }));
-    expect(diagnostics.some(d => d.code === 'R001')).toBe(true);
-    expect(s1.frames).toHaveLength(1); // ホームに戻る（動作は成功）
+    expect(diagnostics.some(d => d.code === 'R001')).toBe(false);
+    expect(s1.frames).toHaveLength(1); // ホームに戻る
   });
 
-  it('ねじれなし: push→exit, present→dismiss は正常（R001 なし）', () => {
+  it('push(X,@s) + exit(@s), present(X) + dismiss() も引き続き R001 なし', () => {
     // push(X,@s) + exit(@s) = 正規
     let s = initialState(loc('ホーム'));
     ({ state: s } = reduce(s, tr('push', navComp('A'), { name: 's' })));

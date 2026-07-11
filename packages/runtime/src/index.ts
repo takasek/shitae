@@ -71,12 +71,12 @@ function warn(code: string, message: string, span: Span): Diagnostic {
   return { severity: 'warning', code, message, span };
 }
 
+// ADR-0006 B4: named session の exit(@S)/dismiss(@S) は開始 verb（push/present/switch）を
+// 問わず同義 —— 開始・終了 verb を比較してのねじれ警告（旧 R001）は撤去した。
 function closeSession(
   frames: Frame[],
   state: RuntimeState,
   sessionName: string | null,
-  twistWord: TransitionWord,
-  twistMsg: string,
   closerLabel: string,
   span: Span,
   diags: Diagnostic[],
@@ -84,9 +84,6 @@ function closeSession(
   for (let i = frames.length - 1; i >= 0; i--) {
     const f = frames[i]!;
     if (f.beginsSession !== null && f.beginsSession.name === sessionName) {
-      if (f.word === twistWord) {
-        diags.push(warn('R001', twistMsg, span));
-      }
       return { state: { frames: frames.slice(0, i) }, diagnostics: diags };
     }
   }
@@ -206,19 +203,11 @@ export function reduce(state: RuntimeState, transition: Transition): ReduceResul
     }
 
     case 'exit':
-      // exit は push で開いたセッションを閉じる正規形。present で開いたのを exit で閉じるとねじれ(R001)
-      return closeSession(
-        frames, state, session?.name ?? null,
-        'present', 'ねじれ: present で開いたセッションを exit で閉じている',
-        'exit', span, diags,
-      );
+      // named session なので開始 verb（push/present/switch）を問わず dismiss(@S) と同義（ADR-0006 B4）
+      return closeSession(frames, state, session?.name ?? null, 'exit', span, diags);
 
     case 'dismiss':
-      // dismiss は present で開いたセッションを閉じる正規形。push で開いたのを dismiss で閉じるとねじれ(R001)
-      return closeSession(
-        frames, state, session?.name ?? null,
-        'push', 'ねじれ: push で開いたセッションを dismiss で閉じている',
-        'dismiss', span, diags,
-      );
+      // 無名セッションは常に present 由来。named session は exit(@S) と同義（ADR-0006 B4）
+      return closeSession(frames, state, session?.name ?? null, 'dismiss', span, diags);
   }
 }
