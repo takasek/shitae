@@ -1,6 +1,6 @@
-// 例：EC アプリ — 集合・inline・モーダル・アンカー（フロー畳み）の実例
+// 例：EC アプリ — collection・inline・モーダル・session（フロー畳み）の実例
 //
-// *集合 / inline によるグルーピング / 姿(##) / present・dismiss（モーダル複合語）/
+// *collection / inline によるグルーピング / variant(##) / present・dismiss（モーダル compound verb）/
 // セッション(@S)で複数階層を一気に破棄 / back(component) / goto による置き換え
 // が登場する。
 
@@ -22,7 +22,7 @@
 # 商品詳細
 ## 読込中
 スピナー
-> 読込完了 -> goto(##表示)                            // 同一 component の姿替え（## で姿）
+> 読込完了 -> goto(##表示)                            // 同一 component の variant change（## で variant）
 
 ## 表示
 画像ギャラリー
@@ -63,7 +63,7 @@
 
 // ───────────────────────────────────────
 // セッションが活きる例：多段モーダルを一気に畳む
-// 商品共有 → SNS選択 → 投稿確認 と present を3段重ね、
+// 商品共有 → SNS 選択 → 投稿確認 と present を3段重ね、
 // 投稿完了で @share セッションごと一気に閉じて商品詳細に戻る。
 
 # 商品詳細追記

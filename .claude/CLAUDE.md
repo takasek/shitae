@@ -5,6 +5,7 @@ UI ラフスケッチ記述言語 `shitae` の処理系（TypeScript + pnpm モ�
 ## 入口
 
 - `docs/SPEC.md` — 言語仕様。**唯一の正**。迷ったらここ。
+- `docs/GLOSSARY.md` — 概念語の正準名（variant / barrier / presence gate 等）と旧称の対応。
 - `docs/AI_GUIDE.md` — 読み書き要約 + チェックリスト。`.shitae` を扱う前に読む。
 - `docs/example-*.shitae` — 検証済みサンプル。
 - `.shitae` の読み書き・レビューは `shitae-authoring` スキル、検証は `/shitae-check`。
