@@ -24,7 +24,7 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
 .stack-item.current { background: #111; color: #fff; }
 .screen { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
 .screen-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-.variation-label { font-size: 12px; color: #888; margin-bottom: 12px; }
+.variant-label { font-size: 12px; color: #888; margin-bottom: 12px; }
 .elements { margin-bottom: 16px; }
 .element { padding: 6px 0; border-bottom: 1px solid #f0f0f0; color: #333; }
 .element:last-child { border-bottom: none; }
@@ -54,16 +54,16 @@ const app = document.getElementById('app');
 const toastEl = document.getElementById('toast');
 
 // 姿指定なしで component に入ったら、最初に定義された姿を初期姿として扱う
-function initialVariation(module, component) {
+function initialVariant(module, component) {
   const comp = DATA.modules[module]?.components[component];
-  return comp?.initialVariation ?? null;
+  return comp?.initialVariant ?? null;
 }
 
-// ── stack frame: { module, component, variation, wall, sessionName }
+// ── stack frame: { module, component, variant, wall, sessionName }
 let stack = [{
   module: DATA.entryModule,
   component: DATA.entryComponent,
-  variation: initialVariation(DATA.entryModule, DATA.entryComponent),
+  variant: initialVariant(DATA.entryModule, DATA.entryComponent),
   wall: false,
   sessionName: null,
 }];
@@ -84,7 +84,7 @@ function currentInteractions() {
   const comp = getComp(frame.module, frame.component);
   if (!comp) return [];
   // 姿の interactions は抽出時に mergeInteractions(共通, 姿固有) 済み（shadow 合成）
-  if (frame.variation) return comp.variations[frame.variation]?.interactions ?? [];
+  if (frame.variant) return comp.variants[frame.variant]?.interactions ?? [];
   return comp.commonInteractions;
 }
 
@@ -92,13 +92,13 @@ function resolveTarget(result, currentModule, currentComponent) {
   if (!result || result.type !== 'transition') return null;
   const t = result.target;
   if (!t) return null;
-  if (t.kind === 'variation') {
-    return { module: currentModule, component: currentComponent, variation: t.variation };
+  if (t.kind === 'variant') {
+    return { module: currentModule, component: currentComponent, variant: t.variant };
   }
   return {
     module: t.module ?? currentModule,
     component: t.component,
-    variation: t.variation,
+    variant: t.variant,
   };
 }
 
@@ -117,13 +117,13 @@ function applyTransition(result) {
 
   if (word === 'push' || word === 'present') {
     if (!target) return;
-    const variation = target.variation ?? initialVariation(target.module, target.component);
-    stack = [...stack, { module: target.module, component: target.component, variation, wall: word === 'present', sessionName: result.session ?? null }];
+    const variant = target.variant ?? initialVariant(target.module, target.component);
+    stack = [...stack, { module: target.module, component: target.component, variant, wall: word === 'present', sessionName: result.session ?? null }];
   } else if (word === 'goto') {
     if (!target) return;
     // 同一 component 内の姿替え（goto(##姿)）以外は初期姿の解決を行う
-    const variation = target.variation ?? initialVariation(target.module, target.component);
-    const newFrame = { ...frame, component: target.component, variation, module: target.module, sessionName: null };
+    const variant = target.variant ?? initialVariant(target.module, target.component);
+    const newFrame = { ...frame, component: target.component, variant, module: target.module, sessionName: null };
     stack = [...stack.slice(0, -1), newFrame];
   } else if (word === 'back') {
     if (stack.length <= 1) return;
@@ -141,7 +141,7 @@ function applyTransition(result) {
       if (stack[i].sessionName === sessionName) {
         stack = stack.slice(0, i);
         if (stack.length === 0) {
-          stack = [{ module: DATA.entryModule, component: DATA.entryComponent, variation: initialVariation(DATA.entryModule, DATA.entryComponent), wall: false, sessionName: null }];
+          stack = [{ module: DATA.entryModule, component: DATA.entryComponent, variant: initialVariant(DATA.entryModule, DATA.entryComponent), wall: false, sessionName: null }];
         }
         break;
       }
@@ -196,7 +196,7 @@ function render() {
 
   // breadcrumb
   const breadcrumb = stack.map((f, i) => {
-    const label = f.variation ? f.component + ' / ' + f.variation : f.component;
+    const label = f.variant ? f.component + ' / ' + f.variant : f.component;
     const cls = i === stack.length - 1 ? 'stack-item current' : 'stack-item';
     return '<span class="' + cls + '">' + esc(label) + '</span>';
   }).join(' › ');
@@ -204,7 +204,7 @@ function render() {
   // elements
   let elements = '';
   const commonEls = comp?.commonElements ?? [];
-  const varEls = frame.variation ? (comp?.variations[frame.variation]?.elements ?? []) : [];
+  const varEls = frame.variant ? (comp?.variants[frame.variant]?.elements ?? []) : [];
   const allEls = [...commonEls, ...varEls];
   if (allEls.length > 0) {
     elements = '<div class="elements">' +
@@ -237,13 +237,13 @@ function render() {
   const canBack = stack.length > 1 && !currentFrame().wall;
   const backBtn = '<button class="back-btn" onclick="goBack()" ' + (canBack ? '' : 'disabled') + '>← 戻る</button>';
 
-  const variationLabel = frame.variation ? '<div class="variation-label">## ' + esc(frame.variation) + '</div>' : '';
+  const variantLabel = frame.variant ? '<div class="variant-label">## ' + esc(frame.variant) + '</div>' : '';
 
   app.innerHTML =
     '<div class="stack-bar">' + breadcrumb + '</div>' +
     '<div class="screen">' +
       '<div class="screen-title">' + esc(frame.component) + '</div>' +
-      variationLabel +
+      variantLabel +
       elements +
       actionsHtml +
       backBtn +

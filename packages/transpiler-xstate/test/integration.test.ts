@@ -23,16 +23,16 @@ describe('integration: example-battle.shitae', () => {
     expect(out.length).toBeGreaterThan(0);
   });
 
-  it('output contains all top-level components or their variations', () => {
+  it('output contains all top-level components or their variants', () => {
     const out = toXState(document);
-    // Components with no variations
+    // Components with no variants
     expect(out).toContain("'スプラッシュ':");
     expect(out).toContain("'ログイン':");
     expect(out).toContain("'ホーム':");
-    // マッチング has variations
+    // マッチング has variants
     expect(out).toContain("'マッチング__検索中':");
     expect(out).toContain("'マッチング__失敗':");
-    // 対戦 has variations
+    // 対戦 has variants
     expect(out).toContain("'対戦__開始':");
     expect(out).toContain("'対戦__対戦中':");
     expect(out).toContain("'対戦__リザルト':");

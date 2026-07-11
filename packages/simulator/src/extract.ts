@@ -5,8 +5,8 @@ export interface SimTransition {
   type: 'transition';
   word: string;
   target:
-    | { kind: 'full'; module: string | null; component: string; variation: string | null }
-    | { kind: 'variation'; variation: string }
+    | { kind: 'full'; module: string | null; component: string; variant: string | null }
+    | { kind: 'variant'; variant: string }
     | null;
   session: string | null;
 }
@@ -32,7 +32,7 @@ export interface SimInteraction {
   choices: SimChoice[];
 }
 
-export interface SimVariation {
+export interface SimVariant {
   elements: string[];
   interactions: SimInteraction[];
 }
@@ -40,9 +40,9 @@ export interface SimVariation {
 export interface SimComponent {
   commonElements: string[];
   commonInteractions: SimInteraction[];
-  variations: Record<string, SimVariation>;
+  variants: Record<string, SimVariant>;
   /** 最初に定義された姿。姿指定なしで入ったときの初期姿。姿を持たなければ null */
-  initialVariation: string | null;
+  initialVariant: string | null;
 }
 
 export interface SimModuleData {
@@ -66,14 +66,14 @@ function convertResultBody(r: Result): SimResultBody {
   if (body.kind === 'transition') {
     let target: SimTransition['target'] = null;
     if (body.target) {
-      if (body.target.kind === 'variation') {
-        target = { kind: 'variation', variation: body.target.name };
+      if (body.target.kind === 'variant') {
+        target = { kind: 'variant', variant: body.target.name };
       } else {
         target = {
           kind: 'full',
           module: body.target.module ?? null,
           component: body.target.name,
-          variation: body.target.variation ?? null,
+          variant: body.target.variant ?? null,
         };
       }
     }
@@ -117,9 +117,9 @@ function convertInteraction(i: Interaction): SimInteraction {
 function convertComponent(comp: Component): SimComponent {
   const commonElements = comp.common.elements.map(elementDisplayName);
   const commonInteractions = comp.common.interactions.map(convertInteraction);
-  const variations: Record<string, SimVariation> = {};
-  for (const v of comp.variations) {
-    variations[v.name] = {
+  const variants: Record<string, SimVariant> = {};
+  for (const v of comp.variants) {
+    variants[v.name] = {
       elements: v.body.elements.map(elementDisplayName),
       // 姿で有効な interaction 一覧 = mergeInteractions(共通, 姿固有)。
       // 同一 (行動, 対象) は姿固有が共通を shadow する
@@ -131,8 +131,8 @@ function convertComponent(comp: Component): SimComponent {
   return {
     commonElements,
     commonInteractions,
-    variations,
-    initialVariation: comp.variations[0]?.name ?? null,
+    variants,
+    initialVariant: comp.variants[0]?.name ?? null,
   };
 }
 

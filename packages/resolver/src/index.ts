@@ -1,4 +1,4 @@
-import type { Document, Component, Variation, ElementLine, Interaction, Result, Reference, Action } from '@shitae/ast';
+import type { Document, Component, Variant, ElementLine, Interaction, Result, Reference, Action } from '@shitae/ast';
 
 export interface ProjectResolveResult {
   modules: Map<string, ResolveResult>;
@@ -9,21 +9,21 @@ export interface ProjectResolveResult {
 export interface ResolveResult {
   /** component name → Component ノード */
   componentIndex: Map<string, Component>;
-  /** component name → (variation name → Variation ノード) */
-  variationIndex: Map<string, Map<string, Variation>>;
+  /** component name → (variant name → Variant ノード) */
+  variantIndex: Map<string, Map<string, Variant>>;
   /** component name → (alias → ElementLine ノード)。common優先・重複はcommonが勝つ */
   elementIndex: Map<string, Map<string, ElementLine>>;
   /**
    * component name → (body key → (alias → ElementLine))
-   * body key: null = common body、string = variation name
-   * common と variation で同名 alias があっても両方独立して参照できる
+   * body key: null = common body、string = variant name
+   * common と variant で同名 alias があっても両方独立して参照できる
    */
   bodyElementIndex: Map<string, Map<string | null, Map<string, ElementLine>>>;
 }
 
 export function resolve(document: Document): ResolveResult {
   const componentIndex = new Map<string, Component>();
-  const variationIndex = new Map<string, Map<string, Variation>>();
+  const variantIndex = new Map<string, Map<string, Variant>>();
   const elementIndex = new Map<string, Map<string, ElementLine>>();
   const bodyElementIndex = new Map<string, Map<string | null, Map<string, ElementLine>>>();
 
@@ -33,18 +33,18 @@ export function resolve(document: Document): ResolveResult {
       componentIndex.set(comp.name, comp);
     }
 
-    const varMap = new Map<string, Variation>();
-    for (const v of comp.variations) {
+    const varMap = new Map<string, Variant>();
+    for (const v of comp.variants) {
       if (!varMap.has(v.name)) varMap.set(v.name, v);
     }
-    variationIndex.set(comp.name, varMap);
+    variantIndex.set(comp.name, varMap);
 
     // elementIndex: flat map、common 優先
     const elemMap = new Map<string, ElementLine>();
     for (const el of comp.common.elements) {
       if (el.alias) elemMap.set(el.alias, el);
     }
-    for (const v of comp.variations) {
+    for (const v of comp.variants) {
       for (const el of v.body.elements) {
         if (el.alias && !elemMap.has(el.alias)) elemMap.set(el.alias, el);
       }
@@ -58,7 +58,7 @@ export function resolve(document: Document): ResolveResult {
       if (el.alias) commonElemMap.set(el.alias, el);
     }
     bodyMap.set(null, commonElemMap);
-    for (const v of comp.variations) {
+    for (const v of comp.variants) {
       const varElemMap = new Map<string, ElementLine>();
       for (const el of v.body.elements) {
         if (el.alias) varElemMap.set(el.alias, el);
@@ -68,7 +68,7 @@ export function resolve(document: Document): ResolveResult {
     bodyElementIndex.set(comp.name, bodyMap);
   }
 
-  return { componentIndex, variationIndex, elementIndex, bodyElementIndex };
+  return { componentIndex, variantIndex, elementIndex, bodyElementIndex };
 }
 
 export function resolveProject(documents: Map<string, Document>): ProjectResolveResult {
@@ -118,7 +118,7 @@ export function effectiveResults(
 }
 
 /**
- * Merge common interactions with variation-specific interactions,
+ * Merge common interactions with variant-specific interactions,
  * respecting the shadowing rule: when an interaction's (action.text, target)
  * exactly match between common and specific, the specific one shadows the common.
  *

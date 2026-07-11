@@ -19,28 +19,28 @@ describe('integration: example-battle.shitae', () => {
     expect(document.components).toHaveLength(13);
   });
 
-  it('マッチング has 2 variations', () => {
+  it('マッチング has 2 variants', () => {
     const { document } = parse(battleSrc);
     const matching = document.components.find(c => c.name === 'マッチング');
     expect(matching).toBeDefined();
-    expect(matching!.variations).toHaveLength(2);
-    expect(matching!.variations[0].name).toBe('検索中');
-    expect(matching!.variations[1].name).toBe('失敗');
+    expect(matching!.variants).toHaveLength(2);
+    expect(matching!.variants[0].name).toBe('検索中');
+    expect(matching!.variants[1].name).toBe('失敗');
   });
 
-  it('対戦 has common body and 3 variations', () => {
+  it('対戦 has common body and 3 variants', () => {
     const { document } = parse(battleSrc);
     const battle = document.components.find(c => c.name === '対戦');
     expect(battle).toBeDefined();
     expect(battle!.common.elements.length).toBeGreaterThan(0);  // 合図, me, opponent
-    expect(battle!.variations).toHaveLength(3);  // 開始, 対戦中, リザルト
+    expect(battle!.variants).toHaveLength(3);  // 開始, 対戦中, リザルト
   });
 
-  it('プロフィールカード has common body and 2 variations', () => {
+  it('プロフィールカード has common body and 2 variants', () => {
     const { document } = parse(battleSrc);
     const card = document.components.find(c => c.name === 'プロフィールカード');
     expect(card).toBeDefined();
-    expect(card!.variations).toHaveLength(2);  // 未フォロー, フォロー済
+    expect(card!.variants).toHaveLength(2);  // 未フォロー, フォロー済
   });
 });
 
@@ -58,13 +58,13 @@ describe('integration: example-ecommerce.shitae', () => {
     expect(document.components).toHaveLength(13);
   });
 
-  it('商品詳細 has 2 variations', () => {
+  it('商品詳細 has 2 variants', () => {
     const { document } = parse(ecommerceSrc);
     const detail = document.components.find(c => c.name === '商品詳細');
     expect(detail).toBeDefined();
-    expect(detail!.variations).toHaveLength(2);  // 読込中, 表示
-    expect(detail!.variations[0].name).toBe('読込中');
-    expect(detail!.variations[1].name).toBe('表示');
+    expect(detail!.variants).toHaveLength(2);  // 読込中, 表示
+    expect(detail!.variants[0].name).toBe('読込中');
+    expect(detail!.variants[1].name).toBe('表示');
   });
 
   it('チェックアウト has multi-result interaction', () => {

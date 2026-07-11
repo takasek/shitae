@@ -15,14 +15,14 @@ export interface XStateOptions {
 
 // ───── state ID helpers ───────────────────────────────────────────────
 
-function stateId(componentName: string, variationName?: string | null): string {
-  if (variationName) return `${componentName}__${variationName}`;
+function stateId(componentName: string, variantName?: string | null): string {
+  if (variantName) return `${componentName}__${variantName}`;
   return componentName;
 }
 
 function componentStateIds(comp: Component): string[] {
-  if (comp.variations.length === 0) return [stateId(comp.name)];
-  return comp.variations.map((v) => stateId(comp.name, v.name));
+  if (comp.variants.length === 0) return [stateId(comp.name)];
+  return comp.variants.map((v) => stateId(comp.name, v.name));
 }
 
 function allStateIds(doc: Document): string[] {
@@ -32,8 +32,8 @@ function allStateIds(doc: Document): string[] {
 function initialStateId(doc: Document): string {
   const first = doc.components[0];
   if (!first) return '';
-  if (first.variations.length === 0) return stateId(first.name);
-  return stateId(first.name, first.variations[0]!.name);
+  if (first.variants.length === 0) return stateId(first.name);
+  return stateId(first.name, first.variants[0]!.name);
 }
 
 // ───── event name ─────────────────────────────────────────────────────
@@ -52,22 +52,22 @@ function resolveNavTarget(
   currentComponent: string,
   doc: Document,
 ): string {
-  if (target.kind === 'variation') {
+  if (target.kind === 'variant') {
     return stateId(currentComponent, target.name);
   }
   // kind === 'component'
   if (target.module !== null) {
     // cross-file: use module__name
     const base = `${target.module}__${target.name}`;
-    return target.variation ? `${base}__${target.variation}` : base;
+    return target.variant ? `${base}__${target.variant}` : base;
   }
-  if (target.variation) {
-    return stateId(target.name, target.variation);
+  if (target.variant) {
+    return stateId(target.name, target.variant);
   }
-  // No variation specified — resolve to first variation if component has variations
+  // No variant specified — resolve to first variant if component has variants
   const comp = doc.components.find((c) => c.name === target.name);
-  if (comp && comp.variations.length > 0) {
-    return stateId(target.name, comp.variations[0]!.name);
+  if (comp && comp.variants.length > 0) {
+    return stateId(target.name, comp.variants[0]!.name);
   }
   return stateId(target.name);
 }
@@ -96,10 +96,10 @@ function buildPredecessors(doc: Document): Map<string, string[]> {
   }
 
   for (const comp of doc.components) {
-    if (comp.variations.length === 0) {
+    if (comp.variants.length === 0) {
       processInteractions(comp.common.interactions, stateId(comp.name));
     } else {
-      for (const v of comp.variations) {
+      for (const v of comp.variants) {
         const sid = stateId(comp.name, v.name);
         // Same shadow merge as state-node generation: a shadowed common
         // push/present must not register a predecessor edge (v2)
@@ -260,14 +260,14 @@ export function toXState(doc: Document, options?: XStateOptions): string {
   const stateNodes: string[] = [];
 
   for (const comp of doc.components) {
-    if (comp.variations.length === 0) {
+    if (comp.variants.length === 0) {
       const sid = stateId(comp.name);
       const interactions = comp.common.interactions;
       stateNodes.push(generateStateNode(sid, interactions, doc, predecessors));
     } else {
-      for (const v of comp.variations) {
+      for (const v of comp.variants) {
         const sid = stateId(comp.name, v.name);
-        // Common body + variation body, with variation-specific interactions
+        // Common body + variant body, with variant-specific interactions
         // shadowing common ones on (action.text, target) exact match (v2)
         const interactions = mergeInteractions(
           comp.common.interactions,

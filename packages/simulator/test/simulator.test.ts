@@ -37,11 +37,11 @@ describe('toSimulator', () => {
     expect(html).toContain('マイページ');
   });
 
-  it('姿指定なしの遷移入場に備えランタイムが initialVariation を解決する', () => {
+  it('姿指定なしの遷移入場に備えランタイムが initialVariant を解決する', () => {
     const doc = parseOk('# 詳細\n## 読込中\nスピナー\n## 表示\nコンテンツ\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
-    expect(html).toContain('"initialVariation":"読込中"');
-    expect(html).toContain('initialVariation(');
+    expect(html).toContain('"initialVariant":"読込中"');
+    expect(html).toContain('initialVariant(');
   });
 
   it('is self-contained (no external resource links)', () => {

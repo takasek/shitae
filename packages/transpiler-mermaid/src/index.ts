@@ -8,12 +8,12 @@ export function toMermaid(document: Document): string {
   // ノード定義
   for (const comp of document.components) {
     const baseId = idMap.get(comp.name)!;
-    if (comp.variations.length === 0) {
+    if (comp.variants.length === 0) {
       lines.push(`  ${baseId}["# ${comp.name}"]`);
     } else {
       const groupId = baseId + '_group';
       lines.push(`  subgraph ${groupId}["# ${comp.name}"]`);
-      for (const v of comp.variations) {
+      for (const v of comp.variants) {
         lines.push(`    ${nodeId(idMap, comp.name, v.name)}["## ${v.name}"]`);
       }
       lines.push('  end');
@@ -25,10 +25,10 @@ export function toMermaid(document: Document): string {
   // エッジ定義。姿を持つ component は、共通と姿固有を shadow 合成した
   // interaction 群を各姿ノードから出す（共通だけのベースノードは存在しない）
   for (const comp of document.components) {
-    if (comp.variations.length === 0) {
+    if (comp.variants.length === 0) {
       emitEdges(comp.common.interactions, comp.name, null, comp.name, document, idMap, lines);
     } else {
-      for (const v of comp.variations) {
+      for (const v of comp.variants) {
         const merged = mergeInteractions(comp.common.interactions, v.body.interactions);
         emitEdges(merged, comp.name, v.name, comp.name, document, idMap, lines);
       }
@@ -59,9 +59,9 @@ function buildIdMap(document: Document): Map<string, string> {
   return idMap;
 }
 
-function nodeId(idMap: Map<string, string>, componentName: string, variationName?: string): string {
+function nodeId(idMap: Map<string, string>, componentName: string, variantName?: string): string {
   const base = idMap.get(componentName) ?? sanitizeId(componentName);
-  return variationName ? `${base}_${sanitizeId(variationName)}` : base;
+  return variantName ? `${base}_${sanitizeId(variantName)}` : base;
 }
 
 function navTargetToNodeId(
@@ -70,22 +70,22 @@ function navTargetToNodeId(
   document: Document,
   idMap: Map<string, string>
 ): string {
-  if (target.kind === 'variation') {
+  if (target.kind === 'variant') {
     return nodeId(idMap, currentComponentName, target.name);
   }
   // kind === 'component'
   if (target.module !== null) {
     // cross-file ref: use module__name to distinguish from local nodes
     const crossId = sanitizeId(target.module + '__' + target.name);
-    return target.variation ? `${crossId}_${sanitizeId(target.variation)}` : crossId;
+    return target.variant ? `${crossId}_${sanitizeId(target.variant)}` : crossId;
   }
-  if (target.variation) {
-    return nodeId(idMap, target.name, target.variation);
+  if (target.variant) {
+    return nodeId(idMap, target.name, target.variant);
   }
-  // variation 指定なしでも、対象コンポーネントが variation を持つなら最初の variation へ
+  // variant 指定なしでも、対象コンポーネントが variant を持つなら最初の variant へ
   const comp = document.components.find(c => c.name === target.name);
-  if (comp && comp.variations.length > 0) {
-    return nodeId(idMap, target.name, comp.variations[0].name);
+  if (comp && comp.variants.length > 0) {
+    return nodeId(idMap, target.name, comp.variants[0].name);
   }
   return nodeId(idMap, target.name);
 }
@@ -98,14 +98,14 @@ function actionLabel(action: Action): string {
 function emitEdges(
   interactions: Interaction[],
   componentName: string,
-  variationName: string | null,
+  variantName: string | null,
   currentComponentName: string,
   document: Document,
   idMap: Map<string, string>,
   lines: string[]
 ): void {
-  const fromId = variationName
-    ? nodeId(idMap, componentName, variationName)
+  const fromId = variantName
+    ? nodeId(idMap, componentName, variantName)
     : (idMap.get(componentName) ?? sanitizeId(componentName));
 
   for (const interaction of interactions) {

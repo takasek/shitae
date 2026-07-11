@@ -10,13 +10,13 @@ describe('toMermaid', () => {
     expect(toMermaid(document)).toMatch(/^flowchart LR/);
   });
 
-  it('variation なし component → 単一ノード', () => {
+  it('variant なし component → 単一ノード', () => {
     const { document } = parse('# スプラッシュ\nロゴ\n');
     const out = toMermaid(document);
     expect(out).toContain('スプラッシュ["# スプラッシュ"]');
   });
 
-  it('variation あり component → subgraph', () => {
+  it('variant あり component → subgraph', () => {
     const { document } = parse('# マッチング\n## 検索中\n案内\n## 失敗\n案内\n');
     const out = toMermaid(document);
     expect(out).toContain('subgraph');
@@ -37,7 +37,7 @@ describe('toMermaid', () => {
     expect(out).toContain('-->|"タップ(設定)"| B');
   });
 
-  it('goto ##姿 → 同 component の variation ノードへのエッジ', () => {
+  it('goto ##姿 → 同 component の variant ノードへのエッジ', () => {
     const { document } = parse('# A\n## x\n> 行動 -> goto(##y)\n## y\n完了\n');
     const out = toMermaid(document);
     expect(out).toContain('A_x -->|"行動"| A_y');
@@ -96,8 +96,8 @@ describe('toMermaid', () => {
     }
   });
 
-  it('variation ありコンポーネントへの参照 → 最初の variation ノードへのエッジ', () => {
-    // push(商品詳細) で 商品詳細 が variation を持つ場合、商品詳細_読込中 へ向く
+  it('variant ありコンポーネントへの参照 → 最初の variant ノードへのエッジ', () => {
+    // push(商品詳細) で 商品詳細 が variant を持つ場合、商品詳細_読込中 へ向く
     const src = '# 商品一覧\n> タップ -> push(商品詳細)\n# 商品詳細\n## 読込中\nスピナー\n## 表示\n画像\n';
     const { document } = parse(src);
     const out = toMermaid(document);

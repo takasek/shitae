@@ -4,7 +4,7 @@ import { TRANSITION_WORDS } from '@shitae/ast';
 import type {
   Document,
   Component,
-  Variation,
+  Variant,
   Body,
   ElementLine,
   Ref,
@@ -33,9 +33,9 @@ function getComponent(doc: Document, name: string): Component {
 }
 
 // ---------------------------------------------------------------------------
-// 1. Component / Variation / Section
+// 1. Component / Variant / Section
 // ---------------------------------------------------------------------------
-describe('component / variation / section', () => {
+describe('component / variant / section', () => {
   it('単一 component の名前が正しい', () => {
     const { document } = parseDoc('# ホーム\nロゴ');
     expect(document.components).toHaveLength(1);
@@ -50,12 +50,12 @@ describe('component / variation / section', () => {
     expect((c.common.elements[0].value as Ref).name).toBe('ロゴ');
   });
 
-  it('variation 付き component が正しく解析される', () => {
+  it('variant 付き component が正しく解析される', () => {
     const { document } = parseDoc('# A\n## B\n要素');
     const c = getComponent(document, 'A');
-    expect(c.variations).toHaveLength(1);
-    expect(c.variations[0].name).toBe('B');
-    expect(c.variations[0].body.elements).toHaveLength(1);
+    expect(c.variants).toHaveLength(1);
+    expect(c.variants[0].name).toBe('B');
+    expect(c.variants[0].body.elements).toHaveLength(1);
   });
 
   it('common body に要素行とインタラクション行が混在できる', () => {
@@ -85,19 +85,19 @@ describe('component / variation / section', () => {
     expect(document.imports[0].alias).toBe('auth');
   });
 
-  it('common 部分と variation 固有部分が分かれる', () => {
+  it('common 部分と variant 固有部分が分かれる', () => {
     const { document } = parseDoc('# A\n共通要素\n## B\n固有要素');
     const c = getComponent(document, 'A');
     expect(c.common.elements[0].value.kind).toBe('ref');
     expect((c.common.elements[0].value as Ref).name).toBe('共通要素');
-    expect(c.variations[0].body.elements[0].value.kind).toBe('ref');
-    expect((c.variations[0].body.elements[0].value as Ref).name).toBe('固有要素');
+    expect(c.variants[0].body.elements[0].value.kind).toBe('ref');
+    expect((c.variants[0].body.elements[0].value as Ref).name).toBe('固有要素');
   });
 
-  it('variation body に要素行とインタラクション行が混在できる', () => {
+  it('variant body に要素行とインタラクション行が混在できる', () => {
     const { document } = parseDoc('# A\n## B\n要素\n> タップ -> back()');
     const c = getComponent(document, 'A');
-    expect(c.variations[0].body.interactions).toHaveLength(1);
+    expect(c.variants[0].body.interactions).toHaveLength(1);
   });
 });
 
@@ -411,23 +411,23 @@ describe('nav-target', () => {
     expect(target.kind).toBe('component');
     expect(target.module).toBeNull();
     expect(target.name).toBe('ホーム');
-    expect(target.variation).toBeNull();
+    expect(target.variant).toBeNull();
   });
 
-  it('component##variation', () => {
+  it('component##variant', () => {
     const { document } = parseDoc('# A\n> タップ -> goto(対戦##開始)');
     const t = document.components[0].common.interactions[0].results[0].body as Transition;
     const target = t.target as NavTarget & { kind: 'component' };
     expect(target.kind).toBe('component');
     expect(target.name).toBe('対戦');
-    expect(target.variation).toBe('開始');
+    expect(target.variant).toBe('開始');
   });
 
-  it('##variation — same-component variation', () => {
+  it('##variant — same-component variant', () => {
     const { document } = parseDoc('# A\n> タップ -> goto(##失敗)');
     const t = document.components[0].common.interactions[0].results[0].body as Transition;
-    const target = t.target as NavTarget & { kind: 'variation' };
-    expect(target.kind).toBe('variation');
+    const target = t.target as NavTarget & { kind: 'variant' };
+    expect(target.kind).toBe('variant');
     expect(target.name).toBe('失敗');
   });
 
@@ -438,16 +438,16 @@ describe('nav-target', () => {
     expect(target.kind).toBe('component');
     expect(target.module).toBe('auth');
     expect(target.name).toBe('ログイン');
-    expect(target.variation).toBeNull();
+    expect(target.variant).toBeNull();
   });
 
-  it('module::component##variation', () => {
+  it('module::component##variant', () => {
     const { document } = parseDoc('# A\n> タップ -> push(auth::ログイン##入力)');
     const t = document.components[0].common.interactions[0].results[0].body as Transition;
     const target = t.target as NavTarget & { kind: 'component' };
     expect(target.module).toBe('auth');
     expect(target.name).toBe('ログイン');
-    expect(target.variation).toBe('入力');
+    expect(target.variant).toBe('入力');
   });
 });
 
@@ -534,12 +534,12 @@ describe('diagnostics', () => {
     expect(document.components.filter((c) => c.name === 'A')).toHaveLength(2);
   });
 
-  it('E006: 重複 variation — 両方 AST に残る', () => {
+  it('E006: 重複 variant — 両方 AST に残る', () => {
     const { document, diagnostics } = parseDoc('# A\n## B\n要素\n## B\n別要素');
     const e006 = diagnostics.filter((d) => d.code === 'E006');
     expect(e006.length).toBeGreaterThan(0);
     const c = document.components[0];
-    expect(c.variations.filter((v) => v.name === 'B')).toHaveLength(2);
+    expect(c.variants.filter((v) => v.name === 'B')).toHaveLength(2);
   });
 
   it('E011: 要素行に -> を含めると構文エラー（ヒント付き）', () => {
@@ -627,7 +627,7 @@ describe('sample files smoke test', () => {
     expect(TRANSITION_WORDS).toContain('dismiss');
   });
 
-  it('E007: component の前に variation を書くとエラー', () => {
+  it('E007: component の前に variant を書くとエラー', () => {
     const { diagnostics } = parse('## Loading\nspinner\n# Screen\nfoo\n');
     const e007 = diagnostics.filter((d) => d.code === 'E007');
     expect(e007.length).toBeGreaterThan(0);
@@ -659,9 +659,9 @@ describe('Span 精度 (offset / col)', () => {
     expect(document.components[0].span).toEqual({ offset: 0, length: 5, line: 1, col: 1 });
   });
 
-  it('variation header: 2行目 offset=6 col=1 length=6', () => {
+  it('variant header: 2行目 offset=6 col=1 length=6', () => {
     const { document } = parseDoc('# Foo\n## Bar\n');
-    expect(document.components[0].variations[0].span).toEqual({ offset: 6, length: 6, line: 2, col: 1 });
+    expect(document.components[0].variants[0].span).toEqual({ offset: 6, length: 6, line: 2, col: 1 });
   });
 
   it('element line: 2行目 offset=6 col=1 length=6', () => {

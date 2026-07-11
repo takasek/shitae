@@ -20,16 +20,16 @@ describe('check', () => {
     expect(w101[0].message).toContain('foo');
   });
 
-  it('W101: 別 body（common vs variation）では重複にならない', () => {
-    // common に foo、variation に foo → 別 body なので W101 なし
+  it('W101: 別 body（common vs variant）では重複にならない', () => {
+    // common に foo、variant に foo → 別 body なので W101 なし
     const { document } = parse('# A\nfoo: X\n## 姿1\nfoo: Y\n');
     const diags = check(document, resolve(document));
     const w101 = diags.filter(d => d.code === 'W101');
     expect(w101).toHaveLength(0);
   });
 
-  it('W102: variation 名を component として参照', () => {
-    // '検索中' は component でなく マッチング の variation
+  it('W102: variant 名を component として参照', () => {
+    // '検索中' は component でなく マッチング の variant
     const src = '# A\n> 行動 -> goto(検索中)\n# マッチング\n## 検索中\n案内\n## 失敗\n案内\n';
     const { document } = parse(src);
     const diags = check(document, resolve(document));
@@ -56,7 +56,7 @@ describe('check', () => {
     expect(w103[0].message).toContain("'A'");
   });
 
-  it('W103: variation を持つがすべて空 → 警告', () => {
+  it('W103: variant を持つがすべて空 → 警告', () => {
     const { document } = parse('# A\n## 姿1\n## 姿2\n');
     const diags = check(document, resolve(document));
     const w103 = diags.filter(d => d.code === 'W103');
@@ -65,7 +65,7 @@ describe('check', () => {
 
   it('W102: cross-module 参照（module::Name）は誤検知しない', () => {
     // 'other::検索中' は別モジュールのコンポーネント参照なので W102 を出さない
-    // （ローカルに '検索中' という variation があっても）
+    // （ローカルに '検索中' という variant があっても）
     const src = '# A\n> 行動 -> goto(other::検索中)\n# マッチング\n## 検索中\n案内\n## 失敗\n案内\n';
     const { document } = parse(src);
     const diags = check(document, resolve(document));

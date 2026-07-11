@@ -14,22 +14,22 @@ import type { Transition, NavTarget, Span } from '@shitae/ast';
 // テストヘルパ
 // ──────────────────────────────────────────────────
 
-const loc = (component: string, variation?: string, module?: string): Location => ({
+const loc = (component: string, variant?: string, module?: string): Location => ({
   module: module ?? null,
   component,
-  variation: variation ?? null,
+  variant: variant ?? null,
 });
 
 const dummySpan: Span = { offset: 0, length: 0, line: 1, col: 1 };
 
-const navComp = (name: string, variation?: string, module?: string): NavTarget => ({
+const navComp = (name: string, variant?: string, module?: string): NavTarget => ({
   kind: 'component',
   module: module ?? null,
   name,
-  variation: variation ?? null,
+  variant: variant ?? null,
 });
 
-const navVar = (name: string): NavTarget => ({ kind: 'variation', name });
+const navVar = (name: string): NavTarget => ({ kind: 'variant', name });
 
 const tr = (
   word: Transition['word'],
@@ -67,7 +67,7 @@ describe('initialState', () => {
     expect(f.word).toBe('push');
   });
 
-  it('variation 付き Location も保持される', () => {
+  it('variant 付き Location も保持される', () => {
     const entry = loc('対戦', '対戦中');
     const s = initialState(entry);
     expect(s.frames[0].location).toEqual(entry);
@@ -196,7 +196,7 @@ describe('reduce: goto', () => {
     expect(s1.frames).toHaveLength(1);
     const top = s1.frames[0]!;
     expect(top.location.component).toBe('対戦'); // component は変わらない
-    expect(top.location.variation).toBe('対戦中');
+    expect(top.location.variant).toBe('対戦中');
   });
 
   // SPEC:264 goto(##姿) は「現在のスタックエントリの姿を書き換える」のみ。
@@ -208,7 +208,7 @@ describe('reduce: goto', () => {
     expect(s1.frames).toHaveLength(1 + 1);
     const top = s1.frames[s1.frames.length - 1]!;
     expect(top.location.component).toBe('モーダル');
-    expect(top.location.variation).toBe('別姿');
+    expect(top.location.variant).toBe('別姿');
     expect(top.wall).toBe(true);
     expect(top.beginsSession).toEqual({ name: 's' });
   });
@@ -230,7 +230,7 @@ describe('reduce: goto', () => {
     const top = s1.frames[s1.frames.length - 1]!;
     expect(top.wall).toBe(false);
     expect(top.beginsSession).toEqual({ name: 's' });
-    expect(top.location.variation).toBe('別姿');
+    expect(top.location.variant).toBe('別姿');
   });
 
   it('goto(component) は従来どおり全置換（beginsSession が消える。既存挙動の回帰）', () => {
@@ -252,7 +252,7 @@ describe('reduce: goto', () => {
     const { state: s1 } = reduce(s, tr('back'));
     const top = s1.frames[s1.frames.length - 1]!;
     expect(top.location.component).toBe('モーダル');
-    expect(top.location.variation).toBe('別姿');
+    expect(top.location.variant).toBe('別姿');
     expect(top.wall).toBe(true);
     expect(top.beginsSession).toEqual({ name: 's' });
   });
@@ -393,41 +393,41 @@ describe('reduce: dismiss (無名セッション LIFO)', () => {
 // ──────────────────────────────────────────────────
 
 describe('nav-target normalization', () => {
-  it('component nav-target → Location {module:null, component:name, variation:null}', () => {
+  it('component nav-target → Location {module:null, component:name, variant:null}', () => {
     let s = initialState(loc('ホーム'));
     ({ state: s } = reduce(s, tr('push', navComp('詳細'))));
     const top = s.frames[s.frames.length - 1]!;
-    expect(top.location).toEqual({ module: null, component: '詳細', variation: null });
+    expect(top.location).toEqual({ module: null, component: '詳細', variant: null });
   });
 
-  it('component##姿 nav-target → variation が設定される', () => {
+  it('component##姿 nav-target → variant が設定される', () => {
     let s = initialState(loc('ホーム'));
-    ({ state: s } = reduce(s, tr('push', { kind: 'component', module: null, name: '対戦', variation: '開始' })));
+    ({ state: s } = reduce(s, tr('push', { kind: 'component', module: null, name: '対戦', variant: '開始' })));
     const top = s.frames[s.frames.length - 1]!;
-    expect(top.location).toEqual({ module: null, component: '対戦', variation: '開始' });
+    expect(top.location).toEqual({ module: null, component: '対戦', variant: '開始' });
   });
 
-  it('##姿 nav-target (variation only) → 現 component の姿を切替', () => {
+  it('##姿 nav-target (variant only) → 現 component の姿を切替', () => {
     // push で 現在地「対戦」に移動してから ##対戦中 で姿切替
     let s = initialState(loc('対戦', '開始'));
     const { state: s1 } = reduce(s, tr('goto', navVar('対戦中')));
     const top = s1.frames[s1.frames.length - 1]!;
     expect(top.location.component).toBe('対戦');
-    expect(top.location.variation).toBe('対戦中');
+    expect(top.location.variant).toBe('対戦中');
   });
 
   it('module::component nav-target → Location に module が設定される', () => {
     let s = initialState(loc('ホーム'));
-    ({ state: s } = reduce(s, tr('push', { kind: 'component', module: 'auth', name: 'ログイン', variation: null })));
+    ({ state: s } = reduce(s, tr('push', { kind: 'component', module: 'auth', name: 'ログイン', variant: null })));
     const top = s.frames[s.frames.length - 1]!;
-    expect(top.location).toEqual({ module: 'auth', component: 'ログイン', variation: null });
+    expect(top.location).toEqual({ module: 'auth', component: 'ログイン', variant: null });
   });
 
-  it('module::component##姿 nav-target → module/component/variation すべて設定', () => {
+  it('module::component##姿 nav-target → module/component/variant すべて設定', () => {
     let s = initialState(loc('ホーム'));
-    ({ state: s } = reduce(s, tr('push', { kind: 'component', module: 'shop', name: '商品詳細', variation: '読込中' })));
+    ({ state: s } = reduce(s, tr('push', { kind: 'component', module: 'shop', name: '商品詳細', variant: '読込中' })));
     const top = s.frames[s.frames.length - 1]!;
-    expect(top.location).toEqual({ module: 'shop', component: '商品詳細', variation: '読込中' });
+    expect(top.location).toEqual({ module: 'shop', component: '商品詳細', variant: '読込中' });
   });
 
   it('target が null の push は状態変化なし（no-op）', () => {

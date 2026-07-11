@@ -8,7 +8,7 @@ import type { Diagnostic, Document, NavTarget, Span, Transition, TransitionWord 
 export interface Location {
   module: string | null;
   component: string;
-  variation: string | null;
+  variant: string | null;
 }
 
 /** present/dismiss 由来は name=null（無名セッション） */
@@ -60,7 +60,7 @@ export function initialState(entry: Location): RuntimeState {
 export function entryFromDocument(doc: Document): Location {
   const comp = doc.components[0];
   if (!comp) throw new Error('Document に component が存在しない');
-  return { module: null, component: comp.name, variation: null };
+  return { module: null, component: comp.name, variant: null };
 }
 
 // ──────────────────────────────────────────────────
@@ -97,14 +97,14 @@ function closeSession(
 
 /** NavTarget を現在の Location を踏まえて Location へ正規化する */
 function navTargetToLocation(target: NavTarget, current: Location): Location {
-  if (target.kind === 'variation') {
+  if (target.kind === 'variant') {
     // ##姿 — 同一 component 内の姿切替
-    return { module: current.module, component: current.component, variation: target.name };
+    return { module: current.module, component: current.component, variant: target.name };
   }
   return {
     module: target.module ?? current.module,
     component: target.name,
-    variation: target.variation ?? null,
+    variant: target.variant ?? null,
   };
 }
 
@@ -165,7 +165,7 @@ export function reduce(state: RuntimeState, transition: Transition): ReduceResul
       // wall・beginsSession・word（begin 地点であること自体）は保存する。
       // component への goto（別 component への置換）は begin 地点を消す全置換のまま。
       const newTop: Frame =
-        target.kind === 'variation'
+        target.kind === 'variant'
           ? { ...top, location: loc }
           : { location: loc, wall: false, beginsSession: null, word: 'goto' };
       return {

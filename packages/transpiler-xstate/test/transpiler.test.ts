@@ -49,7 +49,7 @@ describe('initial state', () => {
     expect(out).toContain("initial: 'ホーム'");
   });
 
-  it('first variation of first component is initial when variations exist', () => {
+  it('first variant of first component is initial when variants exist', () => {
     const doc = parseOk('# マッチング\n## 検索中\n\n## 失敗\n');
     const out = toXState(doc);
     expect(out).toContain("initial: 'マッチング__検索中'");
@@ -59,13 +59,13 @@ describe('initial state', () => {
 // ───── state nodes ───────────────────────────────────────────────────
 
 describe('state nodes', () => {
-  it('component without variations generates one state', () => {
+  it('component without variants generates one state', () => {
     const doc = parseOk('# ログイン\n');
     const out = toXState(doc);
     expect(out).toContain("'ログイン':");
   });
 
-  it('variations generate flat states with double-underscore separator', () => {
+  it('variants generate flat states with double-underscore separator', () => {
     const doc = parseOk('# マッチング\n## 検索中\n\n## 失敗\n');
     const out = toXState(doc);
     expect(out).toContain("'マッチング__検索中':");
@@ -98,7 +98,7 @@ describe('goto transition', () => {
     expect(gotoBlock).not.toContain('assign');
   });
 
-  it('variation target uses __ separator', () => {
+  it('variant target uses __ separator', () => {
     const doc = parseOk(
       '# マッチング\n## 検索中\n> 相手が見つかった -> goto(対戦##開始)\n\n## 失敗\n\n# 対戦\n## 開始\n',
     );
@@ -106,7 +106,7 @@ describe('goto transition', () => {
     expect(out).toContain("target: '対戦__開始'");
   });
 
-  it('intra-component variation transition (##姿)', () => {
+  it('intra-component variant transition (##姿)', () => {
     const doc = parseOk('# フィルタ\n## 閉じた\n> 開く -> goto(##開いた)\n\n## 開いた\n');
     const out = toXState(doc);
     expect(out).toContain("target: 'フィルタ__開いた'");
@@ -224,7 +224,7 @@ describe('label inheritance', () => {
 // ───── shadow composition (記法 v2: 姿固有が共通を shadow) ────────────
 
 describe('shadow composition', () => {
-  it('variation-specific interaction shadows common interaction with same action', () => {
+  it('variant-specific interaction shadows common interaction with same action', () => {
     const doc = parseOk(
       '# A\n> タップ(設定) -> goto(共通行き先)\n## x\n\n## y\n> タップ(設定) -> goto(専用行き先)\n\n# 共通行き先\n\n# 専用行き先\n',
     );
@@ -241,7 +241,7 @@ describe('shadow composition', () => {
     expect(xBlock).toContain("target: '共通行き先'");
 
     // y overrides the common interaction (same action) — common is shadowed,
-    // so only the variation-specific target should appear for y's state node.
+    // so only the variant-specific target should appear for y's state node.
     expect(yBlock).toContain("target: '専用行き先'");
     expect(yBlock).not.toContain("target: '共通行き先'");
   });

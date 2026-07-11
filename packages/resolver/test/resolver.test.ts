@@ -11,10 +11,10 @@ describe('resolve', () => {
     expect(result.componentIndex.has('ログイン')).toBe(true);
   });
 
-  it('variationIndex: variation が登録される', () => {
+  it('variantIndex: variant が登録される', () => {
     const { document } = parse('# マッチング\n## 検索中\n案内\n## 失敗\n案内\n');
     const result = resolve(document);
-    const vars = result.variationIndex.get('マッチング');
+    const vars = result.variantIndex.get('マッチング');
     expect(vars?.has('検索中')).toBe(true);
     expect(vars?.has('失敗')).toBe(true);
   });
@@ -44,14 +44,14 @@ describe('resolve', () => {
     expect(firstEl.value).toMatchObject({ kind: 'ref', name: 'foo' });
   });
 
-  it('variation の alias も elementIndex に登録される', () => {
+  it('variant の alias も elementIndex に登録される', () => {
     const { document } = parse('# A\n## 姿1\ncontent: 本体\n');
     const result = resolve(document);
     const elems = result.elementIndex.get('A');
     expect(elems?.has('content')).toBe(true);
   });
 
-  it('common と variation で同名 alias は common が優先', () => {
+  it('common と variant で同名 alias は common が優先', () => {
     const { document } = parse('# A\nfoo: 共通\n## 姿1\nfoo: 固有\n');
     const result = resolve(document);
     const elems = result.elementIndex.get('A');
@@ -68,14 +68,14 @@ describe('bodyElementIndex', () => {
     expect(commonMap?.get('foo')?.value).toMatchObject({ kind: 'ref', name: '共通' });
   });
 
-  it('variation の alias は variation name キーで引ける', () => {
+  it('variant の alias は variant name キーで引ける', () => {
     const { document } = parse('# A\n## 姿1\ncontent: 本体\n');
     const result = resolve(document);
     const varMap = result.bodyElementIndex.get('A')?.get('姿1');
     expect(varMap?.get('content')?.value).toMatchObject({ kind: 'ref', name: '本体' });
   });
 
-  it('common と variation で同名 alias でもそれぞれ独立して引ける', () => {
+  it('common と variant で同名 alias でもそれぞれ独立して引ける', () => {
     const { document } = parse('# A\nfoo: 共通\n## 姿1\nfoo: 固有\n');
     const result = resolve(document);
     const commonFoo = result.bodyElementIndex.get('A')?.get(null)?.get('foo');

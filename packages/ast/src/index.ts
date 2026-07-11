@@ -26,11 +26,11 @@ export interface Import {
 export interface Component {
   name: string;
   common: Body;
-  variations: Variation[];
+  variants: Variant[];
   span: Span;
 }
 
-export interface Variation {
+export interface Variant {
   name: string;
   body: Body;
   span: Span;
@@ -105,8 +105,8 @@ export interface Effect {
 }
 
 export type NavTarget =
-  | { kind: 'component'; module: string | null; name: string; variation: string | null }
-  | { kind: 'variation'; name: string };
+  | { kind: 'component'; module: string | null; name: string; variant: string | null }
+  | { kind: 'variant'; name: string };
 
 export interface Session {
   name: string | null;

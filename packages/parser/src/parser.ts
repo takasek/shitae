@@ -5,7 +5,7 @@ import type {
   Document,
   Import,
   Component,
-  Variation,
+  Variant,
   Body,
   ElementLine,
   Ref,
@@ -46,10 +46,10 @@ interface ComponentBuilder {
   span: Span;
   commonElements: ElementLine[];
   commonInteractions: Interaction[];
-  variations: Variation[];
+  variants: Variant[];
 }
 
-interface VariationBuilder {
+interface VariantBuilder {
   name: string;
   span: Span;
   elements: ElementLine[];
@@ -70,7 +70,7 @@ export function parseDocument(source: string): { document: Document; diagnostics
   const components: Component[] = [];
 
   let componentBuilder: ComponentBuilder | null = null;
-  let variationBuilder: VariationBuilder | null = null;
+  let variantBuilder: VariantBuilder | null = null;
   let lastInteraction: Interaction | null = null;
   let seenFirstComponent = false;
 
@@ -79,37 +79,37 @@ export function parseDocument(source: string): { document: Document; diagnostics
     return { offset, length, line: startLine, col };
   }
 
-  function finalizeVariation(): void {
-    if (variationBuilder && !componentBuilder) {
+  function finalizeVariant(): void {
+    if (variantBuilder && !componentBuilder) {
       diagnostics.push({
         severity: 'error',
         code: 'E007',
-        message: `variation '${variationBuilder.name}' が component の外で定義されています`,
-        span: variationBuilder.span,
+        message: `variant '${variantBuilder.name}' が component の外で定義されています`,
+        span: variantBuilder.span,
       });
-      variationBuilder = null;
+      variantBuilder = null;
       return;
     }
-    if (variationBuilder && componentBuilder) {
-      const v: Variation = {
-        name: variationBuilder.name,
+    if (variantBuilder && componentBuilder) {
+      const v: Variant = {
+        name: variantBuilder.name,
         body: {
-          elements: variationBuilder.elements,
-          interactions: variationBuilder.interactions,
+          elements: variantBuilder.elements,
+          interactions: variantBuilder.interactions,
         },
-        span: variationBuilder.span,
+        span: variantBuilder.span,
       };
-      // Check duplicate variation
-      if (componentBuilder.variations.some((x) => x.name === v.name)) {
+      // Check duplicate variant
+      if (componentBuilder.variants.some((x) => x.name === v.name)) {
         diagnostics.push({
           severity: 'error',
           code: 'E006',
-          message: `重複した variation 定義: '${v.name}'`,
+          message: `重複した variant 定義: '${v.name}'`,
           span: v.span,
         });
       }
-      componentBuilder.variations.push(v);
-      variationBuilder = null;
+      componentBuilder.variants.push(v);
+      variantBuilder = null;
     }
   }
 
@@ -121,7 +121,7 @@ export function parseDocument(source: string): { document: Document; diagnostics
           elements: componentBuilder.commonElements,
           interactions: componentBuilder.commonInteractions,
         },
-        variations: componentBuilder.variations,
+        variants: componentBuilder.variants,
         span: componentBuilder.span,
       };
       // Check duplicate component
@@ -139,13 +139,13 @@ export function parseDocument(source: string): { document: Document; diagnostics
   }
 
   function currentElements(): ElementLine[] {
-    if (variationBuilder) return variationBuilder.elements;
+    if (variantBuilder) return variantBuilder.elements;
     if (componentBuilder) return componentBuilder.commonElements;
     return [];
   }
 
   function currentInteractions(): Interaction[] {
-    if (variationBuilder) return variationBuilder.interactions;
+    if (variantBuilder) return variantBuilder.interactions;
     if (componentBuilder) return componentBuilder.commonInteractions;
     return [];
   }
@@ -183,7 +183,7 @@ export function parseDocument(source: string): { document: Document; diagnostics
     // Component header: "# name"
     if (raw.startsWith('# ') || raw === '#') {
       checkEmptyResultList(lastInteraction);
-      finalizeVariation();
+      finalizeVariant();
       finalizeComponent();
       seenFirstComponent = true;
       const name = raw.slice(2).trim();
@@ -201,19 +201,19 @@ export function parseDocument(source: string): { document: Document; diagnostics
         span,
         commonElements: [],
         commonInteractions: [],
-        variations: [],
+        variants: [],
       };
-      variationBuilder = null;
+      variantBuilder = null;
       lastInteraction = null;
       continue;
     }
 
-    // Variation header: "## name"
+    // Variant header: "## name"
     if (raw.startsWith('## ') || raw === '##') {
       checkEmptyResultList(lastInteraction);
-      finalizeVariation();
+      finalizeVariant();
       const name = raw.slice(3).trim();
-      variationBuilder = {
+      variantBuilder = {
         name,
         span,
         elements: [],
@@ -239,7 +239,7 @@ export function parseDocument(source: string): { document: Document; diagnostics
       continue;
     }
 
-    // Lines within a component/variation
+    // Lines within a component/variant
     if (!componentBuilder) {
       // Outside any component — ignore (or could warn)
       continue;
@@ -289,9 +289,9 @@ export function parseDocument(source: string): { document: Document; diagnostics
     }
   }
 
-  // Finalize last component/variation
+  // Finalize last component/variant
   checkEmptyResultList(lastInteraction);
-  finalizeVariation();
+  finalizeVariant();
   finalizeComponent();
 
   return {
@@ -715,10 +715,10 @@ function parseNavTarget(
 ): NavTarget {
   const t = text.trim();
 
-  // "##variation" — same-component variation
+  // "##variant" — same-component variant
   if (t.startsWith('##')) {
     const name = t.slice(2).trim();
-    return { kind: 'variation', name };
+    return { kind: 'variant', name };
   }
 
   // Check for module:: prefix
@@ -730,18 +730,18 @@ function parseNavTarget(
     rest = t.slice(dcIdx + 2).trim();
   }
 
-  // Check for ##variation suffix
+  // Check for ##variant suffix
   const hashIdx = rest.indexOf('##');
   let name: string;
-  let variation: string | null = null;
+  let variant: string | null = null;
   if (hashIdx !== -1) {
     name = rest.slice(0, hashIdx).trim();
-    variation = rest.slice(hashIdx + 2).trim();
+    variant = rest.slice(hashIdx + 2).trim();
   } else {
     name = rest;
   }
 
-  return { kind: 'component', module, name, variation };
+  return { kind: 'component', module, name, variant };
 }
 
 // ---------------------------------------------------------------------------
