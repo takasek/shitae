@@ -9,6 +9,7 @@ SPEC の概念語（姿・壁 等）が日本語固有で、日本語圏外に�
 - **対象**: 概念語のみ。構文記号・遷移語（push/back/goto/exit/present/dismiss/switch）・文法は不変。
 - **SPEC 本文は日本語のまま**、術語だけ英語に置換する。
 - 対象ファイル: `docs/SPEC.md`、`docs/AI_GUIDE.md`、`.claude/skills/shitae-authoring`（スキル本文）、`docs/example-*.shitae`（コメント内の術語）。
+- **`docs/GLOSSARY.md` を新設**: 全概念語の正準名・記号・定義・旧称の対応を一覧化し、`.claude/CLAUDE.md` の入口に加える。
 - parser 実装のリネーム（variation → variant 等の型名・テスト名）は**別判断・スコープ外**。
 
 ## 語彙対応表
