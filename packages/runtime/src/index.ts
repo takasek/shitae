@@ -189,15 +189,21 @@ export function reduce(state: RuntimeState, transition: Transition): ReduceResul
         }
         return { state: { frames: frames.slice(0, -1) }, diagnostics: diags };
       } else {
-        // back(X) — 明示先まで pop（壁を越えてよい）
+        // back(X) — 明示先まで pop。ADR-0001: barrier は越えられない。
+        // 末尾から targetComponent を探しつつ、target に当たる前に wall に阻まれたら no-op。
         const targetLoc = navTargetToLocation(target, current);
-        // 末尾から targetComponent を探す
         for (let i = frames.length - 1; i >= 0; i--) {
-          if (frames[i]!.location.component === targetLoc.component) {
+          const f = frames[i]!;
+          if (f.location.component === targetLoc.component) {
             return { state: { frames: frames.slice(0, i + 1) }, diagnostics: diags };
           }
+          if (f.wall) {
+            // target に届く前に barrier に当たった → 越えられず no-op
+            diags.push(warn('R003', `back(${targetLoc.component}) が壁に阻まれ no-op`, span));
+            return { state, diagnostics: diags };
+          }
         }
-        // 見つからない → R004
+        // barrier に阻まれずスタック全体を探しても見つからない → R004
         diags.push(warn('R004', `back 対象 "${targetLoc.component}" がスタックに不在`, span));
         return { state, diagnostics: diags };
       }

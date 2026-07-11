@@ -156,6 +156,30 @@ describe('reduce: back(X) 指定先まで戻る', () => {
     // 状態は変化しない
     expect(s1.frames).toHaveLength(s.frames.length);
   });
+
+  // ADR-0001: back(X) も barrier で停止する（壁を越えて畳めるのは exit/dismiss のみ）
+  it('back(X) は barrier を越えられず no-op + R003 相当の警告（barrier の外側に対象があっても）', () => {
+    // オラクル Q4: push(A); present(B); push(C); back(ホーム)
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('push', navComp('A'))));
+    ({ state: s } = reduce(s, tr('present', navComp('B'))));
+    ({ state: s } = reduce(s, tr('push', navComp('C'))));
+    const { state: s1, diagnostics } = reduce(s, tr('back', navComp('ホーム')));
+    expect(diagnostics.some(d => d.code === 'R003')).toBe(true);
+    // 状態は変化しない（barrier に阻まれ no-op）
+    expect(s1.frames).toHaveLength(s.frames.length);
+    expect(s1.frames[s1.frames.length - 1]!.location.component).toBe('C');
+  });
+
+  it('back(X) は barrier を持つフレーム自身なら指定できる（barrier を越えなければよい）', () => {
+    let s = initialState(loc('ホーム'));
+    ({ state: s } = reduce(s, tr('push', navComp('A'))));
+    ({ state: s } = reduce(s, tr('present', navComp('B'))));
+    const { state: s1, diagnostics } = reduce(s, tr('back', navComp('B')));
+    expect(diagnostics.some(d => d.code === 'R003')).toBe(false);
+    expect(s1.frames).toHaveLength(3); // ホーム/A/B のまま
+    expect(s1.frames[2]!.location.component).toBe('B');
+  });
 });
 
 // ──────────────────────────────────────────────────
