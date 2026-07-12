@@ -11,7 +11,7 @@ SPEC は `show(X##v)` の variant 指定を規定するが、(1) 実装（runtim
 
 1. オーバーレイ集合のエントリは **(component 名, 表示 variant)**。ID は従来どおり component 名（多重掲示なし）。
 2. 掲示中の component への再 `show(X##v)` は表示 variant を **v に上書き**する（hide を経由しない）。
-3. `show(X)`（variant 省略）は **X の initial variant** で掲示する。既に掲示中なら表示 variant を initial に上書きする（規則 2 の適用）。
+3. `show(X)`（variant 省略）は **X の initial variant** で掲示する。既に掲示中なら表示 variant を initial に上書きする（規則 2 の適用）。**X が singleton（ADR-0011）の場合はこの規則を適用せず**、共有 variant の現在値を表示する（エントリは共有レジストリへの参照）。
 4. 掲示中 component の variant 変更の正攻法は**自己再 show**（`> タップ(一時停止) -> show(ミニプレイヤー##一時停止)`）。overlay の interaction 内の裸 `##v` は ADR-0007 によりアクティブ画面に解決されるため、この用途には使えない。
 5. 掲示中に有効な interaction は**表示中 variant の実効 body（共通＋固有）のもの**（フレーム上の component と同じ規則）。
 
