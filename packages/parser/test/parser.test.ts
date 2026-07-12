@@ -591,6 +591,49 @@ describe('collection reference (対称参照)', () => {
 });
 
 // ---------------------------------------------------------------------------
+// 4e. 記号の name 混入の施行（E024 / E025 / E026 / W104。ADR-0012）
+// ---------------------------------------------------------------------------
+describe('symbol-in-name enforcement (E024/E025/E026/W104)', () => {
+  it('E024: overlay 引数に * を書くとエラー（show(*X)）', () => {
+    const { diagnostics } = parseDoc('# A\n> 通知 -> show(*トースト)');
+    const e024 = diagnostics.filter((d) => d.code === 'E024');
+    expect(e024.length).toBeGreaterThan(0);
+    expect(e024[0].severity).toBe('error');
+  });
+
+  it('E024: hide(*X) もエラー', () => {
+    const { diagnostics } = parseDoc('# A\n> 消す -> hide(*バナー)');
+    expect(diagnostics.filter((d) => d.code === 'E024').length).toBeGreaterThan(0);
+  });
+
+  it('E025: 要素行の参照末尾に ? を書くとエラー', () => {
+    const { diagnostics } = parseDoc('# A\nストーリー?');
+    const e025 = diagnostics.filter((d) => d.code === 'E025');
+    expect(e025.length).toBeGreaterThan(0);
+    expect(e025[0].severity).toBe('error');
+  });
+
+  it('E025: 行動対象の ? は正常（presence gate、E025 は出ない）', () => {
+    const { diagnostics } = parseDoc('# A\n> タップ(枠?) -> push(次)\n\n# 次\nx');
+    expect(diagnostics.filter((d) => d.code === 'E025')).toHaveLength(0);
+  });
+
+  it('E026: 空の対象参照 行動() はエラー', () => {
+    const { diagnostics } = parseDoc('# A\n> タップ() -> push(次)\n\n# 次\nx');
+    const e026 = diagnostics.filter((d) => d.code === 'E026');
+    expect(e026.length).toBeGreaterThan(0);
+    expect(e026[0].severity).toBe('error');
+  });
+
+  it('W104: [ で始まる要素名は警告', () => {
+    const { diagnostics } = parseDoc('# A\n[いいね通知] 対象のサムネイル');
+    const w104 = diagnostics.filter((d) => d.code === 'W104');
+    expect(w104.length).toBeGreaterThan(0);
+    expect(w104[0].severity).toBe('warning');
+  });
+});
+
+// ---------------------------------------------------------------------------
 // 5. NavTarget
 // ---------------------------------------------------------------------------
 describe('nav-target', () => {

@@ -429,6 +429,31 @@ function parseElementLine(
     valueText = text;
   }
 
+  // E025: 要素行の参照末尾の "?"（presence gate は行動対象専用。要素には書けない）。
+  // inline（"{" 始まり）は対象外。
+  if (!valueText.startsWith('{') && valueText.endsWith('?')) {
+    diagnostics.push({
+      severity: 'error',
+      code: 'E025',
+      message:
+        '要素行の参照に ? は書けません（presence gate は行動対象専用。「操作は variant に属する」参照）',
+      span,
+    });
+    valueText = valueText.slice(0, -1).trim();
+  }
+
+  // W104: 要素名が condition label 風の "[...]" で始まる（条件付き要素の意図なら
+  // variant で分けるか自然文で注記。「未定・分岐」参照）。
+  if (valueText.startsWith('[')) {
+    diagnostics.push({
+      severity: 'warning',
+      code: 'W104',
+      message:
+        '要素名が [ で始まっています（条件付き要素の意図なら variant で分けるか自然文で注記してください。「未定・分岐」参照）',
+      span,
+    });
+  }
+
   // Parse value: inline or ref
   const value = parseElementValue(valueText, span, lineOffsets, diagnostics, inlineDepth);
   if (!value) return null;
@@ -625,6 +650,17 @@ function parseAction(
   // Find matching close paren
   const closeIdx = findCloseParen(parenContent);
   const refText = closeIdx === -1 ? parenContent : parenContent.slice(0, closeIdx);
+
+  // E026: 空の対象参照 行動()（対象なしは括弧ごと省略する）。
+  if (refText.trim() === '') {
+    diagnostics.push({
+      severity: 'error',
+      code: 'E026',
+      message: '対象参照が空です（行動()。対象を取らないなら括弧ごと省略してください。「行動」参照）',
+      span,
+    });
+    return { text: actionText, target: null, span };
+  }
 
   const target = parseReference(refText.trim(), span, diagnostics);
   return { text: actionText, target, span };
@@ -903,6 +939,17 @@ function parseOverlayTarget(
   diagnostics: Diagnostic[]
 ): OverlayTarget {
   let t = text.trim();
+
+  // E024: overlay の掲示対象は component 1 つ。先頭 "*"（collection 全体参照）は書けない。
+  if (t.startsWith('*')) {
+    diagnostics.push({
+      severity: 'error',
+      code: 'E024',
+      message: 'overlay の引数に * は書けません（掲示対象は component 1 つ。「オーバーレイ」参照）',
+      span,
+    });
+    t = t.slice(1).trim();
+  }
 
   let module: string | null = null;
   const dcIdx = t.indexOf('::');
