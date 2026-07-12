@@ -129,11 +129,18 @@ export function mergeInteractions(
   common: Interaction[],
   specific: Interaction[],
 ): Interaction[] {
-  // Helper: check if two references are equal (ignoring existsGated)
+  // Helper: check if two references are equal.
+  // existsGated（?）は含めない（ADR-0006 B6）。collection（*）は含める——
+  // *手札（全体）と 手札（1 インスタンス）は別対象（ADR-0010）。
   const referencesEqual = (a: Reference | null, b: Reference | null): boolean => {
     if (a === null && b === null) return true;
     if (a === null || b === null) return false;
-    return a.module === b.module && a.name === b.name && a.member === b.member;
+    return (
+      a.module === b.module &&
+      a.name === b.name &&
+      a.member === b.member &&
+      a.collection === b.collection
+    );
   };
 
   // Helper: check if two interactions shadow each other.

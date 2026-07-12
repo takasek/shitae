@@ -236,6 +236,16 @@ describe('mergeInteractions', () => {
     expect(merged[0].results[0].body).toMatchObject({ word: 'goto' });
   });
 
+  it('collection (*) differs → NOT shadowed, both remain（ADR-0010）', () => {
+    // *手札（collection 全体）と 手札（1 インスタンス）は別対象参照
+    const { document: commonDoc } = parse('# A\n*手札\n> スクロール(*手札) -> 続きを読む');
+    const { document: specDoc } = parse('# A\n*手札\n> スクロール(手札) -> push(詳細)');
+    const common = commonDoc.components[0].common.interactions;
+    const specific = specDoc.components[0].common.interactions;
+    const merged = mergeInteractions(common, specific);
+    expect(merged).toHaveLength(2);
+  });
+
   it('common-only interactions with no matching specific → all pass through', () => {
     const { document: commonDoc } = parse('# A\n> タップ -> back()\n> 長押し -> goto(B)');
     const { document: specDoc } = parse('# A\n> スワイプ -> exit()');
