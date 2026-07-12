@@ -672,6 +672,20 @@ describe('reference', () => {
     const ref = document.components[0].common.interactions[0].action.target!;
     expect(ref.name).toBe('戻る');
   });
+
+  it('quoted な component 定義名は quote を剥いだ正準値になる', () => {
+    const { document } = parseDoc('# "保存 画面"\n本文');
+    expect(document.components[0].name).toBe('保存 画面');
+  });
+
+  it('quoted な variant 定義名は quote を剥いだ正準値になり、参照側と一致する', () => {
+    const { document } = parseDoc('# 再生速度\n## "1.5x"\n表示\n> タップ -> goto(##"1.5x")');
+    expect(document.components[0].variants[0].name).toBe('1.5x');
+    const tr = document.components[0].variants[0].body.interactions[0].results[0].body as {
+      target: { name: string };
+    };
+    expect(tr.target.name).toBe('1.5x');
+  });
 });
 
 // ---------------------------------------------------------------------------

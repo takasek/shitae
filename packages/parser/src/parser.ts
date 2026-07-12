@@ -209,7 +209,7 @@ export function parseDocument(source: string): { document: Document; diagnostics
       finalizeVariant();
       finalizeComponent();
       seenFirstComponent = true;
-      const name = raw.slice(2).trim();
+      const name = stripQuotes(raw.slice(2).trim());
       if (name === '') {
         diagnostics.push({
           severity: 'error',
@@ -235,7 +235,7 @@ export function parseDocument(source: string): { document: Document; diagnostics
     if (raw.startsWith('## ') || raw === '##') {
       checkEmptyResultList(lastInteraction);
       finalizeVariant();
-      const name = raw.slice(3).trim();
+      const name = stripQuotes(raw.slice(3).trim());
       variantBuilder = {
         name,
         span,
