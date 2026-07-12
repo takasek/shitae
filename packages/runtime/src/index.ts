@@ -47,8 +47,9 @@ export interface RuntimeState {
   frames: Frame[];
   activeFrameId: number;
   nextFrameId: number;
-  /** 掲示中の component 名の集合（SPEC「オーバーレイ」。フレーム木の走査対象には入らない） */
-  overlays: ReadonlySet<string>;
+  /** 掲示中 component → 表示 variant（null は initial の含意）。SPEC「オーバーレイ」ADR-0009。
+   *  フレーム木の走査対象には入らない。エントリは (component, variant) */
+  overlays: ReadonlyMap<string, string | null>;
 }
 
 export interface ReduceResult {
@@ -74,8 +75,13 @@ export function initialState(entry: Location): RuntimeState {
     frames: [root],
     activeFrameId: 0,
     nextFrameId: 1,
-    overlays: new Set(),
+    overlays: new Map(),
   };
+}
+
+/** 掲示中 component の表示 variant を返す（未掲示なら null。SPEC「オーバーレイ」ADR-0009） */
+export function overlayVariant(state: RuntimeState, name: string): string | null {
+  return state.overlays.get(name) ?? null;
 }
 
 /** 便宜ヘルパ: Document の最初の component をエントリとする Location を返す。
@@ -254,6 +260,23 @@ function closeSession(
   return { state, diagnostics: diags };
 }
 
+/**
+ * switch でフレームを新規作成するときの親フレーム ID を決める（ADR-0008 補正）。
+ * 現在フレームから祖先方向に辿り、最初に見つかった switch 製 or present 製フレームを基準に:
+ * - switch 製 → その兄弟（= その親の子）
+ * - present 製（タブ群 anchor）→ その子
+ * - どちらも無ければ現在フレームの子。
+ */
+function switchParentId(state: RuntimeState, cur: Frame): number {
+  let f: Frame | null = cur;
+  while (f !== null) {
+    if (f.origin === 'switch') return f.parentId!;
+    if (f.origin === 'present') return f.id;
+    f = f.parentId !== null ? getFrame(state, f.parentId) : null;
+  }
+  return cur.id;
+}
+
 // ──────────────────────────────────────────────────
 // reduce — フレーム木マシン
 // ──────────────────────────────────────────────────
@@ -268,15 +291,16 @@ export function reduce(state: RuntimeState, action: Transition | Overlay): Reduc
 function reduceOverlay(state: RuntimeState, overlay: Overlay): ReduceResult {
   const name = overlay.target.name;
   if (overlay.verb === 'show') {
-    const overlays = new Set(state.overlays);
-    overlays.add(name);
+    // 掲示 / 再掲示とも表示 variant を上書き（ADR-0009。省略時は null = initial の含意）
+    const overlays = new Map(state.overlays);
+    overlays.set(name, overlay.target.variant ?? null);
     return { state: { ...state, overlays }, diagnostics: [] };
   }
   // hide
   if (!state.overlays.has(name)) {
     return { state, diagnostics: [] };
   }
-  const overlays = new Set(state.overlays);
+  const overlays = new Map(state.overlays);
   overlays.delete(name);
   return { state: { ...state, overlays }, diagnostics: [] };
 }
@@ -396,11 +420,13 @@ function reduceTransition(state: RuntimeState, transition: Transition): ReduceRe
         const resumeFrame = candidates.reduce((a, b) => (b.id > a.id ? b : a));
         return { state: { ...state, activeFrameId: resumeFrame.id }, diagnostics: diags };
       }
-      // create: 兄弟規則（現在フレームが switch 製なら兄弟、でなければ子）
+      // create: 兄弟規則（ADR-0008 補正）。祖先方向に最も近い switch 製 or present 製
+      // （タブ群 anchor）を基準に親を決める: switch 製ならその兄弟、present 製ならその子、
+      // どちらも無ければ現在フレームの子。
       if (!target) return { state, diagnostics: diags };
       const loc = navTargetToLocation(target, current);
       const cur = activeFrame(state);
-      const parentId = cur.origin === 'switch' ? cur.parentId! : cur.id;
+      const parentId = switchParentId(state, cur);
       const child: Frame = {
         id: state.nextFrameId,
         parentId,

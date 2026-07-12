@@ -7,6 +7,7 @@ import {
   reduce,
   activeLocation,
   activeFrame,
+  overlayVariant,
 } from '../src/index.js';
 import type { Transition, Overlay, NavTarget, Span } from '@shitae/ast';
 
@@ -425,6 +426,25 @@ describe('T1: タブ慣用句（present anchor + switch 兄弟）', () => {
     expect(activeLocation(s1)).toEqual(loc('検索'));
     expect(childrenOf(s1, f1).map((f) => f.id).sort()).toEqual([f2, f3].sort());
   });
+
+  // ADR-0008 補正: タブ内 push の中から switch しても、新タブは push フレームの
+  // 子ではなく anchor(present) の子になり、exit(@reading) の道連れにならない。
+  it('present anchor 直下で push してから switch — 新タブは anchor の子（道連れ回避）', () => {
+    let s = initialState(loc('起動'));
+    ({ state: s } = reduce(s, tr('present', navComp('ホーム'), { name: 'tabHome' })));
+    const anchor = s.activeFrameId;
+    ({ state: s } = reduce(s, tr('push', navComp('記事'), { name: 'reading' })));
+    ({ state: s } = reduce(s, tr('switch', navComp('検索'), { name: 'tabSearch' })));
+    const search = s.activeFrameId;
+    // 検索は記事(push)ではなく anchor(present ホーム)の子
+    expect(frameById(s, search).parentId).toBe(anchor);
+
+    // exit(@reading): 記事だけ消え、検索タブは生存
+    ({ state: s } = reduce(s, tr('exit', undefined, { name: 'reading' })));
+    expect(s.frames.some((f) => f.beginsSession?.name === 'tabSearch')).toBe(true);
+    expect(s.frames.some((f) => f.beginsSession?.name === 'reading')).toBe(false);
+    expect(activeLocation(s)).toEqual(loc('検索'));
+  });
 });
 
 describe('T2: 兄弟規則（switch 製から switch は兄弟）', () => {
@@ -615,6 +635,29 @@ describe('reduce: overlay show/hide', () => {
     const { state: s1 } = reduce(s0, ov('show', 'ミニプレイヤー'));
     expect(s1.frames).toEqual(s0.frames);
     expect(s1.activeFrameId).toBe(s0.activeFrameId);
+  });
+
+  // ADR-0009: エントリは (component, 表示 variant)
+  it('show(X##v) は表示 variant を保持する', () => {
+    const { state } = reduce(initialState(loc('プレイヤー')), ov('show', 'ミニプレイヤー', '再生中'));
+    expect(overlayVariant(state, 'ミニプレイヤー')).toBe('再生中');
+  });
+
+  it('掲示中の再 show(X##v2) は表示 variant を上書きする（集合サイズは 1）', () => {
+    let s = initialState(loc('プレイヤー'));
+    ({ state: s } = reduce(s, ov('show', 'ミニプレイヤー', '再生中')));
+    ({ state: s } = reduce(s, ov('show', 'ミニプレイヤー', '一時停止')));
+    expect(overlayVariant(s, 'ミニプレイヤー')).toBe('一時停止');
+    expect(s.overlays.size).toBe(1);
+  });
+
+  it('show(X)（variant 省略）の表示 variant は null（initial の含意）', () => {
+    const { state } = reduce(initialState(loc('プレイヤー')), ov('show', 'ミニプレイヤー'));
+    expect(overlayVariant(state, 'ミニプレイヤー')).toBe(null);
+  });
+
+  it('未掲示 component の overlayVariant は null', () => {
+    expect(overlayVariant(initialState(loc('プレイヤー')), '未掲示')).toBe(null);
   });
 });
 
