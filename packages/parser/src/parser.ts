@@ -60,6 +60,7 @@ function stripQuotes(s: string): string {
 // ---------------------------------------------------------------------------
 interface ComponentBuilder {
   name: string;
+  singleton: boolean;
   span: Span;
   commonElements: ElementLine[];
   commonInteractions: Interaction[];
@@ -138,6 +139,7 @@ export function parseDocument(source: string): { document: Document; diagnostics
     if (componentBuilder) {
       const c: Component = {
         name: componentBuilder.name,
+        singleton: componentBuilder.singleton,
         common: {
           elements: componentBuilder.commonElements,
           interactions: componentBuilder.commonInteractions,
@@ -203,13 +205,14 @@ export function parseDocument(source: string): { document: Document; diagnostics
       continue;
     }
 
-    // Component header: "# name"
-    if (raw.startsWith('# ') || raw === '#') {
+    // Component header: "# name" / singleton "#! name"
+    const isSingletonHeader = raw.startsWith('#! ') || raw === '#!';
+    if (isSingletonHeader || raw.startsWith('# ') || raw === '#') {
       checkEmptyResultList(lastInteraction);
       finalizeVariant();
       finalizeComponent();
       seenFirstComponent = true;
-      const name = stripQuotes(raw.slice(2).trim());
+      const name = stripQuotes(raw.slice(isSingletonHeader ? 3 : 2).trim());
       if (name === '') {
         diagnostics.push({
           severity: 'error',
@@ -221,6 +224,7 @@ export function parseDocument(source: string): { document: Document; diagnostics
       }
       componentBuilder = {
         name,
+        singleton: isSingletonHeader,
         span,
         commonElements: [],
         commonInteractions: [],
@@ -326,6 +330,23 @@ export function parseDocument(source: string): { document: Document; diagnostics
   checkEmptyResultList(lastInteraction);
   finalizeVariant();
   finalizeComponent();
+
+  // E022: document common には母体 component が無いため、遷移先に裸 ##variant を
+  // 書けない（component##variant を要求。SPEC「document common」）。
+  for (const interaction of documentCommonInteractions) {
+    for (const result of interaction.results) {
+      const body = result.body;
+      if (body.kind === 'transition' && body.target?.kind === 'variant') {
+        diagnostics.push({
+          severity: 'error',
+          code: 'E022',
+          message:
+            'document common に裸の ##variant は書けません（母体 component がありません。component##variant の形で書いてください。「document common」参照）',
+          span: body.span,
+        });
+      }
+    }
+  }
 
   // E018: component を 1 つも持たない文書は不正（エントリポイントが定まらない。
   // 「initial variant とエントリポイント」参照）。
@@ -775,6 +796,20 @@ function extractArgsText(text: string, word: string): string {
   return closeIdx !== -1 ? afterWord.slice(1, closeIdx + 1) : afterWord.slice(1);
 }
 
+/** フレーム新規作成系の nav-target に裸 ##variant を書いた場合の E023（ADR-0007） */
+function checkBareVariantFrameCreation(
+  word: string,
+  span: Span,
+  diagnostics: Diagnostic[]
+): void {
+  diagnostics.push({
+    severity: 'error',
+    code: 'E023',
+    message: `${word}() の遷移先に裸の ##variant は書けません（フレーム新規作成で variant 切替は想定外。component##variant か goto を使ってください。「variant の参照は必ず ##」参照）`,
+    span,
+  });
+}
+
 // ---------------------------------------------------------------------------
 // parseTransition
 // ---------------------------------------------------------------------------
@@ -791,6 +826,10 @@ function parseTransition(
     case 'present': {
       const target = args[0] ? parseNavTarget(args[0].trim(), span, diagnostics) : null;
       const session = args[1] ? parseSession(args[1].trim(), span, diagnostics) : null;
+      // フレーム新規作成（present は常に、push は session あり）に裸 ##variant は書けない（E023, ADR-0007）
+      if (target?.kind === 'variant' && (word === 'present' || session)) {
+        checkBareVariantFrameCreation(word, span, diagnostics);
+      }
       return { kind: 'transition', word, target, session, span };
     }
     case 'goto': {
@@ -822,6 +861,9 @@ function parseTransition(
       // switch-nav = "switch" "(" nav-target "," session ")" — session はセッション
       // 辞書のキーとなるため省略不可（SPEC「文法（EBNF 風）」）。省略は E019。
       const target = args[0] ? parseNavTarget(args[0].trim(), span, diagnostics) : null;
+      if (target?.kind === 'variant') {
+        checkBareVariantFrameCreation('switch', span, diagnostics);
+      }
       if (!args[1] || args[1].trim() === '') {
         diagnostics.push({
           severity: 'error',

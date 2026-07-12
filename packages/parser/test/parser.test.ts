@@ -103,6 +103,30 @@ describe('component / variant / section', () => {
 });
 
 // ---------------------------------------------------------------------------
+// 1a2. singleton component（#!）
+// ---------------------------------------------------------------------------
+describe('singleton component (#!)', () => {
+  it('#! で宣言した component は singleton = true', () => {
+    const { document, diagnostics } = parseDoc('#! クーポン\n## 未受取\nx\n## 受取済\ny');
+    const c = getComponent(document, 'クーポン');
+    expect(c.singleton).toBe(true);
+    expect(c.variants).toHaveLength(2);
+    expect(diagnostics.filter((d) => d.severity === 'error')).toHaveLength(0);
+  });
+
+  it('通常の # で宣言した component は singleton = false', () => {
+    const { document } = parseDoc('# ホーム\nx');
+    expect(getComponent(document, 'ホーム').singleton).toBe(false);
+  });
+
+  it('#! の名前も quote を剥いだ正準値になる', () => {
+    const { document } = parseDoc('#! "再生 速度"\nx');
+    expect(document.components[0].name).toBe('再生 速度');
+    expect(document.components[0].singleton).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // 1b. document common（最初の "#" より前）
 // ---------------------------------------------------------------------------
 describe('document common', () => {

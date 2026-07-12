@@ -27,6 +27,8 @@ export interface Import {
 
 export interface Component {
   name: string;
+  /** "#!" 宣言なら true（document 内で単一インスタンス。variant 状態を共有。SPEC「singleton component」） */
+  singleton: boolean;
   common: Body;
   variants: Variant[];
   span: Span;
