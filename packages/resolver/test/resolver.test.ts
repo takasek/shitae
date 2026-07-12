@@ -216,6 +216,16 @@ describe('mergeInteractions', () => {
     expect(merged).toHaveLength(2);
   });
 
+  it('whitespace folding: 行動文字列の連続空白は畳んで比較 → shadow される', () => {
+    const { document: commonDoc } = parse('# A\nX\n> ダブル タップ(X) -> back()');
+    const { document: specDoc } = parse('# A\nX\n> ダブル  タップ(X) -> goto(B)');
+    const common = commonDoc.components[0].common.interactions;
+    const specific = specDoc.components[0].common.interactions;
+    const merged = mergeInteractions(common, specific);
+    expect(merged).toHaveLength(1);
+    expect(merged[0].results[0].body).toMatchObject({ word: 'goto' });
+  });
+
   it('existsGated differs but reference otherwise equal → still shadows', () => {
     const { document: commonDoc } = parse('# A\nX\n> タップ(X) -> back()');
     const { document: specDoc } = parse('# A\nX\n> タップ(X?) -> goto(B)');

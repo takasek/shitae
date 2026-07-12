@@ -136,10 +136,12 @@ export function mergeInteractions(
     return a.module === b.module && a.name === b.name && a.member === b.member;
   };
 
-  // Helper: check if two interactions shadow each other
+  // Helper: check if two interactions shadow each other.
+  // 行動文字列は字句正規化後（空白の畳み込み）で比較する（SPEC「操作は variant に属する」の完全一致基準）
+  const normalizeActionText = (text: string): string => text.replace(/\s+/g, ' ').trim();
   const actionMatches = (act1: Action, act2: Action): boolean => {
     return (
-      act1.text === act2.text &&
+      normalizeActionText(act1.text) === normalizeActionText(act2.text) &&
       referencesEqual(act1.target, act2.target)
     );
   };
