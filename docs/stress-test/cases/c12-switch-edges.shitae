@@ -1,0 +1,24 @@
+// r2: switch の構文境界 — タブ慣用句・push フレーム内からの switch・##variant target
+# 起動
+> 起動 -> present(ホーム, @tabHome)
+
+# ホーム
+タブバー
+> タップ(タブバー.検索) -> switch(検索, @tabSearch)
+> タップ(タブバー.ホーム) -> switch(ホーム, @tabHome)
+> 開く(記事) -> push(記事, @reading)
+> ログアウト -> exit(@tabHome)
+
+# 検索
+検索窓
+> タップ(タブバー.ホーム) -> switch(ホーム, @tabHome)
+
+# 記事
+本文
+> タップ(タブバー.検索) -> switch(検索, @tabSearch)
+> 完了 -> exit(@reading)
+> 姿へ -> switch(##展開, @weird)
+## 通常
+折りたたみ
+## 展開
+全文

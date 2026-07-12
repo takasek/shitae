@@ -1,0 +1,6 @@
+// r2: E017 同名 alias の再 import
+import c07-import-edges-b as lib
+import c07-import-edges-b as lib
+
+# ホーム
+> タップ(開く) -> push(lib::サブ画面)

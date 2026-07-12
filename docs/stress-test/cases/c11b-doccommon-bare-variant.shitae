@@ -1,0 +1,8 @@
+// r2: document common からの裸 ##variant は禁止（SPEC「document common」）— 診断が出るか
+> ログアウト -> goto(##初期)
+
+# ホーム
+## 初期
+ようこそ
+## ログイン済
+ダッシュボード
