@@ -59,11 +59,36 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
 const DATA = ${json};
 const app = document.getElementById('app');
 const toastEl = document.getElementById('toast');
+const SINGLETONS = new Set(DATA.singletons); // document 内で単一インスタンス（SPEC「singleton component」ADR-0011）
 
 // 姿指定なしで component に入ったら、最初に定義された姿を初期姿として扱う
 function initialVariant(module, component) {
   const comp = DATA.modules[module]?.components[component];
   return comp?.initialVariant ?? null;
+}
+
+// singleton の共有 variant レジストリ（component 名 → 現在 variant）。
+// フレームスタック・overlays に置かれた singleton はスナップショットでなくここへの参照を見る（ADR-0011）。
+let sharedVariants = new Map();
+
+// push/present/goto/switch の行き先 variant を解決する。singleton は共有レジストリが優先し、
+// 明示 X##v はレジストリを書き換える（全所在に即時反映）。variant 省略時は「初回は initial、
+// 以降は最後に遷移した variant」（レジストリ未登録なら initial）。
+function resolveEntryVariant(target) {
+  if (SINGLETONS.has(target.component)) {
+    if (target.variant != null) sharedVariants.set(target.component, target.variant);
+    return sharedVariants.has(target.component) ? sharedVariants.get(target.component) : initialVariant(target.module, target.component);
+  }
+  return target.variant ?? initialVariant(target.module, target.component);
+}
+
+// フレームの表示 variant。singleton は frame.variant（積んだ時点の値）を無視し、
+// 常に共有レジストリの現在値を見る（スナップショット禁止。ADR-0011）。
+function displayVariant(frame) {
+  if (SINGLETONS.has(frame.component)) {
+    return sharedVariants.has(frame.component) ? sharedVariants.get(frame.component) : initialVariant(frame.module, frame.component);
+  }
+  return frame.variant;
 }
 
 // ── stack frame: { module, component, variant, wall, sessionName }
@@ -91,6 +116,10 @@ function currentFrame() {
 function overlayVariant(name) {
   const entry = overlays.get(name);
   if (!entry) return null;
+  // singleton は再 show の「省略時 initial 上書き」規則が適用されない——常に共有レジストリを見る（SPEC「オーバーレイ」）
+  if (SINGLETONS.has(name)) {
+    return sharedVariants.has(name) ? sharedVariants.get(name) : initialVariant(entry.module, name);
+  }
   if (entry.variant != null) return entry.variant;
   return initialVariant(entry.module, name);
 }
@@ -110,7 +139,8 @@ function currentInteractions() {
   const comp = getComp(frame.module, frame.component);
   if (!comp) return [];
   // 姿の interactions は抽出時に mergeInteractions(共通, 姿固有) 済み（shadow 合成）
-  if (frame.variant) return comp.variants[frame.variant]?.interactions ?? [];
+  const variant = displayVariant(frame);
+  if (variant) return comp.variants[variant]?.interactions ?? [];
   return comp.commonInteractions;
 }
 
@@ -143,6 +173,10 @@ function applyTransition(result) {
     // module 省略時はアクティブフレームの module で解決（push/goto の相対解決と同じ規約）。
     if (result.op === 'show') {
       const mod = result.module ?? frame.module;
+      // 明示 show(X##v) は singleton の共有レジストリも書き換える（全所在に即時反映。ADR-0011）
+      if (result.variant != null && SINGLETONS.has(result.component)) {
+        sharedVariants.set(result.component, result.variant);
+      }
       overlays.set(result.component, { variant: result.variant, module: mod });
     } else {
       overlays.delete(result.component);
@@ -155,7 +189,7 @@ function applyTransition(result) {
 
   if (word === 'push' || word === 'present') {
     if (!target) return;
-    const variant = target.variant ?? initialVariant(target.module, target.component);
+    const variant = resolveEntryVariant(target);
     stack = [...stack, { module: target.module, component: target.component, variant, wall: word === 'present', sessionName: result.session ?? null }];
   } else if (word === 'switch') {
     // 近似: 線形 stack 上で resume-or-create。stack 内に同名 sessionName が生存
@@ -164,16 +198,18 @@ function applyTransition(result) {
     if (!target || !result.session) return;
     const idx = stack.findLastIndex(f => f.sessionName === result.session);
     if (idx >= 0) {
+      // resume: target frame は変えないが、明示 X##v の共有書換だけは効く（設計者確定。ADR-0011）。
+      resolveEntryVariant(target);
       stack = stack.slice(0, idx + 1);
     } else {
-      const variant = target.variant ?? initialVariant(target.module, target.component);
+      const variant = resolveEntryVariant(target);
       stack = [...stack, { module: target.module, component: target.component, variant, wall: true, sessionName: result.session }];
     }
   } else if (word === 'goto') {
     if (!target) return;
     // 同一 component 内の姿替え（goto(##姿)）以外は初期姿の解決を行う。
     // begin マーカー（sessionName）と wall は保存する（ADR-0006 B2）。
-    const variant = target.variant ?? initialVariant(target.module, target.component);
+    const variant = resolveEntryVariant(target);
     const newFrame = { ...frame, component: target.component, variant, module: target.module };
     stack = [...stack.slice(0, -1), newFrame];
   } else if (word === 'back') {
@@ -288,17 +324,19 @@ function render() {
   const frame = currentFrame();
   const comp = getComp(frame.module, frame.component);
 
-  // breadcrumb
+  // breadcrumb（singleton の variant は表示時も共有レジストリの現在値を見る。ADR-0011）
   const breadcrumb = stack.map((f, i) => {
-    const label = f.variant ? f.component + ' / ' + f.variant : f.component;
+    const v = displayVariant(f);
+    const label = v ? f.component + ' / ' + v : f.component;
     const cls = i === stack.length - 1 ? 'stack-item current' : 'stack-item';
     return '<span class="' + cls + '">' + esc(label) + '</span>';
   }).join(' › ');
 
   // elements
+  const frameVariant = displayVariant(frame);
   let elements = '';
   const commonEls = comp?.commonElements ?? [];
-  const varEls = frame.variant ? (comp?.variants[frame.variant]?.elements ?? []) : [];
+  const varEls = frameVariant ? (comp?.variants[frameVariant]?.elements ?? []) : [];
   const allEls = [...commonEls, ...varEls];
   if (allEls.length > 0) {
     elements = '<div class="elements">' +
@@ -357,7 +395,7 @@ function render() {
   const canBack = stack.length > 1 && !currentFrame().wall;
   const backBtn = '<button class="back-btn" onclick="goBack()" ' + (canBack ? '' : 'disabled') + '>← 戻る</button>';
 
-  const variantLabel = frame.variant ? '<div class="variant-label">## ' + esc(frame.variant) + '</div>' : '';
+  const variantLabel = frameVariant ? '<div class="variant-label">## ' + esc(frameVariant) + '</div>' : '';
 
   app.innerHTML =
     '<div class="stack-bar">' + breadcrumb + '</div>' +

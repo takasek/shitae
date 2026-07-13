@@ -94,6 +94,23 @@ describe('toSimulator', () => {
     expect(html).toContain('onclick="handleOverlayInteraction(');
   });
 
+  it('singleton: 共有 variant レジストリを持ち、initial variant 解決とは別軸で参照する（ADR-0011）', () => {
+    const doc = parseOk(
+      '#! クーポン\n## 未受取\n> タップ(受け取る) -> goto(##受取済)\n## 受取済\n適用ボタン\n\n# ホーム\n要素\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).toContain('const SINGLETONS = new Set(DATA.singletons)');
+    expect(html).toContain('let sharedVariants = new Map()');
+    expect(html).toContain('function resolveEntryVariant(');
+    expect(html).toContain('function displayVariant(');
+  });
+
+  it('singleton: goto(##v) は共有レジストリを書き換える（全所在に即時反映。ADR-0011）', () => {
+    const doc = parseOk('#! クーポン\n## 未受取\n> タップ -> goto(##受取済)\n## 受取済\n適用ボタン\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).toContain('sharedVariants.set(');
+  });
+
   it('back(X) は wall を越えない（barrier 停止のロジックを含む）', () => {
     const doc = parseOk('# A\n要素\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
