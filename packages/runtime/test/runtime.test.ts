@@ -8,6 +8,7 @@ import {
   activeLocation,
   activeFrame,
   overlayVariant,
+  resolveLocation,
 } from '../src/index.js';
 import type { Transition, Overlay, NavTarget, Span } from '@shitae/ast';
 
@@ -697,5 +698,57 @@ describe('initialState — singleton 注入', () => {
   it('entry が singleton でも variant 省略なら seed しない（初回 initial の含意）', () => {
     const s = initialState(loc('クーポン'), ['クーポン']);
     expect(s.sharedVariants.has('クーポン')).toBe(false);
+  });
+});
+
+describe('resolveLocation — 共有レジストリ解決', () => {
+  it('singleton の Location は共有 variant へ解決される（格納値でなく）', () => {
+    const s = initialState(loc('ホーム'), ['クーポン']);
+    const shared = { ...s, sharedVariants: new Map([['クーポン', '受取済']]) };
+    // 格納された variant が古くても共有現在値で上書き解決される
+    expect(resolveLocation(shared, loc('クーポン', '未受取')).variant).toBe('受取済');
+  });
+
+  it('共有レジストリ未登録の singleton は null（initial の含意）へ解決される', () => {
+    const s = initialState(loc('ホーム'), ['クーポン']);
+    expect(resolveLocation(s, loc('クーポン', '未受取')).variant).toBe(null);
+  });
+
+  it('通常 component は格納 variant のまま素通し', () => {
+    const s = initialState(loc('ホーム'), ['クーポン']);
+    expect(resolveLocation(s, loc('記事', '本文')).variant).toBe('本文');
+  });
+});
+
+describe('singleton — 共有 variant の書換と参照（基準1）', () => {
+  it('present→goto(##v)→dismiss→再 present で共有 variant を映す', () => {
+    let s = initialState(loc('ホーム'), ['クーポン']);
+    // 1箇所目から present
+    s = reduce(s, tr('present', navComp('クーポン'))).state;
+    expect(activeLocation(s).variant).toBe(null); // 初回 initial
+    // goto(##受取済) で共有書換
+    s = reduce(s, tr('goto', navVar('受取済'))).state;
+    expect(s.sharedVariants.get('クーポン')).toBe('受取済');
+    expect(activeLocation(s).variant).toBe('受取済');
+    // dismiss で root へ戻る
+    s = reduce(s, tr('dismiss')).state;
+    expect(activeLocation(s).component).toBe('ホーム');
+    // 2箇所目から present（variant 省略）→ 共有現在値 受取済 を映す
+    s = reduce(s, tr('present', navComp('クーポン'))).state;
+    expect(activeLocation(s).variant).toBe('受取済');
+  });
+
+  it('push(X##v) の明示 variant も共有書換として働く', () => {
+    let s = initialState(loc('ホーム'), ['クーポン']);
+    s = reduce(s, tr('push', navComp('クーポン', '受取済'))).state;
+    expect(s.sharedVariants.get('クーポン')).toBe('受取済');
+    expect(activeLocation(s).variant).toBe('受取済');
+  });
+
+  it('通常 component の goto(##v) は共有レジストリに触れない', () => {
+    let s = initialState(loc('ホーム'), ['クーポン']);
+    s = reduce(s, tr('goto', navVar('編集中'))).state;
+    expect(s.sharedVariants.size).toBe(0);
+    expect(activeLocation(s).variant).toBe('編集中');
   });
 });

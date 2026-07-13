@@ -93,9 +93,19 @@ export function initialState(entry: Location, singletons: Iterable<string> = [])
   };
 }
 
-/** 掲示中 component の表示 variant を返す（未掲示なら null。SPEC「オーバーレイ」ADR-0009） */
+/** 掲示中 component の表示 variant を返す（未掲示なら null。SPEC「オーバーレイ」ADR-0009）。
+ *  singleton は掲示中に限り共有レジストリの現在値へ解決する（ADR-0011。initial 上書き規則は不適用）。 */
 export function overlayVariant(state: RuntimeState, name: string): string | null {
+  if (!state.overlays.has(name)) return null;
+  if (state.singletons.has(name)) return state.sharedVariants.get(name) ?? null;
   return state.overlays.get(name) ?? null;
+}
+
+/** singleton の Location を共有レジストリの現在値へ解決する（スナップショットを作らない。ADR-0011）。
+ *  singleton でなければそのまま返す。frame stack・overlays に載る singleton を読む唯一の口。 */
+export function resolveLocation(state: RuntimeState, loc: Location): Location {
+  if (!state.singletons.has(loc.component)) return loc;
+  return { ...loc, variant: state.sharedVariants.get(loc.component) ?? null };
 }
 
 /** 便宜ヘルパ: Document の最初の component をエントリとする Location を返す。
@@ -121,10 +131,10 @@ export function activeFrame(state: RuntimeState): Frame {
   return getFrame(state, state.activeFrameId);
 }
 
-/** 現在アクティブな画面の Location（アクティブフレームの stack 最上段） */
+/** 現在アクティブな画面の Location（アクティブフレームの stack 最上段。singleton は共有解決） */
 export function activeLocation(state: RuntimeState): Location {
   const f = activeFrame(state);
-  return f.stack[f.stack.length - 1]!;
+  return resolveLocation(state, f.stack[f.stack.length - 1]!);
 }
 
 /** 木を人間可読な文字列にする（デバッグ・テスト表明用）。
@@ -169,6 +179,17 @@ function navTargetToLocation(target: NavTarget, current: Location): Location {
     component: target.name,
     variant: target.variant ?? null,
   };
+}
+
+/** 明示 variant 付き singleton 遷移なら共有レジストリを書き換えた新 map を返す（ADR-0011）。
+ *  loc は navTargetToLocation 正規化後。variant!=null が明示指定（X##v / ##v）を表す。 */
+function writeShared(state: RuntimeState, loc: Location): ReadonlyMap<string, string | null> {
+  if (loc.variant != null && state.singletons.has(loc.component)) {
+    const m = new Map(state.sharedVariants);
+    m.set(loc.component, loc.variant);
+    return m;
+  }
+  return state.sharedVariants;
 }
 
 /** 指定フレームの stack だけを差し替えた新 state を返す */
@@ -328,11 +349,12 @@ function reduceTransition(state: RuntimeState, transition: Transition): ReduceRe
     case 'push': {
       if (!target) return { state, diagnostics: diags };
       const loc = navTargetToLocation(target, current);
+      const sharedVariants = writeShared(state, loc);
       if (!session) {
         // セッションなし: 現在フレームのスタックに積む
         const cur = activeFrame(state);
         const newState = updateFrameStack(state, cur.id, [...cur.stack, loc]);
-        return { state: newState, diagnostics: diags };
+        return { state: { ...newState, sharedVariants }, diagnostics: diags };
       }
       // セッションあり: 現在フレームの子フレームを新規作成（barrier なし）
       const child: Frame = {
@@ -344,12 +366,13 @@ function reduceTransition(state: RuntimeState, transition: Transition): ReduceRe
         origin: 'push',
       };
       const newState = addFrame(state, child);
-      return { state: { ...newState, activeFrameId: child.id }, diagnostics: diags };
+      return { state: { ...newState, activeFrameId: child.id, sharedVariants }, diagnostics: diags };
     }
 
     case 'present': {
       if (!target) return { state, diagnostics: diags };
       const loc = navTargetToLocation(target, current);
+      const sharedVariants = writeShared(state, loc);
       const child: Frame = {
         id: state.nextFrameId,
         parentId: state.activeFrameId,
@@ -359,17 +382,18 @@ function reduceTransition(state: RuntimeState, transition: Transition): ReduceRe
         origin: 'present',
       };
       const newState = addFrame(state, child);
-      return { state: { ...newState, activeFrameId: child.id }, diagnostics: diags };
+      return { state: { ...newState, activeFrameId: child.id, sharedVariants }, diagnostics: diags };
     }
 
     case 'goto': {
       if (!target) return { state, diagnostics: diags };
       const loc = navTargetToLocation(target, current);
       const cur = activeFrame(state);
+      const sharedVariants = writeShared(state, loc);
       // 最上段を置換するのみ。barrier・beginsSession（フレームの属性）は保存される（ADR-0006 B2）。
       const newStack = [...cur.stack.slice(0, -1), loc];
       const newState = updateFrameStack(state, cur.id, newStack);
-      return { state: newState, diagnostics: diags };
+      return { state: { ...newState, sharedVariants }, diagnostics: diags };
     }
 
     case 'back': {
