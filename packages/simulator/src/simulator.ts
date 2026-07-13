@@ -50,6 +50,11 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
 .overlay-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #222; color: #fff; padding: 8px 16px; display: flex; gap: 12px; font-size: 12px; }
 .overlay-item { background: #444; padding: 2px 10px; border-radius: 10px; }
 .overlay-btn { margin-left: 6px; background: #666; color: #fff; border: none; border-radius: 8px; padding: 1px 8px; cursor: pointer; font-size: 11px; }
+.gate-panel { margin-top: 12px; font-size: 12px; }
+.gate-panel-toggle { background: none; border: 1px solid #ddd; border-radius: 6px; padding: 4px 10px; cursor: pointer; color: #777; font-size: 11px; }
+.gate-panel-body { margin-top: 6px; padding: 8px 10px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; display: flex; flex-direction: column; gap: 6px; }
+.gate-row { display: flex; align-items: center; gap: 8px; }
+.gate-row-label { color: #555; min-width: 80px; }
 </style>
 </head>
 <body>
@@ -69,7 +74,33 @@ function initialVariant(module, component) {
 
 // singleton の共有 variant レジストリ（component 名 → 現在 variant）。
 // フレームスタック・overlays に置かれた singleton はスナップショットでなくここへの参照を見る（ADR-0011）。
+// 二重の役割: presence gate の member 参照（対象.要素?）が対象インスタンスの現在 variant を
+// 判定する際のデフォルト解決にも流用する（対象は非 singleton でもよい）。手動トグルパネルが
+// 書き込む先も同じレジストリ——「document 内で variant 状態は単一」という原則と整合させるため
+// 分離しない（ADR-0002 Consequence「simulator はインスタンス variant の手動トグルで観測可能にする」）。
 let sharedVariants = new Map();
+
+// gate 対象 component 名の一覧（手動トグルパネル用）
+const GATE_TARGETS = DATA.gateTargets || [];
+let gatePanelOpen = false;
+
+function findComponentDef(name) {
+  for (const mod of Object.values(DATA.modules)) {
+    if (mod.components[name]) return mod.components[name];
+  }
+  return null;
+}
+
+// 対象インスタンスの variant を手動で書き換える（gate 観測用）
+function setInstanceVariant(name, variant) {
+  sharedVariants.set(name, variant);
+  render();
+}
+
+function toggleGatePanel() {
+  gatePanelOpen = !gatePanelOpen;
+  render();
+}
 
 // push/present/goto/switch の行き先 variant を解決する。singleton は共有レジストリが優先し、
 // 明示 X##v はレジストリを書き換える（全所在に即時反映）。variant 省略時は「初回は initial、
@@ -434,6 +465,30 @@ function render() {
 
   const variantLabel = frameVariant ? '<div class="variant-label">## ' + esc(frameVariant) + '</div>' : '';
 
+  // インスタンス variant 手動トグルパネル（gate 観測用。姿を持たない対象は切替不要なので除外）
+  const gateTargetsWithVariants = GATE_TARGETS.filter((n) => {
+    const comp = findComponentDef(n);
+    return comp && Object.keys(comp.variants).length > 0;
+  });
+  let gatePanelHtml = '';
+  if (gateTargetsWithVariants.length > 0) {
+    const rows = gateTargetsWithVariants.map((n) => {
+      const comp = findComponentDef(n);
+      const current = sharedVariants.has(n) ? sharedVariants.get(n) : comp.initialVariant;
+      const options = Object.keys(comp.variants).map((v) =>
+        '<option value="' + esc(v) + '"' + (v === current ? ' selected' : '') + '>' + esc(v) + '</option>'
+      ).join('');
+      return '<div class="gate-row"><span class="gate-row-label">' + esc(n) + '</span>' +
+        '<select onchange="setInstanceVariant(' + JSON.stringify(n) + ', this.value)">' + options + '</select></div>';
+    }).join('');
+    gatePanelHtml = '<div class="gate-panel">' +
+      '<button class="gate-panel-toggle" onclick="toggleGatePanel()">' +
+        (gatePanelOpen ? '▾' : '▸') + ' インスタンス variant（gate 観測用）' +
+      '</button>' +
+      (gatePanelOpen ? '<div class="gate-panel-body">' + rows + '</div>' : '') +
+    '</div>';
+  }
+
   app.innerHTML =
     '<div class="stack-bar">' + breadcrumb + '</div>' +
     '<div class="screen">' +
@@ -444,6 +499,7 @@ function render() {
       docCommonHtml +
       backBtn +
     '</div>' +
+    gatePanelHtml +
     overlayHtml;
 }
 
