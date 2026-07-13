@@ -897,3 +897,129 @@ describe('singletonNames — Document から singleton 名を集める', () => {
     expect(singletonNames(doc([comp('ホーム', false)]))).toEqual([]);
   });
 });
+
+// ──────────────────────────────────────────────────
+// r3: singleton モジュール境界（ADR-0013）・set（ADR-0014）・R005（ADR-0016）
+// ──────────────────────────────────────────────────
+
+import type { StateWrite } from '@shitae/ast';
+
+const sw = (name: string, variant: string, module?: string): StateWrite => ({
+  kind: 'state',
+  verb: 'set',
+  target: { module: module ?? null, name, variant },
+  span: dummySpan,
+});
+
+describe('r3: singleton のモジュール境界（ADR-0013）', () => {
+  it('別モジュールの同名通常 component は singleton に巻き込まれない（オラクル S5 の修正）', () => {
+    let s = initialState(loc('ホーム'), [{ module: 'mod', name: 'クーポン' }]);
+    s = reduce(s, tr('push', navComp('クーポン', '通常'))).state; // ローカルの通常 component
+    expect(s.sharedVariants.size).toBe(0); // 共有レジストリは汚染されない
+    s = reduce(s, tr('push', navComp('クーポン', undefined, 'mod'))).state;
+    const resolved = resolveLocation(s, activeLocation(s));
+    expect(resolved.variant).toBeNull(); // initial（##通常 に巻き込まれない）
+  });
+
+  it('mod::X##v の明示書換は (mod,X) に載り、以後 mod::X は共有値で開く', () => {
+    let s = initialState(loc('ホーム'), [{ module: 'mod', name: 'クーポン' }]);
+    s = reduce(s, tr('push', navComp('クーポン', '受取済', 'mod'))).state;
+    s = reduce(s, tr('back')).state;
+    s = reduce(s, tr('push', navComp('クーポン', undefined, 'mod'))).state;
+    expect(resolveLocation(s, activeLocation(s)).variant).toBe('受取済');
+  });
+
+  it('文字列で渡した singleton は従来どおり module=null 扱い（後方互換）', () => {
+    let s = initialState(loc('ホーム'), ['クーポン']);
+    s = reduce(s, tr('push', navComp('クーポン', '受取済'))).state;
+    expect(s.sharedVariants.get('クーポン')).toBe('受取済');
+  });
+});
+
+describe('r3: set — 遷移なし共有 variant 書換（ADR-0014）', () => {
+  it('set は共有レジストリだけを書き換え、フレーム木・アクティブ画面を動かさない', () => {
+    let s = initialState(loc('ホーム'), ['クーポン']);
+    const before = s.frames;
+    const r = reduce(s, sw('クーポン', '受取済'));
+    expect(r.diagnostics).toHaveLength(0);
+    expect(r.state.frames).toBe(before); // 構造は不変
+    expect(activeLocation(r.state).component).toBe('ホーム');
+    expect(r.state.sharedVariants.get('クーポン')).toBe('受取済');
+  });
+
+  it('set 後に variant 省略で開くと書換後の variant', () => {
+    let s = initialState(loc('ホーム'), ['クーポン']);
+    s = reduce(s, sw('クーポン', '受取済')).state;
+    s = reduce(s, tr('present', navComp('クーポン'))).state;
+    expect(resolveLocation(s, activeLocation(s)).variant).toBe('受取済');
+  });
+
+  it('set は掲示中 singleton に即時反映される（overlayVariant）', () => {
+    let s = initialState(loc('ホーム'), ['クーポン']);
+    s = reduce(s, ov('show', 'クーポン')).state;
+    s = reduce(s, sw('クーポン', '受取済')).state;
+    expect(overlayVariant(s, 'クーポン')).toBe('受取済');
+  });
+
+  it('set の対象が非 singleton なら no-op（checker が静的に検出済み）', () => {
+    let s = initialState(loc('ホーム'), []);
+    const r = reduce(s, sw('学習', 'ハート切れ'));
+    expect(r.state.sharedVariants.size).toBe(0);
+    expect(r.diagnostics).toHaveLength(0);
+  });
+
+  it('set の module 省略は現在アクティブの module を継承する', () => {
+    let s = initialState(loc('ホーム'), [{ module: 'mod', name: '設定' }]);
+    s = reduce(s, tr('push', navComp('設定', undefined, 'mod'))).state; // アクティブ module = mod
+    s = reduce(s, sw('設定', '省電力')).state; // module 省略
+    s = reduce(s, tr('back')).state;
+    s = reduce(s, tr('push', navComp('設定', undefined, 'mod'))).state;
+    expect(resolveLocation(s, activeLocation(s)).variant).toBe('省電力');
+  });
+});
+
+describe('r3: R005 — 生存中の同名 @S の再 begin（ADR-0016）', () => {
+  it('push(A,@S) の中で push(B,@S) すると R005', () => {
+    let s = initialState(loc('ホーム'));
+    s = reduce(s, tr('push', navComp('A'), { name: 'S' })).state;
+    const r = reduce(s, tr('push', navComp('B'), { name: 'S' }));
+    expect(r.diagnostics.some((d) => d.code === 'R005')).toBe(true);
+  });
+
+  it('present でも同様に R005', () => {
+    let s = initialState(loc('ホーム'));
+    s = reduce(s, tr('present', navComp('A'), { name: 'S' })).state;
+    const r = reduce(s, tr('present', navComp('B'), { name: 'S' }));
+    expect(r.diagnostics.some((d) => d.code === 'R005')).toBe(true);
+  });
+
+  it('exit で破棄した後の再 begin は R005 なし', () => {
+    let s = initialState(loc('ホーム'));
+    s = reduce(s, tr('push', navComp('A'), { name: 'S' })).state;
+    s = reduce(s, tr('exit', undefined, { name: 'S' })).state;
+    const r = reduce(s, tr('push', navComp('A'), { name: 'S' }));
+    expect(r.diagnostics.some((d) => d.code === 'R005')).toBe(false);
+  });
+
+  it('異なる名前の begin は R005 なし', () => {
+    let s = initialState(loc('ホーム'));
+    s = reduce(s, tr('push', navComp('A'), { name: 'S' })).state;
+    const r = reduce(s, tr('push', navComp('B'), { name: 'T' }));
+    expect(r.diagnostics.some((d) => d.code === 'R005')).toBe(false);
+  });
+
+  it('無名 present の多段は R005 なし（同名判定は named のみ）', () => {
+    let s = initialState(loc('ホーム'));
+    s = reduce(s, tr('present', navComp('A'))).state;
+    const r = reduce(s, tr('present', navComp('B')));
+    expect(r.diagnostics.some((d) => d.code === 'R005')).toBe(false);
+  });
+
+  it('switch の resume は R005 なし', () => {
+    let s = initialState(loc('ホーム'));
+    s = reduce(s, tr('present', navComp('A'), { name: 'S' })).state;
+    s = reduce(s, tr('switch', navComp('B'), { name: 'T' })).state;
+    const r = reduce(s, tr('switch', navComp('A'), { name: 'S' })); // resume
+    expect(r.diagnostics.some((d) => d.code === 'R005')).toBe(false);
+  });
+});

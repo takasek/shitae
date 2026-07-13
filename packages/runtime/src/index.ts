@@ -4,6 +4,7 @@ import type {
   NavTarget,
   Overlay,
   Span,
+  StateWrite,
   Transition,
 } from '@shitae/ast';
 
@@ -50,11 +51,24 @@ export interface RuntimeState {
   /** 掲示中 component → 表示 variant（null は initial の含意）。SPEC「オーバーレイ」ADR-0009。
    *  フレーム木の走査対象には入らない。エントリは (component, variant) */
   overlays: ReadonlyMap<string, string | null>;
-  /** singleton component 名の集合（`#!`。document 内で単一インスタンス）。SPEC「singleton component」ADR-0011。 */
+  /** singleton component キーの集合（`#!`。定義ファイル内で単一インスタンス）。SPEC「singleton component」ADR-0011/0013。
+   *  キーは `singletonKey(module, name)` — module=null は素の name。 */
   singletons: ReadonlySet<string>;
-  /** singleton の共有 variant レジストリ（component 名 → 現在 variant。null は initial の含意）。
+  /** singleton の共有 variant レジストリ（singletonKey → 現在 variant。null は initial の含意）。
    *  singleton の variant は常にここへの参照であり、frame stack・overlays に snapshot を作らない（ADR-0011）。 */
   sharedVariants: ReadonlyMap<string, string | null>;
+}
+
+/** singleton の参照（ADR-0013: 共有スコープは定義ファイル＝モジュール単位） */
+export interface SingletonRef {
+  module: string | null;
+  name: string;
+}
+
+/** (module, component) → レジストリキー。module=null は素の name（従来キーと後方互換）。
+ *  module 語彙（alias か ファイル名か）の正規化は呼び手の責任（ADR-0013 の実装詳細）。 */
+export function singletonKey(module: string | null, name: string): string {
+  return module == null ? name : `${module}\u0000${name}`;
 }
 
 export interface ReduceResult {
@@ -67,8 +81,11 @@ export interface ReduceResult {
 // ──────────────────────────────────────────────────
 
 /** エントリ画面から初期状態を構築する。起点は呼び手が決める（SPEC 未規定）。
- *  singletons は document 内の singleton component 名（`singletonNames(doc)` で得る）。 */
-export function initialState(entry: Location, singletons: Iterable<string> = []): RuntimeState {
+ *  singletons は singleton component の参照（文字列は module=null の name として扱う——後方互換）。 */
+export function initialState(
+  entry: Location,
+  singletons: Iterable<string | SingletonRef> = []
+): RuntimeState {
   const root: Frame = {
     id: 0,
     parentId: null,
@@ -77,11 +94,14 @@ export function initialState(entry: Location, singletons: Iterable<string> = [])
     beginsSession: null,
     origin: 'root',
   };
-  const singletonSet = new Set(singletons);
+  const singletonSet = new Set(
+    [...singletons].map((s) => (typeof s === 'string' ? s : singletonKey(s.module, s.name)))
+  );
   const sharedVariants = new Map<string, string | null>();
   // entry 自身が singleton かつ variant 明示なら共有レジストリを seed する（ADR-0011）。
-  if (singletonSet.has(entry.component) && entry.variant != null) {
-    sharedVariants.set(entry.component, entry.variant);
+  const entryKey = singletonKey(entry.module, entry.component);
+  if (singletonSet.has(entryKey) && entry.variant != null) {
+    sharedVariants.set(entryKey, entry.variant);
   }
   return {
     frames: [root],
@@ -94,18 +114,23 @@ export function initialState(entry: Location, singletons: Iterable<string> = [])
 }
 
 /** 掲示中 component の表示 variant を返す（未掲示なら null。SPEC「オーバーレイ」ADR-0009）。
- *  singleton は掲示中に限り共有レジストリの現在値へ解決する（ADR-0011。initial 上書き規則は不適用）。 */
+ *  singleton は掲示中に限り共有レジストリの現在値へ解決する（ADR-0011。initial 上書き規則は不適用）。
+ *  overlays は component 名キー（SPEC: ID は component 名が兼ねる）のため、singleton 解決は
+ *  module=null キーで引く——module 修飾つき singleton の掲示解決は module 語彙の正規化と
+ *  合わせて将来課題（ADR-0013 の実装詳細）。 */
 export function overlayVariant(state: RuntimeState, name: string): string | null {
   if (!state.overlays.has(name)) return null;
-  if (state.singletons.has(name)) return state.sharedVariants.get(name) ?? null;
+  const key = singletonKey(null, name);
+  if (state.singletons.has(key)) return state.sharedVariants.get(key) ?? null;
   return state.overlays.get(name) ?? null;
 }
 
 /** singleton の Location を共有レジストリの現在値へ解決する（スナップショットを作らない。ADR-0011）。
  *  singleton でなければそのまま返す。frame stack・overlays に載る singleton を読む唯一の口。 */
 export function resolveLocation(state: RuntimeState, loc: Location): Location {
-  if (!state.singletons.has(loc.component)) return loc;
-  return { ...loc, variant: state.sharedVariants.get(loc.component) ?? null };
+  const key = singletonKey(loc.module, loc.component);
+  if (!state.singletons.has(key)) return loc;
+  return { ...loc, variant: state.sharedVariants.get(key) ?? null };
 }
 
 /** 便宜ヘルパ: Document の最初の component をエントリとする Location を返す。
@@ -178,6 +203,30 @@ function warn(code: string, message: string, span: Span): Diagnostic {
   return { severity: 'warning', code, message, span };
 }
 
+/** R005: アクティブパス上に生存する同名 @S があるのに再 begin した（ADR-0016 B4）。
+ *  対象は push/present の named begin のみ——switch は木全体の resume-or-create のため
+ *  新規作成時にアクティブパス上に同名が残ることは論理的にない（整合レビュー G6）。 */
+function warnDuplicateSessionBegin(
+  state: RuntimeState,
+  name: string | null,
+  span: Span,
+  diags: Diagnostic[]
+): void {
+  if (name == null) return; // 無名 present の多段は想定内（LIFO dismiss の設計どおり）
+  for (let f: Frame | null = activeFrame(state); f; f = f.parentId != null ? getFrame(state, f.parentId) : null) {
+    if (f.beginsSession?.name === name) {
+      diags.push(
+        warn(
+          'R005',
+          `@${name} は生存中に再 begin された（同名セッションが入れ子になり、exit/dismiss は直近の 1 つしか畳まない。フロー全体をまとめたいなら begin は入口の 1 回だけ。「セッション」参照）`,
+          span
+        )
+      );
+      return;
+    }
+  }
+}
+
 /** NavTarget を現在の Location を踏まえて Location へ正規化する */
 function navTargetToLocation(target: NavTarget, current: Location): Location {
   if (target.kind === 'variant') {
@@ -194,9 +243,10 @@ function navTargetToLocation(target: NavTarget, current: Location): Location {
 /** 明示 variant 付き singleton 遷移なら共有レジストリを書き換えた新 map を返す（ADR-0011）。
  *  loc は navTargetToLocation 正規化後。variant!=null が明示指定（X##v / ##v）を表す。 */
 function writeShared(state: RuntimeState, loc: Location): ReadonlyMap<string, string | null> {
-  if (loc.variant != null && state.singletons.has(loc.component)) {
+  const key = singletonKey(loc.module, loc.component);
+  if (loc.variant != null && state.singletons.has(key)) {
     const m = new Map(state.sharedVariants);
-    m.set(loc.component, loc.variant);
+    m.set(key, loc.variant);
     return m;
   }
   return state.sharedVariants;
@@ -326,11 +376,31 @@ function switchParentId(state: RuntimeState, cur: Frame): number {
 // reduce — フレーム木マシン
 // ──────────────────────────────────────────────────
 
-export function reduce(state: RuntimeState, action: Transition | Overlay): ReduceResult {
+export function reduce(
+  state: RuntimeState,
+  action: Transition | Overlay | StateWrite
+): ReduceResult {
   if (action.kind === 'overlay') {
     return reduceOverlay(state, action);
   }
+  if (action.kind === 'state') {
+    return reduceStateWrite(state, action);
+  }
   return reduceTransition(state, action);
+}
+
+/** set（state verb。ADR-0014）— 共有レジストリだけを書き換える。フレーム木・掲示は不変。
+ *  対象が singleton でなければ no-op（E030 は checker が静的に検出する）。 */
+function reduceStateWrite(state: RuntimeState, action: StateWrite): ReduceResult {
+  const current = activeLocation(state);
+  const module = action.target.module ?? current.module;
+  const key = singletonKey(module, action.target.name);
+  if (!state.singletons.has(key)) {
+    return { state, diagnostics: [] };
+  }
+  const sharedVariants = new Map(state.sharedVariants);
+  sharedVariants.set(key, action.target.variant);
+  return { state: { ...state, sharedVariants }, diagnostics: [] };
 }
 
 function reduceOverlay(state: RuntimeState, overlay: Overlay): ReduceResult {
@@ -371,6 +441,7 @@ function reduceTransition(state: RuntimeState, transition: Transition): ReduceRe
         return { state: { ...newState, sharedVariants }, diagnostics: diags };
       }
       // セッションあり: 現在フレームの子フレームを新規作成（barrier なし）
+      warnDuplicateSessionBegin(state, session.name, span, diags);
       const child: Frame = {
         id: state.nextFrameId,
         parentId: state.activeFrameId,
@@ -387,6 +458,7 @@ function reduceTransition(state: RuntimeState, transition: Transition): ReduceRe
       if (!target) return { state, diagnostics: diags };
       const loc = navTargetToLocation(target, current);
       const sharedVariants = writeShared(state, loc);
+      if (session) warnDuplicateSessionBegin(state, session.name, span, diags);
       const child: Frame = {
         id: state.nextFrameId,
         parentId: state.activeFrameId,
