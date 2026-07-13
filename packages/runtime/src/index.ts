@@ -50,6 +50,11 @@ export interface RuntimeState {
   /** 掲示中 component → 表示 variant（null は initial の含意）。SPEC「オーバーレイ」ADR-0009。
    *  フレーム木の走査対象には入らない。エントリは (component, variant) */
   overlays: ReadonlyMap<string, string | null>;
+  /** singleton component 名の集合（`#!`。document 内で単一インスタンス）。SPEC「singleton component」ADR-0011。 */
+  singletons: ReadonlySet<string>;
+  /** singleton の共有 variant レジストリ（component 名 → 現在 variant。null は initial の含意）。
+   *  singleton の variant は常にここへの参照であり、frame stack・overlays に snapshot を作らない（ADR-0011）。 */
+  sharedVariants: ReadonlyMap<string, string | null>;
 }
 
 export interface ReduceResult {
@@ -61,8 +66,9 @@ export interface ReduceResult {
 // initialState
 // ──────────────────────────────────────────────────
 
-/** エントリ画面から初期状態を構築する。起点は呼び手が決める（SPEC 未規定）。 */
-export function initialState(entry: Location): RuntimeState {
+/** エントリ画面から初期状態を構築する。起点は呼び手が決める（SPEC 未規定）。
+ *  singletons は document 内の singleton component 名（`singletonNames(doc)` で得る）。 */
+export function initialState(entry: Location, singletons: Iterable<string> = []): RuntimeState {
   const root: Frame = {
     id: 0,
     parentId: null,
@@ -71,11 +77,19 @@ export function initialState(entry: Location): RuntimeState {
     beginsSession: null,
     origin: 'root',
   };
+  const singletonSet = new Set(singletons);
+  const sharedVariants = new Map<string, string | null>();
+  // entry 自身が singleton かつ variant 明示なら共有レジストリを seed する（ADR-0011）。
+  if (singletonSet.has(entry.component) && entry.variant != null) {
+    sharedVariants.set(entry.component, entry.variant);
+  }
   return {
     frames: [root],
     activeFrameId: 0,
     nextFrameId: 1,
     overlays: new Map(),
+    singletons: singletonSet,
+    sharedVariants,
   };
 }
 

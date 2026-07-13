@@ -671,3 +671,31 @@ describe('activeFrame', () => {
     expect(activeFrame(s).id).toBe(s.activeFrameId);
   });
 });
+
+// ──────────────────────────────────────────────────
+// singleton component（ADR-0011）
+// ──────────────────────────────────────────────────
+
+describe('initialState — singleton 注入', () => {
+  it('singletons 引数で単一インスタンス名の集合を持つ', () => {
+    const s = initialState(loc('ホーム'), ['クーポン']);
+    expect(s.singletons.has('クーポン')).toBe(true);
+    expect(s.singletons.has('ホーム')).toBe(false);
+  });
+
+  it('singletons 省略時は空集合・共有レジストリも空', () => {
+    const s = initialState(loc('ホーム'));
+    expect(s.singletons.size).toBe(0);
+    expect(s.sharedVariants.size).toBe(0);
+  });
+
+  it('entry が singleton かつ variant 指定ありなら共有レジストリを seed する', () => {
+    const s = initialState(loc('クーポン', '受取済'), ['クーポン']);
+    expect(s.sharedVariants.get('クーポン')).toBe('受取済');
+  });
+
+  it('entry が singleton でも variant 省略なら seed しない（初回 initial の含意）', () => {
+    const s = initialState(loc('クーポン'), ['クーポン']);
+    expect(s.sharedVariants.has('クーポン')).toBe(false);
+  });
+});
