@@ -99,7 +99,7 @@ describe('toSimulator', () => {
       '#! クーポン\n## 未受取\n> タップ(受け取る) -> goto(##受取済)\n## 受取済\n適用ボタン\n\n# ホーム\n要素\n',
     );
     const html = toSimulator(new Map([['main', doc]]), 'main');
-    expect(html).toContain('const SINGLETONS = new Set(DATA.singletons)');
+    expect(html).toContain('const SINGLETONS = new Set((DATA.singletons || []).map(s => skey(s.module, s.name)))');
     expect(html).toContain('let sharedVariants = new Map()');
     expect(html).toContain('function resolveEntryVariant(');
     expect(html).toContain('function displayVariant(');
@@ -137,7 +137,16 @@ describe('toSimulator', () => {
     expect(html).toContain('"gateTargets"');
     expect(html).toContain('function setInstanceVariant(');
     expect(html).toContain('gate-panel');
-    expect(html).toContain('sharedVariants.set(name, variant)');
+    expect(html).toContain('sharedVariants.set(skey(module, name), variant)');
+  });
+
+  it('set: state result を singleton の共有レジストリ書き換えとして適用する（ADR-0014）', () => {
+    const doc = parseOk(
+      '#! 学習\n## 通常\nボタン\n## ハート切れ\n表示\n\n# 問題\n> 使い切る -> set(学習##ハート切れ)\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).toContain("result.type === 'state'");
+    expect(html).toContain('"type":"state"');
   });
 
   it('presence gate 手動トグル: gate 対象が無ければパネルを出さない', () => {

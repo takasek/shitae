@@ -47,14 +47,14 @@ export interface SimChoice {
 
 /**
  * presence gate（`行動(対象?)`）の構造的 presence 判定に要る情報（SPEC「2種類のガード的なもの」・ADR-0002）。
- * - host: 裸参照。host component（この interaction が書かれている component）の現在 variant で判定
+ * - host: 裸参照。host component の現在 variant で判定。document common の裸参照も host 扱い——
+ *   発火時のアクティブ component で判定する（裸 ##variant の動的解決と同じ原理。ADR-0015）
  * - member: `対象.要素` 参照。対象インスタンス（targetComponent）の現在 variant で判定
- * - indeterminate: host が存在しない（document common の裸参照。ADR-0012 B7a）等、判定不能 → always-on
  */
 export interface SimGate {
   /** 実効 body の alias/ref 名との照合に使う名前 */
   name: string;
-  kind: 'host' | 'member' | 'indeterminate';
+  kind: 'host' | 'member';
   /** kind==='member' のときの対象 component 名 */
   targetComponent?: string;
   /** kind==='member' のときの明示モジュール。省略時は null（実行時にアクティブフレームの module で解決） */
@@ -90,6 +90,14 @@ export interface SimComponent {
 
 export interface SimModuleData {
   components: Record<string, SimComponent>;
+  /** document common の要素行（全 component の表示に共通要素として乗る。SPEC「document common」） */
+  docCommonElements: string[];
+}
+
+/** module 付き component 参照（singleton・gate 対象の一意識別。ADR-0013） */
+export interface SimComponentRef {
+  module: string;
+  name: string;
 }
 
 export interface SimulatorData {
@@ -98,14 +106,14 @@ export interface SimulatorData {
   entryComponent: string;
   /** document common（最初の # より前）のインタラクション。どの画面でも常に有効（SPEC「document common」） */
   documentCommon: SimInteraction[];
-  /** singleton（`#!`）component 名の集合（全モジュール横断。SPEC「singleton component」ADR-0011） */
-  singletons: string[];
+  /** singleton（`#!`）component の参照（定義ファイル単位。素名合流はしない——ADR-0013） */
+  singletons: SimComponentRef[];
   /**
-   * member gate（`対象.要素?`）の対象 component 名（重複除去。全モジュール横断）。
-   * host gate・indeterminate は含めない——手動トグル UI（ADR-0002 Consequence）が
+   * member gate（`対象.要素?`）の対象 component（重複除去。定義 module へ解決済み。未定義は含めない）。
+   * host gate は含めない——手動トグル UI（ADR-0002 Consequence）が
    * 「今どの画面にも表示されていない対象インスタンスの variant」を模擬するための一覧。
    */
-  gateTargets: string[];
+  gateTargets: SimComponentRef[];
 }
 
 function elementDisplayName(el: import('@shitae/ast').ElementLine): string {
@@ -161,18 +169,19 @@ function convertResultBody(r: Result): SimResultBody {
 
 /**
  * action.target の existsGated から SimGate を組み立てる（SPEC「presence gate」・ADR-0002）。
- * hasHost=false は host component が存在しない文脈（document common。ADR-0012 B7a）— 裸参照は判定不能。
+ * 裸参照は document common（字句上の host なし）でも host 扱い——発火時のアクティブ component の
+ * 実効 body で判定する（ADR-0015。ADR-0012 B7a の always-on を置き換え）。
  */
-function buildGate(action: Action, hasHost: boolean): SimGate | null {
+function buildGate(action: Action): SimGate | null {
   const ref = action.target;
   if (!ref || !ref.existsGated) return null;
   if (ref.member === null) {
-    return hasHost ? { name: ref.name, kind: 'host' } : { name: ref.name, kind: 'indeterminate' };
+    return { name: ref.name, kind: 'host' };
   }
   return { name: ref.member, kind: 'member', targetComponent: ref.name, module: ref.module ?? null };
 }
 
-function convertInteraction(i: Interaction, hasHost: boolean): SimInteraction {
+function convertInteraction(i: Interaction): SimInteraction {
   const action = i.action;
   const targetPart = action.target ? `(${action.target.name})` : '';
   const prelude: SimResultBody[] = [];
@@ -196,7 +205,7 @@ function convertInteraction(i: Interaction, hasHost: boolean): SimInteraction {
     actionText: `${action.text}${targetPart}`,
     prelude,
     choices,
-    gate: buildGate(action, hasHost),
+    gate: buildGate(action),
   };
 }
 
@@ -215,9 +224,9 @@ function survivingDocCommon(documentCommon: Interaction[], effective: Interactio
 function convertComponent(comp: Component, documentCommon: Interaction[]): SimComponent {
   const commonElements = comp.common.elements.map(elementDisplayName);
   const commonInteractionsAst = comp.common.interactions;
-  const commonInteractions = commonInteractionsAst.map((it) => convertInteraction(it, true));
+  const commonInteractions = commonInteractionsAst.map((it) => convertInteraction(it));
   const docCommonInteractions = survivingDocCommon(documentCommon, commonInteractionsAst).map(
-    (it) => convertInteraction(it, false),
+    (it) => convertInteraction(it),
   );
   const variants: Record<string, SimVariant> = {};
   for (const v of comp.variants) {
@@ -226,9 +235,9 @@ function convertComponent(comp: Component, documentCommon: Interaction[]): SimCo
     const effectiveAst = mergeInteractions(commonInteractionsAst, v.body.interactions);
     variants[v.name] = {
       elements: v.body.elements.map(elementDisplayName),
-      interactions: effectiveAst.map((it) => convertInteraction(it, true)),
+      interactions: effectiveAst.map((it) => convertInteraction(it)),
       docCommonInteractions: survivingDocCommon(documentCommon, effectiveAst).map(
-        (it) => convertInteraction(it, false),
+        (it) => convertInteraction(it),
       ),
     };
   }
@@ -241,9 +250,19 @@ function convertComponent(comp: Component, documentCommon: Interaction[]): SimCo
   };
 }
 
-function collectGateTargets(interactions: SimInteraction[], out: Set<string>): void {
+/** member gate 対象を集める。module は「明示指定 > 収集元 module」で解決し、定義が実在するものだけ残す。 */
+function collectGateTargets(
+  interactions: SimInteraction[],
+  sourceModule: string,
+  modules: Record<string, SimModuleData>,
+  out: Map<string, SimComponentRef>,
+): void {
   for (const it of interactions) {
-    if (it.gate?.kind === 'member' && it.gate.targetComponent) out.add(it.gate.targetComponent);
+    if (it.gate?.kind !== 'member' || !it.gate.targetComponent) continue;
+    const module = it.gate.module ?? sourceModule;
+    const name = it.gate.targetComponent;
+    if (!modules[module]?.components[name]) continue; // 未定義対象は always-on（トグル不要）
+    out.set(JSON.stringify([module, name]), { module, name });
   }
 }
 
@@ -254,7 +273,7 @@ export function extractSimData(
   const entryDoc = documents.get(entryModule);
   const entryComponent = entryDoc?.components[0]?.name ?? '';
   const documentCommonAst = entryDoc?.common.interactions ?? [];
-  const documentCommon = documentCommonAst.map((it) => convertInteraction(it, false));
+  const documentCommon = documentCommonAst.map((it) => convertInteraction(it));
 
   const modules: Record<string, SimModuleData> = {};
   for (const [moduleName, doc] of documents) {
@@ -264,23 +283,27 @@ export function extractSimData(
       // 定義されているファイル自身のもの（entry ファイルのものではない）
       components[comp.name] = convertComponent(comp, doc.common.interactions);
     }
-    modules[moduleName] = { components };
+    modules[moduleName] = {
+      components,
+      docCommonElements: doc.common.elements.map(elementDisplayName),
+    };
   }
 
-  const singletonSet = new Set<string>();
-  for (const doc of documents.values()) {
-    for (const name of singletonNames(doc)) singletonSet.add(name);
+  // singleton は定義ファイル単位（素名合流はしない。ADR-0013）
+  const singletons: SimComponentRef[] = [];
+  for (const [moduleName, doc] of documents) {
+    for (const name of singletonNames(doc)) singletons.push({ module: moduleName, name });
   }
 
-  const gateTargetSet = new Set<string>();
-  collectGateTargets(documentCommon, gateTargetSet);
-  for (const mod of Object.values(modules)) {
+  const gateTargetMap = new Map<string, SimComponentRef>();
+  collectGateTargets(documentCommon, entryModule, modules, gateTargetMap);
+  for (const [moduleName, mod] of Object.entries(modules)) {
     for (const comp of Object.values(mod.components)) {
-      collectGateTargets(comp.commonInteractions, gateTargetSet);
-      collectGateTargets(comp.docCommonInteractions, gateTargetSet);
+      collectGateTargets(comp.commonInteractions, moduleName, modules, gateTargetMap);
+      collectGateTargets(comp.docCommonInteractions, moduleName, modules, gateTargetMap);
       for (const v of Object.values(comp.variants)) {
-        collectGateTargets(v.interactions, gateTargetSet);
-        collectGateTargets(v.docCommonInteractions, gateTargetSet);
+        collectGateTargets(v.interactions, moduleName, modules, gateTargetMap);
+        collectGateTargets(v.docCommonInteractions, moduleName, modules, gateTargetMap);
       }
     }
   }
@@ -290,7 +313,7 @@ export function extractSimData(
     entryModule,
     entryComponent,
     documentCommon,
-    singletons: [...singletonSet],
-    gateTargets: [...gateTargetSet],
+    singletons,
+    gateTargets: [...gateTargetMap.values()],
   };
 }

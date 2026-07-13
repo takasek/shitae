@@ -64,7 +64,10 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
 const DATA = ${json};
 const app = document.getElementById('app');
 const toastEl = document.getElementById('toast');
-const SINGLETONS = new Set(DATA.singletons); // document 内で単一インスタンス（SPEC「singleton component」ADR-0011）
+// (module, component) の合成キー（ADR-0013: singleton の共有スコープは定義ファイル単位）
+function skey(module, component) { return JSON.stringify([module, component]); }
+const SINGLETONS = new Set((DATA.singletons || []).map(s => skey(s.module, s.name)));
+function isSingleton(module, component) { return SINGLETONS.has(skey(module, component)); }
 
 // 姿指定なしで component に入ったら、最初に定義された姿を初期姿として扱う
 function initialVariant(module, component) {
@@ -72,7 +75,7 @@ function initialVariant(module, component) {
   return comp?.initialVariant ?? null;
 }
 
-// singleton の共有 variant レジストリ（component 名 → 現在 variant）。
+// singleton の共有 variant レジストリ（skey(module, component) → 現在 variant）。
 // フレームスタック・overlays に置かれた singleton はスナップショットでなくここへの参照を見る（ADR-0011）。
 // 二重の役割: presence gate の member 参照（対象.要素?）が対象インスタンスの現在 variant を
 // 判定する際のデフォルト解決にも流用する（対象は非 singleton でもよい）。手動トグルパネルが
@@ -80,20 +83,13 @@ function initialVariant(module, component) {
 // 分離しない（ADR-0002 Consequence「simulator はインスタンス variant の手動トグルで観測可能にする」）。
 let sharedVariants = new Map();
 
-// gate 対象 component 名の一覧（手動トグルパネル用）
+// gate 対象 component（{module, name}）の一覧（手動トグルパネル用。定義 module へ解決済み）
 const GATE_TARGETS = DATA.gateTargets || [];
 let gatePanelOpen = false;
 
-function findComponentDef(name) {
-  for (const mod of Object.values(DATA.modules)) {
-    if (mod.components[name]) return mod.components[name];
-  }
-  return null;
-}
-
 // 対象インスタンスの variant を手動で書き換える（gate 観測用）
-function setInstanceVariant(name, variant) {
-  sharedVariants.set(name, variant);
+function setInstanceVariant(module, name, variant) {
+  sharedVariants.set(skey(module, name), variant);
   render();
 }
 
@@ -106,9 +102,10 @@ function toggleGatePanel() {
 // 明示 X##v はレジストリを書き換える（全所在に即時反映）。variant 省略時は「初回は initial、
 // 以降は最後に遷移した variant」（レジストリ未登録なら initial）。
 function resolveEntryVariant(target) {
-  if (SINGLETONS.has(target.component)) {
-    if (target.variant != null) sharedVariants.set(target.component, target.variant);
-    return sharedVariants.has(target.component) ? sharedVariants.get(target.component) : initialVariant(target.module, target.component);
+  if (isSingleton(target.module, target.component)) {
+    const k = skey(target.module, target.component);
+    if (target.variant != null) sharedVariants.set(k, target.variant);
+    return sharedVariants.has(k) ? sharedVariants.get(k) : initialVariant(target.module, target.component);
   }
   return target.variant ?? initialVariant(target.module, target.component);
 }
@@ -116,8 +113,9 @@ function resolveEntryVariant(target) {
 // フレームの表示 variant。singleton は frame.variant（積んだ時点の値）を無視し、
 // 常に共有レジストリの現在値を見る（スナップショット禁止。ADR-0011）。
 function displayVariant(frame) {
-  if (SINGLETONS.has(frame.component)) {
-    return sharedVariants.has(frame.component) ? sharedVariants.get(frame.component) : initialVariant(frame.module, frame.component);
+  if (isSingleton(frame.module, frame.component)) {
+    const k = skey(frame.module, frame.component);
+    return sharedVariants.has(k) ? sharedVariants.get(k) : initialVariant(frame.module, frame.component);
   }
   return frame.variant;
 }
@@ -148,8 +146,9 @@ function overlayVariant(name) {
   const entry = overlays.get(name);
   if (!entry) return null;
   // singleton は再 show の「省略時 initial 上書き」規則が適用されない——常に共有レジストリを見る（SPEC「オーバーレイ」）
-  if (SINGLETONS.has(name)) {
-    return sharedVariants.has(name) ? sharedVariants.get(name) : initialVariant(entry.module, name);
+  if (isSingleton(entry.module, name)) {
+    const k = skey(entry.module, name);
+    return sharedVariants.has(k) ? sharedVariants.get(k) : initialVariant(entry.module, name);
   }
   if (entry.variant != null) return entry.variant;
   return initialVariant(entry.module, name);
@@ -167,12 +166,12 @@ function overlayInteractions(name) {
 }
 
 // presence gate（'?'）の構造的 presence 判定（SPEC「2種類のガード的なもの」・ADR-0002）。
-// gate なし・判定不能（indeterminate）は常に有効。host は host component 自身の現在 variant、
+// gate なしは常に有効。host は発火時のアクティブ component の現在 variant で判定
+// （document common の裸参照もこの経路——ADR-0015 の動的解決）、
 // member は対象インスタンスの現在 variant（未追跡なら initial。singleton なら共有レジストリ）を見る。
 function gateEnabled(inter) {
   const gate = inter.gate;
   if (!gate) return true;
-  if (gate.kind === 'indeterminate') return true;
   if (gate.kind === 'host') {
     const frame = currentFrame();
     const comp = getComp(frame.module, frame.component);
@@ -180,15 +179,15 @@ function gateEnabled(inter) {
     const variant = displayVariant(frame);
     const commonEls = comp.commonElements ?? [];
     const varEls = variant ? (comp.variants[variant]?.elements ?? []) : [];
-    return [...commonEls, ...varEls].includes(gate.name);
+    const docEls = DATA.modules[frame.module]?.docCommonElements ?? [];
+    return [...docEls, ...commonEls, ...varEls].includes(gate.name);
   }
   // member
   const mod = gate.module ?? currentFrame().module;
   const targetComp = getComp(mod, gate.targetComponent);
   if (!targetComp) return true; // 対象が判定不能（未定義 component 等）→ always-on
-  const variant = sharedVariants.has(gate.targetComponent)
-    ? sharedVariants.get(gate.targetComponent)
-    : targetComp.initialVariant;
+  const k = skey(mod, gate.targetComponent);
+  const variant = sharedVariants.has(k) ? sharedVariants.get(k) : targetComp.initialVariant;
   const commonEls = targetComp.commonElements ?? [];
   const varEls = variant ? (targetComp.variants[variant]?.elements ?? []) : [];
   return [...commonEls, ...varEls].includes(gate.name);
@@ -234,12 +233,24 @@ function applyTransition(result) {
     if (result.op === 'show') {
       const mod = result.module ?? frame.module;
       // 明示 show(X##v) は singleton の共有レジストリも書き換える（全所在に即時反映。ADR-0011）
-      if (result.variant != null && SINGLETONS.has(result.component)) {
-        sharedVariants.set(result.component, result.variant);
+      if (result.variant != null && isSingleton(mod, result.component)) {
+        sharedVariants.set(skey(mod, result.component), result.variant);
       }
       overlays.set(result.component, { variant: result.variant, module: mod });
     } else {
       overlays.delete(result.component);
+    }
+    return;
+  }
+
+  if (result.type === 'state') {
+    // set（ADR-0014）: 遷移も掲示もせず singleton の共有 variant だけを書き換える。
+    // 非 singleton は no-op（E030 は checker が静的に検出する）。
+    const mod = result.module ?? frame.module;
+    if (isSingleton(mod, result.component)) {
+      sharedVariants.set(skey(mod, result.component), result.variant);
+    } else {
+      showToast('set(' + result.component + '##' + result.variant + ') は singleton でないため無効');
     }
     return;
   }
@@ -400,12 +411,13 @@ function render() {
     return '<span class="' + cls + '">' + esc(label) + '</span>';
   }).join(' › ');
 
-  // elements
+  // elements（document common の要素行は全 component の表示に共通要素として乗る。SPEC「document common」）
   const frameVariant = displayVariant(frame);
   let elements = '';
+  const docEls = DATA.modules[frame.module]?.docCommonElements ?? [];
   const commonEls = comp?.commonElements ?? [];
   const varEls = frameVariant ? (comp?.variants[frameVariant]?.elements ?? []) : [];
-  const allEls = [...commonEls, ...varEls];
+  const allEls = [...docEls, ...commonEls, ...varEls];
   if (allEls.length > 0) {
     elements = '<div class="elements">' +
       allEls.map(e => '<div class="element">' + esc(e) + '</div>').join('') +
@@ -466,20 +478,21 @@ function render() {
   const variantLabel = frameVariant ? '<div class="variant-label">## ' + esc(frameVariant) + '</div>' : '';
 
   // インスタンス variant 手動トグルパネル（gate 観測用。姿を持たない対象は切替不要なので除外）
-  const gateTargetsWithVariants = GATE_TARGETS.filter((n) => {
-    const comp = findComponentDef(n);
+  const gateTargetsWithVariants = GATE_TARGETS.filter((t) => {
+    const comp = getComp(t.module, t.name);
     return comp && Object.keys(comp.variants).length > 0;
   });
   let gatePanelHtml = '';
   if (gateTargetsWithVariants.length > 0) {
-    const rows = gateTargetsWithVariants.map((n) => {
-      const comp = findComponentDef(n);
-      const current = sharedVariants.has(n) ? sharedVariants.get(n) : comp.initialVariant;
+    const rows = gateTargetsWithVariants.map((t) => {
+      const comp = getComp(t.module, t.name);
+      const k = skey(t.module, t.name);
+      const current = sharedVariants.has(k) ? sharedVariants.get(k) : comp.initialVariant;
       const options = Object.keys(comp.variants).map((v) =>
         '<option value="' + esc(v) + '"' + (v === current ? ' selected' : '') + '>' + esc(v) + '</option>'
       ).join('');
-      return '<div class="gate-row"><span class="gate-row-label">' + esc(n) + '</span>' +
-        '<select onchange="setInstanceVariant(' + JSON.stringify(n) + ', this.value)">' + options + '</select></div>';
+      return '<div class="gate-row"><span class="gate-row-label">' + esc(t.name) + '</span>' +
+        '<select onchange="setInstanceVariant(' + esc(JSON.stringify(t.module)) + ', ' + esc(JSON.stringify(t.name)) + ', this.value)">' + options + '</select></div>';
     }).join('');
     gatePanelHtml = '<div class="gate-panel">' +
       '<button class="gate-panel-toggle" onclick="toggleGatePanel()">' +

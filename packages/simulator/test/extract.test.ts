@@ -172,11 +172,17 @@ describe('extractSimData', () => {
     if (body.type === 'overlay') expect(body.variant).toBeNull();
   });
 
-  it('singleton: `#!` component 名を data.singletons に集める（`#` は含めない）', () => {
+  it('singleton: `#!` を定義 module 付きで data.singletons に集める（`#` は含めない。ADR-0013）', () => {
     const doc = parseOk('#! クーポン\n## 未受取\n受取ボタン\n\n# 通常\n要素\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
-    expect(data.singletons).toContain('クーポン');
-    expect(data.singletons).not.toContain('通常');
+    expect(data.singletons).toEqual([{ module: 'main', name: 'クーポン' }]);
+  });
+
+  it('singleton: 別モジュールの同名 component とは素名合流しない（ADR-0013）', () => {
+    const subDoc = parseOk('#! クーポン\n## 未受取\n受取ボタン\n');
+    const mainDoc = parseOk('import sub as sub\n# クーポン\n## 通常\n要素\n');
+    const data = extractSimData(new Map([['main', mainDoc], ['sub', subDoc]]), 'main');
+    expect(data.singletons).toEqual([{ module: 'sub', name: 'クーポン' }]);
   });
 
   it('3階層shadow: variant固有がdocument commonをshadowするとdocCommonInteractionsから消える', () => {
@@ -216,18 +222,24 @@ describe('extractSimData', () => {
     expect(gate).toEqual({ name: '選択可能', kind: 'member', targetComponent: '日付', module: null });
   });
 
-  it('presence gate: document common の裸参照は判定不能→ kind=indeterminate（ADR-0012 B7a）', () => {
+  it('presence gate: document common の裸参照も kind=host（発火時のアクティブ component で判定。ADR-0015）', () => {
     const doc = parseOk('> 通知(バナー?) -> push(詳細)\n\n# ホーム\n要素\n\n# 詳細\n本文\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
     const gate = data.documentCommon[0]!.gate;
-    expect(gate).toEqual({ name: 'バナー', kind: 'indeterminate' });
+    expect(gate).toEqual({ name: 'バナー', kind: 'host' });
   });
 
-  it('presence gate: document common の裸参照は生き残った docCommonInteractions でも indeterminate のまま', () => {
+  it('presence gate: 生き残った docCommonInteractions でも kind=host（ADR-0015）', () => {
     const doc = parseOk('> 通知(バナー?) -> push(詳細)\n\n# ホーム\n要素\n\n# 詳細\n本文\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
     const gate = data.modules['main']!.components['ホーム']!.docCommonInteractions[0]!.gate;
-    expect(gate).toEqual({ name: 'バナー', kind: 'indeterminate' });
+    expect(gate).toEqual({ name: 'バナー', kind: 'host' });
+  });
+
+  it('document common の要素行は docCommonElements として module に載る（SPEC「document common」）', () => {
+    const doc = parseOk('共通バッジ\n> 通知 -> push(詳細)\n\n# ホーム\n要素\n\n# 詳細\n本文\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.modules['main']!.docCommonElements).toEqual(['共通バッジ']);
   });
 
   it('presence gate: `?` の無い行動は gate が null（always-on）', () => {
@@ -253,12 +265,16 @@ describe('extractSimData', () => {
     expect(dc).not.toContain('クリック(メイン共通)');
   });
 
-  it('gateTargets: member gate の対象 component 名を重複除去して集める。host/indeterminate は含めない', () => {
+  it('gateTargets: member gate の対象を module 付き・重複除去で集める。host は含めない', () => {
     const doc = parseOk(
       '# 予約\n投了\n*日付\n*時間\n> タップ(投了?) -> back()\n> タップ(日付.選択可能?) -> push(A)\n> タップ(時間.選択可能?) -> push(A)\n> タップ(日付.選択可能?) -> push(B)\n\n# 日付\n## 選択可能\n選択可能\n\n# 時間\n## 選択可能\n選択可能\n',
     );
     const data = extractSimData(new Map([['main', doc]]), 'main');
-    expect(data.gateTargets.sort()).toEqual(['日付', '時間']);
+    const sorted = [...data.gateTargets].sort((a, b) => a.name.localeCompare(b.name));
+    expect(sorted).toEqual([
+      { module: 'main', name: '日付' },
+      { module: 'main', name: '時間' },
+    ]);
   });
 
   it('entryComponent is first component', () => {
