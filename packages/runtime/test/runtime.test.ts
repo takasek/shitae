@@ -752,3 +752,48 @@ describe('singleton — 共有 variant の書換と参照（基準1）', () => {
     expect(activeLocation(s).variant).toBe('編集中');
   });
 });
+
+describe('singleton — switch をまたぐ参照（基準2・スナップショット不在）', () => {
+  const sess = (name: string) => ({ name });
+
+  it('タブAで goto(##v2)→タブBへ switch→A復帰で v2 を映す', () => {
+    let s = initialState(loc('ホーム'), ['クーポン']);
+    s = reduce(s, tr('switch', navComp('クーポン'), sess('t'))).state; // タブA作成
+    s = reduce(s, tr('goto', navVar('v2'))).state; // 共有=v2
+    s = reduce(s, tr('switch', navComp('設定'), sess('u'))).state; // タブB作成
+    expect(activeLocation(s).component).toBe('設定');
+    s = reduce(s, tr('switch', navComp('クーポン'), sess('t'))).state; // A復帰
+    expect(activeLocation(s).variant).toBe('v2');
+  });
+
+  it('中断中のタブは他所での共有 variant 進行に追随する（snapshot 不在）', () => {
+    let s = initialState(loc('ホーム'), ['クーポン']);
+    s = reduce(s, tr('switch', navComp('クーポン'), sess('t'))).state; // タブA=クーポン
+    s = reduce(s, tr('goto', navVar('v2'))).state; // 共有=v2
+    s = reduce(s, tr('switch', navComp('設定'), sess('u'))).state; // タブBへ（A中断）
+    // タブBで別所からクーポンを開き v3 へ進める
+    s = reduce(s, tr('present', navComp('クーポン'))).state;
+    s = reduce(s, tr('goto', navVar('v3'))).state; // 共有=v3
+    s = reduce(s, tr('dismiss')).state;
+    // タブA復帰: 中断中に共有が v3 へ進んだので v2 でなく v3
+    s = reduce(s, tr('switch', navComp('クーポン'), sess('t'))).state;
+    expect(activeLocation(s).variant).toBe('v3');
+  });
+
+  it('switch-create の明示 X##v は共有書換として働く', () => {
+    let s = initialState(loc('ホーム'), ['クーポン']);
+    s = reduce(s, tr('switch', navComp('クーポン', '受取済'), sess('t'))).state;
+    expect(s.sharedVariants.get('クーポン')).toBe('受取済');
+    expect(activeLocation(s).variant).toBe('受取済');
+  });
+
+  it('switch-resume でも明示 X##v は共有書換として働く（SPEC 301 優先・設計者確定）', () => {
+    let s = initialState(loc('ホーム'), ['クーポン']);
+    s = reduce(s, tr('switch', navComp('クーポン'), sess('t'))).state; // 共有 null（initial）
+    s = reduce(s, tr('switch', navComp('設定'), sess('u'))).state; // 別タブへ
+    // @t 生存中に X##v で resume → target frame は不変だが共有 variant は書換
+    s = reduce(s, tr('switch', navComp('クーポン', '受取済'), sess('t'))).state;
+    expect(s.sharedVariants.get('クーポン')).toBe('受取済');
+    expect(activeLocation(s).variant).toBe('受取済');
+  });
+});

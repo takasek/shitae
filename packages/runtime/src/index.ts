@@ -454,15 +454,19 @@ function reduceTransition(state: RuntimeState, transition: Transition): ReduceRe
       }
       const candidates = state.frames.filter((f) => f.beginsSession?.name === sessionName);
       if (candidates.length > 0) {
-        // resume: 最も新しいフレームへ復帰（木の形は不変。target X は無視される）
+        // resume: 最も新しいフレームへ復帰（木の形は不変。target X の component は無視される）。
+        // ただし明示 X##v は共有 variant 書換として働く（SPEC「singleton」— 全所在に即時反映。
+        // resume でも target frame は変えないが副作用の書換だけは効く。設計者確定）。
         const resumeFrame = candidates.reduce((a, b) => (b.id > a.id ? b : a));
-        return { state: { ...state, activeFrameId: resumeFrame.id }, diagnostics: diags };
+        const sharedVariants = target ? writeShared(state, navTargetToLocation(target, current)) : state.sharedVariants;
+        return { state: { ...state, activeFrameId: resumeFrame.id, sharedVariants }, diagnostics: diags };
       }
       // create: 兄弟規則（ADR-0008 補正）。祖先方向に最も近い switch 製 or present 製
       // （タブ群 anchor）を基準に親を決める: switch 製ならその兄弟、present 製ならその子、
       // どちらも無ければ現在フレームの子。
       if (!target) return { state, diagnostics: diags };
       const loc = navTargetToLocation(target, current);
+      const sharedVariants = writeShared(state, loc);
       const cur = activeFrame(state);
       const parentId = switchParentId(state, cur);
       const child: Frame = {
@@ -474,7 +478,7 @@ function reduceTransition(state: RuntimeState, transition: Transition): ReduceRe
         origin: 'switch',
       };
       const newState = addFrame(state, child);
-      return { state: { ...newState, activeFrameId: child.id }, diagnostics: diags };
+      return { state: { ...newState, activeFrameId: child.id, sharedVariants }, diagnostics: diags };
     }
   }
 }
