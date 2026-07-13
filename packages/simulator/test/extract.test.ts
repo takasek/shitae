@@ -200,6 +200,42 @@ describe('extractSimData', () => {
     expect(comp.docCommonInteractions.map((i) => i.actionText)).not.toContain('タップ(戻る)');
   });
 
+  it('presence gate: 裸参照 `対象?` は kind=host で判定対象名を保持する', () => {
+    const doc = parseOk('# 予約\n投了\n> タップ(投了?) -> goto(##リザルト)\n## リザルト\n終了\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const gate = data.modules['main']!.components['予約']!.commonInteractions[0]!.gate;
+    expect(gate).toEqual({ name: '投了', kind: 'host' });
+  });
+
+  it('presence gate: member 参照 `対象.要素?` は kind=member で対象 component 名を保持する', () => {
+    const doc = parseOk(
+      '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n# 時間選択\n本文\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const gate = data.modules['main']!.components['予約']!.commonInteractions[0]!.gate;
+    expect(gate).toEqual({ name: '選択可能', kind: 'member', targetComponent: '日付', module: null });
+  });
+
+  it('presence gate: document common の裸参照は判定不能→ kind=indeterminate（ADR-0012 B7a）', () => {
+    const doc = parseOk('> 通知(バナー?) -> push(詳細)\n\n# ホーム\n要素\n\n# 詳細\n本文\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const gate = data.documentCommon[0]!.gate;
+    expect(gate).toEqual({ name: 'バナー', kind: 'indeterminate' });
+  });
+
+  it('presence gate: document common の裸参照は生き残った docCommonInteractions でも indeterminate のまま', () => {
+    const doc = parseOk('> 通知(バナー?) -> push(詳細)\n\n# ホーム\n要素\n\n# 詳細\n本文\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const gate = data.modules['main']!.components['ホーム']!.docCommonInteractions[0]!.gate;
+    expect(gate).toEqual({ name: 'バナー', kind: 'indeterminate' });
+  });
+
+  it('presence gate: `?` の無い行動は gate が null（always-on）', () => {
+    const doc = parseOk('# A\n投了\n> タップ(投了) -> back()\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.modules['main']!.components['A']!.commonInteractions[0]!.gate).toBeNull();
+  });
+
   it('entryComponent is first component', () => {
     const doc = parseOk('# ログイン\nID入力\n\n# ホーム\nフィード\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');

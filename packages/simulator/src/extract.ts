@@ -1,4 +1,4 @@
-import type { Document, Component, Interaction, Result } from '@shitae/ast';
+import type { Action, Document, Component, Interaction, Result } from '@shitae/ast';
 import { effectiveResults, mergeInteractions } from '@shitae/resolver';
 import { singletonNames } from '@shitae/runtime';
 
@@ -36,12 +36,30 @@ export interface SimChoice {
   results: SimResultBody[];
 }
 
+/**
+ * presence gate（`行動(対象?)`）の構造的 presence 判定に要る情報（SPEC「2種類のガード的なもの」・ADR-0002）。
+ * - host: 裸参照。host component（この interaction が書かれている component）の現在 variant で判定
+ * - member: `対象.要素` 参照。対象インスタンス（targetComponent）の現在 variant で判定
+ * - indeterminate: host が存在しない（document common の裸参照。ADR-0012 B7a）等、判定不能 → always-on
+ */
+export interface SimGate {
+  /** 実効 body の alias/ref 名との照合に使う名前 */
+  name: string;
+  kind: 'host' | 'member' | 'indeterminate';
+  /** kind==='member' のときの対象 component 名 */
+  targetComponent?: string;
+  /** kind==='member' のときの明示モジュール。省略時は null（実行時にアクティブフレームの module で解決） */
+  module?: string | null;
+}
+
 export interface SimInteraction {
   actionText: string;
   /** 最初のラベルより前の result 群。常に成立（分岐に依らず順に全部起こる） */
   prelude: SimResultBody[];
   /** 条件ラベル付きの選択肢。ラベル継承（effectiveResults）済み */
   choices: SimChoice[];
+  /** `?` 無しの行動は null（always-on）。SPEC「presence gate」 */
+  gate: SimGate | null;
 }
 
 export interface SimVariant {
@@ -118,7 +136,20 @@ function convertResultBody(r: Result): SimResultBody {
   }
 }
 
-function convertInteraction(i: Interaction): SimInteraction {
+/**
+ * action.target の existsGated から SimGate を組み立てる（SPEC「presence gate」・ADR-0002）。
+ * hasHost=false は host component が存在しない文脈（document common。ADR-0012 B7a）— 裸参照は判定不能。
+ */
+function buildGate(action: Action, hasHost: boolean): SimGate | null {
+  const ref = action.target;
+  if (!ref || !ref.existsGated) return null;
+  if (ref.member === null) {
+    return hasHost ? { name: ref.name, kind: 'host' } : { name: ref.name, kind: 'indeterminate' };
+  }
+  return { name: ref.member, kind: 'member', targetComponent: ref.name, module: ref.module ?? null };
+}
+
+function convertInteraction(i: Interaction, hasHost: boolean): SimInteraction {
   const action = i.action;
   const targetPart = action.target ? `(${action.target.name})` : '';
   const prelude: SimResultBody[] = [];
@@ -142,6 +173,7 @@ function convertInteraction(i: Interaction): SimInteraction {
     actionText: `${action.text}${targetPart}`,
     prelude,
     choices,
+    gate: buildGate(action, hasHost),
   };
 }
 
@@ -160,9 +192,9 @@ function survivingDocCommon(documentCommon: Interaction[], effective: Interactio
 function convertComponent(comp: Component, documentCommon: Interaction[]): SimComponent {
   const commonElements = comp.common.elements.map(elementDisplayName);
   const commonInteractionsAst = comp.common.interactions;
-  const commonInteractions = commonInteractionsAst.map(convertInteraction);
+  const commonInteractions = commonInteractionsAst.map((it) => convertInteraction(it, true));
   const docCommonInteractions = survivingDocCommon(documentCommon, commonInteractionsAst).map(
-    convertInteraction,
+    (it) => convertInteraction(it, false),
   );
   const variants: Record<string, SimVariant> = {};
   for (const v of comp.variants) {
@@ -171,8 +203,10 @@ function convertComponent(comp: Component, documentCommon: Interaction[]): SimCo
     const effectiveAst = mergeInteractions(commonInteractionsAst, v.body.interactions);
     variants[v.name] = {
       elements: v.body.elements.map(elementDisplayName),
-      interactions: effectiveAst.map(convertInteraction),
-      docCommonInteractions: survivingDocCommon(documentCommon, effectiveAst).map(convertInteraction),
+      interactions: effectiveAst.map((it) => convertInteraction(it, true)),
+      docCommonInteractions: survivingDocCommon(documentCommon, effectiveAst).map(
+        (it) => convertInteraction(it, false),
+      ),
     };
   }
   return {
@@ -191,7 +225,7 @@ export function extractSimData(
   const entryDoc = documents.get(entryModule);
   const entryComponent = entryDoc?.components[0]?.name ?? '';
   const documentCommonAst = entryDoc?.common.interactions ?? [];
-  const documentCommon = documentCommonAst.map(convertInteraction);
+  const documentCommon = documentCommonAst.map((it) => convertInteraction(it, false));
 
   const modules: Record<string, SimModuleData> = {};
   for (const [moduleName, doc] of documents) {
