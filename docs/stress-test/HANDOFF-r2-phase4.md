@@ -51,13 +51,13 @@ parser の `#!` は AST に `Component.singleton: boolean` として乗る（`#!
 
 **注意**: skill の教訓「コア/リスキーな書き換え（runtime 中核）は自分でやる」。subagent に丸投げしない。TDD で受け入れ基準を先に確定。
 
-## 残り 2: simulator の viewer 追随（表示層。意味論オラクル runtime は完了済み）
+## 残り 2: simulator の viewer 追随（表示層。意味論オラクル runtime は完了済み）— 未着手・次にやる本体
 
 `packages/simulator/src/simulator.ts`（ブラウザ側 JS 文字列）と `extract.ts`。r2 で未追随:
 - **presence gate `?`**: 現状 gate 付き interaction を常時有効表示（`existsGated` を評価していない）。SPEC「操作は variant に属する」の構造的 presence 判定（実効 body に対象要素があるか）で有効/無効を切る。
 - **3 階層 shadow**: 現状 variant×common の 2 階層のみ（`extract.ts` の `mergeInteractions`）。document common 階層を最外として合流させる（SPEC「document common」の shadow 拡張）。今は doc common を別枠「どの画面でも」帯に出すだけで component 側の同一(行動,対象)と照合しない。
 - **overlay variant**: 帯表示が component 名のみ。runtime は Map 化済みなので、掲示 variant と interaction 操作可能化を追随。
-- singleton: runtime 完了後、共有 variant を simulator にも反映。
+- **singleton**: runtime 側は完了済み（`packages/runtime/src/index.ts` の `resolveLocation` / `overlayVariant` / `singletonNames(doc)` を参照）。simulator は Document から `singletonNames(doc)` を集めて `initialState(entry, singletons)` に渡し、共有 variant を表示に反映する配線が要る。`docs/examples/delivery.shitae`（`#! クーポン`）が手元の実例。
 
 simulator はユニットテストが薄い（`extract.test.ts` のみ）。`docs/examples/*.shitae` 統合テストが load-bearing。
 
