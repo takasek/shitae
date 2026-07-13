@@ -160,6 +160,11 @@ function generateTransition(
     return [`${ind(4)}{} /* ${body.verb}(${body.target.name}) */`];
   }
 
+  // state verb（set）も frame 木・遷移グラフを操作しない（ADR-0014）。
+  if (body.kind === 'state') {
+    return [`${ind(4)}{} /* ${body.verb}(${body.target.name}##${body.target.variant}) */`];
+  }
+
   // transition
   const tr = body;
   const word = tr.word;

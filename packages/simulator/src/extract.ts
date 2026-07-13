@@ -28,7 +28,16 @@ export interface SimOverlay {
   variant: string | null;
 }
 
-export type SimResultBody = SimTransition | SimEffect | SimOverlay;
+/** state verb（set）。遷移を伴わない singleton の共有 variant 書き換え（ADR-0014） */
+export interface SimStateWrite {
+  type: 'state';
+  component: string;
+  /** set(mod::X##v) の明示モジュール。省略時は null（実行時にアクティブフレームの module で解決） */
+  module: string | null;
+  variant: string;
+}
+
+export type SimResultBody = SimTransition | SimEffect | SimOverlay | SimStateWrite;
 
 /** 同一有効ラベルの result 群 ＝ 1 つの選択肢（選ぶと results が順に全部起こる） */
 export interface SimChoice {
@@ -136,6 +145,14 @@ function convertResultBody(r: Result): SimResultBody {
       component: body.target.name,
       module: body.target.module ?? null,
       variant: body.target.variant ?? null,
+    };
+  } else if (body.kind === 'state') {
+    // set（ADR-0014）: 遷移なしの共有 variant 書き換え。掲示もしない。
+    return {
+      type: 'state',
+      component: body.target.name,
+      module: body.target.module ?? null,
+      variant: body.target.variant,
     };
   } else {
     return { type: 'effect', text: body.text };

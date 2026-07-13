@@ -1159,3 +1159,61 @@ describe('E027: overlay verb の裸 ##variant', () => {
     expect(diagnostics).toHaveLength(0);
   });
 });
+
+// ---------------------------------------------------------------------------
+// set verb（state verb。ADR-0014）
+// ---------------------------------------------------------------------------
+describe('set verb（遷移なし共有 variant 書換）', () => {
+  it('set(クーポン##受取済) は StateWrite になる', () => {
+    const { document, diagnostics } = parseDoc('# A\n> 受け取る -> set(クーポン##受取済)');
+    expect(diagnostics).toHaveLength(0);
+    const body = document.components[0].common.interactions[0].results[0].body;
+    expect(body.kind).toBe('state');
+    if (body.kind !== 'state') return;
+    expect(body.verb).toBe('set');
+    expect(body.target).toEqual({ module: null, name: 'クーポン', variant: '受取済' });
+  });
+
+  it('set(mod::クーポン##受取済) はモジュール前置可', () => {
+    const { document, diagnostics } = parseDoc('import m as mod\n# A\n> 受け取る -> set(mod::クーポン##受取済)');
+    expect(diagnostics).toHaveLength(0);
+    const body = document.components[0].common.interactions[0].results[0].body;
+    expect(body.kind).toBe('state');
+    if (body.kind !== 'state') return;
+    expect(body.target.module).toBe('mod');
+    expect(body.target.name).toBe('クーポン');
+  });
+
+  it('quoted 名も正準化される: set("My Coupon"##受取済)', () => {
+    const { document } = parseDoc('# A\n> 受け取る -> set("My Coupon"##受取済)');
+    const body = document.components[0].common.interactions[0].results[0].body;
+    expect(body.kind).toBe('state');
+    if (body.kind !== 'state') return;
+    expect(body.target.name).toBe('My Coupon');
+  });
+
+  it('E029: set(クーポン) — ##variant なしはエラー', () => {
+    const { diagnostics } = parseDoc('# A\n> 受け取る -> set(クーポン)');
+    expect(diagnostics.filter((d) => d.code === 'E029')).toHaveLength(1);
+  });
+
+  it('E029: set() — 空引数はエラー', () => {
+    const { diagnostics } = parseDoc('# A\n> 受け取る -> set()');
+    expect(diagnostics.filter((d) => d.code === 'E029')).toHaveLength(1);
+  });
+
+  it('E029: set(##受取済) — 裸 variant はエラー（goto(##v) の仕事）', () => {
+    const { diagnostics } = parseDoc('# A\n> 受け取る -> set(##受取済)');
+    expect(diagnostics.filter((d) => d.code === 'E029')).toHaveLength(1);
+  });
+
+  it('E029: set(クーポン##受取済, @s) — セッションは取れない', () => {
+    const { diagnostics } = parseDoc('# A\n> 受け取る -> set(クーポン##受取済, @s)');
+    expect(diagnostics.filter((d) => d.code === 'E029')).toHaveLength(1);
+  });
+
+  it('E029: set(*クーポン##受取済) — collection は取れない', () => {
+    const { diagnostics } = parseDoc('# A\n> 受け取る -> set(*クーポン##受取済)');
+    expect(diagnostics.filter((d) => d.code === 'E029')).toHaveLength(1);
+  });
+});

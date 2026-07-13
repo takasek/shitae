@@ -88,7 +88,7 @@ export interface Reference {
 
 export interface Result {
   label: string | null;
-  body: Transition | Overlay | Effect;
+  body: Transition | Overlay | StateWrite | Effect;
   span: Span;
 }
 
@@ -107,6 +107,22 @@ export const TRANSITION_WORDS: readonly TransitionWord[] = [
 export type OverlayVerb = 'show' | 'hide';
 
 export const OVERLAY_VERBS: readonly OverlayVerb[] = ['show', 'hide'];
+
+export type StateVerb = 'set';
+
+export const STATE_VERBS: readonly StateVerb[] = ['set'];
+
+/**
+ * state verb（set）。遷移を伴わない singleton の共有 variant 書き換え
+ * （ADR-0014。フレーム木を操作せず・掲示もしない第 3 カテゴリ）。
+ * set-nav = "set" "(" [module::] name "##" name ")" — ##variant は必須（E029）。
+ */
+export interface StateWrite {
+  kind: 'state';
+  verb: StateVerb;
+  target: { module: string | null; name: string; variant: string };
+  span: Span;
+}
 
 export interface Transition {
   kind: 'transition';

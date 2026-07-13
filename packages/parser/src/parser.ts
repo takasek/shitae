@@ -18,6 +18,8 @@ import type {
   Overlay,
   OverlayVerb,
   OverlayTarget,
+  StateWrite,
+  StateVerb,
   Effect,
   TransitionWord,
   NavTarget,
@@ -25,7 +27,7 @@ import type {
   Span,
   Diagnostic,
 } from '@shitae/ast';
-import { TRANSITION_WORDS, OVERLAY_VERBS } from '@shitae/ast';
+import { TRANSITION_WORDS, OVERLAY_VERBS, STATE_VERBS } from '@shitae/ast';
 
 import {
   stripComments,
@@ -805,7 +807,7 @@ function parseResultBody(
   text: string,
   span: Span,
   diagnostics: Diagnostic[]
-): Transition | Overlay | Effect {
+): Transition | Overlay | StateWrite | Effect {
   // Check if it starts with a transition word
   for (const word of TRANSITION_WORDS) {
     if (text === word || text.startsWith(word + '(') || text.startsWith(word + ' ')) {
@@ -823,8 +825,64 @@ function parseResultBody(
     }
   }
 
+  // Check if it starts with a state verb (set — ADR-0014)
+  for (const verb of STATE_VERBS) {
+    if (text === verb || text.startsWith(verb + '(') || text.startsWith(verb + ' ')) {
+      const argsText = extractArgsText(text, verb);
+      return parseStateWrite(verb, argsText, span, diagnostics);
+    }
+  }
+
   // Otherwise it's an effect
   return { kind: 'effect', text, span };
+}
+
+// ---------------------------------------------------------------------------
+// parseStateWrite
+//
+// set-nav = "set" "(" [module::] name "##" name ")"（ADR-0014）。
+// ##variant 必須・裸 ##variant 不可（goto(##v) の仕事）・session/collection 不可。
+// 形が崩れていたら E029 を 1 つ出し、target は読めた範囲で埋める。
+// ---------------------------------------------------------------------------
+function parseStateWrite(
+  verb: StateVerb,
+  argsText: string,
+  span: Span,
+  diagnostics: Diagnostic[]
+): StateWrite {
+  const e029 = (detail: string) =>
+    diagnostics.push({
+      severity: 'error',
+      code: 'E029',
+      message: `set() の引数は component##variant の形が必要です（${detail}。「singleton component」参照）`,
+      span,
+    });
+
+  let t = argsText.trim();
+  const bad = (detail: string): StateWrite => {
+    e029(detail);
+    return { kind: 'state', verb, target: { module: null, name: stripQuotes(t), variant: '' }, span };
+  };
+
+  if (t === '') return bad('引数が空です');
+  if (splitTopLevel(t, ',', PARENS).length > 1) return bad('セッション等の第2引数は取れません');
+  if (t.startsWith('*')) return bad('collection(*) は取れません');
+  if (t.startsWith('##')) return bad('裸の ##variant は書けません — アクティブ画面の variant 切替は goto(##v) を使ってください');
+
+  let module: string | null = null;
+  const dcIdx = indexOfTopLevel(t, '::');
+  if (dcIdx !== -1) {
+    module = stripQuotes(t.slice(0, dcIdx).trim());
+    t = t.slice(dcIdx + 2).trim();
+  }
+  const hashIdx = indexOfTopLevel(t, '##');
+  if (hashIdx === -1) return bad('##variant がありません — 書き込む variant を明示してください');
+
+  const name = stripQuotes(t.slice(0, hashIdx).trim());
+  const variant = stripQuotes(t.slice(hashIdx + 2).trim());
+  if (name === '' || variant === '') return bad('component 名と variant 名の両方が必要です');
+
+  return { kind: 'state', verb, target: { module, name, variant }, span };
 }
 
 /** "word(args...)" から "args..." 部分（丸括弧の中身）を取り出す。 */
