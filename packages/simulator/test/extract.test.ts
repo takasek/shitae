@@ -172,6 +172,13 @@ describe('extractSimData', () => {
     if (body.type === 'overlay') expect(body.variant).toBeNull();
   });
 
+  it('singleton: `#!` component 名を data.singletons に集める（`#` は含めない）', () => {
+    const doc = parseOk('#! クーポン\n## 未受取\n受取ボタン\n\n# 通常\n要素\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.singletons).toContain('クーポン');
+    expect(data.singletons).not.toContain('通常');
+  });
+
   it('entryComponent is first component', () => {
     const doc = parseOk('# ログイン\nID入力\n\n# ホーム\nフィード\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');

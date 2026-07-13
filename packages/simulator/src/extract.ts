@@ -1,5 +1,6 @@
 import type { Document, Component, Interaction, Result } from '@shitae/ast';
 import { effectiveResults, mergeInteractions } from '@shitae/resolver';
+import { singletonNames } from '@shitae/runtime';
 
 export interface SimTransition {
   type: 'transition';
@@ -66,6 +67,8 @@ export interface SimulatorData {
   entryComponent: string;
   /** document common（最初の # より前）のインタラクション。どの画面でも常に有効（SPEC「document common」） */
   documentCommon: SimInteraction[];
+  /** singleton（`#!`）component 名の集合（全モジュール横断。SPEC「singleton component」ADR-0011） */
+  singletons: string[];
 }
 
 function elementDisplayName(el: import('@shitae/ast').ElementLine): string {
@@ -177,5 +180,10 @@ export function extractSimData(
   const entryComponent = entryDoc?.components[0]?.name ?? '';
   const documentCommon = (entryDoc?.common.interactions ?? []).map(convertInteraction);
 
-  return { modules, entryModule, entryComponent, documentCommon };
+  const singletonSet = new Set<string>();
+  for (const doc of documents.values()) {
+    for (const name of singletonNames(doc)) singletonSet.add(name);
+  }
+
+  return { modules, entryModule, entryComponent, documentCommon, singletons: [...singletonSet] };
 }
