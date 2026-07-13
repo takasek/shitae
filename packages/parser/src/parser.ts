@@ -954,6 +954,19 @@ function parseOverlayTarget(
     t = t.slice(1).trim();
   }
 
+  // E027: 裸 ##variant は母体 component が無いので書けない（show/hide 共通。
+  // ADR-0016 — hide は従来 E020 に偶然引っかかっていたが本質が違う）。
+  if (t.startsWith('##')) {
+    diagnostics.push({
+      severity: 'error',
+      code: 'E027',
+      message:
+        'overlay の引数に裸の ##variant は書けません（母体 component がありません。component##variant の形で書いてください。「オーバーレイ」参照）',
+      span,
+    });
+    return { module: null, name: '', variant: stripQuotes(t.slice(2).trim()) || null };
+  }
+
   let module: string | null = null;
   const dcIdx = indexOfTopLevel(t, '::');
   if (dcIdx !== -1) {

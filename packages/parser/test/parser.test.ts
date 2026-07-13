@@ -1132,3 +1132,30 @@ describe('quoted name と構造記号（##/::/./?）', () => {
     expect(ref.name).toBe('a::b');
   });
 });
+
+// ---------------------------------------------------------------------------
+// E027: overlay verb の裸 ##variant（ADR-0016。stress-test r3 A3）
+// ---------------------------------------------------------------------------
+describe('E027: overlay verb の裸 ##variant', () => {
+  it('show(##一) は E027（母体 component が無い）', () => {
+    const { diagnostics } = parseDoc('# 画面\n## 一\n> 押す -> show(##一)');
+    expect(diagnostics.filter((d) => d.code === 'E027')).toHaveLength(1);
+  });
+
+  it('hide(##一) は E027（E020 ではない — 本質は母体なし）', () => {
+    const { diagnostics } = parseDoc('# 画面\n## 一\n> 押す -> hide(##一)');
+    expect(diagnostics.filter((d) => d.code === 'E027')).toHaveLength(1);
+    expect(diagnostics.filter((d) => d.code === 'E020')).toHaveLength(0);
+  });
+
+  it('hide(X##v)（component 付き）は従来どおり E020', () => {
+    const { diagnostics } = parseDoc('# 画面\n> 押す -> hide(ミニ##再生中)');
+    expect(diagnostics.filter((d) => d.code === 'E020')).toHaveLength(1);
+    expect(diagnostics.filter((d) => d.code === 'E027')).toHaveLength(0);
+  });
+
+  it('show(X##v) は診断なし', () => {
+    const { diagnostics } = parseDoc('# 画面\n> 押す -> show(ミニ##再生中)');
+    expect(diagnostics).toHaveLength(0);
+  });
+});
