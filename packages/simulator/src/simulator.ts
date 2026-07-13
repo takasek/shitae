@@ -300,9 +300,15 @@ function goBack() {
   runResults([{ type: 'transition', word: 'back', target: null, session: null }]);
 }
 
-// document common（最初の # より前）のインタラクション。どの画面でも常に有効。
+// document common（最初の # より前）のインタラクション。どの画面でも常に有効だが、
+// 現在画面の実効 interactions に shadow されたものは除外する（SPEC「document common」3階層shadow）。
 function docCommonInteractions() {
-  return DATA.documentCommon ?? [];
+  const frame = currentFrame();
+  const comp = getComp(frame.module, frame.component);
+  if (!comp) return DATA.documentCommon ?? [];
+  const variant = displayVariant(frame);
+  if (variant) return comp.variants[variant]?.docCommonInteractions ?? DATA.documentCommon ?? [];
+  return comp.docCommonInteractions ?? DATA.documentCommon ?? [];
 }
 
 function handleDocCommon(idx) {

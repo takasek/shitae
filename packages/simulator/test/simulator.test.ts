@@ -111,6 +111,15 @@ describe('toSimulator', () => {
     expect(html).toContain('sharedVariants.set(');
   });
 
+  it('3階層shadow: どの画面でも帯は現在画面でshadowされたdocument commonを除外する', () => {
+    const doc = parseOk(
+      '> タップ(戻る) -> exit(@x)\n\n# A\n戻る\n> タップ(戻る) -> back()\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).toContain('comp.docCommonInteractions');
+    expect(html).toContain('comp.variants[variant]?.docCommonInteractions');
+  });
+
   it('back(X) は wall を越えない（barrier 停止のロジックを含む）', () => {
     const doc = parseOk('# A\n要素\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');

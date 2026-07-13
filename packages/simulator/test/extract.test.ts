@@ -179,6 +179,27 @@ describe('extractSimData', () => {
     expect(data.singletons).not.toContain('通常');
   });
 
+  it('3階層shadow: variant固有がdocument commonをshadowするとdocCommonInteractionsから消える', () => {
+    const doc = parseOk(
+      '> タップ(戻る) -> exit(@x)\n> プッシュ通知 -> push(詳細)\n\n# A\n戻る\n## 姿1\n> タップ(戻る) -> back()\n\n# 詳細\n本文\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const variant = data.modules['main']!.components['A']!.variants['姿1']!;
+    // タップ(戻る) は variant 固有に shadow され消える。プッシュ通知は shadow されず残る
+    const texts = variant.docCommonInteractions.map((i) => i.actionText);
+    expect(texts).not.toContain('タップ(戻る)');
+    expect(texts).toContain('プッシュ通知');
+  });
+
+  it('3階層shadow: componentCommonがdocument commonをshadowするとcommonのdocCommonInteractionsから消える', () => {
+    const doc = parseOk(
+      '> タップ(戻る) -> exit(@x)\n\n# A\n戻る\n> タップ(戻る) -> back()\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const comp = data.modules['main']!.components['A']!;
+    expect(comp.docCommonInteractions.map((i) => i.actionText)).not.toContain('タップ(戻る)');
+  });
+
   it('entryComponent is first component', () => {
     const doc = parseOk('# ログイン\nID入力\n\n# ホーム\nフィード\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');

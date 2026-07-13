@@ -47,11 +47,15 @@ export interface SimInteraction {
 export interface SimVariant {
   elements: string[];
   interactions: SimInteraction[];
+  /** この姿の実効 interactions に shadow されず生き残った document common（SPEC「document common」3階層shadow） */
+  docCommonInteractions: SimInteraction[];
 }
 
 export interface SimComponent {
   commonElements: string[];
   commonInteractions: SimInteraction[];
+  /** component common の実効 interactions に shadow されず生き残った document common（姿を持たない component 用） */
+  docCommonInteractions: SimInteraction[];
   variants: Record<string, SimVariant>;
   /** 最初に定義された姿。姿指定なしで入ったときの初期姿。姿を持たなければ null */
   initialVariant: string | null;
@@ -141,23 +145,40 @@ function convertInteraction(i: Interaction): SimInteraction {
   };
 }
 
-function convertComponent(comp: Component): SimComponent {
+/**
+ * documentCommon のうち、effective（component common または姿の実効 interactions）に
+ * shadow されず生き残るものだけを返す（SPEC「document common」3階層shadow: 特化が一般に勝つ）。
+ * mergeInteractions(documentCommon, effective) は [生存 documentCommon, ...effective] の順で
+ * 返すため、末尾から effective.length 件を落とせば生存分だけが残る。
+ */
+function survivingDocCommon(documentCommon: Interaction[], effective: Interaction[]): Interaction[] {
+  if (effective.length === 0) return mergeInteractions(documentCommon, effective);
+  const merged = mergeInteractions(documentCommon, effective);
+  return merged.slice(0, merged.length - effective.length);
+}
+
+function convertComponent(comp: Component, documentCommon: Interaction[]): SimComponent {
   const commonElements = comp.common.elements.map(elementDisplayName);
-  const commonInteractions = comp.common.interactions.map(convertInteraction);
+  const commonInteractionsAst = comp.common.interactions;
+  const commonInteractions = commonInteractionsAst.map(convertInteraction);
+  const docCommonInteractions = survivingDocCommon(documentCommon, commonInteractionsAst).map(
+    convertInteraction,
+  );
   const variants: Record<string, SimVariant> = {};
   for (const v of comp.variants) {
+    // 姿で有効な interaction 一覧 = mergeInteractions(共通, 姿固有)。
+    // 同一 (行動, 対象) は姿固有が共通を shadow する
+    const effectiveAst = mergeInteractions(commonInteractionsAst, v.body.interactions);
     variants[v.name] = {
       elements: v.body.elements.map(elementDisplayName),
-      // 姿で有効な interaction 一覧 = mergeInteractions(共通, 姿固有)。
-      // 同一 (行動, 対象) は姿固有が共通を shadow する
-      interactions: mergeInteractions(comp.common.interactions, v.body.interactions).map(
-        convertInteraction,
-      ),
+      interactions: effectiveAst.map(convertInteraction),
+      docCommonInteractions: survivingDocCommon(documentCommon, effectiveAst).map(convertInteraction),
     };
   }
   return {
     commonElements,
     commonInteractions,
+    docCommonInteractions,
     variants,
     initialVariant: comp.variants[0]?.name ?? null,
   };
@@ -167,18 +188,19 @@ export function extractSimData(
   documents: Map<string, Document>,
   entryModule: string,
 ): SimulatorData {
+  const entryDoc = documents.get(entryModule);
+  const entryComponent = entryDoc?.components[0]?.name ?? '';
+  const documentCommonAst = entryDoc?.common.interactions ?? [];
+  const documentCommon = documentCommonAst.map(convertInteraction);
+
   const modules: Record<string, SimModuleData> = {};
   for (const [moduleName, doc] of documents) {
     const components: Record<string, SimComponent> = {};
     for (const comp of doc.components) {
-      components[comp.name] = convertComponent(comp);
+      components[comp.name] = convertComponent(comp, documentCommonAst);
     }
     modules[moduleName] = { components };
   }
-
-  const entryDoc = documents.get(entryModule);
-  const entryComponent = entryDoc?.components[0]?.name ?? '';
-  const documentCommon = (entryDoc?.common.interactions ?? []).map(convertInteraction);
 
   const singletonSet = new Set<string>();
   for (const doc of documents.values()) {
