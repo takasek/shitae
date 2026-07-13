@@ -1,0 +1,7 @@
+// r3: 未定義 component が最上段のとき、どのファイルの document common が効くか
+import c21-r3-doccommon-undefined-top-b as b
+
+> 通知A -> push(ホーム)
+
+# ホーム
+> 進む -> push(b::画面B)

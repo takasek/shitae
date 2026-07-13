@@ -1,0 +1,10 @@
+// r3: import 越しの singleton + 同名通常 component — 共有レジストリのキーは名前空間を見るか
+import c20-r3-singleton-modules-b as mod
+
+# ホーム
+> タップ(相手の) -> push(mod::クーポン)
+> タップ(自分の) -> push(クーポン)
+
+# クーポン
+## 通常
+表示
