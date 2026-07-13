@@ -74,6 +74,26 @@ describe('toSimulator', () => {
     expect(html).toContain('overlay-bar');
   });
 
+  it('overlay: 掲示中 component の表示 variant を overlays に保持し帯に描画する', () => {
+    const doc = parseOk(
+      '# P\n> 再生 -> show(ミニプレイヤー##再生中)\n\n# ミニプレイヤー\n## 再生中\n曲名\n## 一時停止\n再開ボタン\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    // overlays は component名→{variant,module} の Map（show は上書き。SPEC「オーバーレイ」自己再 show）
+    expect(html).toContain("overlays.set(result.component, { variant: result.variant, module: mod })");
+    expect(html).toContain('function overlayVariant(');
+  });
+
+  it('overlay: 掲示中 component の interaction をクリック操作できる（A8）', () => {
+    const doc = parseOk(
+      '# P\n> 再生 -> show(ミニプレイヤー##再生中)\n\n# ミニプレイヤー\n## 再生中\n曲名\n> タップ(曲名) -> push(プレイヤー)\n\n# プレイヤー\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).toContain('function handleOverlayInteraction(');
+    expect(html).toContain('function overlayInteractions(');
+    expect(html).toContain('onclick="handleOverlayInteraction(');
+  });
+
   it('back(X) は wall を越えない（barrier 停止のロジックを含む）', () => {
     const doc = parseOk('# A\n要素\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');

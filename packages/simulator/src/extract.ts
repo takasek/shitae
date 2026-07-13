@@ -21,6 +21,10 @@ export interface SimOverlay {
   type: 'overlay';
   op: 'show' | 'hide';
   component: string;
+  /** show(X::name) 等の明示モジュール。省略時は null（実行時にアクティブフレームの module で解決） */
+  module: string | null;
+  /** show(X##v) の表示 variant。省略時（initial の含意）は null。hide は常に null（SPEC「オーバーレイ」） */
+  variant: string | null;
 }
 
 export type SimResultBody = SimTransition | SimEffect | SimOverlay;
@@ -95,7 +99,13 @@ function convertResultBody(r: Result): SimResultBody {
   } else if (body.kind === 'overlay') {
     // 掲示中 component 集合を更新する（ブラウザ側で常駐オーバーレイ帯に表示）。
     // variant は掲示時の姿だが simulator の帯表示は component 名だけを扱う。
-    return { type: 'overlay', op: body.verb, component: body.target.name };
+    return {
+      type: 'overlay',
+      op: body.verb,
+      component: body.target.name,
+      module: body.target.module ?? null,
+      variant: body.target.variant ?? null,
+    };
   } else {
     return { type: 'effect', text: body.text };
   }

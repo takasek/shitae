@@ -49,6 +49,7 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
 .dc-btn:hover { background: #dde; }
 .overlay-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #222; color: #fff; padding: 8px 16px; display: flex; gap: 12px; font-size: 12px; }
 .overlay-item { background: #444; padding: 2px 10px; border-radius: 10px; }
+.overlay-btn { margin-left: 6px; background: #666; color: #fff; border: none; border-radius: 8px; padding: 1px 8px; cursor: pointer; font-size: 11px; }
 </style>
 </head>
 <body>
@@ -76,7 +77,7 @@ let stack = [{
 
 let pendingChoice = null; // { actionText, choices }
 let toastTimer = null;
-let overlays = new Set(); // 掲示中 component 名（SPEC「オーバーレイ」。フレーム木とは別軸）
+let overlays = new Map(); // 掲示中 component名 → 表示 variant（null=initial の含意。SPEC「オーバーレイ」。フレーム木とは別軸）
 
 function getComp(module, name) {
   return DATA.modules[module]?.components[name];
@@ -84,6 +85,24 @@ function getComp(module, name) {
 
 function currentFrame() {
   return stack[stack.length - 1];
+}
+
+// 掲示中 component の表示 variant（省略指定は initial。SPEC「オーバーレイ」）
+function overlayVariant(name) {
+  const entry = overlays.get(name);
+  if (!entry) return null;
+  if (entry.variant != null) return entry.variant;
+  return initialVariant(entry.module, name);
+}
+
+// 掲示中 component の実効 interactions（表示 variant で mergeInteractions 済み。全画面から操作可能。SPEC「オーバーレイ」）
+function overlayInteractions(name) {
+  const entry = overlays.get(name);
+  if (!entry) return [];
+  const comp = getComp(entry.module, name);
+  if (!comp) return [];
+  const v = overlayVariant(name);
+  return v ? (comp.variants[v]?.interactions ?? []) : comp.commonInteractions;
 }
 
 function currentInteractions() {
@@ -120,9 +139,14 @@ function applyTransition(result) {
   }
 
   if (result.type === 'overlay') {
-    // 掲示中集合を更新（show 追加 / hide 除去 / hide 空打ち no-op）。フレーム木は動かさない。
-    if (result.op === 'show') overlays.add(result.component);
-    else overlays.delete(result.component);
+    // 掲示中集合を更新（show は表示 variant・module 込みで追加/上書き / hide 除去。hide 空打ち no-op）。フレーム木は動かさない。
+    // module 省略時はアクティブフレームの module で解決（push/goto の相対解決と同じ規約）。
+    if (result.op === 'show') {
+      const mod = result.module ?? frame.module;
+      overlays.set(result.component, { variant: result.variant, module: mod });
+    } else {
+      overlays.delete(result.component);
+    }
     return;
   }
 
@@ -200,6 +224,23 @@ function handleInteraction(idx) {
   const interaction = currentInteractions()[idx];
   if (!interaction) return;
   // prelude（最初のラベルより前の result 群）は常に成立
+  for (const body of interaction.prelude) applyTransition(body);
+  if (interaction.choices.length === 0) {
+    pendingChoice = null;
+    render();
+  } else if (interaction.choices.length === 1) {
+    runResults(interaction.choices[0].results);
+  } else {
+    pendingChoice = { actionText: interaction.actionText, choices: interaction.choices };
+    render();
+  }
+}
+
+// 掲示中 component の interaction 発火。遷移の相対解決は常にアクティブフレーム基準
+// （applyTransition が currentFrame() を見るため、overlay 自身を「現在地」にはしない。SPEC 341）
+function handleOverlayInteraction(name, idx) {
+  const interaction = overlayInteractions(name)[idx];
+  if (!interaction) return;
   for (const body of interaction.prelude) applyTransition(body);
   if (interaction.choices.length === 0) {
     pendingChoice = null;
@@ -296,11 +337,19 @@ function render() {
       ).join('') + '</div>';
   }
 
-  // オーバーレイ帯（掲示中 component。画面下部に常駐）
+  // オーバーレイ帯（掲示中 component。画面下部に常駐。表示 variant と操作ボタンを添える）
   let overlayHtml = '';
   if (overlays.size > 0) {
     overlayHtml = '<div class="overlay-bar">' +
-      [...overlays].map(n => '<span class="overlay-item">▸ ' + esc(n) + '</span>').join('') +
+      [...overlays.keys()].map(n => {
+        const v = overlayVariant(n);
+        const label = v ? n + ' ## ' + v : n;
+        const buttons = overlayInteractions(n).map((inter, idx) =>
+          '<button class="overlay-btn" onclick="handleOverlayInteraction(' + JSON.stringify(n) + ',' + idx + ')">' +
+          esc(inter.actionText) + '</button>'
+        ).join('');
+        return '<span class="overlay-item">▸ ' + esc(label) + buttons + '</span>';
+      }).join('') +
       '</div>';
   }
 

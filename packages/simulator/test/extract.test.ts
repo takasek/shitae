@@ -151,6 +151,27 @@ describe('extractSimData', () => {
     expect(data.modules['main']!.components['ホーム']!.initialVariant).toBeNull();
   });
 
+  it('overlay: show(X##v) は表示 variant を SimOverlay に保持する', () => {
+    const doc = parseOk(
+      '# P\n> 再生 -> show(ミニプレイヤー##再生中)\n\n# ミニプレイヤー\n## 再生中\n曲名\n## 一時停止\n再開ボタン\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const body = data.modules['main']!.components['P']!.commonInteractions[0]!.prelude[0]!;
+    expect(body.type).toBe('overlay');
+    if (body.type === 'overlay') {
+      expect(body.component).toBe('ミニプレイヤー');
+      expect(body.variant).toBe('再生中');
+    }
+  });
+
+  it('overlay: show(X)（variant 省略）は variant が null', () => {
+    const doc = parseOk('# P\n> 再生 -> show(ミニプレイヤー)\n\n# ミニプレイヤー\n曲名\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const body = data.modules['main']!.components['P']!.commonInteractions[0]!.prelude[0]!;
+    expect(body.type).toBe('overlay');
+    if (body.type === 'overlay') expect(body.variant).toBeNull();
+  });
+
   it('entryComponent is first component', () => {
     const doc = parseOk('# ログイン\nID入力\n\n# ホーム\nフィード\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
