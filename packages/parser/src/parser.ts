@@ -189,7 +189,8 @@ export function parseDocument(source: string): { document: Document; diagnostics
       diagnostics.push({
         severity: 'error',
         code: 'E003',
-        message: '空の result-list: -> の後に結果がありません',
+        message:
+          '空の result-list: -> の後に結果がありません（次の行に結果を書くつもりなら、継続行にも行頭の > が必要です。「未定・分岐」参照）',
         span: interaction.span,
       });
     }

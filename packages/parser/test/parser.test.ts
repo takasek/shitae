@@ -1217,3 +1217,13 @@ describe('set verb（遷移なし共有 variant 書換）', () => {
     expect(diagnostics.filter((d) => d.code === 'E029')).toHaveLength(1);
   });
 });
+
+describe('D6: E003 の継続行ヒント', () => {
+  it('E003 のメッセージが継続行の行頭 > へ誘導する', () => {
+    const { diagnostics } = parseDoc('# A\n> タップ(選択肢) ->\n    [正解] 進む\n');
+    const e003 = diagnostics.filter((d) => d.code === 'E003');
+    expect(e003).toHaveLength(1);
+    expect(e003[0].message).toContain('継続行');
+    expect(e003[0].message).toContain('>');
+  });
+});
