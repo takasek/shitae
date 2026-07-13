@@ -131,7 +131,36 @@ function overlayInteractions(name) {
   const comp = getComp(entry.module, name);
   if (!comp) return [];
   const v = overlayVariant(name);
-  return v ? (comp.variants[v]?.interactions ?? []) : comp.commonInteractions;
+  const list = v ? (comp.variants[v]?.interactions ?? []) : comp.commonInteractions;
+  return list.filter(gateEnabled);
+}
+
+// presence gate（'?'）の構造的 presence 判定（SPEC「2種類のガード的なもの」・ADR-0002）。
+// gate なし・判定不能（indeterminate）は常に有効。host は host component 自身の現在 variant、
+// member は対象インスタンスの現在 variant（未追跡なら initial。singleton なら共有レジストリ）を見る。
+function gateEnabled(inter) {
+  const gate = inter.gate;
+  if (!gate) return true;
+  if (gate.kind === 'indeterminate') return true;
+  if (gate.kind === 'host') {
+    const frame = currentFrame();
+    const comp = getComp(frame.module, frame.component);
+    if (!comp) return true;
+    const variant = displayVariant(frame);
+    const commonEls = comp.commonElements ?? [];
+    const varEls = variant ? (comp.variants[variant]?.elements ?? []) : [];
+    return [...commonEls, ...varEls].includes(gate.name);
+  }
+  // member
+  const mod = gate.module ?? currentFrame().module;
+  const targetComp = getComp(mod, gate.targetComponent);
+  if (!targetComp) return true; // 対象が判定不能（未定義 component 等）→ always-on
+  const variant = sharedVariants.has(gate.targetComponent)
+    ? sharedVariants.get(gate.targetComponent)
+    : targetComp.initialVariant;
+  const commonEls = targetComp.commonElements ?? [];
+  const varEls = variant ? (targetComp.variants[variant]?.elements ?? []) : [];
+  return [...commonEls, ...varEls].includes(gate.name);
 }
 
 function currentInteractions() {
@@ -140,8 +169,8 @@ function currentInteractions() {
   if (!comp) return [];
   // 姿の interactions は抽出時に mergeInteractions(共通, 姿固有) 済み（shadow 合成）
   const variant = displayVariant(frame);
-  if (variant) return comp.variants[variant]?.interactions ?? [];
-  return comp.commonInteractions;
+  const list = variant ? (comp.variants[variant]?.interactions ?? []) : comp.commonInteractions;
+  return list.filter(gateEnabled);
 }
 
 function resolveTarget(result, currentModule, currentComponent) {
@@ -305,10 +334,12 @@ function goBack() {
 function docCommonInteractions() {
   const frame = currentFrame();
   const comp = getComp(frame.module, frame.component);
-  if (!comp) return DATA.documentCommon ?? [];
+  if (!comp) return (DATA.documentCommon ?? []).filter(gateEnabled);
   const variant = displayVariant(frame);
-  if (variant) return comp.variants[variant]?.docCommonInteractions ?? DATA.documentCommon ?? [];
-  return comp.docCommonInteractions ?? DATA.documentCommon ?? [];
+  const list = variant
+    ? (comp.variants[variant]?.docCommonInteractions ?? DATA.documentCommon ?? [])
+    : (comp.docCommonInteractions ?? DATA.documentCommon ?? []);
+  return list.filter(gateEnabled);
 }
 
 function handleDocCommon(idx) {

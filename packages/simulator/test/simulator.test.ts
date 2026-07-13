@@ -120,6 +120,15 @@ describe('toSimulator', () => {
     expect(html).toContain('comp.variants[variant]?.docCommonInteractions');
   });
 
+  it('presence gate: gate 付き interaction を構造的 presence でフィルタする', () => {
+    const doc = parseOk(
+      '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n# 時間選択\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).toContain('function gateEnabled(');
+    expect(html).toContain('.filter(gateEnabled)');
+  });
+
   it('back(X) は wall を越えない（barrier 停止のロジックを含む）', () => {
     const doc = parseOk('# A\n要素\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
