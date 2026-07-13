@@ -28,7 +28,7 @@ variant はインスタンスごとに独立で、push/present は毎回 initial
 
 - フレームスタックの (component, variant) タプル・オーバーレイ集合のエントリは、singleton については variant を**値として保持せず**、常に共有レジストリの現在値を表示する。中断中のタブに積まれた singleton も、他所で共有 variant が進めば追随する。
 - 「戻り系は積まれた時点の variant へ戻る」「新規作成は initial variant で開く」「`show(X)` は initial で掲示・再 show は initial に上書き（ADR-0009 規則 3）」は、いずれも **singleton には適用しない**（共有状態がそのまま見える）。
-- `show(X##v)` / `goto(##v)` / `push(X##v)` 等の明示 variant 指定は、singleton では**共有レジストリの書き換え**として働く（全所在に即時反映）。
+- `show(X##v)` / `goto(##v)` / `push(X##v)` 等の明示 variant 指定は、singleton では**共有レジストリの書き換え**として働く（全所在に即時反映）。この書き換えは `switch(X##v, @S)` の **resume 経路にも及ぶ**——resume は target component を無視してフレームを復帰するが、明示 `##v` の共有 variant 書き換えだけは副作用として効く（「全所在に即時反映」を字義通り適用。2026-07-13 設計者確定）。
 
 記法選定: `#`/`##` と同じ見出し記号ファミリーの拡張であり、原則 5（構造は記号で表す）と多言語中立性を保つ。構造キーワード案（`single X` 宣言）は宣言と定義の分離と語彙の追加を伴うため退けた。
 
