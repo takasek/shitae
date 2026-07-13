@@ -1048,3 +1048,87 @@ describe('Span 精度 (offset / col)', () => {
     expect(document.components[2].span).toEqual({ offset: 8, length: 3, line: 3, col: 1 });
   });
 });
+
+// ---------------------------------------------------------------------------
+// 構造記号を含む quoted name の正準化（stress-test r3 A1/A2）
+// SPEC「quoted name」: すべての name 位置で有効。正準値は quote を剥いだ文字列。
+// ---------------------------------------------------------------------------
+describe('quoted name と構造記号（##/::/./?）', () => {
+  it('A1: push("a##b") は component a##b への遷移（quote 内 ## で分解しない）', () => {
+    const { document } = parseDoc('# A\n> タップ -> push("a##b")');
+    const t = document.components[0].common.interactions[0].results[0].body as Transition;
+    const target = t.target as NavTarget & { kind: 'component' };
+    expect(target.name).toBe('a##b');
+    expect(target.variant).toBeNull();
+    expect(target.module).toBeNull();
+  });
+
+  it('A1: push("a::b") は component a::b への遷移（quote 内 :: で分解しない）', () => {
+    const { document } = parseDoc('# A\n> タップ -> push("a::b")');
+    const t = document.components[0].common.interactions[0].results[0].body as Transition;
+    const target = t.target as NavTarget & { kind: 'component' };
+    expect(target.module).toBeNull();
+    expect(target.name).toBe('a::b');
+  });
+
+  it('A1: push(mod::"x##y") は module 前置 + quoted 名（quote 内 ## で分解しない）', () => {
+    const { document } = parseDoc('import m as mod\n# A\n> タップ -> push(mod::"x##y")');
+    const t = document.components[0].common.interactions[0].results[0].body as Transition;
+    const target = t.target as NavTarget & { kind: 'component' };
+    expect(target.module).toBe('mod');
+    expect(target.name).toBe('x##y');
+    expect(target.variant).toBeNull();
+  });
+
+  it('A1: push("My Screen"##詳細) は quoted 名 + quote 外の ##variant', () => {
+    const { document } = parseDoc('# A\n> タップ -> push("My Screen"##詳細)');
+    const t = document.components[0].common.interactions[0].results[0].body as Transition;
+    const target = t.target as NavTarget & { kind: 'component' };
+    expect(target.name).toBe('My Screen');
+    expect(target.variant).toBe('詳細');
+  });
+
+  it('A1: show("a##b") は overlay 対象 a##b（quote 内 ## で分解しない）', () => {
+    const { document, diagnostics } = parseDoc('# A\n> タップ -> show("a##b")');
+    const o = document.components[0].common.interactions[0].results[0].body as Overlay;
+    expect(o.target.name).toBe('a##b');
+    expect(o.target.variant).toBeNull();
+    expect(diagnostics).toHaveLength(0);
+  });
+
+  it('A1: back("a##b") は E016 にならない（quote 内 ## は variant 指定でない）', () => {
+    const { document, diagnostics } = parseDoc('# A\n> タップ -> back("a##b")');
+    expect(diagnostics.filter((d) => d.code === 'E016')).toHaveLength(0);
+    const t = document.components[0].common.interactions[0].results[0].body as Transition;
+    const target = t.target as NavTarget & { kind: 'component' };
+    expect(target.name).toBe('a##b');
+  });
+
+  it('A2: 行動対象の quoted 名 + 空白 + ? は quote と空白を残さない', () => {
+    const { document } = parseDoc('# A\n> 試す( "My Button" ?) -> やる');
+    const ref = document.components[0].common.interactions[0].action.target!;
+    expect(ref.name).toBe('My Button');
+    expect(ref.existsGated).toBe(true);
+  });
+
+  it('A2: 行動対象の bare 名 + 空白 + ? は末尾空白を残さない', () => {
+    const { document } = parseDoc('# A\n> 試す( ボタン ?) -> やる');
+    const ref = document.components[0].common.interactions[0].action.target!;
+    expect(ref.name).toBe('ボタン');
+    expect(ref.existsGated).toBe(true);
+  });
+
+  it('A2: 行動対象の quote 内 . は member 分解しない', () => {
+    const { document } = parseDoc('# A\n> 試す("a.b") -> やる');
+    const ref = document.components[0].common.interactions[0].action.target!;
+    expect(ref.name).toBe('a.b');
+    expect(ref.member).toBeNull();
+  });
+
+  it('A2: 行動対象の quote 内 :: は module 分解しない', () => {
+    const { document } = parseDoc('# A\n> 試す("a::b") -> やる');
+    const ref = document.components[0].common.interactions[0].action.target!;
+    expect(ref.module).toBeNull();
+    expect(ref.name).toBe('a::b');
+  });
+});

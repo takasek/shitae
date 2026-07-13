@@ -211,6 +211,21 @@ export function splitTopLevel(text: string, delimiter: string, brackets: string)
 }
 
 // ---------------------------------------------------------------------------
+// indexOfTopLevel
+//
+// Find the first occurrence of `substr` that starts outside quotes.
+// `substr` must not contain `"` (all callers pass structural tokens like
+// '::' / '##' / '.'), so a match starting outside quotes lies wholly
+// outside them.
+// ---------------------------------------------------------------------------
+export function indexOfTopLevel(text: string, substr: string): number {
+  for (const { ch, i } of scanTopLevel(text, '')) {
+    if (ch === substr[0] && text.startsWith(substr, i)) return i;
+  }
+  return -1;
+}
+
+// ---------------------------------------------------------------------------
 // readName
 //
 // Read a name (identifier) from `source` at `pos`.

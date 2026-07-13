@@ -34,6 +34,7 @@ import {
   readName,
   scanTopLevel,
   splitTopLevel,
+  indexOfTopLevel,
   type LogicalLine,
 } from './lexer.js';
 
@@ -702,14 +703,16 @@ function parseReference(
     t = t.slice(1).trim();
   }
 
-  // Check existsGated (trailing ?)
+  // Check existsGated (trailing ?)。quote 内の ? は対象外（endsWith が quote 外の
+  // 末尾しか見ないため自然に除外）。除去後に trim しないと空白が name に残留する
+  // （stress-test r3 A2）。
   if (t.endsWith('?')) {
     existsGated = true;
-    t = t.slice(0, -1);
+    t = t.slice(0, -1).trim();
   }
 
-  // Check module:: prefix
-  const dcIdx = t.indexOf('::');
+  // Check module:: prefix（quote 内の :: は区切りにしない。stress-test r3 A2）
+  const dcIdx = indexOfTopLevel(t, '::');
   if (dcIdx !== -1) {
     module = stripQuotes(t.slice(0, dcIdx).trim());
     t = t.slice(dcIdx + 2).trim();
@@ -717,7 +720,7 @@ function parseReference(
 
   // Check .member — "." は 1 段まで（SPEC「記号一覧」）。member 側にさらに
   // 頂上レベルの "." があれば（箱.内箱.b）2 段以上の深さで構文エラー（E014）。
-  const dotIdx = t.indexOf('.');
+  const dotIdx = indexOfTopLevel(t, '.');
   if (dotIdx !== -1) {
     const memberStr = t.slice(dotIdx + 1).trim();
     t = t.slice(0, dotIdx).trim();
@@ -952,13 +955,13 @@ function parseOverlayTarget(
   }
 
   let module: string | null = null;
-  const dcIdx = t.indexOf('::');
+  const dcIdx = indexOfTopLevel(t, '::');
   if (dcIdx !== -1) {
     module = stripQuotes(t.slice(0, dcIdx).trim());
     t = t.slice(dcIdx + 2).trim();
   }
 
-  const hashIdx = t.indexOf('##');
+  const hashIdx = indexOfTopLevel(t, '##');
   let name: string;
   let variant: string | null = null;
   if (hashIdx !== -1) {
@@ -1023,17 +1026,17 @@ function parseNavTarget(
     return { kind: 'variant', name };
   }
 
-  // Check for module:: prefix
+  // Check for module:: prefix（quote 内の :: は区切りにしない。stress-test r3 A1）
   let module: string | null = null;
   let rest = t;
-  const dcIdx = t.indexOf('::');
+  const dcIdx = indexOfTopLevel(t, '::');
   if (dcIdx !== -1) {
     module = stripQuotes(t.slice(0, dcIdx).trim());
     rest = t.slice(dcIdx + 2).trim();
   }
 
-  // Check for ##variant suffix
-  const hashIdx = rest.indexOf('##');
+  // Check for ##variant suffix（quote 内の ## は区切りにしない）
+  const hashIdx = indexOfTopLevel(rest, '##');
   let name: string;
   let variant: string | null = null;
   if (hashIdx !== -1) {
@@ -1059,7 +1062,8 @@ function parseBackTarget(
 ): NavTarget {
   const t = text.trim();
 
-  if (t.includes('##')) {
+  // quote 内の ## は variant 指定でない（stress-test r3 A1）
+  if (indexOfTopLevel(t, '##') !== -1) {
     diagnostics.push({
       severity: 'error',
       code: 'E016',
@@ -1072,12 +1076,12 @@ function parseBackTarget(
   // Parse "[module::] name", ignoring any "##..." suffix (error already reported above).
   let module: string | null = null;
   let rest = t;
-  const dcIdx = t.indexOf('::');
+  const dcIdx = indexOfTopLevel(t, '::');
   if (dcIdx !== -1) {
     module = stripQuotes(t.slice(0, dcIdx).trim());
     rest = t.slice(dcIdx + 2).trim();
   }
-  const hashIdx = rest.indexOf('##');
+  const hashIdx = indexOfTopLevel(rest, '##');
   const namePart = hashIdx !== -1 ? rest.slice(0, hashIdx).trim() : rest;
 
   return { kind: 'component', module, name: stripQuotes(namePart), variant: null };
