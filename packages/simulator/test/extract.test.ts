@@ -236,6 +236,23 @@ describe('extractSimData', () => {
     expect(data.modules['main']!.components['A']!.commonInteractions[0]!.gate).toBeNull();
   });
 
+  it('document common はアクティブフレームが属するモジュール自身のものが効く（SPEC「document common」モジュール分割）', () => {
+    const subDoc = parseOk('サブ共通\n> クリック(サブ共通) -> 効果\n\n# サブ画面\n本文\n');
+    const mainDoc = parseOk(
+      'import sub as sub\nメイン共通\n> クリック(メイン共通) -> 効果\n\n# ホーム\n要素\n> タップ(要素) -> push(sub::サブ画面)\n',
+    );
+    const data = extractSimData(
+      new Map([
+        ['main', mainDoc],
+        ['sub', subDoc],
+      ]),
+      'main',
+    );
+    const dc = data.modules['sub']!.components['サブ画面']!.docCommonInteractions.map((i) => i.actionText);
+    expect(dc).toContain('クリック(サブ共通)');
+    expect(dc).not.toContain('クリック(メイン共通)');
+  });
+
   it('entryComponent is first component', () => {
     const doc = parseOk('# ログイン\nID入力\n\n# ホーム\nフィード\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');

@@ -231,7 +231,9 @@ export function extractSimData(
   for (const [moduleName, doc] of documents) {
     const components: Record<string, SimComponent> = {};
     for (const comp of doc.components) {
-      components[comp.name] = convertComponent(comp, documentCommonAst);
+      // SPEC「document common」: 実行時に有効な document common はその component が
+      // 定義されているファイル自身のもの（entry ファイルのものではない）
+      components[comp.name] = convertComponent(comp, doc.common.interactions);
     }
     modules[moduleName] = { components };
   }
