@@ -11,7 +11,8 @@ import {
   resolveLocation,
   formatTree,
 } from '../src/index.js';
-import type { Transition, Overlay, NavTarget, Span } from '@shitae/ast';
+import type { Transition, Overlay, NavTarget, Span, Document, Component } from '@shitae/ast';
+import { singletonNames } from '../src/index.js';
 
 // ──────────────────────────────────────────────────
 // テストヘルパ
@@ -870,5 +871,29 @@ describe('singleton — back・formatTree・永続（戻り系不適用と snaps
     s = reduce(s, tr('goto', navVar('受取済'))).state; // 共有=受取済
     s = reduce(s, tr('dismiss')).state; // クーポンフレーム破棄
     expect(s.sharedVariants.get('クーポン')).toBe('受取済');
+  });
+});
+
+describe('singletonNames — Document から singleton 名を集める', () => {
+  const comp = (name: string, singleton: boolean): Component => ({
+    name,
+    singleton,
+    common: { elements: [], interactions: [] },
+    variants: [],
+    span: dummySpan,
+  });
+  const doc = (components: Component[]): Document => ({
+    imports: [],
+    common: { elements: [], interactions: [] },
+    components,
+  });
+
+  it('singleton=true の component 名だけを返す', () => {
+    const d = doc([comp('ホーム', false), comp('クーポン', true), comp('設定', false)]);
+    expect(singletonNames(d)).toEqual(['クーポン']);
+  });
+
+  it('singleton が無ければ空配列', () => {
+    expect(singletonNames(doc([comp('ホーム', false)]))).toEqual([]);
   });
 });

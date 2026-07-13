@@ -116,6 +116,12 @@ export function entryFromDocument(doc: Document): Location {
   return { module: null, component: comp.name, variant: null };
 }
 
+/** 便宜ヘルパ: Document 内の singleton component 名を集める（`initialState(entry, ...)` に渡す）。
+ *  CLI/simulator が document 境界で singleton 集合を注入する口（ADR-0011）。 */
+export function singletonNames(doc: Document): string[] {
+  return doc.components.filter((c) => c.singleton).map((c) => c.name);
+}
+
 // ──────────────────────────────────────────────────
 // 検査用の最小ヘルパ（テスト表明・デバッグ用に export）
 // ──────────────────────────────────────────────────
