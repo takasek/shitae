@@ -6,6 +6,7 @@ import { parse } from '../src/index.js';
 const battleSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/battle.shitae'), 'utf8');
 const ecommerceSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/ecommerce.shitae'), 'utf8');
 const musicSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/music.shitae'), 'utf8');
+const deliverySrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/delivery.shitae'), 'utf8');
 
 describe('integration: examples/battle.shitae', () => {
   it('parses without errors', () => {
@@ -121,5 +122,43 @@ describe('integration: examples/music.shitae（overlay・switch・document commo
     const player = document.components.find(c => c.name === '再生画面');
     expect(player).toBeDefined();
     expect(player!.variants).toHaveLength(2);
+  });
+});
+
+describe('integration: examples/delivery.shitae（singleton・overlay・exit 固定慣用句の実例）', () => {
+  it('parses without errors', () => {
+    const { diagnostics } = parse(deliverySrc);
+    const errors = diagnostics.filter(d => d.severity === 'error');
+    expect(errors).toHaveLength(0);
+  });
+
+  it('has correct component count', () => {
+    const { document } = parse(deliverySrc);
+    // ホーム, 店舗詳細, 品目, 品目詳細, カート確認, 住所選択, 支払い, 注文確定,
+    // クーポン, サポートチャット, 配達状況バナー, 配達追跡
+    expect(document.components).toHaveLength(12);
+  });
+
+  it('クーポン は singleton（#!）で 未受取／受取済 の 2 variants を持つ', () => {
+    const { document } = parse(deliverySrc);
+    const coupon = document.components.find(c => c.name === 'クーポン');
+    expect(coupon).toBeDefined();
+    expect(coupon!.singleton).toBe(true);
+    expect(coupon!.variants.map(v => v.name)).toEqual(['未受取', '受取済']);
+  });
+
+  it('クーポン以外の component は singleton でない（既定の #）', () => {
+    const { document } = parse(deliverySrc);
+    const nonSingletons = document.components.filter(c => c.name !== 'クーポン');
+    expect(nonSingletons.every(c => c.singleton === false)).toBe(true);
+  });
+
+  it('document common に present(クーポン) の導線を持つ', () => {
+    const { document } = parse(deliverySrc);
+    const toCoupon = document.common.interactions
+      .flatMap(i => i.results)
+      .find(r => r.body.kind === 'transition' && r.body.word === 'present'
+        && r.body.target?.kind === 'component' && r.body.target.name === 'クーポン');
+    expect(toCoupon).toBeDefined();
   });
 });
