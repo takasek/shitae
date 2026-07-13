@@ -83,3 +83,66 @@ describe('check', () => {
     }
   });
 });
+
+describe('r3: W105 / E028 / E030', () => {
+  it('W105: goto(##X) の X が未定義 variant', () => {
+    const { document } = parse('# A\n## 一\n> 行動 -> goto(##存在しない)\n## 二\n');
+    const diags = check(document, resolve(document));
+    expect(diags.filter(d => d.code === 'W105')).toHaveLength(1);
+  });
+
+  it('W105: goto(##X) の X が定義済み variant なら警告なし', () => {
+    const { document } = parse('# A\n## 一\n> 行動 -> goto(##二)\n## 二\n');
+    const diags = check(document, resolve(document));
+    expect(diags.filter(d => d.code === 'W105')).toHaveLength(0);
+  });
+
+  it('W105: set(X##v) の v が X に未定義', () => {
+    const { document } = parse('#! 学習\n## 通常\nボタン\n# B\n> 行動 -> set(学習##無い姿)\n');
+    const diags = check(document, resolve(document));
+    expect(diags.filter(d => d.code === 'W105')).toHaveLength(1);
+  });
+
+  it('W105: set(X##v) の v が定義済みなら警告なし', () => {
+    const { document } = parse('#! 学習\n## 通常\nボタン\n## ハート切れ\n表示\n# B\n> 行動 -> set(学習##ハート切れ)\n');
+    const diags = check(document, resolve(document));
+    expect(diags.filter(d => d.code === 'W105')).toHaveLength(0);
+  });
+
+  it('E028: singleton の宣言側 collection（*バッジ 要素行）', () => {
+    const { document } = parse('#! バッジ\n## 未読\nマーク\n# 一覧\n*バッジ\n');
+    const diags = check(document, resolve(document));
+    expect(diags.filter(d => d.code === 'E028')).toHaveLength(1);
+  });
+
+  it('E028: singleton の参照側 collection（行動対象 *バッジ）', () => {
+    const { document } = parse('#! バッジ\n## 未読\nマーク\n# 一覧\nバッジ\n> 全部見る(*バッジ) -> 一括既読\n');
+    const diags = check(document, resolve(document));
+    expect(diags.filter(d => d.code === 'E028')).toHaveLength(1);
+  });
+
+  it('E028: 非 singleton の collection は従来どおり許容', () => {
+    const { document } = parse('# 一覧\n*サムネイル\n> タップ(サムネイル) -> push(詳細)\n# 詳細\n本文\n');
+    const diags = check(document, resolve(document));
+    expect(diags.filter(d => d.code === 'E028')).toHaveLength(0);
+  });
+
+  it('E030: set の対象が定義済み非 singleton', () => {
+    const { document } = parse('# 学習\n## 通常\nボタン\n# B\n> 行動 -> set(学習##通常)\n');
+    const diags = check(document, resolve(document));
+    expect(diags.filter(d => d.code === 'E030')).toHaveLength(1);
+  });
+
+  it('E030: set の対象が singleton ならエラーなし', () => {
+    const { document } = parse('#! 学習\n## 通常\nボタン\n# B\n> 行動 -> set(学習##通常)\n');
+    const diags = check(document, resolve(document));
+    expect(diags.filter(d => d.code === 'E030')).toHaveLength(0);
+  });
+
+  it('E030: set の対象が未定義 component なら素通り（ラフさ優先）', () => {
+    const { document } = parse('# B\nボタン\n> 行動 -> set(謎##通常)\n');
+    const diags = check(document, resolve(document));
+    expect(diags.filter(d => d.code === 'E030')).toHaveLength(0);
+    expect(diags.filter(d => d.code === 'W105')).toHaveLength(0);
+  });
+});
