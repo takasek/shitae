@@ -1,15 +1,38 @@
 # 引き継ぎ — spec-stress-test r2 Phase 4 の残り実装
 
-作成 2026-07-13、更新 2026-07-13（残り1・残り3 完了。残るは **残り2: simulator viewer** のみ）。ブランチ `spec-stress-test-r2`（HEAD = `1d5fd45`）。作業ツリーはクリーン、`pnpm -r test` は全 8 パッケージ green。
+作成 2026-07-13、更新 2026-07-13（**残り1・残り2・残り3 すべて完了**）。ブランチ `spec-stress-test-r2`（HEAD = `1270257`）。作業ツリーはクリーン、`pnpm -r test` は全パッケージ green。
 
-## 更新サマリ（2026-07-13 後続セッション）
+## 更新サマリ（2026-07-13 第3セッション）
 
-- **残り1（runtime singleton）完了**。commit `08bdb3b`〜`709ee53` + ADR 追記 `e349aaa`。受け入れ基準1-3 と Fable 指摘（presence gate・seed・snapshot 不在・back 除外）を runtime.test.ts で全固定。設計者確定: `switch(X##v,@S)` は resume 経路でも共有 variant を書換（SPEC 301 優先。ADR-0011 に明記）。
-- **残り3（examples 昇格）完了 = singleton showcase 新規作成**。commit `1d5fd45`。**handoff の 2 前提が調査で崩れた**ので方針変更した:
+- **残り2（simulator viewer 追随）完了**。commit `d8f0ccd`〜`1270257`（TDD・RGRごとに6コミット）。
+  - overlay 表示variant・掲示中interaction操作可能化（A8）: `d8f0ccd`
+  - singleton 共有レジストリのデータ抽出: `fbd488a`
+  - singleton 共有レジストリのクライアント配線（displayVariant/resolveEntryVariant。switch resume でも明示 X##v の書換は効く）: `e881092`
+  - document common の3階層shadow合流（A5。同名ボタン重複解消）: `bd3a608`
+  - presence gate 構造的判定（host/member/indeterminate）データ抽出: `3ad4387`
+  - presence gate のクライアント側フィルタ適用（A1）: `1270257`
+  - **設計判断（Fable相談）**: presence gate の member 参照（`対象.要素?`）は「対象インスタンスの variant 追跡機構が無い」ため、ADR-0002 の always-on フォールバックを転用せず、`sharedVariants` レジストリ（デフォルト＝対象 component の initialVariant）で決定的に判定する方式を採用。手動トグル UI（ADR-0002 Consequence が言う「インスタンス variant の手動トグルで観測可能にする」）は本パスでは実装せず、**未着手のまま次回に持ち越し**（判定ロジック自体は完成、トグルは純UIとして後付け可能な設計）。
+  - **検証**: 既存テストは HTML/JS 文字列への `toContain` 方式（jsdom 不在のため）。それに加えて `docs/examples/delivery.shitae` を実際に parse→`toSimulator`→`node:vm` で実行し、singleton 共有（2 回目の `present(クーポン)` が `##受取済` を共有レジストリから直接表示）と presence gate（`品目.在庫あり?` が初期姿次第でON/OFF）を実機動作で確認済み（再現手順は本ファイル末尾の「動作確認の再現手順」参照）。
+- **残り1（runtime singleton）完了**（前セッション）。commit `08bdb3b`〜`709ee53` + ADR 追記 `e349aaa`。受け入れ基準1-3 と Fable 指摘（presence gate・seed・snapshot 不在・back 除外）を runtime.test.ts で全固定。設計者確定: `switch(X##v,@S)` は resume 経路でも共有 variant を書換（SPEC 301 優先。ADR-0011 に明記）。
+- **残り3（examples 昇格）完了 = singleton showcase 新規作成**（前セッション）。commit `1d5fd45`。**handoff の 2 前提が調査で崩れた**ので方針変更した:
   - podcast の「mermaid quoted-name ノード ID 不一致バグ」は**再現しない**（ADR A4 canonical quoted name で解消済み。podcast/delivery とも診断ゼロ・dangling node なしを確認）。→ podcast のブロッカーは存在しない。
   - delivery-r2 プローブは `# クーポン`（通常 component）で **singleton を使っていなかった** → そのまま昇格しても r2 目玉を実演しない。
   - 対応: プローブ本体は証跡として不変のまま、`docs/examples/delivery.shitae` を**新規 curated example** として作り、クーポンを `#! クーポン` へ昇格。parser integration・checker clean-list のフィクスチャに追加済み。
-- **残り2（simulator viewer）は未着手**。以下「残り 2」節がそのまま有効。runtime は意味論オラクルとして完成済み（singleton 共有・overlay variant・switch 兄弟規則すべて実装）なので、simulator 表示層をそれに追随させる作業。
+
+## 次に着手する候補（本パスのスコープ外として残したもの）
+
+- **presence gate の手動トグル UI**: `sharedVariants`（member gate のデフォルト解決にも流用）を simulator 画面上からユーザーが書き換えられる UI が無い。今は常に「対象 component の initialVariant」のまま固定 — ADR-0002 Consequence の「インスタンス variant の手動トグルで観測可能にする」を完全には満たさない。判定ロジックは完成しているので、追加は UI 層のみで閉じる想定。
+- **document common のモジュール切替**: SPEC「実行時に有効な document common はアクティブフレームの最上段 component が定義されているファイルのもの」— 現状 simulator は常に entry モジュールの document common のみを見る（多モジュール時の切替は未実装。今回のスコープ外・pre-existing）。
+
+## 動作確認の再現手順（jsdom 不在のため node:vm で実行）
+
+```
+pnpm --filter @shitae/parser build && pnpm --filter @shitae/simulator build
+node -e "
+const { parse } = require('/Users/m5/works/shitae/packages/parser/dist/index.js');
+"
+```
+上記は ESM のため実際は `.mjs` で `import` を使う（本セッションでは `/tmp/gen_sim.mjs` に生成スクリプト、`/tmp/run_sim2.mjs` に singleton 共有の walkthrough、`/tmp/run_sim4.mjs` に presence gate off ケースを書いて確認した。いずれも `/tmp` 配下の使い捨てスクリプトで、リポジトリには残していない）。
 
 ## まず読む
 
