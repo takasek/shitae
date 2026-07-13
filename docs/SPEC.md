@@ -12,7 +12,7 @@ uiflow の精神（「見るもの／すること」を繋ぐ）を継ぎつつ�
 
 1. **ラフであることが機能**。穴・未定・自然文を許す。厳密さが要る段階に来たら、それは shitae の仕事ではない（状態機械なら XState 等に「降りる」）。
 2. **専用記法を増やさない**。表現できないものは自然文で書く。未定も状態も注記も、自然文に開く。
-3. **構造記号は構造のためだけ**。キーワードは transition verb と overlay verb のみ。見出し語を持たず多言語中立。
+3. **構造記号は構造のためだけ**。キーワードは transition verb・overlay verb・state verb のみ。見出し語を持たず多言語中立。
 4. **画面と部品を区別しない**。すべて component。トップレベルで遷移グラフに乗れば「画面」に見えるだけ（SwiftUI の View と同じ）。
 5. **インデントは意味を持たない**。構造はすべて明示的な記号（`#` `##` `>` `:` `*` `{}` `.` `->` `;` `[]` `@` `::` `?` `"..."` `//`）で表す。
 6. **状態は条件式ではなく「variant」で表す**。「いつ何ができるか」は、変数とガードではなく、目に見えるバリエーション（variant）の列挙で表現する。
@@ -53,9 +53,9 @@ shitae は 2 つの階層でできている。
 
 ### document common（最初の `#` より前）
 
-最初の `#` より前に書いた要素行・インタラクション行は、**そのファイルの全 component に共通**する部分になる。`##` より前が全 variant に共通であるのと相似形で、共通性は 3 階層になる：**variant 固有 > component common（`##` より前） > document 共通（`#` より前）**。
+最初の `#` より前に書いた要素行・インタラクション行は、**そのファイルの全 component に共通**する部分になる。`##` より前が全 variant に共通であるのと相似形で、共通性は 3 階層になる：**variant 固有 > component common（`##` より前） > document 共通（`#` より前）**。要素行も同様に共通になる——document common に置いた要素は**全 component の表示に共通要素として乗る**（全画面に出るバッジ等）。
 
-用途は「どの画面でも起こるインタラクション」——deep link、プッシュ通知、セッション切れによる強制ログアウトなど。エントリポイントはファイル先頭の component だが、任意の画面から始まりうる遷移（deep link 等）は document 共通のインタラクションとして表せる。
+用途は「どの画面でも起こるインタラクション」——deep link、プッシュ通知、セッション切れによる強制ログアウトなど（モジュール分割時は「そのファイルの全 component」に限定される——後述）。エントリポイントはファイル先頭の component だが、任意の画面から始まりうる遷移（deep link 等）は document 共通のインタラクションとして表せる。
 
 ```
 > プッシュ通知をタップ -> push(記事詳細)
@@ -76,7 +76,7 @@ deep link で「今開いているものが何であれ、決まった場所へ�
 
 document common に書ける遷移先の variant 指定は必ず **`component##variant`** の形で書く。裸の `##variant` は「同一 component 内の variant」を指す記法だが、document common には母体となる component が無いため書けない（**禁止**。E022）。document common からは、まだファイル中で定義されていない component への参照（前方参照）も**可**——deep link や通知はどの画面から発生するか書く時点では決めきれないことが普通にあるため（前方参照は document common に限らず一般に可。「component に特権はない」を参照）。
 
-モジュール分割時、実行時に有効な document common は**アクティブフレームの最上段 component が定義されているファイル**のもの。import 先の画面を表示中は、その import 先ファイルの document common が効く（「そのファイルの全 component に共通」の字義どおり）。掲示中 overlay の interaction の有効性はオーバーレイ節の規則によるもので、document common のスコープとは無関係。
+モジュール分割時、実行時に有効な document common は**アクティブフレームの最上段 component が定義されているファイル**のもの。import 先の画面を表示中は、その import 先ファイルの document common が効く（「そのファイルの全 component に共通」の字義どおり）。最上段が未定義 component（どのファイルにも定義が無い）の場合は、**それを参照したファイル**に属するとみなす。掲示中 overlay の interaction の有効性はオーバーレイ節の規則によるもので、document common のスコープとは無関係。
 
 shadow 規則も同じ原理で拡張される：（行動文字列, 対象参照）が完全一致する定義が複数の階層にあれば、より特化した階層が勝つ（variant 固有 > component common > document 共通。「完全一致」の判定基準は「操作は variant に属する」節を参照）。
 
@@ -87,7 +87,7 @@ shadow 規則も同じ原理で拡張される：（行動文字列, 対象参�
 | 記号 | 役割 |
 |------|------|
 | `#` 名前 | component 定義（見出し。語彙を持たない。名前はユーザー命名） |
-| `#!` 名前 | singleton component 定義（document 内で単一インスタンス。variant 状態を全所在で共有する。「variant はインスタンスごとに独立」の singleton 項を参照） |
+| `#!` 名前 | singleton component 定義（**定義ファイル内**で単一インスタンス。variant 状態を全所在で共有する。共有の単位は定義ファイル——別モジュールの同名 component とは無関係。「variant はインスタンスごとに独立」の singleton 項を参照） |
 | `##` 名前 | variant（バリエーション）定義 |
 | `>` | インタラクション行の先頭マーカー（後続の空白・インデントは非意味）。`->` を含めば新規インタラクション、含まなければ直前インタラクションの結果列の継続行 |
 | 名前 | component 参照。すべて対等（特権的な組み込み component はない）。定義があれば自作、なければ未定義。名前は自由 |
@@ -109,6 +109,7 @@ shadow 規則も同じ原理で拡張される：（行動文字列, 対象参�
 - transition verb（コア）：`push` `back` `goto` `exit`
 - transition verb（複合）：`present`（= barrier ありの `push` ＋セッション） `dismiss`（= 直近の無名セッション、または `@S` を破棄） `switch`（= フレームの中断と復帰。resume-or-create）
 - overlay verb：`show`（オーバーレイ集合に component を掲示） `hide`（掲示を外す）。フレーム木を操作しない別カテゴリ（「オーバーレイ」を参照）
+- state verb：`set`（singleton の共有 variant を、遷移を伴わず書き換える。フレーム木も掲示も操作しない第 3 カテゴリ。「singleton component」を参照）
 - 構造キーワード（モジュール化）：`import` `as`
 
 これ以外のキーワードは持たない。
@@ -166,7 +167,7 @@ reference           = [ "*" ] , [ module-name , "::" ] , name , [ "." , name ] ;
 
 result-list     = result , { ( ";" | newline ) , result } ;  (* (条件, 結果) の列。";" と改行（継続行）はどちらも区切り。
                                                                   複数の result が並ぶときの逐次意味論は「未定・分岐」を参照 *)
-result          = [ "[" , label , "]" ] , ( transition | overlay | effect ) ;
+result          = [ "[" , label , "]" ] , ( transition | overlay | state | effect ) ;
 label           = free-text ;                        (* condition label。評価しない注記 *)
 (* 意味論: 行動 A(C) -> R は (条件, 結果) の列。
    最初のラベルより前の result は常に成立。
@@ -197,6 +198,13 @@ nav-target      = [ module-name , "::" ] , name , [ "##" , name ]   (* [モジ�
 overlay         = show-nav | hide-nav ;
 show-nav        = "show" , "(" , [ module-name , "::" ] , name , [ "##" , name ] , ")" ;
 hide-nav        = "hide" , "(" , [ module-name , "::" ] , name , ")" ;
+                        (* hide に "##" は本来書けないが、誤り検出のため字句上は認識する——
+                           component 付き（hide(X##v)）は E020、裸（hide(##v)）は E027 *)
+(* state verb：フレーム木を操作せず・掲示もしない第 3 カテゴリ。singleton の共有 variant を書き換える（「singleton component」を参照） *)
+state           = set-nav ;
+set-nav         = "set" , "(" , [ module-name , "::" ] , name , "##" , name , ")" ;
+                        (* ##variant は必須（E029）。裸 "##variant"（アクティブ画面の variant 切替は goto(##v) の仕事）・
+                           "*"（collection）・セッションは書けない——いずれも E029 *)
 effect          = free-text ;                        (* 副作用。reload 等もこれ。予約語なし *)
 
 comment         = "//" , free-text ;                 (* 行頭・行末どちらでも *)
@@ -245,12 +253,15 @@ shitae には遷移の可否に関わる要素が 2 つあるが、どちらも�
    - 裸参照（`投了?`）は **host component（その行動が書かれている component）の現在 variant** の body 直下を見る。
    - member 参照（`日付.選択可能?`）は **対象インスタンス（`日付`）の現在 variant** の body を見る——host 側の variant ではなく、参照先そのものの variant で判定する。
    - 参照に `*` が前置されていても（`*手札?`）、判定は `*` を剥いだ名で行う——collection かどうかではなく、その名前の要素があるかどうかを見る。
-   - 対象が未定義 component など判定不能なときは **always-on**（ラフさ優先。lint はヒントを出してよいが、エラーにはしない）。host component が存在しない **document common の裸参照**も同じく判定不能として always-on。
+   - 対象が未定義 component など判定不能なときは **always-on**（ラフさ優先。lint はヒントを出してよいが、エラーにはしない）。
+   - **document common の裸参照**は、発火時に**アクティブな component の現在 variant の実効 body** で判定する——裸 `##variant` の動的解決と同じ原理で、document common の interaction はアクティブ component に書かれたかのように振る舞う（「variant の参照は必ず ##」を参照）。これにより「その要素を持つ画面でだけ有効な deep link」が書ける：`> 通知タップ(記事リンク?) -> push(記事詳細)`。
    - `?` が置けるのは**行動対象のみ**。nav-target（遷移先）への後置（例 `push(次?)`）は**構文エラー**。
 
    `?` が opt-in（既定は「対象不在でも always-on」）なのは、**要素行に書いていない対象への行動を許す**ため。ラフの段階では、まだ要素行に置いていない・置くかどうか未定の対象へ行動を書くことが普通にある（`> タップ(投了) -> goto(##リザルト)` と書くとき「投了」ボタンを要素行に置き終えている必要はない）。存在を自動で行動の条件にすると、これらの行動が黙って無効になり、ラフさの核が壊れる。だから既定は always-on とし、存在を条件にしたいときだけ書き手が `?` で opt-in する。典型の使いどころは共通部分（`##` より前）に置いた行動で、「その対象を持つ variant でだけ有効」にしたいとき。
 
    XState の `guard`（同じ状態でも式の真偽で可否が変わる動的な制御）との違いは、**任意の述語を持たない**こと——presence gate が見るのは「その名前の要素が今の variant の body にあるか」という構造的な一点だけで、値比較や条件式は評価しない。
+
+   gate が書けるのは**対象自身の状態で対象自身への操作を制御する**形だけ——`?` は行動対象に付き、判定もその対象（の component）の variant で行われる。「A の状態で**別の要素 B** への操作を制御する」（ハートが残っている時だけレッスン開始ボタンが押せる、等）は gate では書けない。その場合は host component の variant を分けて表す（`##通常` / `##ハート切れ`——本節の本則どおり「操作を持つ variant を用意する」）。条件源の変化にその variant を追随させる書き込みは `set` で書ける（「singleton component」を参照）。
 
    対象が別 component のインスタンスの場合、その**インスタンスの現在 variant**は shitae の中の遷移だけでなく、外部データ（在庫・カレンダーの空き状況等）によっても決まりうる。どちらの variant に居るかを shitae は判定しない——condition label の「どちらに転ぶかは shitae の外で決まる」（後述「未定・分岐」）と同じ整理である。
 
@@ -286,7 +297,9 @@ shitae が「条件を評価しない」と言うとき、それは presence gat
 
 ### singleton component（`#!`）
 
-定義ヘッダを `#!` にすると、その component は document 内で**単一インスタンス**になる。どこから `push` / `present` / `show` しても、要素として何箇所に置かれても、**variant 状態を共有**する（インスタンス独立の既定を opt-in で覆す）。
+定義ヘッダを `#!` にすると、その component は**定義ファイル内で単一インスタンス**になる。どこから `push` / `present` / `show` しても、要素として何箇所に置かれても、**variant 状態を共有**する（インスタンス独立の既定を opt-in で覆す）。
+
+共有の単位は**定義ファイル（モジュール）**。どのモジュールから `mod::クーポン` で参照しても同一の共有状態を読み書きするが、**別モジュールの同名 component**（通常・singleton とも）とは無関係——名前空間はモジュールで分かれる（「モジュール化」を参照）。
 
 ```
 #! クーポン
@@ -298,8 +311,18 @@ shitae が「条件を評価しない」と言うとき、それは presence gat
 
 - variant 指定なしで開くと、初回は initial variant、以降は**最後に遷移した variant**で開く（initial に戻らない）。一度受け取れば、以後どこから `present(クーポン)` しても `##受取済` で開く。
 - singleton の variant は**共有レジストリへの参照**であり、スナップショットをどこにも作らない。フレームスタック・オーバーレイ集合に置かれた singleton は、他所で共有 variant が進めば追随する——「戻り系は積まれた時点の variant へ戻る」「新規作成・`show` は initial variant で開く」の各規則は singleton には**適用しない**。
-- `X##v` 指定・`goto(##v)` は共有状態の書き換えとして働く（全所在に即時反映）。
-- 参照側の記法は無変更（`present(クーポン)`——特別な参照記号は要らない）。フレーム木の規則も不変（singleton もフレームに積まれる。共有されるのは variant だけ）。
+- `X##v` 指定・`goto(##v)` は共有状態の書き換えとして働く（全所在に即時反映）。この書き換えは **`switch(X##v, @S)` の resume 経路にも及ぶ**——resume は X を無視してフレームを復帰するが、明示 `##v` の共有 variant 書き換えだけは副作用として効く（「全所在に即時反映」の字義どおり）。
+- **`set(X##v)`（state verb）は、遷移も掲示もせずに共有 variant だけを書き換える**。「画面 A で起きた出来事が画面 B の状態を変える」——ハートを使い切ったら学習画面をハート切れ表示に、時間経過で回復したら通常に戻す——を、B へ遷移せずに書ける。掲示中の singleton にも即時反映される（掲示中のミニプレイヤーが singleton なら、他画面からの `set` がその場で見た目を変える）。対象は singleton のみ——通常 component はインスタンス独立で「どのインスタンスに書くか」が定まらないため、`set` の対象にできない（E030）。遠隔から状態を書きたくなったら、その component を `#!` にする（タブ画面のような事実上単一インスタンスの画面は `#!` にしてよい）。
+
+  ```
+  # 問題
+  > タップ(選択肢) -> [不正解・ハート切れ] set(学習##ハート切れ) ; exit(@lesson)
+
+  > ハートが回復する -> set(学習##通常)     // document common でもよい（非アクティブ中の事象）
+  ```
+
+- 参照側の記法は無変更（`present(クーポン)`——特別な参照記号は要らない）。フレーム木の**構造操作**の規則（push で積まれ、back で降ろされ、exit で破棄される）も不変——singleton で変わるのは variant の選択・保持だけ。
+- singleton に collection の `*` は付けられない（**E028**）——「単一インスタンス」と「複数ある」は矛盾する。宣言側の要素行（`*バッジ`）も参照側の行動対象（`行動(*バッジ)`）も同様。
 - 共有するのは variant（見た目の状態）だけで、値・カウンタは従来どおり扱わない（「扱わないもの」を参照）。独立インスタンスが欲しければ既定の `#` のまま。
 
 ---
@@ -344,7 +367,7 @@ variant を参照するときは常に **`##variant`** と書く。定義の `##
 
 ### initial variant とエントリポイント
 
-variant 指定なしの遷移（`push(X)` / `goto(X)` / `present(X)` 等、`##variant` を伴わないもの）は、X の**最初に定義された variant**（最初の `## variant`。variant を持たない component ならその単一 variant）で開く。
+variant 指定なしの遷移（`push(X)` / `goto(X)` / `present(X)` 等、`##variant` を伴わないもの）は、X の**最初に定義された variant**（最初の `## variant`。variant を持たない component ならその単一 variant）で開く（singleton は除く——初回以降は最後に遷移した variant で開く。「singleton component」を参照）。
 
 ドキュメント全体のエントリポイントは**ファイル先頭の component**。モジュール分割時は、エントリファイル（起点となる `.shitae` ファイル）の先頭 component がエントリポイントになる。component を 1 つも持たない文書は不正（エントリポイントが定まらない）。
 
@@ -359,6 +382,7 @@ variant 指定なしの遷移（`push(X)` / `goto(X)` / `present(X)` 等、`##va
 
 - セッションを開始できるのは積む側（`push` / `present`）と `switch`（新規作成時）のみ。`goto` は不可、`back` は画面方向なので無関係。
 - **セッションは遷移に紐つく**。`push(X, @S)` を実行したその push が begin。同じ画面を別の場所で push すれば別のセッションになる。component や variant そのものにセッション名が固定されるわけではない。
+- **同名 `@S` を続けて begin すると入れ子になる**。`push(確認, @checkout)` の中でさらに `push(支払い, @checkout)` と書いても「同じセッションの継続」にはならない——begin のたびに新しいフレームが入れ子で増え、`exit(@checkout)` / `dismiss(@checkout)` は LIFO で**直近の 1 つ**しか畳まない（出口が壊れる典型の誤読）。フロー全体をひとまとまりにしたいなら、begin は**入口の 1 回だけ**——フロー内部の遷移は素の `push` で書く。処理系は生存中の同名 `@S` の再 begin を実行時に警告してよい（R005）。
 
 **出口を固定したいとき**：`exit(@S)` は begin 地点（そのセッションを開始した push/present の位置）へ戻る。複数の入口から同じウィザードに入ると begin 地点が入口ごとに変わるので、「出口は常にホーム」という要件は `exit(@S)` 単体では書けない。戻り先を上書きする専用記法は用意しない代わりに、result-list の逐次適用（後述「未定・分岐」）を使った **`exit(@S) ; push(固定先)`** が慣用句になる——`exit` がセッションと子孫フレームを破棄する保証を保ったまま、続く `push` で出口を決定的にできる。
 
@@ -389,7 +413,7 @@ variant 指定なしの遷移（`push(X)` / `goto(X)` / `present(X)` 等、`##va
 - `back()` / `back(X)` / `dismiss()`（無名）の走査は**アクティブパス**（現在フレームから祖先方向）のみ。中断中の兄弟フレームは見ない。`exit(@S)` / `dismiss(@S)` はまずアクティブパスを「新しい方から最初の @S」規則で走査し（@S が一意なら範囲破棄、同名複数なら直近まで（LIFO）、の説明は変わらない）、見つからなければ木全体から @S を探して**遠隔破棄**する（そのフレームを子孫ごと裏で破棄し、アクティブフレーム＝画面は動かない。「switch（中断と復帰）」を参照）。木の複数箇所に同名の `@S` が存在する場合（別々の `push(X, @S)` 呼び出しがたまたま同じ名前を使った等）、遠隔破棄・switch 復帰の対象は**作成が最も新しいフレーム**にする。exit/dismiss がまずアクティブパスを優先する（パス上の古い @S が別枝の新しい @S に勝つ）のに対し、switch 復帰にはアクティブパス優先が**無い**（常に木全体で最新）——この非対称は意図的である。
 - `exit(@S)` / `dismiss(@S)` は @S と**その子孫フレームを全部**破棄し、begin 地点へ戻る。子孫ごと破棄なので「ログアウトでタブ全滅」が規則の追加なしに導かれる。
 - barrier を持たない子フレーム（`push(X, @S)` が作る無 barrier の子）の**最下段**（そのフレーム内でこれ以上遡れない位置）で `back()` すると、barrier が無いのでそこで止まらず、**子フレームを（begin マーカーごと）破棄して親フレームへ抜ける**。barrier がある子フレーム（`present`/`switch` 製）の最下段では、barrier が壁として働き `back()` は no-op（「戻り先が無いとき」を参照）。
-- 戻り系はスタックに積まれた時点の variant へ戻る（initial variant にリセットしない）。`goto(##variant)` は現在フレームの最上段の variant を書き換える——後で戻ってきたときは書き換え後の variant が見える。
+- 戻り系はスタックに積まれた時点の variant へ戻る（initial variant にリセットしない。singleton は除く——常に共有 variant の現在値が見える。「singleton component」を参照）。`goto(##variant)` は現在フレームの最上段の variant を書き換える——後で戻ってきたときは書き換え後の variant が見える。
 - フレーム木・セッションの生存は**同一プロセス内**の意味論として定義される。アプリ再起動やプロセス終了を跨いで `@S` やフレームが生き残るかは shitae の意味論の**範囲外**——永続化するかどうかは実装の選択。
 
 switch を使わないドキュメントでは木は一本道になり、従来どおり「単一のセッションスタック」として読める。
@@ -482,7 +506,7 @@ root ─ A[@S]                      ← アクティブ（@S は無傷）
 
 ### verb ごとのフレーム木の変化（対応表）
 
-全 transition verb について、フレーム木がどう変わるかを 1 枚にまとめる。「フレーム木」「switch（中断と復帰）」「present / dismiss は compound verb」で説明した規則の要約であり、新しい規則は含まない。
+全 transition verb について、フレーム木がどう変わるかを 1 枚にまとめる。「フレーム木」「switch（中断と復帰）」「present / dismiss は compound verb」で説明した規則の要約であり、新しい規則は含まない。表の variant 選択（「initial で開く」「積まれた時点の variant に戻る」）は**非 singleton の既定**——singleton では共有規則が優先する（「singleton component」を参照）。
 
 | verb | before | 操作 | after |
 |---|---|---|---|
@@ -610,6 +634,7 @@ import auth as auth          // auth.shitae を読み込む
 - `import` と `as` は構造キーワード（transition verb とは別カテゴリ）。
 - 循環 import は許容する——`import` は名前解決のみで実体の埋め込みではないため、循環しても展開が無限にならない。
 - 同名 alias の再 import はエラー（同じ別名で複数のモジュールを import すると衝突する）。
+- singleton（`#!`）のモジュール越し共有は**定義ファイル単位**——別モジュールの同名 component とは無関係（「singleton component」を参照）。
 
 ## collection（`*`）
 
