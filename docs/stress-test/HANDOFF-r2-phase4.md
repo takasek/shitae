@@ -1,6 +1,17 @@
 # 引き継ぎ — spec-stress-test r2 Phase 4 の残り実装
 
-作成 2026-07-13、更新 2026-07-13（**残り1・残り2・残り3 すべて完了**）。ブランチ `spec-stress-test-r2`（HEAD = `1270257`）。作業ツリーはクリーン、`pnpm -r test` は全パッケージ green。
+作成 2026-07-13、更新 2026-07-13（**残り1・残り2・残り3 すべて完了。「次に着手する候補」2件も完了**）。ブランチ `spec-stress-test-r2`（HEAD = `e964c4a`）。作業ツリーはクリーン、`pnpm -r test` は全パッケージ green。
+
+## 更新サマリ（2026-07-13 第4セッション）
+
+前セッションの「次に着手する候補」2件を実装した。
+
+- **document common モジュール切替のバグ修正**（commit `c6b0fb6`）。`extractSimData` が全モジュールの component 変換に entry ファイルの document common を適用していた（SPEC は「アクティブフレームが属するファイル自身の document common」と規定）。`convertComponent` へ渡す AST を各モジュール自身の `doc.common.interactions` に修正。TDD: import 付き2モジュールの failing test → green。
+- **presence gate 手動トグル UI**（commit `83b0177`・`e964c4a`。ADR-0002 Consequence の未実装事項）。member gate（`対象.要素?`）の対象インスタンスは画面に表示されているとは限らず、これまで常に `initialVariant` 固定で on/off を観測する手段が無かった。
+  - `extract.ts` に `gateTargets`（member gate 対象 component 名。全モジュール横断・重複除去。host/indeterminate は含めない）を追加。
+  - `simulator.ts` に折りたたみ式パネルを追加。gate 対象ごとに variant セレクタを持ち、選択は既存の `sharedVariants`（singleton 共有 variant レジストリ）へそのまま書き込む。
+  - **設計判断（Fable相談）**: 手動トグル専用の別レジストリに分離するか検討したが、「document 内で variant 状態は単一」という ADR-0011 の原則と整合させるため `sharedVariants` を再利用する方針を採用（singleton への手動トグルが `goto(##v)` の書き込みと矛盾する二重の真実を生まないため）。UI に出す component は「member gate の対象として実際に参照されているもの」に限定（YAGNI。汎用デバッグパネルにはしない）。パネルはデフォルト折りたたみ、gate 対象が無ければ非表示。
+  - **検証**: `node:vm` で実機実行し、`setInstanceVariant('日付','満席')` → `currentInteractions()` が 1→0、`'選択可能'` に戻すと 0→1 に戻ることを確認（`/tmp/run_gate_toggle.mjs`。使い捨てスクリプトでリポジトリには残していない）。パネル HTML の描画も別スクリプトで確認済み。
 
 ## 更新サマリ（2026-07-13 第3セッション）
 
@@ -21,8 +32,7 @@
 
 ## 次に着手する候補（本パスのスコープ外として残したもの）
 
-- **presence gate の手動トグル UI**: `sharedVariants`（member gate のデフォルト解決にも流用）を simulator 画面上からユーザーが書き換えられる UI が無い。今は常に「対象 component の initialVariant」のまま固定 — ADR-0002 Consequence の「インスタンス variant の手動トグルで観測可能にする」を完全には満たさない。判定ロジックは完成しているので、追加は UI 層のみで閉じる想定。
-- **document common のモジュール切替**: SPEC「実行時に有効な document common はアクティブフレームの最上段 component が定義されているファイルのもの」— 現状 simulator は常に entry モジュールの document common のみを見る（多モジュール時の切替は未実装。今回のスコープ外・pre-existing）。
+上記2件は第4セッションで完了（詳細は冒頭「更新サマリ（第4セッション）」）。新規の残課題は無し。r2 Phase 4 は完全に完了した状態。次にやるとすれば round 3 ストレステスト（新規変更点の再検証）かブランチ完了処理（`superpowers:finishing-a-development-branch`）。
 
 ## 動作確認の再現手順（jsdom 不在のため node:vm で実行）
 
