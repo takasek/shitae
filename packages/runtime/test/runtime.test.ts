@@ -797,3 +797,34 @@ describe('singleton — switch をまたぐ参照（基準2・スナップショ
     expect(activeLocation(s).variant).toBe('受取済');
   });
 });
+
+describe('singleton — overlay の共有追随（基準3）', () => {
+  it('show 中の singleton は共有 variant 進行に追随する', () => {
+    let s = initialState(loc('クーポン'), ['クーポン']); // active=クーポン
+    s = reduce(s, ov('show', 'クーポン')).state; // overlay 掲示（初回 initial）
+    expect(overlayVariant(s, 'クーポン')).toBe(null);
+    s = reduce(s, tr('goto', navVar('受取済'))).state; // active=クーポン へ ##受取済 → 共有書換
+    expect(overlayVariant(s, 'クーポン')).toBe('受取済'); // overlay 表示も追随
+  });
+
+  it('show(X##v) の singleton は共有書換として働く', () => {
+    let s = initialState(loc('ホーム'), ['クーポン']);
+    s = reduce(s, ov('show', 'クーポン', '受取済')).state;
+    expect(s.sharedVariants.get('クーポン')).toBe('受取済');
+    expect(overlayVariant(s, 'クーポン')).toBe('受取済');
+  });
+
+  it('singleton の show(X)（variant 省略）は共有を initial に戻さない（ADR-0009 規則3 不適用）', () => {
+    let s = initialState(loc('ホーム'), ['クーポン']);
+    s = reduce(s, ov('show', 'クーポン', '受取済')).state; // 共有=受取済
+    s = reduce(s, ov('show', 'クーポン')).state; // 再 show 省略形
+    expect(s.sharedVariants.get('クーポン')).toBe('受取済'); // initial に戻らない
+    expect(overlayVariant(s, 'クーポン')).toBe('受取済');
+  });
+
+  it('未掲示の singleton は共有に値があっても overlayVariant は null（presence gate）', () => {
+    let s = initialState(loc('クーポン'), ['クーポン']);
+    s = reduce(s, tr('goto', navVar('受取済'))).state; // 共有=受取済（overlay 未掲示）
+    expect(overlayVariant(s, 'クーポン')).toBe(null);
+  });
+});

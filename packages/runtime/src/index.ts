@@ -326,10 +326,14 @@ export function reduce(state: RuntimeState, action: Transition | Overlay): Reduc
 function reduceOverlay(state: RuntimeState, overlay: Overlay): ReduceResult {
   const name = overlay.target.name;
   if (overlay.verb === 'show') {
-    // 掲示 / 再掲示とも表示 variant を上書き（ADR-0009。省略時は null = initial の含意）
+    // 掲示 / 再掲示とも表示 variant を上書き（ADR-0009。省略時は null = initial の含意）。
+    // singleton は overlays の値を読まず共有解決される（overlayVariant 参照）ため、ここでの
+    // 省略形 show は共有を initial に戻さない。明示 X##v のみ writeShared で共有書換（ADR-0011）。
     const overlays = new Map(state.overlays);
     overlays.set(name, overlay.target.variant ?? null);
-    return { state: { ...state, overlays }, diagnostics: [] };
+    const loc: Location = { module: null, component: name, variant: overlay.target.variant ?? null };
+    const sharedVariants = writeShared(state, loc);
+    return { state: { ...state, overlays, sharedVariants }, diagnostics: [] };
   }
   // hide
   if (!state.overlays.has(name)) {
