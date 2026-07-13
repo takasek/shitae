@@ -142,7 +142,11 @@ export function activeLocation(state: RuntimeState): Location {
  *  名前[製法,barrier,@session]{stack}。`*` はアクティブフレーム。 */
 export function formatTree(state: RuntimeState): string {
   const children = (id: number) => state.frames.filter((f) => f.parentId === id);
-  const fmtLoc = (l: Location) => (l.variant ? `${l.component}##${l.variant}` : l.component);
+  // singleton は共有現在値へ解決して描画する（stored variant は snapshot でない。ADR-0011）。
+  const fmtLoc = (l0: Location) => {
+    const l = resolveLocation(state, l0);
+    return l.variant ? `${l.component}##${l.variant}` : l.component;
+  };
   const fmtFrame = (f: Frame): string => {
     const stackStr = f.stack.map(fmtLoc).join(',');
     const sess = f.beginsSession ? `@${f.beginsSession.name ?? '(無名)'}` : '-';

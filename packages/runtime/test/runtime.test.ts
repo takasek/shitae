@@ -9,6 +9,7 @@ import {
   activeFrame,
   overlayVariant,
   resolveLocation,
+  formatTree,
 } from '../src/index.js';
 import type { Transition, Overlay, NavTarget, Span } from '@shitae/ast';
 
@@ -826,5 +827,48 @@ describe('singleton — overlay の共有追随（基準3）', () => {
     let s = initialState(loc('クーポン'), ['クーポン']);
     s = reduce(s, tr('goto', navVar('受取済'))).state; // 共有=受取済（overlay 未掲示）
     expect(overlayVariant(s, 'クーポン')).toBe(null);
+  });
+});
+
+describe('singleton — back・formatTree・永続（戻り系不適用と snapshot 不在）', () => {
+  it('back(X) で singleton へ戻ると積まれた時点でなく共有現在値を映す', () => {
+    let s = initialState(loc('ホーム'), ['クーポン']);
+    s = reduce(s, tr('push', navComp('クーポン'))).state; // 共有 null で積む
+    s = reduce(s, tr('push', navComp('詳細'))).state;
+    // 別所からクーポンを開き共有を v2 へ進める
+    s = reduce(s, tr('present', navComp('クーポン'))).state;
+    s = reduce(s, tr('goto', navVar('v2'))).state; // 共有=v2
+    s = reduce(s, tr('dismiss')).state; // 詳細 に戻る
+    // back(クーポン): 最初に積んだ時点は null だが共有解決で v2（戻り系規則 不適用）
+    s = reduce(s, tr('back', navComp('クーポン'))).state;
+    expect(activeLocation(s).variant).toBe('v2');
+  });
+
+  it('back(X) は共有レジストリを書き換えない', () => {
+    let s = initialState(loc('ホーム'), ['クーポン']);
+    s = reduce(s, tr('push', navComp('クーポン', '受取済'))).state; // 共有=受取済
+    s = reduce(s, tr('push', navComp('詳細'))).state;
+    s = reduce(s, tr('back', navComp('クーポン'))).state; // back に variant は載らない
+    expect(s.sharedVariants.get('クーポン')).toBe('受取済'); // 不変
+  });
+
+  it('formatTree は singleton フレームの variant を共有現在値へ解決して出す', () => {
+    let s = initialState(loc('ホーム'), ['クーポン']);
+    s = reduce(s, tr('push', navComp('クーポン'))).state; // 共有 null で積む（stored null）
+    s = reduce(s, tr('push', navComp('詳細'))).state;
+    s = reduce(s, tr('present', navComp('クーポン'))).state;
+    s = reduce(s, tr('goto', navVar('v2'))).state; // 共有=v2
+    s = reduce(s, tr('dismiss')).state;
+    // 最初のフレームの stack に積まれたクーポンは stored=null だが v2 で描画される
+    expect(formatTree(s)).toContain('クーポン##v2');
+    expect(formatTree(s)).not.toContain('クーポン,'); // stored null（裸クーポン）では出ない
+  });
+
+  it('全フレーム破棄後も共有 variant は残る（画面を閉じても残る）', () => {
+    let s = initialState(loc('ホーム'), ['クーポン']);
+    s = reduce(s, tr('present', navComp('クーポン'))).state;
+    s = reduce(s, tr('goto', navVar('受取済'))).state; // 共有=受取済
+    s = reduce(s, tr('dismiss')).state; // クーポンフレーム破棄
+    expect(s.sharedVariants.get('クーポン')).toBe('受取済');
   });
 });
