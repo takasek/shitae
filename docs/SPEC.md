@@ -255,7 +255,7 @@ shitae には遷移の可否に関わる要素が 2 つあるが、どちらも�
    - 参照に `*` が前置されていても（`*手札?`）、判定は `*` を剥いだ名で行う——collection かどうかではなく、その名前の要素があるかどうかを見る。
    - 対象が未定義 component など判定不能なときは **always-on**（ラフさ優先。lint はヒントを出してよいが、エラーにはしない）。
    - **document common の裸参照**は、発火時に**アクティブな component の現在 variant の実効 body** で判定する——裸 `##variant` の動的解決と同じ原理で、document common の interaction はアクティブ component に書かれたかのように振る舞う（「variant の参照は必ず ##」を参照）。これにより「その要素を持つ画面でだけ有効な deep link」が書ける：`> 通知タップ(記事リンク?) -> push(記事詳細)`。
-   - `?` が置けるのは**行動対象のみ**。nav-target（遷移先）への後置（例 `push(次?)`）は**構文エラー**。
+   - `?` が置けるのは**行動対象のみ**。nav-target（遷移先）への後置（例 `push(次?)`）は**構文エラー**（E013）。要素行の参照への後置（例 要素行に `投了ボタン?`）も**構文エラー**（E025）——要素の「あるかもしれない」は variant で分けるか自然文で注記する。
 
    `?` が opt-in（既定は「対象不在でも always-on」）なのは、**要素行に書いていない対象への行動を許す**ため。ラフの段階では、まだ要素行に置いていない・置くかどうか未定の対象へ行動を書くことが普通にある（`> タップ(投了) -> goto(##リザルト)` と書くとき「投了」ボタンを要素行に置き終えている必要はない）。存在を自動で行動の条件にすると、これらの行動が黙って無効になり、ラフさの核が壊れる。だから既定は always-on とし、存在を条件にしたいときだけ書き手が `?` で opt-in する。典型の使いどころは共通部分（`##` より前）に置いた行動で、「その対象を持つ variant でだけ有効」にしたいとき。
 
@@ -351,6 +351,7 @@ shitae が「条件を評価しない」と言うとき、それは presence gat
 - `goto` は**セッションを開始できない**（`goto(X, @S)` は不可）。セッションは「begin した地点に戻る」ために、begin 時点でフレーム上の新しい一位置を必要とするが、`goto` は積まずに現在フレームの最上段を置き換えるだけなので、新しい begin 地点を作れない（畳む基点になれない）。
   この規則は、goto が**既存の** begin マーカー（現在フレームがすでに begin しているセッション）を保つかどうかとは独立——`goto` は新規セッションを開始できないが、現在フレームがすでに持っている begin マーカーは壊さずそのまま残す（「フレーム木」を参照）。
 - 行き先は `component` / `component##variant` / `モジュール::component` / `##variant`（同一 component 内の variant）。
+- セッション無しの `push(##v)` は「アクティブ component の variant v を現在フレームに積む」——`goto(##v)`（置き換え）と違い `back()` で元の variant へ戻れる。フレームを作らないので E023 の対象外。
 
 ### variant の参照は必ず `##`
 
@@ -541,11 +542,12 @@ root ─ A[@S]                      ← アクティブ（@S は無傷）
 - result として `show(X)` / `show(X##v)` / `hide(X)` と書ける。どの interaction の結果列からでも、掲示の追加・除去ができる。
 - `show(X##v)` は表示 variant を v にして掲示する。`show(X)`（variant 省略）は **X の initial variant** で掲示する。
 - **掲示中の component への再 `show` は表示 variant を上書きする**（`hide` を経由しない。省略形の再 show は initial への上書き）。掲示中 component が自分の見た目を変える正攻法はこの**自己再 show**——裸 `##v` の遷移はアクティブ画面側に解決されるため、この用途には使えない（「variant の参照は必ず ##」を参照）。
-- X が singleton（`#!`）の場合、エントリは共有レジストリへの参照であり、initial への上書き規則は適用しない（共有 variant の現在値が常に見える）。
+- X が singleton（`#!`）の場合、エントリは共有レジストリへの参照であり、initial への上書き規則は適用しない（共有 variant の現在値が常に見える）。逆に singleton への `show(X##v)`（明示 variant）は**表示 variant の選択ではなく共有状態の書き換え**——取得済みクーポンに `show(クーポン##未受取)` と書くと状態が巻き戻る。共有の現在値をそのまま掲示したいときは省略形 `show(X)` と書く。
 - `hide(X)` は X が掲示されていなければ **no-op**。
 - 掲示中の component は**全画面で表示**され、その**表示中 variant の実効 body（共通＋固有）**の interaction がどのフレームがアクティブでも有効。
 - オーバーレイは**フレームではない**——`back` / `exit` / `dismiss` の走査対象に入らない。消えるのは明示的な `hide(X)` のときだけ（フレームが破棄されても連動しては消えない）。
 - ID は component 名が兼ねる。同一 component の多重掲示は初版では扱わない（実需が出るまで別 ID は導入しない）。
+- 引数は component 1 つ——collection の `*` は書けない（`show(*X)` は E024）。裸 `##variant` も書けない（母体が無い。E027）。
 - テキストだけの一時的なヒント（トースト等）に専用機構は用意しない。**本文がそのテキストである component を `show` する**ことで表す。
 - gate（presence gate）とは**別軸**。gate は「その variant の実効 body に対象があるか」だけを見て、掲示状態は見ない。オーバーレイの interaction の有効性は gate ではなくこの節の規則による。
 - 特定の画面でだけオーバーレイを除外する（例：Now Playing 画面の上にはミニプレイヤーを出さない）記法は初版では見送る。既知の制限として、必要なら書き手が自然文で注記する。
@@ -644,7 +646,8 @@ import auth as auth          // auth.shitae を読み込む
 - `*` を先頭固定にすることで、alias や inline と組んでも掛かる先が一意になる（`*フィード: { *サムネイル }` ＝ 複数のフィード、各々の中に複数のサムネイル）。
 - `*` は**参照側にも対称に現れる**（宣言側と参照側で同じ記号が同じ意味を持つ）。インタラクションで**`*` なしに参照**したときは **1 インスタンス**を指す（`タップ(サムネイル) -> push(詳細)` ＝ サムネイルを 1 つ選んだら詳細へ）。**`*` を付けたまま参照**したときは **collection 全体**を指す（`スクロール(*サムネイル) -> 続きを読み込む` ＝ サムネイル全体へのスクロール操作）。
 - 入れ物と中身に別々の名前を付けたい（フィードの中にサムネイル、のように呼び分けたい）ときは、inline で包んで別名を与える——これは**追加の手段**であり、collection 全体を参照するのに必須ではない（「inline component とグルーピング」を参照）。
-- presence gate（`?`）を collection 参照に付けたとき（`*手札?`）も、存在判定は `*` を剥いだ名で行う（「操作は variant に属する」を参照）。
+- presence gate（`?`）を collection 参照に付けたとき（`*手札?`）も、存在判定は `*` を剥いだ名で行う（「操作は variant に属する」を参照）。「collection が空でない（1 つ以上ある）」を gate にする記法は無い——要るなら condition label（`[手札なし] ...`）で注記する。
+- singleton（`#!`）に `*` は付けられない（E028。「singleton component」を参照）。
 - collection は順序を保証しない。前後関係（次の・最後の等）が要るなら condition label や自然文で注記する。
 
 ---
@@ -693,6 +696,8 @@ import auth as auth          // auth.shitae を読み込む
 
 > 注意：遷移は必ず transition verb（`push` 等）で書く。`タップ(保存) -> 完了` のように transition verb なしで component 名を書くと、それは**遷移ではなく副作用（自然文）**として扱われる（「完了する」という意味になり、`完了` 画面への遷移にはならない）。画面へ遷移させたいなら `push(完了)` と書く。ラフさの代償として、この取り違えは処理系では検出されない（後でグラフ化や実装に落とす段で気づく）。
 
+condition label は**結果**に付く記法であり、要素行の名前を `[空席] 座席` のように書くのは想定外——処理系は `[` で始まる要素名を警告してよい（W104）。条件付きの要素は variant で分けるか自然文で注記する。
+
 ---
 
 ## 扱わないもの（意図的に持たない）
@@ -737,7 +742,7 @@ import auth as auth          // auth.shitae を読み込む
 | E017 | 同名 alias の再 import（「モジュール化」参照） | error |
 | E018 | component を 1 つも持たない文書（「initial variant とエントリポイント」参照） | error |
 | E019 | `switch()` に `@session` 引数が無い（session は省略できない。「switch（中断と復帰）」参照） | error |
-| E020 | `hide()` に `##variant` を書いた（掲示解除に variant 指定は不要。「オーバーレイ」参照） | error |
+| E020 | `hide(X##v)`（component 付き）に `##variant` を書いた（掲示解除に variant 指定は不要。裸 `##v` は E027。「オーバーレイ」参照） | error |
 | E021 | nav-target に `*`（collection 全体参照）を書いた（collection への遷移は無い。「collection」参照） | error |
 | E022 | document common に裸 `##variant` を書いた（母体 component が無い。「document common」参照） | error |
 | E023 | フレーム新規作成系（`push(##v, @S)` / `present(##v[, @S])` / `switch(##v, @S)`）の nav-target が裸 `##variant`（「variant の参照は必ず ##」参照） | error |
@@ -745,7 +750,12 @@ import auth as auth          // auth.shitae を読み込む
 | E025 | 要素行の参照に `?` を後置した（presence gate は行動対象専用。「操作は variant に属する」参照） | error |
 | E026 | 対象参照が空（`行動()`。対象なしなら括弧ごと省略する。「行動」参照） | error |
 | W104 | 要素名が condition label 風の `[...]` で始まる（条件付き要素の意図なら variant で分けるか自然文で注記。「未定・分岐」参照） | warning |
-| W105 | `goto(##X)` の X がその component に定義されていない variant | warning |
+| W105 | `goto(##X)` / `set(X##v)` の variant が対象 component に定義されていない | warning |
+| E027 | overlay verb（`show`/`hide`）の引数が裸 `##variant`（母体 component が無い。「オーバーレイ」参照） | error |
+| E028 | singleton に collection の `*` を付けた（宣言側要素行・参照側行動対象とも。「singleton component」参照） | error |
+| E029 | `set()` の引数が `component##variant` の形でない（`set()` / `set(X)` / `set(##v)` / `set(X, @S)` / `set(*X##v)`。「singleton component」参照） | error |
+| E030 | `set()` の対象が定義済みの非 singleton component（インスタンス独立のため書き込み先が定まらない。「singleton component」参照） | error |
+| R005 | 生存中の同名 `@S` がアクティブパス上にある状態での再 begin（`push`/`present`。「セッション」参照） | warning |
 
 ### lint 推奨
 
