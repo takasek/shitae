@@ -91,6 +91,12 @@ export interface SimulatorData {
   documentCommon: SimInteraction[];
   /** singleton（`#!`）component 名の集合（全モジュール横断。SPEC「singleton component」ADR-0011） */
   singletons: string[];
+  /**
+   * member gate（`対象.要素?`）の対象 component 名（重複除去。全モジュール横断）。
+   * host gate・indeterminate は含めない——手動トグル UI（ADR-0002 Consequence）が
+   * 「今どの画面にも表示されていない対象インスタンスの variant」を模擬するための一覧。
+   */
+  gateTargets: string[];
 }
 
 function elementDisplayName(el: import('@shitae/ast').ElementLine): string {
@@ -218,6 +224,12 @@ function convertComponent(comp: Component, documentCommon: Interaction[]): SimCo
   };
 }
 
+function collectGateTargets(interactions: SimInteraction[], out: Set<string>): void {
+  for (const it of interactions) {
+    if (it.gate?.kind === 'member' && it.gate.targetComponent) out.add(it.gate.targetComponent);
+  }
+}
+
 export function extractSimData(
   documents: Map<string, Document>,
   entryModule: string,
@@ -243,5 +255,25 @@ export function extractSimData(
     for (const name of singletonNames(doc)) singletonSet.add(name);
   }
 
-  return { modules, entryModule, entryComponent, documentCommon, singletons: [...singletonSet] };
+  const gateTargetSet = new Set<string>();
+  collectGateTargets(documentCommon, gateTargetSet);
+  for (const mod of Object.values(modules)) {
+    for (const comp of Object.values(mod.components)) {
+      collectGateTargets(comp.commonInteractions, gateTargetSet);
+      collectGateTargets(comp.docCommonInteractions, gateTargetSet);
+      for (const v of Object.values(comp.variants)) {
+        collectGateTargets(v.interactions, gateTargetSet);
+        collectGateTargets(v.docCommonInteractions, gateTargetSet);
+      }
+    }
+  }
+
+  return {
+    modules,
+    entryModule,
+    entryComponent,
+    documentCommon,
+    singletons: [...singletonSet],
+    gateTargets: [...gateTargetSet],
+  };
 }

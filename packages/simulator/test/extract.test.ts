@@ -253,6 +253,14 @@ describe('extractSimData', () => {
     expect(dc).not.toContain('クリック(メイン共通)');
   });
 
+  it('gateTargets: member gate の対象 component 名を重複除去して集める。host/indeterminate は含めない', () => {
+    const doc = parseOk(
+      '# 予約\n投了\n*日付\n*時間\n> タップ(投了?) -> back()\n> タップ(日付.選択可能?) -> push(A)\n> タップ(時間.選択可能?) -> push(A)\n> タップ(日付.選択可能?) -> push(B)\n\n# 日付\n## 選択可能\n選択可能\n\n# 時間\n## 選択可能\n選択可能\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.gateTargets.sort()).toEqual(['日付', '時間']);
+  });
+
   it('entryComponent is first component', () => {
     const doc = parseOk('# ログイン\nID入力\n\n# ホーム\nフィード\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
