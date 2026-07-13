@@ -1,6 +1,15 @@
 # 引き継ぎ — spec-stress-test r2 Phase 4 の残り実装
 
-作成 2026-07-13。ブランチ `spec-stress-test-r2`（HEAD = `acf55a0`）。作業ツリーはクリーン、`pnpm -r test` は全 8 パッケージ green。
+作成 2026-07-13、更新 2026-07-13（残り1・残り3 完了。残るは **残り2: simulator viewer** のみ）。ブランチ `spec-stress-test-r2`（HEAD = `1d5fd45`）。作業ツリーはクリーン、`pnpm -r test` は全 8 パッケージ green。
+
+## 更新サマリ（2026-07-13 後続セッション）
+
+- **残り1（runtime singleton）完了**。commit `08bdb3b`〜`709ee53` + ADR 追記 `e349aaa`。受け入れ基準1-3 と Fable 指摘（presence gate・seed・snapshot 不在・back 除外）を runtime.test.ts で全固定。設計者確定: `switch(X##v,@S)` は resume 経路でも共有 variant を書換（SPEC 301 優先。ADR-0011 に明記）。
+- **残り3（examples 昇格）完了 = singleton showcase 新規作成**。commit `1d5fd45`。**handoff の 2 前提が調査で崩れた**ので方針変更した:
+  - podcast の「mermaid quoted-name ノード ID 不一致バグ」は**再現しない**（ADR A4 canonical quoted name で解消済み。podcast/delivery とも診断ゼロ・dangling node なしを確認）。→ podcast のブロッカーは存在しない。
+  - delivery-r2 プローブは `# クーポン`（通常 component）で **singleton を使っていなかった** → そのまま昇格しても r2 目玉を実演しない。
+  - 対応: プローブ本体は証跡として不変のまま、`docs/examples/delivery.shitae` を**新規 curated example** として作り、クーポンを `#! クーポン` へ昇格。parser integration・checker clean-list のフィクスチャに追加済み。
+- **残り2（simulator viewer）は未着手**。以下「残り 2」節がそのまま有効。runtime は意味論オラクルとして完成済み（singleton 共有・overlay variant・switch 兄弟規則すべて実装）なので、simulator 表示層をそれに追随させる作業。
 
 ## まず読む
 
@@ -22,7 +31,7 @@
 
 parser の `#!` は AST に `Component.singleton: boolean` として乗る（`#!` ファイルは valid にパースされる）。
 
-## 残り 1: runtime singleton 共有レジストリ（ADR-0011。最深部・要注意）
+## 残り 1: runtime singleton 共有レジストリ（ADR-0011。最深部・要注意）— ✅ 完了（commit 08bdb3b〜709ee53, e349aaa）
 
 **現状**: `packages/runtime/src/index.ts` に singleton の概念は無い（`grep singleton` → 0 件）。`#!` component もパース後は通常 component と同じ挙動。
 
@@ -52,7 +61,7 @@ parser の `#!` は AST に `Component.singleton: boolean` として乗る（`#!
 
 simulator はユニットテストが薄い（`extract.test.ts` のみ）。`docs/examples/*.shitae` 統合テストが load-bearing。
 
-## 残り 3: 良品プローブの examples 昇格
+## 残り 3: 良品プローブの examples 昇格 — ✅ 完了（commit 1d5fd45。下記の当初計画は前提が崩れ、singleton showcase 新規作成に変更。冒頭「更新サマリ」参照）
 
 - 候補: `docs/stress-test/probes/delivery-r2/delivery.shitae`（CLI check 診断ゼロ、overlay・出口固定慣用句・gate を正確運用）。podcast-r2 は quoted variant `"1.5x"` で **mermaid のノード ID 不一致バグ**を踏むため、昇格前に transpiler-mermaid の quoted-name sanitize 修正が要る（`spec-review-2026-07-r2.md` S 参照）。
 - 昇格 = `docs/examples/` へ移し `packages/parser/test/integration.test.ts` 等の期待値を追随。`docs/examples/*.shitae` は parser/checker/cli/mermaid/xstate フィクスチャ。触ると `pnpm -r test` が割れる。
