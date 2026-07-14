@@ -48,9 +48,10 @@ export interface RuntimeState {
   frames: Frame[];
   activeFrameId: number;
   nextFrameId: number;
-  /** 掲示中 component → 表示 variant（null は initial の含意）。SPEC「オーバーレイ」ADR-0009。
-   *  フレーム木の走査対象には入らない。エントリは (component, variant) */
-  overlays: ReadonlyMap<string, string | null>;
+  /** 掲示中 component → 掲示エントリ。SPEC「オーバーレイ」ADR-0009。
+   *  フレーム木の走査対象には入らない。ID は component 名が兼ねる。
+   *  module は掲示時に解決した正準モジュール（singleton の共有解決に使う。ADR-0017） */
+  overlays: ReadonlyMap<string, OverlayEntry>;
   /** singleton component キーの集合（`#!`。定義ファイル内で単一インスタンス）。SPEC「singleton component」ADR-0011/0013。
    *  キーは `singletonKey(module, name)` — module=null は素の name。 */
   singletons: ReadonlySet<string>;
@@ -63,6 +64,13 @@ export interface RuntimeState {
 export interface SingletonRef {
   module: string | null;
   name: string;
+}
+
+/** 掲示エントリ（ADR-0009 の (component, 表示 variant) + ADR-0017 の module） */
+export interface OverlayEntry {
+  module: string | null;
+  /** 表示 variant（null は initial の含意）。singleton は無視され共有レジストリが優先 */
+  variant: string | null;
 }
 
 /** (module, component) → レジストリキー。module=null は素の name（従来キーと後方互換）。
@@ -115,14 +123,13 @@ export function initialState(
 
 /** 掲示中 component の表示 variant を返す（未掲示なら null。SPEC「オーバーレイ」ADR-0009）。
  *  singleton は掲示中に限り共有レジストリの現在値へ解決する（ADR-0011。initial 上書き規則は不適用）。
- *  overlays は component 名キー（SPEC: ID は component 名が兼ねる）のため、singleton 解決は
- *  module=null キーで引く——module 修飾つき singleton の掲示解決は module 語彙の正規化と
- *  合わせて将来課題（ADR-0013 の実装詳細）。 */
+ *  singleton 解決には掲示時に解決した module を使う（ADR-0017）。 */
 export function overlayVariant(state: RuntimeState, name: string): string | null {
-  if (!state.overlays.has(name)) return null;
-  const key = singletonKey(null, name);
+  const entry = state.overlays.get(name);
+  if (entry === undefined) return null;
+  const key = singletonKey(entry.module, name);
   if (state.singletons.has(key)) return state.sharedVariants.get(key) ?? null;
-  return state.overlays.get(name) ?? null;
+  return entry.variant;
 }
 
 /** singleton の Location を共有レジストリの現在値へ解決する（スナップショットを作らない。ADR-0011）。
@@ -409,9 +416,11 @@ function reduceOverlay(state: RuntimeState, overlay: Overlay): ReduceResult {
     // 掲示 / 再掲示とも表示 variant を上書き（ADR-0009。省略時は null = initial の含意）。
     // singleton は overlays の値を読まず共有解決される（overlayVariant 参照）ため、ここでの
     // 省略形 show は共有を initial に戻さない。明示 X##v のみ writeShared で共有書換（ADR-0011）。
+    // module 省略はアクティブフレームの module を継承（nav の相対解決と同じ規約。ADR-0017）。
+    const module = overlay.target.module ?? activeLocation(state).module;
     const overlays = new Map(state.overlays);
-    overlays.set(name, overlay.target.variant ?? null);
-    const loc: Location = { module: null, component: name, variant: overlay.target.variant ?? null };
+    overlays.set(name, { module, variant: overlay.target.variant ?? null });
+    const loc: Location = { module, component: name, variant: overlay.target.variant ?? null };
     const sharedVariants = writeShared(state, loc);
     return { state: { ...state, overlays, sharedVariants }, diagnostics: [] };
   }

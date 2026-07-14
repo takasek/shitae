@@ -25,7 +25,7 @@ function run(label, seq, { singletons = [], probeOverlay = null } = {}) {
   }
   const loc = resolveLocation(state, activeLocation(state));
   const active = `${loc.component}${loc.variant ? '##' + loc.variant : ''}`;
-  const overlays = [...state.overlays.entries()].map(([k, v]) => `${k}${v ? '##' + v : ''}`).join(',') || 'なし';
+  const overlays = [...state.overlays.entries()].map(([k, v]) => `${k}${v?.variant ? '##' + v.variant : ''}`).join(',') || 'なし';
   const shared = [...state.sharedVariants.entries()].map(([k, v]) => `${k}=${v}`).join(',') || '空';
   const probed = probeOverlay ? ` / overlayVariant(${probeOverlay})=${overlayVariant(state, probeOverlay)}` : '';
   console.log(`${label}\n  active: ${active}\n  overlays: ${overlays}${probed}\n  shared: ${shared}\n  warns: ${warns.length ? warns.join(' / ') : 'なし'}\n  tree:\n${formatTree(state).replace(/^/gm, '    ')}\n`);

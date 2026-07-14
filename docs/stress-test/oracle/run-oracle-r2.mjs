@@ -18,7 +18,7 @@ function run(label, seq) {
   }
   const loc = activeLocation(state);
   const active = `${loc.component}${loc.variant ? '##' + loc.variant : ''}`;
-  const overlays = [...state.overlays].join(',') || 'なし';
+  const overlays = [...state.overlays.keys()].join(',') || 'なし';
   console.log(`${label}\n  active: ${active}\n  overlays: ${overlays}\n  warns: ${warns.length ? warns.join(' / ') : 'なし'}\n  tree:\n${formatTree(state).replace(/^/gm, '    ')}\n`);
 }
 

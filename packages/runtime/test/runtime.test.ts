@@ -3,6 +3,7 @@ import {
   type Location,
   type Frame,
   type RuntimeState,
+  singletonKey,
   initialState,
   reduce,
   activeLocation,
@@ -1021,5 +1022,37 @@ describe('r3: R005 — 生存中の同名 @S の再 begin（ADR-0016）', () => 
     s = reduce(s, tr('switch', navComp('B'), { name: 'T' })).state;
     const r = reduce(s, tr('switch', navComp('A'), { name: 'S' })); // resume
     expect(r.diagnostics.some((d) => d.code === 'R005')).toBe(false);
+  });
+});
+
+describe('ADR-0017: overlay エントリの module（module 修飾 singleton の掲示解決）', () => {
+  it('show(mod::X##v) は (mod,X) の共有レジストリを書き、overlayVariant が共有値へ解決する', () => {
+    let s = initialState(loc('ホーム'), [{ module: 'mod', name: 'バナー' }]);
+    s = reduce(s, ov('show', 'バナー', '表示', 'mod')).state;
+    expect(s.sharedVariants.get(singletonKey('mod', 'バナー'))).toBe('表示');
+    expect(overlayVariant(s, 'バナー')).toBe('表示');
+  });
+
+  it('掲示中の module 修飾 singleton は他所の書換に追随する', () => {
+    let s = initialState(loc('ホーム'), [{ module: 'mod', name: 'バナー' }]);
+    s = reduce(s, ov('show', 'バナー', undefined, 'mod')).state;
+    s = reduce(s, tr('push', navComp('バナー', '非表示', 'mod'))).state;
+    expect(overlayVariant(s, 'バナー')).toBe('非表示');
+  });
+
+  it('show の module 省略はアクティブフレームの module を継承する', () => {
+    let s = initialState(loc('ホーム'), [{ module: 'mod', name: 'バナー' }]);
+    s = reduce(s, tr('push', navComp('画面', undefined, 'mod'))).state; // アクティブ module = mod
+    s = reduce(s, ov('show', 'バナー', '表示')).state;
+    expect(s.sharedVariants.get(singletonKey('mod', 'バナー'))).toBe('表示');
+    expect(overlayVariant(s, 'バナー')).toBe('表示');
+  });
+
+  it('非 singleton の overlay 挙動は不変（表示 variant を保持・再 show 上書き）', () => {
+    let s = initialState(loc('ホーム'));
+    s = reduce(s, ov('show', 'ミニ', '再生中')).state;
+    expect(overlayVariant(s, 'ミニ')).toBe('再生中');
+    s = reduce(s, ov('show', 'ミニ', '一時停止')).state;
+    expect(overlayVariant(s, 'ミニ')).toBe('一時停止');
   });
 });
