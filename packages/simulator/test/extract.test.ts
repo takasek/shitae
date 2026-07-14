@@ -283,3 +283,46 @@ describe('extractSimData', () => {
     expect(data.entryComponent).toBe('ログイン');
   });
 });
+
+describe('ADR-0017: module 参照の正準化（alias → ファイル名）', () => {
+  it('transition target の alias が正準モジュール名へ正規化される', () => {
+    const subDoc = parseOk('# 支払い\n本文\n');
+    const mainDoc = parseOk('import checkout-flow as co\n# ホーム\n> 進む -> push(co::支払い)\n');
+    const data = extractSimData(new Map([['main', mainDoc], ['checkout-flow', subDoc]]), 'main');
+    const body = data.modules['main']!.components['ホーム']!.commonInteractions[0]!.prelude[0]!;
+    expect(body.type).toBe('transition');
+    if (body.type === 'transition' && body.target?.kind === 'full') {
+      expect(body.target.module).toBe('checkout-flow');
+    }
+  });
+
+  it('overlay / set / member gate の alias も正規化される', () => {
+    const subDoc = parseOk('#! バナー\n## 表示\n開く\n## 非表示\n中身\n');
+    const mainDoc = parseOk(
+      'import notifications as n\n# ホーム\nバナー\n> 出す -> show(n::バナー##表示)\n> 書く -> set(n::バナー##非表示)\n> 押す(n::バナー.開く?) -> 進む\n',
+    );
+    const data = extractSimData(new Map([['main', mainDoc], ['notifications', subDoc]]), 'main');
+    const inters = data.modules['main']!.components['ホーム']!.commonInteractions;
+    const ov = inters[0]!.prelude[0]!;
+    if (ov.type === 'overlay') expect(ov.module).toBe('notifications');
+    const st = inters[1]!.prelude[0]!;
+    if (st.type === 'state') expect(st.module).toBe('notifications');
+    expect(inters[2]!.gate).toEqual({ name: '開く', kind: 'member', targetComponent: 'バナー', module: 'notifications' });
+  });
+
+  it('import 表に無い alias は正規化せずそのまま残す（未解決の素通し）', () => {
+    const doc = parseOk('# ホーム\n> 進む -> push(unknown::画面)\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const body = data.modules['main']!.components['ホーム']!.commonInteractions[0]!.prelude[0]!;
+    if (body.type === 'transition' && body.target?.kind === 'full') {
+      expect(body.target.module).toBe('unknown');
+    }
+  });
+
+  it('gateTargets は正準化された module で解決される（alias ≠ ファイル名でも定義に届く）', () => {
+    const subDoc = parseOk('# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n');
+    const mainDoc = parseOk('import calendar-widgets as cal\n# 予約\n*日付\n> タップ(cal::日付.選択可能?) -> 進む\n');
+    const data = extractSimData(new Map([['main', mainDoc], ['calendar-widgets', subDoc]]), 'main');
+    expect(data.gateTargets).toEqual([{ module: 'calendar-widgets', name: '日付' }]);
+  });
+});

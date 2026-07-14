@@ -1,5 +1,5 @@
 import type { Action, Document, Component, Interaction, Result } from '@shitae/ast';
-import { effectiveResults, mergeInteractions } from '@shitae/resolver';
+import { effectiveResults, mergeInteractions, resolveModuleRef } from '@shitae/resolver';
 import { singletonNames } from '@shitae/runtime';
 
 export interface SimTransition {
@@ -122,7 +122,10 @@ function elementDisplayName(el: import('@shitae/ast').ElementLine): string {
   return '{...}';
 }
 
-function convertResultBody(r: Result): SimResultBody {
+/** alias を正準モジュール名へ解決する関数（ADR-0017）。未解決 alias はそのまま返す */
+type ModuleNormalizer = (module: string | null) => string | null;
+
+function convertResultBody(r: Result, norm: ModuleNormalizer): SimResultBody {
   const { body } = r;
   if (body.kind === 'transition') {
     let target: SimTransition['target'] = null;
@@ -132,7 +135,7 @@ function convertResultBody(r: Result): SimResultBody {
       } else {
         target = {
           kind: 'full',
-          module: body.target.module ?? null,
+          module: norm(body.target.module ?? null),
           component: body.target.name,
           variant: body.target.variant ?? null,
         };
@@ -151,7 +154,7 @@ function convertResultBody(r: Result): SimResultBody {
       type: 'overlay',
       op: body.verb,
       component: body.target.name,
-      module: body.target.module ?? null,
+      module: norm(body.target.module ?? null),
       variant: body.target.variant ?? null,
     };
   } else if (body.kind === 'state') {
@@ -159,7 +162,7 @@ function convertResultBody(r: Result): SimResultBody {
     return {
       type: 'state',
       component: body.target.name,
-      module: body.target.module ?? null,
+      module: norm(body.target.module ?? null),
       variant: body.target.variant,
     };
   } else {
@@ -172,22 +175,22 @@ function convertResultBody(r: Result): SimResultBody {
  * 裸参照は document common（字句上の host なし）でも host 扱い——発火時のアクティブ component の
  * 実効 body で判定する（ADR-0015。ADR-0012 B7a の always-on を置き換え）。
  */
-function buildGate(action: Action): SimGate | null {
+function buildGate(action: Action, norm: ModuleNormalizer): SimGate | null {
   const ref = action.target;
   if (!ref || !ref.existsGated) return null;
   if (ref.member === null) {
     return { name: ref.name, kind: 'host' };
   }
-  return { name: ref.member, kind: 'member', targetComponent: ref.name, module: ref.module ?? null };
+  return { name: ref.member, kind: 'member', targetComponent: ref.name, module: norm(ref.module ?? null) };
 }
 
-function convertInteraction(i: Interaction): SimInteraction {
+function convertInteraction(i: Interaction, norm: ModuleNormalizer): SimInteraction {
   const action = i.action;
   const targetPart = action.target ? `(${action.target.name})` : '';
   const prelude: SimResultBody[] = [];
   const choices: SimChoice[] = [];
   for (const { label, result } of effectiveResults(i)) {
-    const body = convertResultBody(result);
+    const body = convertResultBody(result, norm);
     if (label === null) {
       // effectiveResults はラベルを前方に引き継ぐため、null は最初のラベルより前だけ
       prelude.push(body);
@@ -205,7 +208,7 @@ function convertInteraction(i: Interaction): SimInteraction {
     actionText: `${action.text}${targetPart}`,
     prelude,
     choices,
-    gate: buildGate(action),
+    gate: buildGate(action, norm),
   };
 }
 
@@ -221,12 +224,12 @@ function survivingDocCommon(documentCommon: Interaction[], effective: Interactio
   return merged.slice(0, merged.length - effective.length);
 }
 
-function convertComponent(comp: Component, documentCommon: Interaction[]): SimComponent {
+function convertComponent(comp: Component, documentCommon: Interaction[], norm: ModuleNormalizer): SimComponent {
   const commonElements = comp.common.elements.map(elementDisplayName);
   const commonInteractionsAst = comp.common.interactions;
-  const commonInteractions = commonInteractionsAst.map((it) => convertInteraction(it));
+  const commonInteractions = commonInteractionsAst.map((it) => convertInteraction(it, norm));
   const docCommonInteractions = survivingDocCommon(documentCommon, commonInteractionsAst).map(
-    (it) => convertInteraction(it),
+    (it) => convertInteraction(it, norm),
   );
   const variants: Record<string, SimVariant> = {};
   for (const v of comp.variants) {
@@ -235,9 +238,9 @@ function convertComponent(comp: Component, documentCommon: Interaction[]): SimCo
     const effectiveAst = mergeInteractions(commonInteractionsAst, v.body.interactions);
     variants[v.name] = {
       elements: v.body.elements.map(elementDisplayName),
-      interactions: effectiveAst.map((it) => convertInteraction(it)),
+      interactions: effectiveAst.map((it) => convertInteraction(it, norm)),
       docCommonInteractions: survivingDocCommon(documentCommon, effectiveAst).map(
-        (it) => convertInteraction(it),
+        (it) => convertInteraction(it, norm),
       ),
     };
   }
@@ -273,15 +276,20 @@ export function extractSimData(
   const entryDoc = documents.get(entryModule);
   const entryComponent = entryDoc?.components[0]?.name ?? '';
   const documentCommonAst = entryDoc?.common.interactions ?? [];
-  const documentCommon = documentCommonAst.map((it) => convertInteraction(it));
+  const normFor = (doc: Document | undefined): ModuleNormalizer => (module) => {
+    if (module == null || doc == null) return module;
+    return resolveModuleRef(module, doc) ?? module;
+  };
+  const documentCommon = documentCommonAst.map((it) => convertInteraction(it, normFor(entryDoc)));
 
   const modules: Record<string, SimModuleData> = {};
   for (const [moduleName, doc] of documents) {
     const components: Record<string, SimComponent> = {};
+    const norm = normFor(doc);
     for (const comp of doc.components) {
       // SPEC「document common」: 実行時に有効な document common はその component が
       // 定義されているファイル自身のもの（entry ファイルのものではない）
-      components[comp.name] = convertComponent(comp, doc.common.interactions);
+      components[comp.name] = convertComponent(comp, doc.common.interactions, norm);
     }
     modules[moduleName] = {
       components,
