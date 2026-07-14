@@ -1,0 +1,11 @@
+import c32-r4-set-module-b as mod
+import c32-r4-set-module-b as mod2
+
+# ホーム
+> m1 -> set(mod::クーポン##受取済)
+> m2 -> set(mod::存在しない##v)
+> m3 -> set(mod::通常##x)
+> m4 -> set(壊れ::何か##v)
+> m5 -> set(mod2::クーポン##受取済)
+> m6 -> set(mod::クーポン##ない)
+> m7 -> push(mod::クーポン)
