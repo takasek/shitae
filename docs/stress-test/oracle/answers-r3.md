@@ -14,3 +14,7 @@
 | S8 | push(記事##展開); push(設定); back() [非singleton] | 記事##展開 | 空 | 通常 component は積まれた時点の variant（対照） |
 
 警告: 全ケースなし。
+
+## 事後記録（2026-07-14、Phase 4 反映後）
+
+S5 は ADR-0013（singleton の共有スコープ = 定義ファイル単位・(module, component) キー）の実装で挙動が変わった。修正後の実測: ローカル `push(クーポン##通常)` は共有レジストリを汚染せず、`mod::クーポン` は **initial（##未受取）** で開く——オラクル被験者の予測（`grading-r3.md` S5）と一致。上表の S5 は修正前の bug 挙動の記録として保存する。再現は runtime テスト「r3: singleton のモジュール境界」参照。

@@ -7,6 +7,7 @@ const battleSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples
 const ecommerceSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/ecommerce.shitae'), 'utf8');
 const musicSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/music.shitae'), 'utf8');
 const deliverySrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/delivery.shitae'), 'utf8');
+const langlearnSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/langlearn.shitae'), 'utf8');
 
 describe('integration: examples/battle.shitae', () => {
   it('parses without errors', () => {
@@ -160,5 +161,35 @@ describe('integration: examples/delivery.shitae（singleton・overlay・exit 固
       .find(r => r.body.kind === 'transition' && r.body.word === 'present'
         && r.body.target?.kind === 'component' && r.body.target.name === 'クーポン');
     expect(toCoupon).toBeDefined();
+  });
+});
+
+describe('integration: examples/langlearn.shitae（set・singleton タブ・gate 動的解決の実例）', () => {
+  it('parses without errors', () => {
+    const { diagnostics } = parse(langlearnSrc);
+    expect(diagnostics.filter(d => d.severity === 'error')).toHaveLength(0);
+  });
+
+  it('学習 と ストリークバッジ が singleton（#!）', () => {
+    const { document } = parse(langlearnSrc);
+    const singletons = document.components.filter(c => c.singleton).map(c => c.name);
+    expect(singletons.sort()).toEqual(['ストリークバッジ', '学習']);
+  });
+
+  it('set(学習##ハート切れ) / set(学習##通常) の StateWrite を含む', () => {
+    const { document } = parse(langlearnSrc);
+    const writes = document.components
+      .flatMap(c => [...c.common.interactions, ...c.variants.flatMap(v => v.body.interactions)])
+      .flatMap(i => i.results)
+      .filter(r => r.body.kind === 'state')
+      .map(r => (r.body.kind === 'state' ? r.body.target.variant : ''));
+    expect(writes.sort()).toEqual(['ハート切れ', '通常']);
+  });
+
+  it('document common に presence gate 付き deep link を持つ（ADR-0015 の実例）', () => {
+    const { document } = parse(langlearnSrc);
+    const gated = document.common.interactions.find(i => i.action.target?.existsGated);
+    expect(gated).toBeDefined();
+    expect(gated!.action.target!.name).toBe('レッスン開始ボタン');
   });
 });

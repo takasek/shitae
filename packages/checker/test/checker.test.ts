@@ -75,7 +75,7 @@ describe('check', () => {
 
   it('全サンプルで severity=error なし', () => {
     const root = join(import.meta.dirname, '../../..');
-    for (const f of ['docs/examples/battle.shitae', 'docs/examples/ecommerce.shitae', 'docs/examples/music.shitae', 'docs/examples/delivery.shitae']) {
+    for (const f of ['docs/examples/battle.shitae', 'docs/examples/ecommerce.shitae', 'docs/examples/music.shitae', 'docs/examples/delivery.shitae', 'docs/examples/langlearn.shitae']) {
       const src = readFileSync(join(root, f), 'utf8');
       const { document } = parse(src);
       const diags = check(document, resolve(document));
