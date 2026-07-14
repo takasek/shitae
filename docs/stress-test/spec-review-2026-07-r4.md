@@ -80,6 +80,15 @@ SPEC「裸参照は **host component（その行動が書かれている compone
 
 runtime は set/overlay/nav とも「発火時のアクティブフレームの module」で解決する（reduceStateWrite の `action.target.module ?? current.module` ほか）。同一ファイル内で完結する通常フローでは字句ホスト＝アクティブ module で一致するが、**overlay 掲示中 component の interaction**は別 module の画面上で発火しうる——mod 定義のミニプレイヤーの `set(状態##停止)`（無修飾）は、アクティブ画面が entry 側だと (entry, 状態) に解決され黙って no-op（M2 実証）。member gate の評価も動的（`gate.module ?? currentFrame().module`）だが、simulator の gateTargets **収集**は字句 sourceModule（extract.ts:265）——解決規則が内部でも非対称。SPEC は「別名:: の解決は参照が書かれたファイルの import 表による」（alias の話）までで、無修飾参照の module 帰属を規定していない。
 
+### 💭 R4-8: 積み残し G2 — singleton への `show(X##v)` 巻き戻し誤用の lint 化分析
+
+証跡: probes/ticketing-r3/grading.md G2（haiku が「表示 variant の選択」のつもりで `show(クーポン##未受取)` と書き、取得済みクーポンを巻き戻す導線を作った）。SPEC はオーバーレイ節に罠を明記済み（r3 D7 転記）だが、明記だけで防げるかは r4 プローブで再観測中。
+
+- **error 化は不可**: 意味論として正当（ADR-0011「明示 ##v = 共有書換・全所在に即時反映」）。
+- **意味論変更（表示専用化）も不可**: switch resume 経路の書換（設計者確定）・「明示 ##v = 書換」の一貫性が壊れる。
+- **lint の筋が良い根拠**: ADR-0014（set）以後、singleton への `show(X##v)` には固有の役割がない——常に `set(X##v) ; show(X)` へ分解可能で、分解形の方が「書換」と「掲示」の意図が分離して読める。掲示済みなら `set(X##v)` 単体で足りる（共有参照ゆえ表示も追随）。つまり「set への書き換えを提案する」警告は、誤用（G2 型）にも意図的な書換にも従える提案であり**偽陽性がない**。
+- 選択肢: (a) SPEC「lint 推奨」節に 1 行（処理系任意の warning）、(b) W コード新設（checker が常時出す）、(c) 見送り（D7 明記で足りるとする）。fitness-r4 プローブで同型誤用が再発すれば (b)、しなければ (a) を提案予定。判断は設計者マター。
+
 ### ✅ 再検証パス（regression なし）
 
 - E029 全形状・E030・W105（同一ファイル内）・E028 全境界（宣言側・alias 付き・参照側行動対象）・E027（show/hide とも。hide の E020→E027 付け替え含む）・R005 全境界（barrier 越し遡り・非アクティブパス除外・無名除外・exit 後解除）
