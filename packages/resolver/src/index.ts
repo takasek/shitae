@@ -91,6 +91,15 @@ export function resolveProject(documents: Map<string, Document>): ProjectResolve
 }
 
 /**
+ * alias → 正準モジュール名（ファイル名）の解決（ADR-0017）。
+ * モジュールの同一性はファイルで決まり、alias は参照が書かれたファイルの import 表でだけ意味を持つ。
+ * import 表に無い alias は null（未解決のまま素通し——未定義 component と同じラフさの扱い）。
+ */
+export function resolveModuleRef(alias: string, doc: Document): string | null {
+  return doc.imports.find((i) => i.alias === alias)?.module ?? null;
+}
+
+/**
  * Compute effective labels for results in an interaction by carrying forward
  * the most recent explicit label through subsequent unlabeled results.
  *

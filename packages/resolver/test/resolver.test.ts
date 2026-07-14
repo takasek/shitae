@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { resolve, resolveProject, effectiveResults, mergeInteractions } from '../src/index.js';
+import { resolve, resolveProject, effectiveResults, mergeInteractions, resolveModuleRef } from '../src/index.js';
 import { parse } from '../../parser/src/index.js';
 
 describe('resolve', () => {
@@ -294,5 +294,28 @@ describe('mergeInteractions', () => {
     const merged = mergeInteractions([], specific);
     expect(merged).toHaveLength(1);
     expect(merged[0].action.text).toBe('タップ');
+  });
+});
+
+describe('resolveModuleRef（ADR-0017: alias → 正準モジュール名）', () => {
+  it('import 表の alias を正準モジュール名（ファイル名）へ解決する', () => {
+    const { document } = parse('import checkout-flow as co\n# ホーム\n> 進む -> push(co::支払い)\n');
+    expect(resolveModuleRef('co', document)).toBe('checkout-flow');
+  });
+
+  it('alias とファイル名が同じ慣行でもそのまま解決する', () => {
+    const { document } = parse('import auth as auth\n# ホーム\n要素\n');
+    expect(resolveModuleRef('auth', document)).toBe('auth');
+  });
+
+  it('import 表に無い alias は null（未解決のまま素通し — ラフさ優先）', () => {
+    const { document } = parse('# ホーム\n> 進む -> push(unknown::画面)\n');
+    expect(resolveModuleRef('unknown', document)).toBeNull();
+  });
+
+  it('同一ファイルを別 alias で import しても同じ正準名に解決される（同一モジュール）', () => {
+    const { document } = parse('import auth as a\nimport auth as b\n# ホーム\n要素\n');
+    expect(resolveModuleRef('a', document)).toBe('auth');
+    expect(resolveModuleRef('b', document)).toBe('auth');
   });
 });
