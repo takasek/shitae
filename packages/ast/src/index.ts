@@ -54,6 +54,8 @@ export interface ElementLine {
 
 export interface Ref {
   kind: 'ref';
+  /** [module ::] 修飾（ADR-0020。要素行の ref に他モジュール component を置ける） */
+  module: string | null;
   name: string;
   span: Span;
 }
@@ -140,7 +142,8 @@ export interface Effect {
 
 export type NavTarget =
   | { kind: 'component'; module: string | null; name: string; variant: string | null }
-  | { kind: 'variant'; name: string };
+  // module 修飾つき裸 variant（`mod::##v`）を表現するための module（ADR-0021 A1）。
+  | { kind: 'variant'; module: string | null; name: string };
 
 export interface Session {
   name: string | null;

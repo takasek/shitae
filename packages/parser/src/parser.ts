@@ -512,7 +512,7 @@ function parseElementValue(
     name = t;
   }
 
-  return { kind: 'ref', name, span };
+  return { kind: 'ref', module: null, name, span };
 }
 
 function parseInline(
@@ -1095,7 +1095,7 @@ function parseNavTarget(
   // "##variant" — same-component variant
   if (t.startsWith('##')) {
     const name = stripQuotes(t.slice(2).trim());
-    return { kind: 'variant', name };
+    return { kind: 'variant', module: null, name };
   }
 
   // Check for module:: prefix（quote 内の :: は区切りにしない。stress-test r3 A1）
