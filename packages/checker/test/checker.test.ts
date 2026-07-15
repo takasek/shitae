@@ -146,3 +146,24 @@ describe('r3: W105 / E028 / E030', () => {
     expect(diags.filter(d => d.code === 'W105')).toHaveLength(0);
   });
 });
+
+describe('r4 A5: set(X)（##variant なし）の W105 二重出力を解消', () => {
+  it('set(X) — X が singleton でも W105 は重ねて出さない（parser の E029 のみ）', () => {
+    const src = '#! 学習\n## 通常\nボタン\n# B\n> 行動 -> set(学習)\n';
+    const { document, diagnostics: parseDiags } = parse(src);
+    const checkDiags = check(document, resolve(document));
+    const all = [...parseDiags, ...checkDiags];
+    expect(all.filter(d => d.code === 'E029')).toHaveLength(1);
+    expect(all.filter(d => d.code === 'W105')).toHaveLength(0);
+  });
+
+  it('set(X) — X が非 singleton でも W105 は重ねて出さない（E030 も対象外。parser の E029 のみ）', () => {
+    const src = '# 学習\n## 通常\nボタン\n# B\n> 行動 -> set(学習)\n';
+    const { document, diagnostics: parseDiags } = parse(src);
+    const checkDiags = check(document, resolve(document));
+    const all = [...parseDiags, ...checkDiags];
+    expect(all.filter(d => d.code === 'E029')).toHaveLength(1);
+    expect(all.filter(d => d.code === 'W105')).toHaveLength(0);
+    expect(all.filter(d => d.code === 'E030')).toHaveLength(0);
+  });
+});

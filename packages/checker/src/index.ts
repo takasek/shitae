@@ -150,6 +150,11 @@ function checkStateWrites(
     if (result.body.kind !== 'state') continue;
     const { module, name, variant } = result.body.target;
     if (module !== null) continue; // cross-module refs are not locally checkable
+    // set(X)（##variant なし）等、parser がすでに E029 を発報した復帰ノードは
+    // variant が必ず空文字になる（正常な set() は name/variant とも必須。
+    // parseStateWrite 参照）。E029 発報済みのノードに checker が E030/W105 を
+    // 重ねて出すのはノイズなので対象外にする（ADR-0021 A5。findings A5）。
+    if (variant === '') continue;
     const comp = resolved.componentIndex.get(name);
     if (!comp) continue; // 未定義 component への set は素通り（ラフさ優先）
     if (!comp.singleton) {
