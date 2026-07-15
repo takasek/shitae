@@ -1062,6 +1062,21 @@ function parseOverlayTarget(
     t = t.slice(dcIdx + 2).trim();
   }
 
+  // E027: module 修飾を検出した後も、残りが裸 ##variant なら母体 component が
+  // 無いことに変わりはない（mod::##v。ADR-0021 A1。findings A1 — 従来は
+  // module 検出より前にしか裸 ##variant を判定しておらず、mod::##v がこの
+  // チェックをすり抜けていた）。
+  if (t.startsWith('##')) {
+    diagnostics.push({
+      severity: 'error',
+      code: 'E027',
+      message:
+        'overlay の引数に裸の ##variant は書けません（母体 component がありません。component##variant の形で書いてください。「オーバーレイ」参照）',
+      span,
+    });
+    return { module, name: '', variant: stripQuotes(t.slice(2).trim()) || null };
+  }
+
   const hashIdx = indexOfTopLevel(t, '##');
   let name: string;
   let variant: string | null = null;

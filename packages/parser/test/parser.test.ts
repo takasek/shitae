@@ -1212,6 +1212,26 @@ describe('E027: overlay verb の裸 ##variant', () => {
     const { diagnostics } = parseDoc('# 画面\n> 押す -> show(ミニ##再生中)');
     expect(diagnostics).toHaveLength(0);
   });
+
+  // ADR-0021 A1: module 修飾つき裸 variant（mod::##v）も母体 component が無い
+  // ことに変わりはなく E027（findings A1）
+  it('show(mod::##v) は E027（module 修飾があっても母体 component は無い）', () => {
+    const { diagnostics } = parseDoc('# 画面\n## 一\n> 押す -> show(mod::##一)');
+    expect(diagnostics.filter((d) => d.code === 'E027')).toHaveLength(1);
+  });
+
+  it('hide(mod::##v) は E027', () => {
+    const { diagnostics } = parseDoc('# 画面\n## 一\n> 押す -> hide(mod::##一)');
+    expect(diagnostics.filter((d) => d.code === 'E027')).toHaveLength(1);
+    expect(diagnostics.filter((d) => d.code === 'E020')).toHaveLength(0);
+  });
+
+  it('show(mod::##v) の target は module を保った状態でエラー復帰する', () => {
+    const { document } = parseDoc('# 画面\n> 押す -> show(mod::##一)');
+    const body = document.components[0].common.interactions[0].results[0].body as Overlay;
+    expect(body.target.module).toBe('mod');
+    expect(body.target.variant).toBe('一');
+  });
 });
 
 // ---------------------------------------------------------------------------
