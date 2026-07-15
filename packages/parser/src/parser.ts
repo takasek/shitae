@@ -466,12 +466,19 @@ function parseElementLine(
 }
 
 /**
- * Find the index of ':' that is outside { } and " " blocks.
+ * Find the index of the alias-separator ':' that is outside { } and " "
+ * blocks. A ':' that is part of a module-qualifier "::" (ADR-0020: 要素行の
+ * ref に [module ::] を許す) is not an alias separator — only a single ':'
+ * with no adjacent ':' counts (「x: mod::部品」の alias 区切りと module 区切り
+ * を混同しない。stress-test r4 A3）.
  * Returns -1 if not found.
  */
 function findColonOutside(text: string): number {
   for (const { ch, i, depth } of scanTopLevel(text, '{}')) {
-    if (ch === ':' && depth === 0) return i;
+    if (ch === ':' && depth === 0) {
+      if (text[i - 1] === ':' || text[i + 1] === ':') continue;
+      return i;
+    }
   }
   return -1;
 }
@@ -500,19 +507,29 @@ function parseElementValue(
     return parseInline(t, span, lineOffsets, diagnostics, inlineDepth + 1);
   }
 
+  // Module prefix（ADR-0020: 要素行の ref に [module ::] を許す。quote 内の ::
+  // は区切りにしない）
+  let module: string | null = null;
+  let rest = t;
+  const dcIdx = indexOfTopLevel(t, '::');
+  if (dcIdx !== -1) {
+    module = stripQuotes(t.slice(0, dcIdx).trim());
+    rest = t.slice(dcIdx + 2).trim();
+  }
+
   // Ref (possibly quoted)
   let name: string;
-  if (t.startsWith('"')) {
+  if (rest.startsWith('"')) {
     // Quoted name
-    const r = readName(t, 0);
-    name = r ? r.name : t;
+    const r = readName(rest, 0);
+    name = r ? r.name : rest;
   } else {
     // Unquoted: take the whole trimmed text as name
     // (stop at whitespace or separator for safety, but element names can have spaces if quoted)
-    name = t;
+    name = rest;
   }
 
-  return { kind: 'ref', module: null, name, span };
+  return { kind: 'ref', module, name, span };
 }
 
 function parseInline(

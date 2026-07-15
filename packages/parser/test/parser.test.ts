@@ -246,6 +246,60 @@ describe('element-line', () => {
     const el = document.components[0].common.elements[0];
     expect(el.alias).toBe('別名');
   });
+
+  // ADR-0020: 要素行の ref に [module ::] を許す（findings A3 + C1）
+  it('module なしの裸 ref は module: null（regression 確認）', () => {
+    const { document } = parseDoc('# A\nロゴ');
+    const el = document.components[0].common.elements[0];
+    expect((el.value as Ref).module).toBeNull();
+    expect((el.value as Ref).name).toBe('ロゴ');
+  });
+
+  it('module なしの alias 付き ref は module: null（regression 確認）', () => {
+    const { document } = parseDoc('# A\nalias: Ref');
+    const el = document.components[0].common.elements[0];
+    expect(el.alias).toBe('alias');
+    expect((el.value as Ref).module).toBeNull();
+    expect((el.value as Ref).name).toBe('Ref');
+  });
+
+  it('*mod::部品 — module 修飾つき collection ref', () => {
+    const { document } = parseDoc('# A\n*mod::部品');
+    const el = document.components[0].common.elements[0];
+    expect(el.collection).toBe(true);
+    expect(el.alias).toBeNull();
+    expect(el.value.kind).toBe('ref');
+    expect((el.value as Ref).module).toBe('mod');
+    expect((el.value as Ref).name).toBe('部品');
+  });
+
+  it('x: mod::部品 — alias 付き module 修飾 ref（alias 区切り : と module 区切り :: の混同がない）', () => {
+    const { document } = parseDoc('# A\nx: mod::部品');
+    const el = document.components[0].common.elements[0];
+    expect(el.collection).toBe(false);
+    expect(el.alias).toBe('x');
+    expect((el.value as Ref).module).toBe('mod');
+    expect((el.value as Ref).name).toBe('部品');
+  });
+
+  it('裸 mod::部品 — alias なし module 修飾 ref', () => {
+    const { document } = parseDoc('# A\nmod::部品');
+    const el = document.components[0].common.elements[0];
+    expect(el.alias).toBeNull();
+    expect((el.value as Ref).module).toBe('mod');
+    expect((el.value as Ref).name).toBe('部品');
+  });
+
+  it('inline 内の mod::部品 も module 修飾 ref になる', () => {
+    const { document } = parseDoc('# A\nフィード: { mod::部品 }');
+    const el = document.components[0].common.elements[0];
+    expect(el.value.kind).toBe('inline');
+    const inline = el.value as Inline;
+    expect(inline.elements).toHaveLength(1);
+    const inner = inline.elements[0].value as Ref;
+    expect(inner.module).toBe('mod');
+    expect(inner.name).toBe('部品');
+  });
 });
 
 // ---------------------------------------------------------------------------
