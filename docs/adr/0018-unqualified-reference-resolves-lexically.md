@@ -34,8 +34,11 @@ interaction** だけ——掲示中 component はアクティブフレームと�
 - SPEC: モジュール化節（無修飾解決の規則）＋オーバーレイ節（overlay の例）に反映（T3）。
 - 実装: **正規化は呼び手（simulator extract）の責任**（ADR-0013 の路線を踏襲）。extract が SimAction
   生成時に `module: norm(body.target.module ?? sourceModule)` で字句ホストの module を焼き込む
-  （現状は `?? null`）。runtime 側は変更しない——`?? currentFrame().module` の fallback は最後の防衛
-  として残すが、extract を通る限り到達しない。runtime の docstring に「module 解決は呼び手責務」を追記する。
+  （現状は `?? null`）。対象は `convertResultBody` 系（transition target・overlay・set）に加え、
+  `extract.ts` の `buildGate()` 内 `module: norm(ref.module ?? null)`（member gate 収集）も同様に
+  `?? sourceModule` へ直す——Decision の member gate 統一はここに実装が対応する。runtime 側は変更しない
+  ——`?? currentFrame().module` の fallback は最後の防衛として残すが、extract を通る限り到達しない。
+  runtime の docstring に「module 解決は呼び手責務」を追記する。
 - 挙動が変わるのは overlay 掲示中 component の interaction のみ（doc common・通常画面は両基準が一致する
   ため無変化）——r4 実測の「mod 定義の掲示中ミニプレイヤーの無修飾 set が no-op になる」という挙動が、
   本 ADR 適用後は「レキシカルな mod の共有状態が書き換わる」に変わる。これが本修正の眼目（regression では
