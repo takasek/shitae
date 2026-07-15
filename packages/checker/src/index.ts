@@ -1,19 +1,30 @@
 import type { Document, Component, Body, Diagnostic, Span, Interaction } from '@shitae/ast';
-import type { ResolveResult } from '@shitae/resolver';
+import type { ResolveResult, ProjectResolveResult } from '@shitae/resolver';
+import { resolveModuleRef } from '@shitae/resolver';
 
-export function check(document: Document, resolved: ResolveResult): Diagnostic[] {
+/**
+ * プロジェクト単位の検査に要る情報（ADR-0021 A2+B2）。渡されたときだけ module 修飾つき参照の
+ * cross-module 解決を行う。渡されなければ従来どおり cross-module 参照は skip する（後方互換）。
+ */
+export interface ProjectCheckContext {
+  project: ProjectResolveResult;
+}
+
+export function check(
+  document: Document,
+  resolved: ResolveResult,
+  projectCtx?: ProjectCheckContext
+): Diagnostic[] {
   const diags: Diagnostic[] = [];
 
-  // singleton 名の集合（同一ファイル内。cross-module 参照はローカルに判定できないので対象外）
-  const singletons = new Set(
-    document.components.filter((c) => c.singleton).map((c) => c.name)
-  );
+  // singleton 名の集合（同一ファイル内）
+  const singletons = singletonNamesOf(resolved);
 
   // document common: set は対象 component を明示するので host なしでも判定できる。
   // 裸 goto(##X) は host が実行時にしか決まらないため対象外（SPEC「variant の参照は必ず ##」）。
   for (const it of document.common.interactions) {
-    checkStateWrites(it, document, resolved, diags);
-    checkSingletonCollectionTarget(it, singletons, diags);
+    checkStateWrites(it, document, resolved, projectCtx, diags);
+    checkSingletonCollectionTarget(it, document, singletons, projectCtx, diags);
   }
   checkSingletonCollectionElements(document.common, singletons, diags);
 
@@ -41,9 +52,9 @@ export function check(document: Document, resolved: ResolveResult): Diagnostic[]
     }
 
     // W102: variant-as-component in nav targets
-    checkVariantAsComponent(comp.common, resolved, diags);
+    checkVariantAsComponent(comp.common, document, resolved, projectCtx, diags);
     for (const v of comp.variants) {
-      checkVariantAsComponent(v.body, resolved, diags);
+      checkVariantAsComponent(v.body, document, resolved, projectCtx, diags);
     }
 
     // E028: singleton × collection（宣言側要素行・参照側行動対象。ADR-0016）
@@ -52,17 +63,42 @@ export function check(document: Document, resolved: ResolveResult): Diagnostic[]
       checkSingletonCollectionElements(v.body, singletons, diags);
     }
     for (const it of interactionsOf(comp)) {
-      checkSingletonCollectionTarget(it, singletons, diags);
+      checkSingletonCollectionTarget(it, document, singletons, projectCtx, diags);
     }
 
     // W105（goto(##X) の未定義 variant）・W105/E030（set）
     for (const it of interactionsOf(comp)) {
       checkBareVariantGoto(it, comp, diags);
-      checkStateWrites(it, document, resolved, diags);
+      checkStateWrites(it, document, resolved, projectCtx, diags);
     }
   }
 
   return diags;
+}
+
+/** resolved（ResolveResult）から singleton component 名の集合を作る。 */
+function singletonNamesOf(resolved: ResolveResult): Set<string> {
+  const names = new Set<string>();
+  for (const [name, comp] of resolved.componentIndex) {
+    if (comp.singleton) names.add(name);
+  }
+  return names;
+}
+
+/**
+ * module 修飾つき参照（alias）を projectCtx 経由で対象モジュールの ResolveResult に解決する。
+ * projectCtx が無い・alias が import 表に無い・対象モジュールが存在しない、のいずれかなら
+ * undefined（呼び出し側は従来どおり skip する。「判定不能なら素通り」の既定に揃える）。
+ */
+function resolveCrossModule(
+  moduleAlias: string,
+  document: Document,
+  projectCtx: ProjectCheckContext | undefined
+): ResolveResult | undefined {
+  if (!projectCtx) return undefined;
+  const canonical = resolveModuleRef(moduleAlias, document);
+  if (!canonical) return undefined;
+  return projectCtx.project.getModule(canonical);
 }
 
 function* interactionsOf(comp: Component): Generator<Interaction> {
@@ -89,7 +125,9 @@ function checkDuplicateAlias(body: Body, label: string, diags: Diagnostic[]): vo
 
 function checkVariantAsComponent(
   body: Body,
+  document: Document,
   resolved: ResolveResult,
+  projectCtx: ProjectCheckContext | undefined,
   diags: Diagnostic[]
 ): void {
   for (const interaction of body.interactions) {
@@ -97,11 +135,18 @@ function checkVariantAsComponent(
       if (result.body.kind !== 'transition') continue;
       const target = result.body.target;
       if (!target || target.kind !== 'component') continue;
-      if (target.module !== null) continue; // cross-module refs are not locally checkable
+      let targetResolved: ResolveResult;
+      if (target.module === null) {
+        targetResolved = resolved;
+      } else {
+        const cross = resolveCrossModule(target.module, document, projectCtx);
+        if (!cross) continue; // projectCtx なし・alias/module 未解決なら従来どおり skip
+        targetResolved = cross;
+      }
       const name = target.name;
-      if (resolved.componentIndex.has(name)) continue;
+      if (targetResolved.componentIndex.has(name)) continue;
       // variant として存在するか
-      for (const [, varMap] of resolved.variantIndex) {
+      for (const [, varMap] of targetResolved.variantIndex) {
         if (varMap.has(name)) {
           diags.push({
             severity: 'warning',
@@ -144,24 +189,37 @@ function checkStateWrites(
   interaction: Interaction,
   document: Document,
   resolved: ResolveResult,
+  projectCtx: ProjectCheckContext | undefined,
   diags: Diagnostic[]
 ): void {
   for (const result of interaction.results) {
     if (result.body.kind !== 'state') continue;
     const { module, name, variant } = result.body.target;
-    if (module !== null) continue; // cross-module refs are not locally checkable
     // set(X)（##variant なし）等、parser がすでに E029 を発報した復帰ノードは
     // variant が必ず空文字になる（正常な set() は name/variant とも必須。
     // parseStateWrite 参照）。E029 発報済みのノードに checker が E030/W105 を
     // 重ねて出すのはノイズなので対象外にする（ADR-0021 A5。findings A5）。
     if (variant === '') continue;
-    const comp = resolved.componentIndex.get(name);
+
+    let targetResolved: ResolveResult;
+    let label: string;
+    if (module === null) {
+      targetResolved = resolved;
+      label = name;
+    } else {
+      const cross = resolveCrossModule(module, document, projectCtx);
+      if (!cross) continue; // projectCtx なし・alias/module 未解決なら従来どおり skip
+      targetResolved = cross;
+      label = `${module}::${name}`;
+    }
+
+    const comp = targetResolved.componentIndex.get(name);
     if (!comp) continue; // 未定義 component への set は素通り（ラフさ優先）
     if (!comp.singleton) {
       diags.push({
         severity: 'error',
         code: 'E030',
-        message: `set(${name}##${variant}) の '${name}' は singleton ではない（インスタンス独立のため書き込み先が定まらない。#! にするか遷移で書き換える。「singleton component」参照）`,
+        message: `set(${label}##${variant}) の '${name}' は singleton ではない（インスタンス独立のため書き込み先が定まらない。#! にするか遷移で書き換える。「singleton component」参照）`,
         span: result.body.span,
       });
       continue;
@@ -170,7 +228,7 @@ function checkStateWrites(
       diags.push({
         severity: 'warning',
         code: 'W105',
-        message: `set(${name}##${variant}) の '${variant}' は '${name}' に定義されていない variant`,
+        message: `set(${label}##${variant}) の '${variant}' は '${name}' に定義されていない variant`,
         span: result.body.span,
       });
     }
@@ -200,12 +258,24 @@ function checkSingletonCollectionElements(
 /** E028: singleton への collection 参照（行動対象 *バッジ）。ADR-0016 */
 function checkSingletonCollectionTarget(
   interaction: Interaction,
+  document: Document,
   singletons: Set<string>,
+  projectCtx: ProjectCheckContext | undefined,
   diags: Diagnostic[]
 ): void {
   const ref = interaction.action.target;
-  if (!ref || !ref.collection || ref.module !== null) return;
-  if (singletons.has(ref.name)) {
+  if (!ref || !ref.collection) return;
+
+  let targetSingletons: Set<string>;
+  if (ref.module === null) {
+    targetSingletons = singletons;
+  } else {
+    const cross = resolveCrossModule(ref.module, document, projectCtx);
+    if (!cross) return; // projectCtx なし・alias/module 未解決なら従来どおり skip
+    targetSingletons = singletonNamesOf(cross);
+  }
+
+  if (targetSingletons.has(ref.name)) {
     diags.push({
       severity: 'error',
       code: 'E028',

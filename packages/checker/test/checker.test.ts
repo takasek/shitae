@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { check } from '../src/index.js';
-import { resolve } from '../../resolver/src/index.js';
+import { resolve, resolveProject } from '../../resolver/src/index.js';
 import { parse } from '../../parser/src/index.js';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import type { Document } from '../../ast/src/index.js';
 
 describe('check', () => {
   it('クリーンなファイルで警告なし', () => {
@@ -165,5 +166,54 @@ describe('r4 A5: set(X)（##variant なし）の W105 二重出力を解消', ()
     expect(all.filter(d => d.code === 'E029')).toHaveLength(1);
     expect(all.filter(d => d.code === 'W105')).toHaveLength(0);
     expect(all.filter(d => d.code === 'E030')).toHaveLength(0);
+  });
+});
+
+describe('r4 A2+B2: プロジェクト単位の検査（module 修飾つき参照の cross-module check）', () => {
+  function twoModuleProject(entrySrc: string, modSrc: string) {
+    const entry = parse(entrySrc).document;
+    const mod = parse(modSrc).document;
+    const documents = new Map<string, Document>([
+      ['entry', entry],
+      ['mod', mod],
+    ]);
+    const project = resolveProject(documents);
+    return { entry, project };
+  }
+
+  it('E030: 別モジュールの非 singleton component への set(mod::X##v)', () => {
+    const { entry, project } = twoModuleProject(
+      'import mod as mod\n# ホーム\n> a -> set(mod::通常##x)\n',
+      '# 通常\n## x\n要素\n'
+    );
+    const diags = check(entry, resolve(entry), { project });
+    expect(diags.filter(d => d.code === 'E030')).toHaveLength(1);
+  });
+
+  it('W105: 別モジュールの singleton への set(mod::X##v) — 未定義 variant', () => {
+    const { entry, project } = twoModuleProject(
+      'import mod as mod\n# ホーム\n> a -> set(mod::クーポン##ない)\n',
+      '#! クーポン\n## 未受取\n受取ボタン\n## 受取済\n'
+    );
+    const diags = check(entry, resolve(entry), { project });
+    expect(diags.filter(d => d.code === 'W105')).toHaveLength(1);
+  });
+
+  it('E028: 別モジュールの singleton への collection 参照 *mod::X', () => {
+    const { entry, project } = twoModuleProject(
+      'import mod as mod\n# 一覧\nバッジ\n> 全部見る(*mod::バッジ) -> 一括既読\n',
+      '#! バッジ\n## 未読\nマーク\n'
+    );
+    const diags = check(entry, resolve(entry), { project });
+    expect(diags.filter(d => d.code === 'E028')).toHaveLength(1);
+  });
+
+  it('projectCtx なしなら従来どおり cross-module skip（後方互換）', () => {
+    const { entry } = twoModuleProject(
+      'import mod as mod\n# ホーム\n> a -> set(mod::通常##x)\n',
+      '# 通常\n## x\n要素\n'
+    );
+    const diags = check(entry, resolve(entry));
+    expect(diags.filter(d => d.code === 'E030')).toHaveLength(0);
   });
 });
