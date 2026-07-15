@@ -1308,19 +1308,26 @@ describe('E023: フレーム新規作成系の裸 ##variant（module 修飾を�
     expect(target.name).toBe('一');
   });
 
-  // 未決事項（ADR-0021 では goto(mod::##v) のみ E031 と確定し、push(mod::##v)
-  // （session なし）は言及がない。SPEC L360 の「push(##v) は E023 の対象外」の
-  // 根拠は goto と同じフレーム非新規作成だが、module 修飾時に「mod のアクティブ
-  // component」が定まらない問題（E031 の根拠）は push(session なし) にも同様に
-  // あてはまるように見える——ADR が明示的に決めていないため、ここでは新規診断を
-  // 発明せず「現状は診断なし」という挙動をそのまま固定する。設計者確認が必要。
-  it('push(mod::##v)（session なし）は現状診断なし（open question — 設計者確認が必要。goto(mod::##v)/E031 と同根の疑いあり）', () => {
+  it('push(mod::##v)（session なし）は E031（goto と同根 — 「mod のアクティブ component」が定まらない。ADR-0021 追加確定）', () => {
     const { document, diagnostics } = parseDoc('# 画面\n> 押す -> push(mod::##一)');
-    expect(diagnostics.filter((d) => d.code === 'E023' || d.code === 'E031')).toHaveLength(0);
+    expect(diagnostics.filter((d) => d.code === 'E031')).toHaveLength(1);
+    expect(diagnostics.filter((d) => d.code === 'E023')).toHaveLength(0);
     const t = document.components[0].common.interactions[0].results[0].body as Transition;
     const target = t.target as NavTarget & { kind: 'variant' };
     expect(target.module).toBe('mod');
     expect(target.name).toBe('一');
+  });
+
+  it('push(##v)（module なし・session なし）は E031 でない（従来どおり合法。SPEC L360）', () => {
+    const { diagnostics } = parseDoc('# 画面\n## 一\n> 押す -> push(##一)');
+    expect(diagnostics.filter((d) => d.code === 'E031')).toHaveLength(0);
+    expect(diagnostics.filter((d) => d.code === 'E023')).toHaveLength(0);
+  });
+
+  it('push(mod::##v, @S)（session あり）は E023 のみ（E031 は重ならない）', () => {
+    const { diagnostics } = parseDoc('# 画面\n> 押す -> push(mod::##一, @s)');
+    expect(diagnostics.filter((d) => d.code === 'E023')).toHaveLength(1);
+    expect(diagnostics.filter((d) => d.code === 'E031')).toHaveLength(0);
   });
 });
 

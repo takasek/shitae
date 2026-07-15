@@ -951,6 +951,27 @@ function checkBareVariantFrameCreation(
   });
 }
 
+/**
+ * E031: module 修飾つき裸 ##variant（mod::##v）— 「mod のアクティブ component」が
+ * 定まらないため不正（ADR-0021 A1 + 追加確定）。goto() と push()（session なし。
+ * フレーム非新規作成で E023 の対象外）が対象。module なしの裸 ##v は
+ * 同一 component 内の variant change として合法のまま対象外。
+ */
+function checkModuleQualifiedBareVariant(
+  word: string,
+  target: NavTarget & { kind: 'variant' },
+  span: Span,
+  diagnostics: Diagnostic[]
+): void {
+  if (target.module === null) return;
+  diagnostics.push({
+    severity: 'error',
+    code: 'E031',
+    message: `${word}() の遷移先に module 修飾つき裸の ##variant は書けません（mod::##v。「mod のアクティブ component」が定まりません。module なしの ##variant（同一 component 内の variant change）を使ってください。「variant の参照は必ず ##」参照）`,
+    span,
+  });
+}
+
 // ---------------------------------------------------------------------------
 // parseTransition
 // ---------------------------------------------------------------------------
@@ -970,6 +991,11 @@ function parseTransition(
       // フレーム新規作成（present は常に、push は session あり）に裸 ##variant は書けない（E023, ADR-0007）
       if (target?.kind === 'variant' && (word === 'present' || session)) {
         checkBareVariantFrameCreation(word, span, diagnostics);
+      } else if (word === 'push' && target?.kind === 'variant' && !session) {
+        // push(mod::##v)（session なし・フレーム非新規作成）— E023 の対象外だが、
+        // module 修飾つきは goto と同根で「mod のアクティブ component」が定まら
+        // ないため不正（ADR-0021 追加確定）。
+        checkModuleQualifiedBareVariant(word, target, span, diagnostics);
       }
       return { kind: 'transition', word, target, session, span };
     }
@@ -978,14 +1004,8 @@ function parseTransition(
       // E031: goto(mod::##v) — 「mod のアクティブ component」が定まらないため
       // 不正（ADR-0021 A1）。module 修飾なしの裸 ##v は同一 component 内の
       // variant change として合法のまま regression させない。
-      if (target?.kind === 'variant' && target.module !== null) {
-        diagnostics.push({
-          severity: 'error',
-          code: 'E031',
-          message:
-            'goto() の遷移先に module 修飾つき裸の ##variant は書けません（mod::##v。「mod のアクティブ component」が定まりません。module なしの ##variant（同一 component 内の variant change）を使ってください。「variant の参照は必ず ##」参照）',
-          span,
-        });
+      if (target?.kind === 'variant') {
+        checkModuleQualifiedBareVariant(word, target, span, diagnostics);
       }
       return { kind: 'transition', word, target, session: null, span };
     }
