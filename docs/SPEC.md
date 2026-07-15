@@ -769,6 +769,7 @@ condition label は**結果**に付く記法であり、要素行の名前を `[
 | E030 | `set()` の対象が定義済みの非 singleton component（インスタンス独立のため書き込み先が定まらない。他モジュールの定義済み component も対象。「singleton component」「プロジェクト単位の検査」参照） | error |
 | R005 | 生存中の同名 `@S` がアクティブパス上にある状態での再 begin（`push`/`present`。`switch` は resume-or-create のため再 begin が起き得ず対象外。「セッション」参照） | warning |
 | W106 | singleton への `show(X##v)`（明示 variant）。表示だけなら `show(X)`、遷移せず書き換えるなら `set(X##v) ; show(X)` に分解できる（「オーバーレイ」参照） | warning |
+| E031 | `goto()` の遷移先が module 修飾つき裸 `##variant`（`goto(mod::##v)`。「mod のアクティブ component」が定まらないため不正。裸 `##v`（module 修飾なし）は同一 component 内の variant change として合法。「variant の参照は必ず ##」参照） | error |
 
 ### プロジェクト単位の検査
 
