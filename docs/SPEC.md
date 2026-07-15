@@ -197,6 +197,7 @@ nav-target      = [ module-name , "::" ] , name , [ "##" , name ]   (* [モジ�
    引数は component（##variant 指定は掲示時の variant を選ぶ。裸 "##variant" は母体が無いため書けない） *)
 overlay         = show-nav | hide-nav ;
 show-nav        = "show" , "(" , [ module-name , "::" ] , name , [ "##" , name ] , ")" ;
+                        (* name は必須。裸 "##variant"（母体 component なし）は E027 *)
 hide-nav        = "hide" , "(" , [ module-name , "::" ] , name , ")" ;
                         (* hide に "##" は本来書けないが、誤り検出のため字句上は認識する——
                            component 付き（hide(X##v)）は E020、裸（hide(##v)）は E027 *)
@@ -313,7 +314,7 @@ shitae が「条件を評価しない」と言うとき、それは presence gat
 - variant 指定なしで開くと、初回は initial variant、以降は**最後に遷移した variant**で開く（initial に戻らない）。一度受け取れば、以後どこから `present(クーポン)` しても `##受取済` で開く。
 - singleton の variant は**共有レジストリへの参照**であり、スナップショットをどこにも作らない。フレームスタック・オーバーレイ集合に置かれた singleton は、他所で共有 variant が進めば追随する——「戻り系は積まれた時点の variant へ戻る」「新規作成・`show` は initial variant で開く」の各規則は singleton には**適用しない**。
 - `X##v` 指定・`goto(##v)` は共有状態の書き換えとして働く（全所在に即時反映）。この書き換えは **`switch(X##v, @S)` の resume 経路にも及ぶ**——resume は X を無視してフレームを復帰するが、明示 `##v` の共有 variant 書き換えだけは副作用として効く（「全所在に即時反映」の字義どおり）。
-- **`set(X##v)`（state verb）は、遷移も掲示もせずに共有 variant だけを書き換える**。「画面 A で起きた出来事が画面 B の状態を変える」——ハートを使い切ったら学習画面をハート切れ表示に、時間経過で回復したら通常に戻す——を、B へ遷移せずに書ける。掲示中の singleton にも即時反映される（掲示中のミニプレイヤーが singleton なら、他画面からの `set` がその場で見た目を変える）。対象は singleton のみ——通常 component はインスタンス独立で「どのインスタンスに書くか」が定まらないため、`set` の対象にできない（E030）。遠隔から状態を書きたくなったら、その component を `#!` にする（タブ画面のような事実上単一インスタンスの画面は `#!` にしてよい）。
+- **`set(X##v)`（state verb）は、遷移も掲示もせずに共有 variant だけを書き換える**。「画面 A で起きた出来事が画面 B の状態を変える」——ハートを使い切ったら学習画面をハート切れ表示に、時間経過で回復したら通常に戻す——を、B へ遷移せずに書ける。掲示中の singleton にも即時反映される（掲示中のミニプレイヤーが singleton なら、他画面からの `set` がその場で見た目を変える）。対象は singleton のみ——通常 component はインスタンス独立で「どのインスタンスに書くか」が定まらないため、`set` の対象にできない（E030）。遠隔から状態を書きたくなったら、その component を `#!` にする（タブ画面のような事実上単一インスタンスの画面は `#!` にしてよい）。未定義 component への `set` は、他の判定不能な対象と同じくエラーにせず素通りする（ラフさ優先。gate の「判定不能なら always-on」と同じ整理）。
 
   ```
   # 問題
@@ -321,6 +322,8 @@ shitae が「条件を評価しない」と言うとき、それは presence gat
 
   > ハートが回復する -> set(学習##通常)     // document common でもよい（非アクティブ中の事象）
   ```
+
+  「ハートが回復する」のような外部で起きる事象も、行動の自然文として書くのは想定内の用法（「行動（インタラクションの左辺）」を参照）。
 
 - 参照側の記法は無変更（`present(クーポン)`——特別な参照記号は要らない）。フレーム木の**構造操作**の規則（push で積まれ、back で降ろされ、exit で破棄される）も不変——singleton で変わるのは variant の選択・保持だけ。
 - singleton に collection の `*` は付けられない（**E028**）——「単一インスタンス」と「複数ある」は矛盾する。宣言側の要素行（`*バッジ`）も参照側の行動対象（`行動(*バッジ)`）も同様。
@@ -340,6 +343,8 @@ shitae が「条件を評価しない」と言うとき、それは presence gat
 | `exit(@S)` | @S セッションを破棄（begin した地点へ戻る）。戻り先が無ければ no-op | — |
 | `present(X)` / `present(X, @S)` | モードに入る（モーダル・ログイン後フロー等）。back barrier あり＋セッションを束ねた compound verb | △ |
 | `dismiss()` / `dismiss(@S)` | 直近のモーダルを閉じる／@S を破棄。戻り先が無ければ no-op | — |
+
+無名 `dismiss()` が探すのは**無名セッション（`present(X)` が開始したもの）だけ**——`push(X, @S)` で begin した named session は畳まない（素通りする named session は道連れで消えることはあるが、`dismiss()` 自身の対象にはならない）。push-begin の `@S` を畳むのは `exit(@S)`（`dismiss(@S)` も同義）。
 | `switch(X, @S)` | フレームの中断と復帰（タブ等の並行文脈）。@S が生きていれば中断位置へ復帰、無ければ X で新規開始（resume-or-create）。back barrier あり | △ |
 
 `back` は **画面スタックを戻る**（引数は常に component）。`exit` は **セッションを終える**（引数は常にセッション `@S`）。役割が違うので予約語を分ける——`back(X)` の X は必ず画面、`exit(@S)` の @S は必ずセッション。`@` で見分けるのではなく、語で意味が確定する。
@@ -384,7 +389,7 @@ variant 指定なしの遷移（`push(X)` / `goto(X)` / `present(X)` 等、`##va
 
 - セッションを開始できるのは積む側（`push` / `present`）と `switch`（新規作成時）のみ。`goto` は不可、`back` は画面方向なので無関係。
 - **セッションは遷移に紐つく**。`push(X, @S)` を実行したその push が begin。同じ画面を別の場所で push すれば別のセッションになる。component や variant そのものにセッション名が固定されるわけではない。
-- **同名 `@S` を続けて begin すると入れ子になる**。`push(確認, @checkout)` の中でさらに `push(支払い, @checkout)` と書いても「同じセッションの継続」にはならない——begin のたびに新しいフレームが入れ子で増え、`exit(@checkout)` / `dismiss(@checkout)` は LIFO で**直近の 1 つ**しか畳まない（出口が壊れる典型の誤読）。フロー全体をひとまとまりにしたいなら、begin は**入口の 1 回だけ**——フロー内部の遷移は素の `push` で書く。処理系は生存中の同名 `@S` の再 begin を実行時に警告してよい（R005）。
+- **同名 `@S` を続けて begin すると入れ子になる**。`push(確認, @checkout)` の中でさらに `push(支払い, @checkout)` と書いても「同じセッションの継続」にはならない——begin のたびに新しいフレームが入れ子で増え、`exit(@checkout)` / `dismiss(@checkout)` は LIFO で**直近の 1 つ**しか畳まない（出口が壊れる典型の誤読——「直近の 1 つ」は該当フレームとその**子孫フレームを全部**破棄する意味であり、内側の `@S` がさらに子を持っていてもその子孫ごと消える。「フレーム木」を参照）。フロー全体をひとまとまりにしたいなら、begin は**入口の 1 回だけ**——フロー内部の遷移は素の `push` で書く。処理系は生存中の同名 `@S` の再 begin を実行時に警告してよい（R005。`push`/`present` が対象——`switch` は resume-or-create なので同名 `@S` が生存中なら必ず resume に倒れ、そもそも「再 begin」が起き得ない）。
 
 **出口を固定したいとき**：`exit(@S)` は begin 地点（そのセッションを開始した push/present の位置）へ戻る。複数の入口から同じウィザードに入ると begin 地点が入口ごとに変わるので、「出口は常にホーム」という要件は `exit(@S)` 単体では書けない。戻り先を上書きする専用記法は用意しない代わりに、result-list の逐次適用（後述「未定・分岐」）を使った **`exit(@S) ; push(固定先)`** が慣用句になる——`exit` がセッションと子孫フレームを破棄する保証を保ったまま、続く `push` で出口を決定的にできる。
 
@@ -424,7 +429,7 @@ switch を使わないドキュメントでは木は一本道になり、従来�
 
 `push` / `present` が**開始**、`exit` / `dismiss` が**破棄**であるのに対し、`switch` は**中断と復帰**。「離れても破棄されず、戻れば続きから」という並行文脈——タブナビゲーションが代表——を表す。開始・破棄しか無い世界では「離れる＝破棄」しかできず、タブ（各タブのスタックを保持したまま行き来する）が書けない。
 
-- **`switch(X, @S)`** — @S が生存していれば、現在フレームを**中断**（破棄しない）して @S の中断位置（そのフレームの最上段の (component, variant)）へ復帰する。このとき X は無視される（ツールは定義と異なる X を警告してよい）。@S が無ければ（未作成または破棄済み）、フレームを新規作成して X で開く。resume-or-create の一語。復帰できるかどうかは、その @S を最初に開始した verb（`push` / `present` / `switch` のどれだったか）を**問わない**——push 製・present 製どちらのフレームにも `switch` で中断・復帰できる。
+- **`switch(X, @S)`** — @S が生存していれば、現在フレームを**中断**（破棄しない）して @S の中断位置（そのフレームの最上段の (component, variant)）へ復帰する。このとき X は無視される（ツールは定義と異なる X を警告してよい）。@S が無ければ（未作成または破棄済み）、フレームを新規作成して X で開く。resume-or-create の一語。復帰できるかどうかは、その @S を最初に開始した verb（`push` / `present` / `switch` のどれだったか）を**問わない**——push 製・present 製どちらのフレームにも `switch` で中断・復帰できる。**自己参照**（`switch(X, @S)` を @S 自身がアクティブなフレームから呼ぶ）は無変化——すでに中断位置にいるので中断も復帰も起きない。
 - 引数はこの 1 形式のみ。セッションは辞書のキーなので省略できず、resume 専用形（`switch(@S)`）も持たない——常に resume-or-create なので、初回と復帰を書き分けなくてよい。
 - **barrier あり**（present と同様）。switch 先のフレームの底で `back()` しても元のフレームへは漏れない（no-op）。
 - **兄弟規則**：switch でフレームを新規作成するとき、現在フレームから祖先方向に**最も近い switch 製フレーム**があればその**兄弟**（その親の子）、無ければ現在フレームの**子**にする。これにより、タブ内で push/present を何枚挟んでいても、タブ群は訪問順によらず常に横並びになる（「常に子」にすると木の形が訪問順に依存し、`exit(タブ1)` が後から訪れたタブ 2 を道連れにする事故が起きる。タブ内の閲覧セッション `push(記事, @reading)` の中からタブを切り替えても、新タブは @reading の子にならず、`exit(@reading)` に道連れにされない）。
@@ -543,7 +548,7 @@ root ─ A[@S]                      ← アクティブ（@S は無傷）
 - result として `show(X)` / `show(X##v)` / `hide(X)` と書ける。どの interaction の結果列からでも、掲示の追加・除去ができる。
 - `show(X##v)` は表示 variant を v にして掲示する。`show(X)`（variant 省略）は **X の initial variant** で掲示する。
 - **掲示中の component への再 `show` は表示 variant を上書きする**（`hide` を経由しない。省略形の再 show は initial への上書き）。掲示中 component が自分の見た目を変える正攻法はこの**自己再 show**——裸 `##v` の遷移はアクティブ画面側に解決されるため、この用途には使えない（「variant の参照は必ず ##」を参照）。
-- X が singleton（`#!`）の場合、エントリは共有レジストリへの参照であり、initial への上書き規則は適用しない（共有 variant の現在値が常に見える）。逆に singleton への `show(X##v)`（明示 variant）は**表示 variant の選択ではなく共有状態の書き換え**——取得済みクーポンに `show(クーポン##未受取)` と書くと状態が巻き戻る。共有の現在値をそのまま掲示したいときは省略形 `show(X)` と書く。
+- X が singleton（`#!`）の場合、エントリは共有レジストリへの参照であり、initial への上書き規則は適用しない（共有 variant の現在値が常に見える）。逆に singleton への `show(X##v)`（明示 variant）は**表示 variant の選択ではなく共有状態の書き換え**——取得済みクーポンに `show(クーポン##未受取)` と書くと状態が巻き戻る。共有の現在値をそのまま掲示したいときは省略形 `show(X)` と書く（「singleton component」を参照）。
 - `hide(X)` は X が掲示されていなければ **no-op**。
 - 掲示中の component は**全画面で表示**され、その**表示中 variant の実効 body（共通＋固有）**の interaction がどのフレームがアクティブでも有効——presence gate の判定も同じ基準（掲示中 component 自身の表示 variant。アクティブ画面の body は見ない）で行う（「操作は variant に属する」の裸参照規則を参照）。
 - overlay の interaction に書いた**無修飾 component 参照**（`set` / `show` / `hide` / nav-target）の module 帰属は、**overlay 自身が定義されたファイル**（レキシカル）で解決する——発火時にどの画面がアクティブかとは無関係（「モジュール化」を参照）。裸 `##variant`（自己再 show 等）はこの規則の対象外——同一 component 内の variant 切替は引き続きアクティブフレーム側の動的解決のまま（「variant の参照は必ず ##」を参照）。
@@ -720,7 +725,7 @@ condition label は**結果**に付く記法であり、要素行の名前を `[
 
 ## 診断コード
 
-処理系はここに無い診断を追加してよいが、追加したらこの表に追記する。
+処理系はここに無い診断を追加してよいが、追加したらこの表に追記する。error は文書を不正とするが、実行時の扱いは処理系の分担に委ねる——runtime は当該 result を no-op として継続してよい（文書全体を拒否する必要はない）。
 
 | コード | 条件 | severity |
 |---|---|---|
@@ -752,17 +757,22 @@ condition label は**結果**に付く記法であり、要素行の名前を `[
 | E020 | `hide(X##v)`（component 付き）に `##variant` を書いた（掲示解除に variant 指定は不要。裸 `##v` は E027。「オーバーレイ」参照） | error |
 | E021 | nav-target に `*`（collection 全体参照）を書いた（collection への遷移は無い。「collection」参照） | error |
 | E022 | document common に裸 `##variant` を書いた（母体 component が無い。「document common」参照） | error |
-| E023 | フレーム新規作成系（`push(##v, @S)` / `present(##v[, @S])` / `switch(##v, @S)`）の nav-target が裸 `##variant`（「variant の参照は必ず ##」参照） | error |
+| E023 | フレーム新規作成系（`push(##v, @S)` / `present(##v[, @S])` / `switch(##v, @S)`）の nav-target が裸 `##variant`（module 修飾つき `mod::##v` も対象。「variant の参照は必ず ##」参照） | error |
 | E024 | overlay verb の引数に `*` を書いた（`show(*X)` 等。掲示対象は component 1 つ。「オーバーレイ」参照） | error |
 | E025 | 要素行の参照に `?` を後置した（presence gate は行動対象専用。「操作は variant に属する」参照） | error |
 | E026 | 対象参照が空（`行動()`。対象なしなら括弧ごと省略する。「行動」参照） | error |
 | W104 | 要素名が condition label 風の `[...]` で始まる（条件付き要素の意図なら variant で分けるか自然文で注記。「未定・分岐」参照） | warning |
-| W105 | `goto(##X)` / `set(X##v)` の variant が対象 component に定義されていない | warning |
-| E027 | overlay verb（`show`/`hide`）の引数が裸 `##variant`（母体 component が無い。「オーバーレイ」参照） | error |
-| E028 | singleton に collection の `*` を付けた（宣言側要素行・参照側行動対象とも。「singleton component」参照） | error |
-| E029 | `set()` の引数が `component##variant` の形でない（`set()` / `set(X)` / `set(##v)` / `set(X, @S)` / `set(*X##v)`。「singleton component」参照） | error |
-| E030 | `set()` の対象が定義済みの非 singleton component（インスタンス独立のため書き込み先が定まらない。「singleton component」参照） | error |
-| R005 | 生存中の同名 `@S` がアクティブパス上にある状態での再 begin（`push`/`present`。「セッション」参照） | warning |
+| W105 | `goto(##X)` / `set(X##v)` の variant が対象 component に定義されていない（module 修飾参照にも適用。「プロジェクト単位の検査」参照） | warning |
+| E027 | overlay verb（`show`/`hide`）の引数が裸 `##variant`（母体 component が無い。module 修飾つき `mod::##v` も対象。「オーバーレイ」参照） | error |
+| E028 | singleton に collection の `*` を付けた（宣言側要素行・参照側行動対象とも。module 修飾つき参照にも適用。「singleton component」参照） | error |
+| E029 | `set()` の引数が `component##variant` の形でない（`set()` / `set(X)` / `set(##v)` / `set(X, @S)` / `set(*X##v)` / `set(mod::##v)`。「singleton component」参照） | error |
+| E030 | `set()` の対象が定義済みの非 singleton component（インスタンス独立のため書き込み先が定まらない。他モジュールの定義済み component も対象。「singleton component」「プロジェクト単位の検査」参照） | error |
+| R005 | 生存中の同名 `@S` がアクティブパス上にある状態での再 begin（`push`/`present`。`switch` は resume-or-create のため再 begin が起き得ず対象外。「セッション」参照） | warning |
+| W106 | singleton への `show(X##v)`（明示 variant）。表示だけなら `show(X)`、遷移せず書き換えるなら `set(X##v) ; show(X)` に分解できる（「オーバーレイ」参照） | warning |
+
+### プロジェクト単位の検査
+
+`check`（診断報告）は**プロジェクト単位**で行う——エントリファイルだけでなく、エントリ + 全 import 先の parse/check 診断を報告し、いずれかに error があれば不正な文書として扱う。E030 / W105 / E028 は、module 修飾つき参照（他モジュールで定義された component への `set` / `goto` / singleton `*` 等）に対しても、その定義先モジュールの情報を使って検査する——モジュール境界を越えたからといって検査対象から外れることはない。
 
 ### lint 推奨
 
@@ -770,5 +780,6 @@ condition label は**結果**に付く記法であり、要素行の名前を `[
 
 - **`語(引数)` の形をした effect**：transition verb の typo（例 `gotoo(X)`）や、まだ予約されていない語を予約語のつもりで書いている可能性がある。
 - **component 名と一致する bare 要素名**（「alias のスコープと優先順位」参照）。
+- **同一 `@S` の静的な再 begin**：遷移グラフ上、`begin(@S)` から `exit`/`dismiss(@S)` を経ずに到達しうる別の `begin(@S)` を、処理系は警告してよい（分岐で exit する経路があるケースの誤検出リスクがあるため error にはしない）。
 
 予約語は今後増える可能性がある——今は effect として素通りしている `語(引数)` が、その語が将来 transition verb / overlay verb に加わった時点で黙って意味を変える。既存文書の effect がある日から遷移として解釈され得ることに注意する。
