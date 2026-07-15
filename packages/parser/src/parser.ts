@@ -877,15 +877,31 @@ function parseStateWrite(
     });
 
   let t = argsText.trim();
-  const bad = (detail: string): StateWrite => {
+  // bad() は復帰ノードの module/name/variant を呼び出し側が明示する
+  // （ADR-0021 A1。findings A1 — 以前は常に module: null 固定＋生の t を name
+  // に詰めており、set(mod::##v) が {module:null, name:'##v', variant:''} という
+  // 誤ったトークン化になっていた。E029 は発火させたまま AST だけ正しくする）。
+  const bad = (
+    detail: string,
+    target: { module: string | null; name: string; variant: string }
+  ): StateWrite => {
     e029(detail);
-    return { kind: 'state', verb, target: { module: null, name: stripQuotes(t), variant: '' }, span };
+    return { kind: 'state', verb, target, span };
   };
 
-  if (t === '') return bad('引数が空です');
-  if (splitTopLevel(t, ',', PARENS).length > 1) return bad('セッション等の第2引数は取れません');
-  if (t.startsWith('*')) return bad('collection(*) は取れません');
-  if (t.startsWith('##')) return bad('裸の ##variant は書けません — アクティブ画面の variant 切替は goto(##v) を使ってください');
+  if (t === '') return bad('引数が空です', { module: null, name: '', variant: '' });
+  if (splitTopLevel(t, ',', PARENS).length > 1) {
+    return bad('セッション等の第2引数は取れません', { module: null, name: stripQuotes(t), variant: '' });
+  }
+  if (t.startsWith('*')) {
+    return bad('collection(*) は取れません', { module: null, name: stripQuotes(t), variant: '' });
+  }
+  if (t.startsWith('##')) {
+    return bad(
+      '裸の ##variant は書けません — アクティブ画面の variant 切替は goto(##v) を使ってください',
+      { module: null, name: '', variant: stripQuotes(t.slice(2).trim()) }
+    );
+  }
 
   let module: string | null = null;
   const dcIdx = indexOfTopLevel(t, '::');
@@ -894,11 +910,21 @@ function parseStateWrite(
     t = t.slice(dcIdx + 2).trim();
   }
   const hashIdx = indexOfTopLevel(t, '##');
-  if (hashIdx === -1) return bad('##variant がありません — 書き込む variant を明示してください');
+  if (hashIdx === -1) {
+    return bad('##variant がありません — 書き込む variant を明示してください', {
+      module,
+      name: stripQuotes(t),
+      variant: '',
+    });
+  }
 
   const name = stripQuotes(t.slice(0, hashIdx).trim());
   const variant = stripQuotes(t.slice(hashIdx + 2).trim());
-  if (name === '' || variant === '') return bad('component 名と variant 名の両方が必要です');
+  if (name === '' || variant === '') {
+    // module 修飾つき裸 ##variant（mod::##v）もここに落ちる——name が空
+    // （「mod のアクティブ component」が定まらない。goto(mod::##v)/E031 と同根）。
+    return bad('component 名と variant 名の両方が必要です', { module, name, variant });
+  }
 
   return { kind: 'state', verb, target: { module, name, variant }, span };
 }

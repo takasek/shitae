@@ -1380,6 +1380,19 @@ describe('set verb（遷移なし共有 variant 書換）', () => {
     const { diagnostics } = parseDoc('# A\n> 受け取る -> set(*クーポン##受取済)');
     expect(diagnostics.filter((d) => d.code === 'E029')).toHaveLength(1);
   });
+
+  // ADR-0021 A1: set(mod::##v) は E029 を発火させたまま AST を正しく
+  // トークン化する（findings A1 — bad() のフォールバックが module: null に
+  // 固定してしまい {module:null, name:'##v', variant:''} という誤ったトーク
+  // ン化になっていたバグ）。
+  it('E029: set(mod::##受取済) — module 修飾つき裸 variant はエラーのまま AST は {module:"mod", name:"", variant:"受取済"} に正規化される', () => {
+    const { document, diagnostics } = parseDoc('# A\n> 受け取る -> set(mod::##受取済)');
+    expect(diagnostics.filter((d) => d.code === 'E029')).toHaveLength(1);
+    const body = document.components[0].common.interactions[0].results[0].body;
+    expect(body.kind).toBe('state');
+    if (body.kind !== 'state') return;
+    expect(body.target).toEqual({ module: 'mod', name: '', variant: '受取済' });
+  });
 });
 
 describe('D6: E003 の継続行ヒント', () => {
