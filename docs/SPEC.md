@@ -102,7 +102,7 @@ shadow 規則も同じ原理で拡張される：（行動文字列, 対象参�
 | `?` | presence gate（行動対象への後置。`行動(対象?)`）。opt-in：その variant に対象が存在する時だけ行動が有効になる。`?` 無しの行動は always-on |
 | `"..."` | quoted name（空白を含む name を囲む。エスケープ機構なし——ラフ記法に複雑なエスケープ規則を持ち込まないため、`"` を含む name は言い換えで回避する）。component 名・variant 名・alias・参照・行動対象などすべての name 位置で有効。正準値は quote を剥いだ文字列で、bare の同名と同一の name として照合される |
 | `@名前` | セッション（開始して破棄する期間の名前）。`push(X, @名前)` / `present(X, @名前)` / `switch(X, @名前)`（新規作成時）で開始し、`exit(@名前)` / `dismiss(@名前)` で破棄 |
-| `::` | 名前空間区切り（`モジュール::component`）。import した別ファイルの component を参照 |
+| `::` | 名前空間区切り（`モジュール::component`）。import した別ファイルの component を参照。要素行・行動対象・遷移先のいずれでも使える |
 | `// 自然文` | コメント（行末・行頭どちらでも）。`#` と衝突しないので component 定義と紛れない |
 
 **予約語**：
@@ -145,7 +145,7 @@ body-line       = element-line | interaction-line ;
 
 element-line    = [ "*" ] , [ alias-name , ":" ] , ( ref | inline ) ;  (* * は行頭（alias の前） *)
 alias-name      = name ;
-ref             = name ;                             (* すべて対等。自作/未定義を問わない *)
+ref             = [ module-name , "::" ] , name ;    (* [モジュール::]名前。すべて対等。自作/未定義を問わない *)
 inline          = "{" , inline-body , "}" ;          (* 要素のみ。variant(##)やインタラクション(interaction-line)は持たない *)
 inline-body     = element-line , { ( ";" | newline ) , element-line } ;
 
@@ -255,6 +255,7 @@ shitae には遷移の可否に関わる要素が 2 つあるが、どちらも�
    - 参照に `*` が前置されていても（`*手札?`）、判定は `*` を剥いだ名で行う——collection かどうかではなく、その名前の要素があるかどうかを見る。
    - 対象が未定義 component など判定不能なときは **always-on**（ラフさ優先。lint はヒントを出してよいが、エラーにはしない）。
    - **document common の裸参照**は、発火時に**アクティブな component の現在 variant の実効 body** で判定する——裸 `##variant` の動的解決と同じ原理で、document common の interaction はアクティブ component に書かれたかのように振る舞う（「variant の参照は必ず ##」を参照）。これにより「その要素を持つ画面でだけ有効な deep link」が書ける：`> 通知タップ(記事リンク?) -> push(記事詳細)`。
+   - **overlay 掲示中 component の裸参照**は、host（その行動が書かれている component）＝**掲示中 component 自身**の表示 variant の実効 body で判定する——document common の裸参照とは異なり、判定はアクティブ画面の body を見ない。overlay の interaction には字句ホスト（overlay 自身）が明確に存在するため、document common（字句ホストが無いから動的解決する）とは事情が異なる（「オーバーレイ」を参照）。
    - `?` が置けるのは**行動対象のみ**。nav-target（遷移先）への後置（例 `push(次?)`）は**構文エラー**（E013）。要素行の参照への後置（例 要素行に `投了ボタン?`）も**構文エラー**（E025）——要素の「あるかもしれない」は variant で分けるか自然文で注記する。
 
    `?` が opt-in（既定は「対象不在でも always-on」）なのは、**要素行に書いていない対象への行動を許す**ため。ラフの段階では、まだ要素行に置いていない・置くかどうか未定の対象へ行動を書くことが普通にある（`> タップ(投了) -> goto(##リザルト)` と書くとき「投了」ボタンを要素行に置き終えている必要はない）。存在を自動で行動の条件にすると、これらの行動が黙って無効になり、ラフさの核が壊れる。だから既定は always-on とし、存在を条件にしたいときだけ書き手が `?` で opt-in する。典型の使いどころは共通部分（`##` より前）に置いた行動で、「その対象を持つ variant でだけ有効」にしたいとき。
@@ -544,7 +545,9 @@ root ─ A[@S]                      ← アクティブ（@S は無傷）
 - **掲示中の component への再 `show` は表示 variant を上書きする**（`hide` を経由しない。省略形の再 show は initial への上書き）。掲示中 component が自分の見た目を変える正攻法はこの**自己再 show**——裸 `##v` の遷移はアクティブ画面側に解決されるため、この用途には使えない（「variant の参照は必ず ##」を参照）。
 - X が singleton（`#!`）の場合、エントリは共有レジストリへの参照であり、initial への上書き規則は適用しない（共有 variant の現在値が常に見える）。逆に singleton への `show(X##v)`（明示 variant）は**表示 variant の選択ではなく共有状態の書き換え**——取得済みクーポンに `show(クーポン##未受取)` と書くと状態が巻き戻る。共有の現在値をそのまま掲示したいときは省略形 `show(X)` と書く。
 - `hide(X)` は X が掲示されていなければ **no-op**。
-- 掲示中の component は**全画面で表示**され、その**表示中 variant の実効 body（共通＋固有）**の interaction がどのフレームがアクティブでも有効。
+- 掲示中の component は**全画面で表示**され、その**表示中 variant の実効 body（共通＋固有）**の interaction がどのフレームがアクティブでも有効——presence gate の判定も同じ基準（掲示中 component 自身の表示 variant。アクティブ画面の body は見ない）で行う（「操作は variant に属する」の裸参照規則を参照）。
+- overlay の interaction に書いた**無修飾 component 参照**（`set` / `show` / `hide` / nav-target）の module 帰属は、**overlay 自身が定義されたファイル**（レキシカル）で解決する——発火時にどの画面がアクティブかとは無関係（「モジュール化」を参照）。裸 `##variant`（自己再 show 等）はこの規則の対象外——同一 component 内の variant 切替は引き続きアクティブフレーム側の動的解決のまま（「variant の参照は必ず ##」を参照）。
+  例：モジュール `mod` で定義した `#! 状態` を掲示中の component が持つ interaction に無修飾 `set(状態##停止)` と書いた場合、掲示元の画面がどのモジュールでアクティブでも `mod` の共有状態が書き換わる——`mod::状態` と明示したのと同じ意味になる。
 - オーバーレイは**フレームではない**——`back` / `exit` / `dismiss` の走査対象に入らない。消えるのは明示的な `hide(X)` のときだけ（フレームが破棄されても連動しては消えない）。
 - ID は component 名が兼ねる。同一 component の多重掲示は初版では扱わない（実需が出るまで別 ID は導入しない）。
 - 引数は component 1 つ——collection の `*` は書けない（`show(*X)` は E024）。裸 `##variant` も書けない（母体が無い。E027）。
@@ -638,6 +641,9 @@ import auth as auth          // auth.shitae を読み込む
 - 循環 import は許容する——`import` は名前解決のみで実体の埋め込みではないため、循環しても展開が無限にならない。
 - 同名 alias の再 import はエラー（同じ別名で複数のモジュールを import すると衝突する）。
 - singleton（`#!`）のモジュール越し共有は**定義ファイル単位**——別モジュールの同名 component とは無関係（「singleton component」を参照）。
+- **無修飾（module 修飾なし）の component 参照**（`set` / `show` / `hide` / nav-target とも）の module 帰属も同じ原則で決まる——**その interaction が書かれたファイル**の module に解決する（レキシカル）。発火時にどの画面がアクティブかとは無関係。裸 `##variant`（同一 component 内の variant 切替）はこの規則の対象外——「同一 component」自体が実行時のアクティブ component を指す動的な記法であり、named reference（`X##v`）の module 部分がレキシカルなのとは解決基準が異なる（「variant の参照は必ず ##」を参照）。
+- **要素行の参照にも `モジュール::` を前置できる**（`モジュール::部品`）。他モジュールで定義した component を、画面の要素として直接置ける（`x: モジュール::部品` のように alias とも、`*モジュール::部品` のように collection とも組める）。
+- モジュール横断で共通する事象（通信途絶・セッション切れ等、どの画面でも起こりうるもの）を 1 箇所にまとめて書く記法は無い——document common はファイル単位のスコープを持つため、各ファイルの document common に複製して書く。
 
 ## collection（`*`）
 
