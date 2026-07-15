@@ -949,6 +949,18 @@ function parseTransition(
     }
     case 'goto': {
       const target = args[0] ? parseNavTarget(args[0].trim(), span, diagnostics) : null;
+      // E031: goto(mod::##v) — 「mod のアクティブ component」が定まらないため
+      // 不正（ADR-0021 A1）。module 修飾なしの裸 ##v は同一 component 内の
+      // variant change として合法のまま regression させない。
+      if (target?.kind === 'variant' && target.module !== null) {
+        diagnostics.push({
+          severity: 'error',
+          code: 'E031',
+          message:
+            'goto() の遷移先に module 修飾つき裸の ##variant は書けません（mod::##v。「mod のアクティブ component」が定まりません。module なしの ##variant（同一 component 内の variant change）を使ってください。「variant の参照は必ず ##」参照）',
+          span,
+        });
+      }
       return { kind: 'transition', word, target, session: null, span };
     }
     case 'back': {
@@ -1122,6 +1134,15 @@ function parseNavTarget(
   if (dcIdx !== -1) {
     module = stripQuotes(t.slice(0, dcIdx).trim());
     rest = t.slice(dcIdx + 2).trim();
+  }
+
+  // module 修飾つき裸 "##variant"（mod::##v）— rest 全体が "##..." なら name
+  // 部分が空の component ではなく module 修飾つき variant kind として返す
+  // （ADR-0021 A1。findings A1 — 母体 component 名が空のまま通ると
+  // E023/E027/E031 の判定が variant kind を素通りしてしまうバグだった）。
+  if (module !== null && rest.startsWith('##')) {
+    const variantName = stripQuotes(rest.slice(2).trim());
+    return { kind: 'variant', module, name: variantName };
   }
 
   // Check for ##variant suffix（quote 内の ## は区切りにしない）
