@@ -217,3 +217,37 @@ describe('r4 A2+B2: プロジェクト単位の検査（module 修飾つき参�
     expect(diags.filter(d => d.code === 'E030')).toHaveLength(0);
   });
 });
+
+describe('r4 B4: W106 — singleton への show(X##v)（明示 variant）', () => {
+  it('singleton への show(X##v) は W106', () => {
+    const { document } = parse(
+      '#! クーポン\n## 未受取\n受取ボタン\n## 受取済\n\n# A\n> a -> show(クーポン##未受取)\n'
+    );
+    const diags = check(document, resolve(document));
+    expect(diags.filter(d => d.code === 'W106')).toHaveLength(1);
+  });
+
+  it('singleton への show(X)（省略形）は W106 が出ない', () => {
+    const { document } = parse(
+      '#! クーポン\n## 未受取\n受取ボタン\n## 受取済\n\n# A\n> a -> show(クーポン)\n'
+    );
+    const diags = check(document, resolve(document));
+    expect(diags.filter(d => d.code === 'W106')).toHaveLength(0);
+  });
+
+  it('非 singleton への show(X##v) は W106 が出ない', () => {
+    const { document } = parse(
+      '# 通常\n## a\n要素\n## b\n要素\n\n# A\n> a -> show(通常##a)\n'
+    );
+    const diags = check(document, resolve(document));
+    expect(diags.filter(d => d.code === 'W106')).toHaveLength(0);
+  });
+
+  it('set(X##v) には W106 が出ない', () => {
+    const { document } = parse(
+      '#! クーポン\n## 未受取\n受取ボタン\n## 受取済\n\n# A\n> a -> set(クーポン##未受取)\n'
+    );
+    const diags = check(document, resolve(document));
+    expect(diags.filter(d => d.code === 'W106')).toHaveLength(0);
+  });
+});

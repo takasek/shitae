@@ -71,9 +71,50 @@ export function check(
       checkBareVariantGoto(it, comp, diags);
       checkStateWrites(it, document, resolved, projectCtx, diags);
     }
+
+    // W106: singleton への show(X##v)（明示 variant）。ADR-0021 B4
+    for (const it of interactionsOf(comp)) {
+      checkSingletonExplicitShow(it, document, singletons, projectCtx, diags);
+    }
   }
 
   return diags;
+}
+
+/**
+ * W106: singleton への show(X##v)（明示 variant）は共有状態の書き換えを伴う
+ * （ADR-0021 B4）。show(X)（省略形）・非 singleton への show(X##v) には出さない。
+ */
+function checkSingletonExplicitShow(
+  interaction: Interaction,
+  document: Document,
+  singletons: Set<string>,
+  projectCtx: ProjectCheckContext | undefined,
+  diags: Diagnostic[]
+): void {
+  for (const result of interaction.results) {
+    if (result.body.kind !== 'overlay') continue;
+    if (result.body.verb !== 'show') continue;
+    const { module, name, variant } = result.body.target;
+    if (variant === null) continue;
+
+    let targetSingletons: Set<string>;
+    if (module === null) {
+      targetSingletons = singletons;
+    } else {
+      const cross = resolveCrossModule(module, document, projectCtx);
+      if (!cross) continue; // projectCtx なし・alias/module 未解決なら従来どおり skip
+      targetSingletons = singletonNamesOf(cross);
+    }
+
+    if (!targetSingletons.has(name)) continue;
+    diags.push({
+      severity: 'warning',
+      code: 'W106',
+      message: `show(${name}##${variant}) は singleton の共有状態を書き換える（表示だけなら show(${name})、遷移せず書き換えるなら set(${name}##${variant}) ; show(${name}) に分解できる。「オーバーレイ」参照）`,
+      span: result.body.span,
+    });
+  }
 }
 
 /** resolved（ResolveResult）から singleton component 名の集合を作る。 */
