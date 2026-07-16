@@ -234,7 +234,13 @@ function warnDuplicateSessionBegin(
   }
 }
 
-/** NavTarget を現在の Location を踏まえて Location へ正規化する */
+/**
+ * NavTarget を現在の Location を踏まえて Location へ正規化する。
+ * module 解決は呼び手（simulator extract）の責務（ADR-0018）——無修飾参照は
+ * extract がその interaction を書いたファイル（sourceModule）へレキシカルに
+ * 正規化してから渡してくる想定であり、`?? current.module` は extract を経由しない
+ * 呼び出し（テストの直接呼び出し等）に対する最後の防衛としてのみ残す。
+ */
 function navTargetToLocation(target: NavTarget, current: Location): Location {
   if (target.kind === 'variant') {
     // ##姿 — 同一 component 内の姿切替
@@ -397,7 +403,9 @@ export function reduce(
 }
 
 /** set（state verb。ADR-0014）— 共有レジストリだけを書き換える。フレーム木・掲示は不変。
- *  対象が singleton でなければ no-op（E030 は checker が静的に検出する）。 */
+ *  対象が singleton でなければ no-op（E030 は checker が静的に検出する）。
+ *  module 解決は呼び手責務（ADR-0018）——`?? current.module` は extract を経由しない
+ *  呼び出しに対する最後の防衛。 */
 function reduceStateWrite(state: RuntimeState, action: StateWrite): ReduceResult {
   const current = activeLocation(state);
   const module = action.target.module ?? current.module;
@@ -417,6 +425,8 @@ function reduceOverlay(state: RuntimeState, overlay: Overlay): ReduceResult {
     // singleton は overlays の値を読まず共有解決される（overlayVariant 参照）ため、ここでの
     // 省略形 show は共有を initial に戻さない。明示 X##v のみ writeShared で共有書換（ADR-0011）。
     // module 省略はアクティブフレームの module を継承（nav の相対解決と同じ規約。ADR-0017）。
+    // module 解決は呼び手責務（ADR-0018）——この fallback は extract を経由しない
+    // 呼び出しに対する最後の防衛。
     const module = overlay.target.module ?? activeLocation(state).module;
     const overlays = new Map(state.overlays);
     overlays.set(name, { module, variant: overlay.target.variant ?? null });
