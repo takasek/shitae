@@ -904,6 +904,13 @@ describe('diagnostics', () => {
     expect(e010.length).toBeGreaterThan(0);
   });
 
+  it('E010: `> // 注記のみ` は E010 だが、メッセージに「注記だけなら行頭 > を外す」ヒントを含む（findings D8）', () => {
+    const { diagnostics } = parseDoc('# A\n> // この variant では何も起きない');
+    const e010 = diagnostics.filter((d) => d.code === 'E010');
+    expect(e010.length).toBeGreaterThan(0);
+    expect(e010[0].message).toContain('注記だけなら行頭 > を外し');
+  });
+
   it('E012: 1 行に矢印が 2 つ（-> R -> R）はエラー', () => {
     const { diagnostics } = parseDoc('# A\n> タップ(保存) -> goto(詳細) -> back()');
     const e012 = diagnostics.filter((d) => d.code === 'E012');

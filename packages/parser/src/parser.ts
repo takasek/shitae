@@ -306,7 +306,7 @@ export function parseDocument(source: string): { document: Document; diagnostics
             severity: 'error',
             code: 'E010',
             message:
-              '継続行の前に interaction がありません（新しい interaction は行頭 > の後に action -> result が必要です）',
+              '継続行の前に interaction がありません（新しい interaction は行頭 > の後に action -> result が必要です。注記だけなら行頭 > を外し // で書いてください）',
             span,
           });
         } else {
