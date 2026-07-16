@@ -8,6 +8,7 @@ const execFileAsync = promisify(execFile);
 const CLI = join(import.meta.dirname, '../dist/index.js');
 const BATTLE = join(import.meta.dirname, '../../../docs/examples/battle.shitae');
 const ECOMMERCE = join(import.meta.dirname, '../../../docs/examples/ecommerce.shitae');
+const SMARTHOME_MAIN = join(import.meta.dirname, '../../../docs/examples/smarthome/main.shitae');
 
 async function runCli(args: string[]): Promise<{ stdout: string; stderr: string; code: number }> {
   try {
@@ -27,6 +28,12 @@ describe('shitae check', () => {
 
   it('ecommerce サンプルで exit 0', async () => {
     const { code, stderr } = await runCli(['check', ECOMMERCE]);
+    expect(stderr).toBe('');
+    expect(code).toBe(0);
+  });
+
+  it('smarthome サンプル（モジュール分割・3 ファイル）で exit 0・無診断（W106 も含め新規診断が出ない）', async () => {
+    const { code, stderr } = await runCli(['check', SMARTHOME_MAIN]);
     expect(stderr).toBe('');
     expect(code).toBe(0);
   });

@@ -8,6 +8,9 @@ const ecommerceSrc = readFileSync(join(import.meta.dirname, '../../../docs/examp
 const musicSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/music.shitae'), 'utf8');
 const deliverySrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/delivery.shitae'), 'utf8');
 const langlearnSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/langlearn.shitae'), 'utf8');
+const smarthomeMainSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/smarthome/main.shitae'), 'utf8');
+const smarthomeDevicesSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/smarthome/devices.shitae'), 'utf8');
+const smarthomeAutomationSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/smarthome/automation.shitae'), 'utf8');
 
 describe('integration: examples/battle.shitae', () => {
   it('parses without errors', () => {
@@ -191,5 +194,48 @@ describe('integration: examples/langlearn.shitae（set・singleton タブ・gate
     const gated = document.common.interactions.find(i => i.action.target?.existsGated);
     expect(gated).toBeDefined();
     expect(gated!.action.target!.name).toBe('レッスン開始ボタン');
+  });
+});
+
+describe('integration: examples/smarthome/*.shitae（モジュール分割・singleton overlay・module 修飾 set の実例。r4 stress-test smarthome プローブより昇格）', () => {
+  it('main.shitae は import 2 件 + parse エラーなし', () => {
+    const { document, diagnostics } = parse(smarthomeMainSrc);
+    expect(diagnostics.filter(d => d.severity === 'error')).toHaveLength(0);
+    expect(document.imports.map(i => i.alias).sort()).toEqual(['automation', 'devices']);
+  });
+
+  it('devices.shitae は parse エラーなし・3 つの singleton component を持つ', () => {
+    const { document, diagnostics } = parse(smarthomeDevicesSrc);
+    expect(diagnostics.filter(d => d.severity === 'error')).toHaveLength(0);
+    const singletons = document.components.filter(c => c.singleton).map(c => c.name);
+    expect(singletons.sort()).toEqual(['リビングエアコン', 'リビング照明', '寝室ドア鍵']);
+  });
+
+  it('automation.shitae は parse エラーなし・@wizard セッションの出口固定慣用句（exit(@wizard) ; push(...)）を持つ', () => {
+    const { document, diagnostics } = parse(smarthomeAutomationSrc);
+    expect(diagnostics.filter(d => d.severity === 'error')).toHaveLength(0);
+    const hasFixedExit = document.components
+      .flatMap(c => [...c.common.interactions, ...c.variants.flatMap(v => v.body.interactions)])
+      .some(i => i.results.some(r => r.body.kind === 'transition' && r.body.word === 'exit' && r.body.session?.name === 'wizard'));
+    expect(hasFixedExit).toBe(true);
+  });
+
+  it('main.shitae の起動行は set(セキュリティバナー##在宅) ; show(セキュリティバナー) の分解形（singleton show(X##v) の巻き戻し回避。ADR-0021 B4）', () => {
+    const { document } = parse(smarthomeMainSrc);
+    const boot = document.components.find(c => c.name === '起動');
+    expect(boot).toBeDefined();
+    const results = boot!.common.interactions.flatMap(i => i.results);
+    expect(results.some(r => r.body.kind === 'state' && r.body.target.variant === '在宅')).toBe(true);
+    expect(results.some(r => r.body.kind === 'overlay' && r.body.verb === 'show' && r.body.target.variant === null)).toBe(true);
+  });
+
+  it('main.shitae の document common は module 修飾つき set（devices::X##オフライン）を持つ（ADR-0018 レキシカル解決の実例）', () => {
+    const { document } = parse(smarthomeMainSrc);
+    const writes = document.common.interactions
+      .flatMap(i => i.results)
+      .filter(r => r.body.kind === 'state')
+      .map(r => (r.body.kind === 'state' ? r.body.target : null));
+    expect(writes.every(w => w?.module === 'devices')).toBe(true);
+    expect(writes).toHaveLength(3);
   });
 });
