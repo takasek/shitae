@@ -155,6 +155,7 @@ function overlayVariant(name) {
 }
 
 // 掲示中 component の実効 interactions（表示 variant で mergeInteractions 済み。全画面から操作可能。SPEC「オーバーレイ」）
+// 裸 gate は掲示中 component 自身の表示 variant の実効 body で判定する——アクティブ画面の body は見ない（ADR-0019）。
 function overlayInteractions(name) {
   const entry = overlays.get(name);
   if (!entry) return [];
@@ -162,17 +163,28 @@ function overlayInteractions(name) {
   if (!comp) return [];
   const v = overlayVariant(name);
   const list = v ? (comp.variants[v]?.interactions ?? []) : comp.commonInteractions;
-  return list.filter(gateEnabled);
+  const hostCtx = { module: entry.module, component: name, variant: v };
+  return list.filter((inter) => gateEnabled(inter, hostCtx));
 }
 
 // presence gate（'?'）の構造的 presence 判定（SPEC「2種類のガード的なもの」・ADR-0002）。
-// gate なしは常に有効。host は発火時のアクティブ component の現在 variant で判定
-// （document common の裸参照もこの経路——ADR-0015 の動的解決）、
+// gate なしは常に有効。host は既定で発火時のアクティブ component の現在 variant で判定
+// （document common の裸参照もこの経路——ADR-0015 の動的解決）。
+// hostCtx（{module, component, variant}）を渡すと判定対象をそちらに差し替える——
+// overlay 掲示中 component の裸参照は自身の表示 variant の実効 body（共通＋固有）で判定し、
+// アクティブ画面の body は見ない（ADR-0019）。
 // member は対象インスタンスの現在 variant（未追跡なら initial。singleton なら共有レジストリ）を見る。
-function gateEnabled(inter) {
+function gateEnabled(inter, hostCtx) {
   const gate = inter.gate;
   if (!gate) return true;
   if (gate.kind === 'host') {
+    if (hostCtx) {
+      const comp = getComp(hostCtx.module, hostCtx.component);
+      if (!comp) return true;
+      const commonEls = comp.commonElements ?? [];
+      const varEls = hostCtx.variant ? (comp.variants[hostCtx.variant]?.elements ?? []) : [];
+      return [...commonEls, ...varEls].includes(gate.name);
+    }
     const frame = currentFrame();
     const comp = getComp(frame.module, frame.component);
     if (!comp) return true;
@@ -200,7 +212,9 @@ function currentInteractions() {
   // 姿の interactions は抽出時に mergeInteractions(共通, 姿固有) 済み（shadow 合成）
   const variant = displayVariant(frame);
   const list = variant ? (comp.variants[variant]?.interactions ?? []) : comp.commonInteractions;
-  return list.filter(gateEnabled);
+  // Array#filter は (item, index, array) を渡す。gateEnabled を直接渡すと index が
+  // hostCtx に化けるため、単項の呼び出しに包んで既定（currentFrame() 基準）を強制する。
+  return list.filter((inter) => gateEnabled(inter));
 }
 
 function resolveTarget(result, currentModule, currentComponent) {
@@ -376,12 +390,14 @@ function goBack() {
 function docCommonInteractions() {
   const frame = currentFrame();
   const comp = getComp(frame.module, frame.component);
-  if (!comp) return (DATA.documentCommon ?? []).filter(gateEnabled);
+  // Array#filter は (item, index, array) を渡す。gateEnabled を直接渡すと index が
+  // hostCtx に化けるため、単項の呼び出しに包んで既定（currentFrame() 基準・ADR-0015）を強制する。
+  if (!comp) return (DATA.documentCommon ?? []).filter((inter) => gateEnabled(inter));
   const variant = displayVariant(frame);
   const list = variant
     ? (comp.variants[variant]?.docCommonInteractions ?? DATA.documentCommon ?? [])
     : (comp.docCommonInteractions ?? DATA.documentCommon ?? []);
-  return list.filter(gateEnabled);
+  return list.filter((inter) => gateEnabled(inter));
 }
 
 function handleDocCommon(idx) {

@@ -127,7 +127,9 @@ describe('toSimulator', () => {
     );
     const html = toSimulator(new Map([['main', doc]]), 'main');
     expect(html).toContain('function gateEnabled(');
-    expect(html).toContain('.filter(gateEnabled)');
+    // ADR-0019: gateEnabled が hostCtx を受けるようになったため、Array#filter の
+    // (item, index, array) 引数漏れを避けて単項呼び出しに包む（simulator.ts 参照）。
+    expect(html).toContain('list.filter((inter) => gateEnabled(inter))');
   });
 
   it('presence gate 手動トグル: member gate 対象の variant を選ぶ UI を持つ（ADR-0002 Consequence）', () => {
