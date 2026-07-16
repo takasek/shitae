@@ -161,4 +161,21 @@ describe('toSimulator', () => {
     // back(X) 走査ループが wall で break する（runtime 整合）
     expect(html).toContain('if (stack[i].wall) break;');
   });
+
+  function embeddedData(html: string): any {
+    const m = html.match(/const DATA = (\{[\s\S]*\});\nconst app/);
+    if (!m) throw new Error('embedded DATA not found');
+    return JSON.parse(m[1]!);
+  }
+
+  it('ADR-0018 / M2: mod 定義の掲示中コンポーネントの無修飾 set は module:"mod" として埋め込まれる（r4 no-op からの挙動変更）', () => {
+    const subDoc = parseOk(
+      '#! 状態\n## 稼働\n本体\n## 停止\n本体\n\n# ミニ\n## 再生\n曲名\n> タップ(曲名) -> set(状態##停止)\n',
+    );
+    const mainDoc = parseOk('import mod as mod\n# ホーム\n> 出す -> show(mod::ミニ##再生)\n');
+    const html = toSimulator(new Map([['main', mainDoc], ['mod', subDoc]]), 'main');
+    const data = embeddedData(html);
+    const inter = data.modules['mod'].components['ミニ'].variants['再生'].interactions[0];
+    expect(inter.prelude[0]).toEqual({ type: 'state', component: '状態', module: 'mod', variant: '停止' });
+  });
 });

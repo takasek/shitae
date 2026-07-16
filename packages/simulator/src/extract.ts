@@ -22,7 +22,7 @@ export interface SimOverlay {
   type: 'overlay';
   op: 'show' | 'hide';
   component: string;
-  /** show(X::name) 等の明示モジュール。省略時は null（実行時にアクティブフレームの module で解決） */
+  /** show(X::name) 等の明示モジュール。省略時は interaction が書かれたファイルの module（レキシカル解決。ADR-0018） */
   module: string | null;
   /** show(X##v) の表示 variant。省略時（initial の含意）は null。hide は常に null（SPEC「オーバーレイ」） */
   variant: string | null;
@@ -32,7 +32,7 @@ export interface SimOverlay {
 export interface SimStateWrite {
   type: 'state';
   component: string;
-  /** set(mod::X##v) の明示モジュール。省略時は null（実行時にアクティブフレームの module で解決） */
+  /** set(mod::X##v) の明示モジュール。省略時は interaction が書かれたファイルの module（レキシカル解決。ADR-0018） */
   module: string | null;
   variant: string;
 }
@@ -57,7 +57,7 @@ export interface SimGate {
   kind: 'host' | 'member';
   /** kind==='member' のときの対象 component 名 */
   targetComponent?: string;
-  /** kind==='member' のときの明示モジュール。省略時は null（実行時にアクティブフレームの module で解決） */
+  /** kind==='member' のときの明示モジュール。省略時は interaction が書かれたファイルの module（レキシカル解決。ADR-0018） */
   module?: string | null;
 }
 
@@ -125,7 +125,7 @@ function elementDisplayName(el: import('@shitae/ast').ElementLine): string {
 /** alias を正準モジュール名へ解決する関数（ADR-0017）。未解決 alias はそのまま返す */
 type ModuleNormalizer = (module: string | null) => string | null;
 
-function convertResultBody(r: Result, norm: ModuleNormalizer): SimResultBody {
+function convertResultBody(r: Result, norm: ModuleNormalizer, sourceModule: string): SimResultBody {
   const { body } = r;
   if (body.kind === 'transition') {
     let target: SimTransition['target'] = null;
@@ -135,7 +135,7 @@ function convertResultBody(r: Result, norm: ModuleNormalizer): SimResultBody {
       } else {
         target = {
           kind: 'full',
-          module: norm(body.target.module ?? null),
+          module: norm(body.target.module ?? sourceModule),
           component: body.target.name,
           variant: body.target.variant ?? null,
         };
@@ -154,7 +154,7 @@ function convertResultBody(r: Result, norm: ModuleNormalizer): SimResultBody {
       type: 'overlay',
       op: body.verb,
       component: body.target.name,
-      module: norm(body.target.module ?? null),
+      module: norm(body.target.module ?? sourceModule),
       variant: body.target.variant ?? null,
     };
   } else if (body.kind === 'state') {
@@ -162,7 +162,7 @@ function convertResultBody(r: Result, norm: ModuleNormalizer): SimResultBody {
     return {
       type: 'state',
       component: body.target.name,
-      module: norm(body.target.module ?? null),
+      module: norm(body.target.module ?? sourceModule),
       variant: body.target.variant,
     };
   } else {
@@ -174,23 +174,24 @@ function convertResultBody(r: Result, norm: ModuleNormalizer): SimResultBody {
  * action.target の existsGated から SimGate を組み立てる（SPEC「presence gate」・ADR-0002）。
  * 裸参照は document common（字句上の host なし）でも host 扱い——発火時のアクティブ component の
  * 実効 body で判定する（ADR-0015。ADR-0012 B7a の always-on を置き換え）。
+ * member gate の module 帰属は無修飾参照と同じくレキシカル——sourceModule で解決する（ADR-0018）。
  */
-function buildGate(action: Action, norm: ModuleNormalizer): SimGate | null {
+function buildGate(action: Action, norm: ModuleNormalizer, sourceModule: string): SimGate | null {
   const ref = action.target;
   if (!ref || !ref.existsGated) return null;
   if (ref.member === null) {
     return { name: ref.name, kind: 'host' };
   }
-  return { name: ref.member, kind: 'member', targetComponent: ref.name, module: norm(ref.module ?? null) };
+  return { name: ref.member, kind: 'member', targetComponent: ref.name, module: norm(ref.module ?? sourceModule) };
 }
 
-function convertInteraction(i: Interaction, norm: ModuleNormalizer): SimInteraction {
+function convertInteraction(i: Interaction, norm: ModuleNormalizer, sourceModule: string): SimInteraction {
   const action = i.action;
   const targetPart = action.target ? `(${action.target.name})` : '';
   const prelude: SimResultBody[] = [];
   const choices: SimChoice[] = [];
   for (const { label, result } of effectiveResults(i)) {
-    const body = convertResultBody(result, norm);
+    const body = convertResultBody(result, norm, sourceModule);
     if (label === null) {
       // effectiveResults はラベルを前方に引き継ぐため、null は最初のラベルより前だけ
       prelude.push(body);
@@ -208,7 +209,7 @@ function convertInteraction(i: Interaction, norm: ModuleNormalizer): SimInteract
     actionText: `${action.text}${targetPart}`,
     prelude,
     choices,
-    gate: buildGate(action, norm),
+    gate: buildGate(action, norm, sourceModule),
   };
 }
 
@@ -224,12 +225,17 @@ function survivingDocCommon(documentCommon: Interaction[], effective: Interactio
   return merged.slice(0, merged.length - effective.length);
 }
 
-function convertComponent(comp: Component, documentCommon: Interaction[], norm: ModuleNormalizer): SimComponent {
+function convertComponent(
+  comp: Component,
+  documentCommon: Interaction[],
+  norm: ModuleNormalizer,
+  sourceModule: string,
+): SimComponent {
   const commonElements = comp.common.elements.map(elementDisplayName);
   const commonInteractionsAst = comp.common.interactions;
-  const commonInteractions = commonInteractionsAst.map((it) => convertInteraction(it, norm));
+  const commonInteractions = commonInteractionsAst.map((it) => convertInteraction(it, norm, sourceModule));
   const docCommonInteractions = survivingDocCommon(documentCommon, commonInteractionsAst).map(
-    (it) => convertInteraction(it, norm),
+    (it) => convertInteraction(it, norm, sourceModule),
   );
   const variants: Record<string, SimVariant> = {};
   for (const v of comp.variants) {
@@ -238,9 +244,9 @@ function convertComponent(comp: Component, documentCommon: Interaction[], norm: 
     const effectiveAst = mergeInteractions(commonInteractionsAst, v.body.interactions);
     variants[v.name] = {
       elements: v.body.elements.map(elementDisplayName),
-      interactions: effectiveAst.map((it) => convertInteraction(it, norm)),
+      interactions: effectiveAst.map((it) => convertInteraction(it, norm, sourceModule)),
       docCommonInteractions: survivingDocCommon(documentCommon, effectiveAst).map(
-        (it) => convertInteraction(it, norm),
+        (it) => convertInteraction(it, norm, sourceModule),
       ),
     };
   }
@@ -280,7 +286,8 @@ export function extractSimData(
     if (module == null || doc == null) return module;
     return resolveModuleRef(module, doc) ?? module;
   };
-  const documentCommon = documentCommonAst.map((it) => convertInteraction(it, normFor(entryDoc)));
+  // document common（entry ファイル）の無修飾参照は entryModule をレキシカル基準とする（ADR-0018）
+  const documentCommon = documentCommonAst.map((it) => convertInteraction(it, normFor(entryDoc), entryModule));
 
   const modules: Record<string, SimModuleData> = {};
   for (const [moduleName, doc] of documents) {
@@ -288,8 +295,9 @@ export function extractSimData(
     const norm = normFor(doc);
     for (const comp of doc.components) {
       // SPEC「document common」: 実行時に有効な document common はその component が
-      // 定義されているファイル自身のもの（entry ファイルのものではない）
-      components[comp.name] = convertComponent(comp, doc.common.interactions, norm);
+      // 定義されているファイル自身のもの（entry ファイルのものではない）。
+      // 無修飾参照の module 帰属はこの component が定義されているファイル（moduleName）自身（ADR-0018）
+      components[comp.name] = convertComponent(comp, doc.common.interactions, norm, moduleName);
     }
     modules[moduleName] = {
       components,

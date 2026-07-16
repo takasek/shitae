@@ -213,13 +213,13 @@ describe('extractSimData', () => {
     expect(gate).toEqual({ name: '投了', kind: 'host' });
   });
 
-  it('presence gate: member 参照 `対象.要素?` は kind=member で対象 component 名を保持する', () => {
+  it('presence gate: member 参照 `対象.要素?` は kind=member で対象 component 名を保持する（module はレキシカルに sourceModule へ解決。ADR-0018）', () => {
     const doc = parseOk(
       '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n# 時間選択\n本文\n',
     );
     const data = extractSimData(new Map([['main', doc]]), 'main');
     const gate = data.modules['main']!.components['予約']!.commonInteractions[0]!.gate;
-    expect(gate).toEqual({ name: '選択可能', kind: 'member', targetComponent: '日付', module: null });
+    expect(gate).toEqual({ name: '選択可能', kind: 'member', targetComponent: '日付', module: 'main' });
   });
 
   it('presence gate: document common の裸参照も kind=host（発火時のアクティブ component で判定。ADR-0015）', () => {
@@ -324,5 +324,66 @@ describe('ADR-0017: module 参照の正準化（alias → ファイル名）', (
     const mainDoc = parseOk('import calendar-widgets as cal\n# 予約\n*日付\n> タップ(cal::日付.選択可能?) -> 進む\n');
     const data = extractSimData(new Map([['main', mainDoc], ['calendar-widgets', subDoc]]), 'main');
     expect(data.gateTargets).toEqual([{ module: 'calendar-widgets', name: '日付' }]);
+  });
+});
+
+describe('ADR-0018: 無修飾 component 参照の module 解決はレキシカル（書かれたファイル）基準', () => {
+  it('mod で定義された component の無修飾 set は SimStateWrite.module が sourceModule（mod）に解決される', () => {
+    const subDoc = parseOk(
+      '#! 状態\n## 稼働\n本体\n## 停止\n本体\n\n# ミニ\n## 再生\n曲名\n> タップ(曲名) -> set(状態##停止)\n',
+    );
+    const mainDoc = parseOk('import mod as mod\n# ホーム\n要素\n');
+    const data = extractSimData(new Map([['main', mainDoc], ['mod', subDoc]]), 'main');
+    const body = data.modules['mod']!.components['ミニ']!.variants['再生']!.interactions[0]!.prelude[0]!;
+    expect(body.type).toBe('state');
+    if (body.type === 'state') expect(body.module).toBe('mod');
+  });
+
+  it('mod で定義された component の無修飾 show/hide（overlay）は module が sourceModule（mod）に解決される', () => {
+    const subDoc = parseOk(
+      '# ミニ\n## 再生\n曲名\n> タップ(曲名) -> show(サブ表示)\n\n# サブ表示\n本体\n',
+    );
+    const mainDoc = parseOk('import mod as mod\n# ホーム\n要素\n');
+    const data = extractSimData(new Map([['main', mainDoc], ['mod', subDoc]]), 'main');
+    const body = data.modules['mod']!.components['ミニ']!.variants['再生']!.interactions[0]!.prelude[0]!;
+    expect(body.type).toBe('overlay');
+    if (body.type === 'overlay') expect(body.module).toBe('mod');
+  });
+
+  it('mod で定義された component の無修飾 transition target（push）は module が sourceModule（mod）に解決される', () => {
+    const subDoc = parseOk(
+      '# ミニ\n## 再生\n曲名\n> タップ(曲名) -> push(プレイヤー)\n\n# プレイヤー\n本体\n',
+    );
+    const mainDoc = parseOk('import mod as mod\n# ホーム\n要素\n');
+    const data = extractSimData(new Map([['main', mainDoc], ['mod', subDoc]]), 'main');
+    const body = data.modules['mod']!.components['ミニ']!.variants['再生']!.interactions[0]!.prelude[0]!;
+    expect(body.type).toBe('transition');
+    if (body.type === 'transition' && body.target?.kind === 'full') expect(body.target.module).toBe('mod');
+  });
+
+  it('mod で定義された component の無修飾 member gate は module が sourceModule（mod）に解決される', () => {
+    const subDoc = parseOk(
+      '# ミニ\n## 再生\n*日付\n> タップ(日付.選択可能?) -> 進む\n\n# 日付\n## 選択可能\n選択可能\n',
+    );
+    const mainDoc = parseOk('import mod as mod\n# ホーム\n要素\n');
+    const data = extractSimData(new Map([['main', mainDoc], ['mod', subDoc]]), 'main');
+    const gate = data.modules['mod']!.components['ミニ']!.variants['再生']!.interactions[0]!.gate;
+    expect(gate).toEqual({ name: '選択可能', kind: 'member', targetComponent: '日付', module: 'mod' });
+  });
+
+  it('regression: 単一モジュール（通常画面）の無修飾 transition target はレキシカル基準とアクティブ基準が一致し、module が entry module 自身に解決される（挙動不変）', () => {
+    const doc = parseOk('# A\n> 進む -> push(B)\n\n# B\n本文\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const body = data.modules['main']!.components['A']!.commonInteractions[0]!.prelude[0]!;
+    expect(body.type).toBe('transition');
+    if (body.type === 'transition' && body.target?.kind === 'full') expect(body.target.module).toBe('main');
+  });
+
+  it('regression: document common の無修飾 member gate は module が entryModule に解決される（挙動不変）', () => {
+    const doc = parseOk(
+      '*日付\n> 通知(日付.選択可能?) -> push(詳細)\n\n# ホーム\n要素\n\n# 日付\n## 選択可能\n選択可能\n\n# 詳細\n本文\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.documentCommon[0]!.gate).toEqual({ name: '選択可能', kind: 'member', targetComponent: '日付', module: 'main' });
   });
 });
