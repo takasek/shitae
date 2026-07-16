@@ -137,3 +137,47 @@ describe('cross-file import', () => {
     }
   });
 });
+
+describe('r4 A2+B2: check はプロジェクト単位（ADR-0021）', () => {
+  const tmpDir = '/tmp/shitae_cli_project_check_test';
+
+  // E030 の span は set() 呼び出し site（main.shitae 内）の位置を指す——診断の span は
+  // 「その診断を検出した document 内の位置」であり、cross-module 参照先（sub.shitae）の
+  // 行番号とは対応しないため、診断のファイルパスは呼び出し元（main.shitae）になるのが
+  // 正しい（call-site 帰属。診断ツール一般の慣習と一致）。
+  it('import 先の非 singleton への set(mod::X##v) で exit 1、診断は呼び出し元の実ファイルパスで報告される', async () => {
+    mkdirSync(tmpDir, { recursive: true });
+    const mainPath = join(tmpDir, 'main.shitae');
+    writeFileSync(join(tmpDir, 'sub.shitae'), '# 通常\n## x\n要素\n');
+    writeFileSync(
+      mainPath,
+      'import sub as sub\n# ホーム\n> a -> set(sub::通常##x)\n'
+    );
+    try {
+      const { code, stderr } = await runCli(['check', mainPath]);
+      expect(code).toBe(1);
+      expect(stderr).toContain('E030');
+      expect(stderr).toContain(mainPath);
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  it('import 先に構文エラーがあると exit 1 で報告される', async () => {
+    mkdirSync(tmpDir, { recursive: true });
+    const subPath = join(tmpDir, 'sub.shitae');
+    writeFileSync(subPath, '# A\n行動 -> exit()\n');
+    writeFileSync(
+      join(tmpDir, 'main.shitae'),
+      'import sub as sub\n# ホーム\nロゴ\n'
+    );
+    try {
+      const { code, stderr } = await runCli(['check', join(tmpDir, 'main.shitae')]);
+      expect(code).toBe(1);
+      expect(stderr).toContain('[error]');
+      expect(stderr).toContain(subPath);
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+});

@@ -21,10 +21,12 @@ const entryModule = basename(entryPath, '.shitae');
 function loadDocuments(): {
   documents: Map<string, Document>;
   diagnostics: Map<string, Diagnostic[]>;
+  modulePaths: Map<string, string>;
   failed: boolean;
 } {
   const documents = new Map<string, Document>();
   const diagnosticsMap = new Map<string, Diagnostic[]>();
+  const modulePaths = new Map<string, string>();
   let failed = false;
 
   function load(moduleName: string, absPath: string, visited: Set<string>): void {
@@ -40,6 +42,7 @@ function loadDocuments(): {
       return;
     }
 
+    modulePaths.set(moduleName, absPath);
     const { document, diagnostics } = parse(source);
     documents.set(moduleName, document);
     diagnosticsMap.set(moduleName, diagnostics);
@@ -51,16 +54,16 @@ function loadDocuments(): {
   }
 
   load(entryModule, entryPath, new Set());
-  return { documents, diagnostics: diagnosticsMap, failed };
+  return { documents, diagnostics: diagnosticsMap, modulePaths, failed };
 }
 
-function printDiags(diags: Diagnostic[]): void {
-  for (const d of diags) {
-    process.stderr.write(`${filePath}:${d.span.line}: [${d.severity}] ${d.code}: ${d.message}\n`);
+function printDiags(items: Array<{ diag: Diagnostic; path: string }>): void {
+  for (const { diag, path } of items) {
+    process.stderr.write(`${path}:${diag.span.line}: [${diag.severity}] ${diag.code}: ${diag.message}\n`);
   }
 }
 
-const { documents, diagnostics: diagnosticsMap, failed } = loadDocuments();
+const { documents, diagnostics: diagnosticsMap, modulePaths, failed } = loadDocuments();
 
 if (failed) {
   process.exit(1);
@@ -69,28 +72,38 @@ if (failed) {
 const parseDiags = diagnosticsMap.get(entryModule) ?? [];
 
 if (command === 'check') {
+  // プロジェクト単位の検査（ADR-0021 A2+B2）: エントリ + 全 import 先モジュールそれぞれについて
+  // parse 診断と check() の診断を集約し、モジュールごとの実ファイルパスで報告する。
   const project = resolveProject(documents);
-  const mainResolved = project.getModule(entryModule)!;
-  const checkDiags = check(documents.get(entryModule)!, mainResolved);
-  const all = [...parseDiags, ...checkDiags];
+  const all: Array<{ diag: Diagnostic; path: string }> = [];
+  for (const [moduleName, doc] of documents) {
+    const path = modulePaths.get(moduleName) ?? entryPath;
+    for (const d of diagnosticsMap.get(moduleName) ?? []) {
+      all.push({ diag: d, path });
+    }
+    const moduleResolved = project.getModule(moduleName)!;
+    for (const d of check(doc, moduleResolved, { project })) {
+      all.push({ diag: d, path });
+    }
+  }
   printDiags(all);
-  process.exit(all.filter(d => d.severity === 'error').length > 0 ? 1 : 0);
+  process.exit(all.filter(({ diag }) => diag.severity === 'error').length > 0 ? 1 : 0);
 } else if (command === 'mermaid') {
   const errors = parseDiags.filter(d => d.severity === 'error');
   if (errors.length > 0) {
-    printDiags(errors);
+    printDiags(errors.map(d => ({ diag: d, path: entryPath })));
     process.exit(1);
   }
   const project = resolveProject(documents);
   const mainResolved = project.getModule(entryModule)!;
   const checkDiags = check(documents.get(entryModule)!, mainResolved);
-  printDiags(checkDiags);
+  printDiags(checkDiags.map(d => ({ diag: d, path: entryPath })));
   process.stdout.write(toMermaid(documents.get(entryModule)!) + '\n');
   process.exit(0);
 } else if (command === 'simulate') {
   const errors = parseDiags.filter(d => d.severity === 'error');
   if (errors.length > 0) {
-    printDiags(errors);
+    printDiags(errors.map(d => ({ diag: d, path: entryPath })));
     process.exit(1);
   }
   process.stdout.write(toSimulator(documents, entryModule) + '\n');
