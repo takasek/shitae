@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import * as vm from 'node:vm';
 import { parse } from '@shitae/parser';
 import { toSimulator } from '../src/simulator.js';
 
@@ -168,6 +169,24 @@ describe('toSimulator', () => {
     return JSON.parse(m[1]!);
   }
 
+  // 埋め込み JS ランタイムを node:vm で実際に評価し、実行時の関数呼び出しで振る舞いを検証する。
+  // 戻り値の context は同一 realm を共有するので、後続の vm.runInContext(code, context) で
+  // トップレベルの let/function（overlays・overlayInteractions 等）へアクセスできる。
+  function runSimulatorScript(html: string): vm.Context {
+    const m = html.match(/<script>\n([\s\S]*)\n<\/script>/);
+    if (!m) throw new Error('embedded script not found');
+    const context = vm.createContext({
+      document: {
+        getElementById: () => ({ innerHTML: '', textContent: '', classList: { add() {}, remove() {} } }),
+      },
+      setTimeout: () => 0,
+      clearTimeout: () => {},
+      console,
+    });
+    vm.runInContext(m[1]!, context);
+    return context;
+  }
+
   it('ADR-0018 / M2: mod 定義の掲示中コンポーネントの無修飾 set は module:"mod" として埋め込まれる（r4 no-op からの挙動変更）', () => {
     const subDoc = parseOk(
       '#! 状態\n## 稼働\n本体\n## 停止\n本体\n\n# ミニ\n## 再生\n曲名\n> タップ(曲名) -> set(状態##停止)\n',
@@ -177,5 +196,56 @@ describe('toSimulator', () => {
     const data = embeddedData(html);
     const inter = data.modules['mod'].components['ミニ'].variants['再生'].interactions[0];
     expect(inter.prelude[0]).toEqual({ type: 'state', component: '状態', module: 'mod', variant: '停止' });
+  });
+
+  it('ADR-0019: overlay 掲示中 component の裸 gate は掲示中 component 自身の表示 variant の実効 body で判定する（アクティブ画面の body は見ない）', () => {
+    const doc = parseOk(
+      '# ホーム\nロゴ\n> 出す -> show(ミニ##再生)\n\n' +
+        '# ミニ\n## 再生\n曲名\n> タップ(曲名?) -> push(プレイヤー)\n## 一時停止\n再開ボタン\n\n' +
+        '# プレイヤー\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    // アクティブ画面はホーム（曲名を持たない）。ミニを ## 再生（曲名を持つ）で掲示中 → gate on。
+    const onActionTexts = JSON.parse(
+      vm.runInContext(
+        "overlays.set('ミニ', { variant: '再生', module: 'main' }); JSON.stringify(overlayInteractions('ミニ').map(i => i.actionText))",
+        context,
+      ),
+    );
+    expect(onActionTexts).toContain('タップ(曲名)');
+
+    // ## 一時停止（曲名を持たない）を掲示中なら gate off。アクティブ画面（ホーム）の body は無関係。
+    const offActionTexts = JSON.parse(
+      vm.runInContext(
+        "overlays.set('ミニ', { variant: '一時停止', module: 'main' }); JSON.stringify(overlayInteractions('ミニ').map(i => i.actionText))",
+        context,
+      ),
+    );
+    expect(offActionTexts).not.toContain('タップ(曲名)');
+  });
+
+  it('ADR-0019 regression: document common の裸 gate は ADR-0015 どおりアクティブ component の現在 variant で動的解決する（overlay 経路の変更で壊れていない）', () => {
+    const doc = parseOk(
+      '> 通知タップ(記事リンク?) -> push(記事詳細)\n\n' +
+        '# ホーム\nロゴ\n\n' +
+        '# 記事一覧\n記事リンク\n\n' +
+        '# 記事詳細\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    // アクティブ画面がホーム（記事リンクなし）→ gate off
+    const homeTexts = JSON.parse(vm.runInContext('JSON.stringify(docCommonInteractions().map(i => i.actionText))', context));
+    expect(homeTexts).not.toContain('通知タップ(記事リンク)');
+
+    // goto で記事一覧（記事リンクあり）に移動 → gate on
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'goto', target: { module: 'main', component: '記事一覧', variant: null } })",
+      context,
+    );
+    const listTexts = JSON.parse(vm.runInContext('JSON.stringify(docCommonInteractions().map(i => i.actionText))', context));
+    expect(listTexts).toContain('通知タップ(記事リンク)');
   });
 });
