@@ -61,6 +61,13 @@ export interface SimGate {
   module?: string | null;
 }
 
+/**
+ * interaction の有効範囲。document common / docCommonInteractions 由来は 'document'、
+ * component common 由来（shadow 合成で姿へ生き残ったものも含む）は 'component'、
+ * 姿固有（v.body.interactions に由来するもの）は 'variant'。
+ */
+export type SimInteractionScope = 'document' | 'component' | 'variant';
+
 export interface SimInteraction {
   actionText: string;
   /** 最初のラベルより前の result 群。常に成立（分岐に依らず順に全部起こる） */
@@ -69,6 +76,8 @@ export interface SimInteraction {
   choices: SimChoice[];
   /** `?` 無しの行動は null（always-on）。SPEC「presence gate」 */
   gate: SimGate | null;
+  /** この interaction の由来（document/component/variant）。SPEC「document common」3階層 */
+  scope: SimInteractionScope;
 }
 
 export interface SimVariant {
@@ -100,6 +109,17 @@ export interface SimComponentRef {
   name: string;
 }
 
+/**
+ * 遷移グラフ（simulator の遷移マップ描画用）。ノードは全 module の全 component（定義順）。
+ * エッジは push/present/goto/switch の静的 target（target.kind === 'full'、定義済み component）
+ * を (from, to) で重複除去したもの。back/exit/dismiss と ##variant のみの goto はエッジにしない。
+ * documentCommon 由来の遷移は発火元 component が静的に定まらないためエッジにしない。
+ */
+export interface SimGraph {
+  nodes: SimComponentRef[];
+  edges: { from: SimComponentRef; to: SimComponentRef }[];
+}
+
 export interface SimulatorData {
   modules: Record<string, SimModuleData>;
   entryModule: string;
@@ -114,6 +134,8 @@ export interface SimulatorData {
    * 「今どの画面にも表示されていない対象インスタンスの variant」を模擬するための一覧。
    */
   gateTargets: SimComponentRef[];
+  /** 遷移グラフ（simulator の遷移マップ描画用） */
+  graph: SimGraph;
 }
 
 function elementDisplayName(el: import('@shitae/ast').ElementLine): string {
@@ -185,7 +207,12 @@ function buildGate(action: Action, norm: ModuleNormalizer, sourceModule: string)
   return { name: ref.member, kind: 'member', targetComponent: ref.name, module: norm(ref.module ?? sourceModule) };
 }
 
-function convertInteraction(i: Interaction, norm: ModuleNormalizer, sourceModule: string): SimInteraction {
+function convertInteraction(
+  i: Interaction,
+  norm: ModuleNormalizer,
+  sourceModule: string,
+  scope: SimInteractionScope,
+): SimInteraction {
   const action = i.action;
   const targetPart = action.target ? `(${action.target.name})` : '';
   const prelude: SimResultBody[] = [];
@@ -210,6 +237,7 @@ function convertInteraction(i: Interaction, norm: ModuleNormalizer, sourceModule
     prelude,
     choices,
     gate: buildGate(action, norm, sourceModule),
+    scope,
   };
 }
 
@@ -233,20 +261,25 @@ function convertComponent(
 ): SimComponent {
   const commonElements = comp.common.elements.map(elementDisplayName);
   const commonInteractionsAst = comp.common.interactions;
-  const commonInteractions = commonInteractionsAst.map((it) => convertInteraction(it, norm, sourceModule));
+  const commonInteractions = commonInteractionsAst.map((it) => convertInteraction(it, norm, sourceModule, 'component'));
   const docCommonInteractions = survivingDocCommon(documentCommon, commonInteractionsAst).map(
-    (it) => convertInteraction(it, norm, sourceModule),
+    (it) => convertInteraction(it, norm, sourceModule, 'document'),
   );
   const variants: Record<string, SimVariant> = {};
   for (const v of comp.variants) {
     // 姿で有効な interaction 一覧 = mergeInteractions(共通, 姿固有)。
     // 同一 (行動, 対象) は姿固有が共通を shadow する
     const effectiveAst = mergeInteractions(commonInteractionsAst, v.body.interactions);
+    // mergeInteractions は AST ノードをそのまま並べ替える（identity 比較で由来判定できる）。
+    // v.body.interactions に含まれるものが姿固有、それ以外は shadow を生き延びた共通由来
+    const specificAst = new Set(v.body.interactions);
     variants[v.name] = {
       elements: v.body.elements.map(elementDisplayName),
-      interactions: effectiveAst.map((it) => convertInteraction(it, norm, sourceModule)),
+      interactions: effectiveAst.map((it) =>
+        convertInteraction(it, norm, sourceModule, specificAst.has(it) ? 'variant' : 'component'),
+      ),
       docCommonInteractions: survivingDocCommon(documentCommon, effectiveAst).map(
-        (it) => convertInteraction(it, norm, sourceModule),
+        (it) => convertInteraction(it, norm, sourceModule, 'document'),
       ),
     };
   }
@@ -257,6 +290,33 @@ function convertComponent(
     variants,
     initialVariant: comp.variants[0]?.name ?? null,
   };
+}
+
+/** 遷移グラフのエッジ対象となる遷移語（SPEC「遷移語」のうち画面移動を伴うもの） */
+const GRAPH_EDGE_WORDS = new Set(['push', 'present', 'goto', 'switch']);
+
+/**
+ * component 1 件分の interactions（component common または姿の merged interactions）から
+ * 静的な遷移エッジを集める。target.kind === 'full' かつ定義済み component のものだけを (from, to) で
+ * 重複除去して out に積む。back/exit/dismiss と ##variant のみの goto は対象外。
+ */
+function collectGraphEdges(
+  interactions: SimInteraction[],
+  from: SimComponentRef,
+  modules: Record<string, SimModuleData>,
+  out: Map<string, { from: SimComponentRef; to: SimComponentRef }>,
+): void {
+  for (const it of interactions) {
+    const bodies = [...it.prelude, ...it.choices.flatMap((c) => c.results)];
+    for (const body of bodies) {
+      if (body.type !== 'transition' || !GRAPH_EDGE_WORDS.has(body.word)) continue;
+      const target = body.target;
+      if (!target || target.kind !== 'full' || target.module == null) continue;
+      if (!modules[target.module]?.components[target.component]) continue; // 未定義 component はエッジにしない
+      const to: SimComponentRef = { module: target.module, name: target.component };
+      out.set(JSON.stringify([from, to]), { from, to });
+    }
+  }
 }
 
 /** member gate 対象を集める。module は「明示指定 > 収集元 module」で解決し、定義が実在するものだけ残す。 */
@@ -287,9 +347,12 @@ export function extractSimData(
     return resolveModuleRef(module, doc) ?? module;
   };
   // document common（entry ファイル）の無修飾参照は entryModule をレキシカル基準とする（ADR-0018）
-  const documentCommon = documentCommonAst.map((it) => convertInteraction(it, normFor(entryDoc), entryModule));
+  const documentCommon = documentCommonAst.map((it) =>
+    convertInteraction(it, normFor(entryDoc), entryModule, 'document'),
+  );
 
   const modules: Record<string, SimModuleData> = {};
+  const graphNodes: SimComponentRef[] = [];
   for (const [moduleName, doc] of documents) {
     const components: Record<string, SimComponent> = {};
     const norm = normFor(doc);
@@ -298,6 +361,7 @@ export function extractSimData(
       // 定義されているファイル自身のもの（entry ファイルのものではない）。
       // 無修飾参照の module 帰属はこの component が定義されているファイル（moduleName）自身（ADR-0018）
       components[comp.name] = convertComponent(comp, doc.common.interactions, norm, moduleName);
+      graphNodes.push({ module: moduleName, name: comp.name });
     }
     modules[moduleName] = {
       components,
@@ -324,6 +388,19 @@ export function extractSimData(
     }
   }
 
+  // 遷移グラフ: documentCommon 由来は発火元 component が静的に定まらないため対象外（brief 明記）。
+  // 各 component の common + 全 variant の merged interactions から静的遷移を集める
+  const graphEdgeMap = new Map<string, { from: SimComponentRef; to: SimComponentRef }>();
+  for (const [moduleName, mod] of Object.entries(modules)) {
+    for (const [compName, comp] of Object.entries(mod.components)) {
+      const from: SimComponentRef = { module: moduleName, name: compName };
+      collectGraphEdges(comp.commonInteractions, from, modules, graphEdgeMap);
+      for (const v of Object.values(comp.variants)) {
+        collectGraphEdges(v.interactions, from, modules, graphEdgeMap);
+      }
+    }
+  }
+
   return {
     modules,
     entryModule,
@@ -331,5 +408,6 @@ export function extractSimData(
     documentCommon,
     singletons,
     gateTargets: [...gateTargetMap.values()],
+    graph: { nodes: graphNodes, edges: [...graphEdgeMap.values()] },
   };
 }
