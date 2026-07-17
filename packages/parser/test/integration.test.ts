@@ -60,8 +60,26 @@ describe('integration: examples/ecommerce.shitae', () => {
   it('has correct component count', () => {
     const { document } = parse(ecommerceSrc);
     // スプラッシュ, 商品一覧, 商品詳細, フィルタシート, カート, チェックアウト, 完了,
-    // 商品詳細追記, 共有シート, 投稿編集, 検索, レビュー詳細, 住所編集
-    expect(document.components).toHaveLength(13);
+    // 共有シート, 投稿編集, 検索, レビュー詳細, 住所編集
+    expect(document.components).toHaveLength(12);
+  });
+
+  it('カート は singleton（#!）で 空／商品あり の 2 variants を持つ', () => {
+    const { document } = parse(ecommerceSrc);
+    const cart = document.components.find(c => c.name === 'カート');
+    expect(cart).toBeDefined();
+    expect(cart!.singleton).toBe(true);
+    expect(cart!.variants.map(v => v.name)).toEqual(['空', '商品あり']);
+  });
+
+  it('set(カート##商品あり) / set(カート##空) の StateWrite を含む', () => {
+    const { document } = parse(ecommerceSrc);
+    const writes = document.components
+      .flatMap(c => [...c.common.interactions, ...c.variants.flatMap(v => v.body.interactions)])
+      .flatMap(i => i.results)
+      .filter(r => r.body.kind === 'state')
+      .map(r => (r.body.kind === 'state' ? r.body.target.variant : ''));
+    expect(writes.sort()).toEqual(['商品あり', '空']);
   });
 
   it('商品詳細 has 2 variants', () => {
