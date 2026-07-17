@@ -387,3 +387,114 @@ describe('ADR-0018: 無修飾 component 参照の module 解決はレキシカ�
     expect(data.documentCommon[0]!.gate).toEqual({ name: '選択可能', kind: 'member', targetComponent: '日付', module: 'main' });
   });
 });
+
+describe('scope: interaction の有効範囲注釈', () => {
+  it('documentCommon 由来の interaction は scope が "document"', () => {
+    const doc = parseOk('> 通知 -> push(詳細)\n\n# ホーム\n要素\n\n# 詳細\n本文\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.documentCommon[0]!.scope).toBe('document');
+  });
+
+  it('component common 由来の interaction は scope が "component"', () => {
+    const doc = parseOk('# A\n要素\n> タップ(要素) -> back()\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.modules['main']!.components['A']!.commonInteractions[0]!.scope).toBe('component');
+  });
+
+  it('shadow 合成: variant固有の interaction は "variant"、生き残った共通由来は "component"', () => {
+    const doc = parseOk(
+      '# プロフィール\n戻る\n> タップ(戻る) -> back()\n> 長押し -> メニューを出す\n## 特殊\n> タップ(戻る) -> goto(別画面)\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const merged = data.modules['main']!.components['プロフィール']!.variants['特殊']!.interactions;
+    expect(merged[0]!.actionText).toBe('長押し');
+    expect(merged[0]!.scope).toBe('component');
+    expect(merged[1]!.actionText).toBe('タップ(戻る)');
+    expect(merged[1]!.scope).toBe('variant');
+  });
+
+  it('3階層shadow: 生き残った docCommonInteractions（component 側）も scope は "document"', () => {
+    const doc = parseOk(
+      '> タップ(戻る) -> exit(@x)\n> プッシュ通知 -> push(詳細)\n\n# A\n戻る\n> タップ(戻る) -> back()\n\n# 詳細\n本文\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const comp = data.modules['main']!.components['A']!;
+    const survivor = comp.docCommonInteractions.find((i) => i.actionText === 'プッシュ通知');
+    expect(survivor!.scope).toBe('document');
+  });
+
+  it('3階層shadow: variant 側の docCommonInteractions で生き残ったものも scope は "document"', () => {
+    const doc = parseOk(
+      '> タップ(戻る) -> exit(@x)\n> プッシュ通知 -> push(詳細)\n\n# A\n戻る\n## 姿1\n> タップ(戻る) -> back()\n\n# 詳細\n本文\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const variant = data.modules['main']!.components['A']!.variants['姿1']!;
+    const survivor = variant.docCommonInteractions.find((i) => i.actionText === 'プッシュ通知');
+    expect(survivor!.scope).toBe('document');
+  });
+});
+
+describe('graph: 遷移グラフの抽出', () => {
+  it('nodes: 全 module の全 component を定義順で列挙する', () => {
+    const subDoc = parseOk('# サブ1\n本文\n\n# サブ2\n本文\n');
+    const mainDoc = parseOk('import sub as sub\n# A\n要素\n\n# B\n要素\n');
+    const data = extractSimData(new Map([['main', mainDoc], ['sub', subDoc]]), 'main');
+    expect(data.graph.nodes).toEqual([
+      { module: 'main', name: 'A' },
+      { module: 'main', name: 'B' },
+      { module: 'sub', name: 'サブ1' },
+      { module: 'sub', name: 'サブ2' },
+    ]);
+  });
+
+  it('edges: push/goto の transition かつ target.kind==="full" のものを (from,to) 重複除去で集める', () => {
+    const doc = parseOk('# A\n> タップ -> push(B)\n> ダブルタップ -> goto(B)\n\n# B\n本文\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.graph.edges).toEqual([
+      { from: { module: 'main', name: 'A' }, to: { module: 'main', name: 'B' } },
+    ]);
+  });
+
+  it('edges: cross-module 遷移は正準モジュール名（alias ではなくファイル名）で解決される（ADR-0017）', () => {
+    const subDoc = parseOk('# 支払い\n本文\n');
+    const mainDoc = parseOk('import checkout-flow as co\n# ホーム\n> 進む -> push(co::支払い)\n');
+    const data = extractSimData(new Map([['main', mainDoc], ['checkout-flow', subDoc]]), 'main');
+    expect(data.graph.edges).toEqual([
+      { from: { module: 'main', name: 'ホーム' }, to: { module: 'checkout-flow', name: '支払い' } },
+    ]);
+  });
+
+  it('edges: target.kind==="variant"（##v のみの goto）はエッジにしない', () => {
+    const doc = parseOk('#! クーポン\n## 未受取\n> タップ -> goto(##受取済)\n## 受取済\n適用ボタン\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.graph.edges).toEqual([]);
+  });
+
+  it('edges: back/exit はエッジにしない', () => {
+    const doc = parseOk('# A\n要素\n> タップ(要素) -> back()\n> 長押し(要素) -> exit(@x)\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.graph.edges).toEqual([]);
+  });
+
+  it('edges: 未定義 component への遷移はエッジにしない', () => {
+    const doc = parseOk('# A\n> 進む -> push(存在しない)\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.graph.edges).toEqual([]);
+  });
+
+  it('edges: documentCommon 由来の遷移は発火元 component が定まらないためエッジにしない', () => {
+    const doc = parseOk('> 通知 -> push(詳細)\n\n# ホーム\n要素\n\n# 詳細\n本文\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.graph.edges).toEqual([]);
+  });
+
+  it('edges: variant 固有の遷移も component 単位で from に集約される', () => {
+    const doc = parseOk(
+      '# 詳細\n## 読込中\nスピナー\n## 表示\nコンテンツ\n> タップ(コンテンツ) -> push(次)\n\n# 次\n本文\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.graph.edges).toEqual([
+      { from: { module: 'main', name: '詳細' }, to: { module: 'main', name: '次' } },
+    ]);
+  });
+});
