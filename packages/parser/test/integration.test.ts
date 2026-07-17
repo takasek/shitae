@@ -200,14 +200,14 @@ describe('integration: examples/langlearn.shitae（set・singleton タブ・gate
     expect(singletons.sort()).toEqual(['ストリークバッジ', '学習']);
   });
 
-  it('set(学習##ハート切れ) / set(学習##通常) の StateWrite を含む', () => {
+  it('set(学習##ハート切れ) / set(学習##通常) / set(ストリークバッジ##達成) の StateWrite を含む', () => {
     const { document } = parse(langlearnSrc);
     const writes = document.components
       .flatMap(c => [...c.common.interactions, ...c.variants.flatMap(v => v.body.interactions)])
       .flatMap(i => i.results)
       .filter(r => r.body.kind === 'state')
       .map(r => (r.body.kind === 'state' ? r.body.target.variant : ''));
-    expect(writes.sort()).toEqual(['ハート切れ', '通常']);
+    expect(writes.sort()).toEqual(['ハート切れ', '通常', '達成']);
   });
 
   it('document common に presence gate 付き deep link を持つ（ADR-0015 の実例）', () => {
