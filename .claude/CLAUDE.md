@@ -1,6 +1,6 @@
 # shitae
 
-UI ラフスケッチ記述言語 `shitae` の処理系（TypeScript + pnpm モノレポ）。
+UI フロー記述言語 `shitae`（ラフに書けて、遷移が動く）の処理系（TypeScript + pnpm モノレポ）。
 
 ## 入口
 
