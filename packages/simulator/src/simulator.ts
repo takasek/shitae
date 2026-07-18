@@ -462,7 +462,7 @@ function renderActionCategory(label, scope, items) {
   const rows = items.map((inter, idx) => {
     const labels = inter.choices.length > 0 ? inter.choices.map((c) => c.label) : ['TRUE'];
     const buttons = labels.map((l, choiceIdx) =>
-      '<button class="choice-chip" onclick="handleInteraction(' + JSON.stringify(scope) + ',' + idx + ',' + choiceIdx + ')">' +
+      '<button class="choice-chip" onclick="handleInteraction(\\'' + scope + '\\',' + idx + ',' + choiceIdx + ')">' +
       esc('[' + l + ']') + '</button>'
     ).join('');
     return '<div class="action-row"><span class="action-text">' + esc(inter.actionText) + '</span>' +

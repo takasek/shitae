@@ -344,6 +344,14 @@ describe('toSimulator', () => {
 
     vm.runInContext("handleInteraction('component', 0, 1)", context);
     expect(vm.runInContext('currentFrame().component', context)).toBe('残念');
+    // regression guard: 全 choice が走ってしまう退行では最後の push（残念）が勝ち上の
+    // アサートは素通りする。選んだ choice「だけ」が走ったことを traceLog 件数と
+    // stack の中身（[当たり] 側の 景品 frame が積まれていないこと）で縛る。
+    expect(vm.runInContext('traceLog.length', context)).toBe(2);
+    const stackComponents = JSON.parse(
+      vm.runInContext('JSON.stringify(stack.map(f => f.component))', context),
+    );
+    expect(stackComponents).not.toContain('景品');
   });
 
   it('ラベル無し操作（choices 空）は [TRUE] ラベル1つのボタンになり prelude のみ実行する', () => {
@@ -371,6 +379,23 @@ describe('toSimulator', () => {
     expect(appHtml).toContain('姿操作');
     expect(appHtml).toContain('共通操作');
     expect(appHtml).toContain('通知');
+  });
+
+  it('choice-chip の onclick は scope を単一引用符の JS 文字列リテラルとして埋め込み onclick 属性を壊さない', () => {
+    const doc = parseOk(
+      '> 通知 -> push(受信箱)\n\n' +
+        '# ホーム\n> 共通操作 -> push(共通先)\n## 通常\n姿要素\n> 姿操作 -> push(詳細)\n\n' +
+        '# 詳細\n本体\n\n# 共通先\n本体\n\n# 受信箱\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    // JSON.stringify(scope) は "variant" のような二重引用符区切り文字列を吐く。
+    // onclick="..." は二重引用符区切り属性のため、途中の " で属性値が切れて壊れる。
+    expect(appHtml).not.toContain('onclick="handleInteraction("');
+    expect(appHtml).toContain("onclick=\"handleInteraction('variant'");
+    expect(appHtml).toContain("onclick=\"handleInteraction('component'");
+    expect(appHtml).toContain("onclick=\"handleInteraction('document'");
   });
 
   it('scope カテゴリが空なら見出しごと出さない', () => {
