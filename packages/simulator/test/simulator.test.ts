@@ -686,7 +686,12 @@ describe('toSimulator', () => {
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
     const appHtml = vm.runInContext('app.innerHTML', context);
-    expect(appHtml.indexOf('gate-panel')).toBeGreaterThan(-1);
-    expect(appHtml.indexOf('graph-panel')).toBeGreaterThan(-1);
+    const gateIdx = appHtml.indexOf('gate-panel');
+    const graphIdx = appHtml.indexOf('graph-panel');
+    expect(gateIdx).toBeGreaterThan(-1);
+    expect(graphIdx).toBeGreaterThan(-1);
+    // 存在チェックだけでは配置順の退行を検出できない — 「近くに配置」を
+    // gate-panel が graph-panel より先に現れる順序として縛る。
+    expect(gateIdx).toBeLessThan(graphIdx);
   });
 });
