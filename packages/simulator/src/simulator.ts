@@ -46,9 +46,8 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
 .back-btn { margin-top: 12px; background: none; border: 1px solid #ccc; border-radius: 6px; padding: 8px 14px; cursor: pointer; font-size: 12px; color: #555; }
 .back-btn:hover { background: #f0f0f0; }
 .no-actions { color: #bbb; font-size: 13px; font-style: italic; }
-.overlay-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #222; color: #fff; padding: 8px 16px; display: flex; gap: 12px; font-size: 12px; }
-.overlay-item { background: #444; padding: 2px 10px; border-radius: 10px; }
-.overlay-btn { margin-left: 6px; background: #666; color: #fff; border: none; border-radius: 8px; padding: 1px 8px; cursor: pointer; font-size: 11px; }
+.overlay-card { margin-top: 12px; border: 1px dashed #999; }
+.overlay-badge { display: inline-block; font-size: 11px; color: #fff; background: #555; padding: 1px 8px; border-radius: 8px; margin-bottom: 8px; }
 .gate-panel { margin-top: 12px; font-size: 12px; }
 .gate-panel-toggle { background: none; border: 1px solid #ddd; border-radius: 6px; padding: 4px 10px; cursor: pointer; color: #777; font-size: 11px; }
 .gate-panel-body { margin-top: 6px; padding: 8px 10px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; display: flex; flex-direction: column; gap: 6px; }
@@ -415,14 +414,23 @@ function handleInteraction(scope, idx, choiceIdx) {
   render();
 }
 
-// 掲示中 component の interaction 発火。遷移の相対解決は常にアクティブフレーム基準
-// （applyTransition が currentFrame() を見るため、overlay 自身を「現在地」にはしない。SPEC 341）
-// overlay-bar は interaction あたり1ボタンのまま（このタスクでは変更しない。Task 4 の領分）——
-// 複数ラベルの選択 UI は overlay 側にまだ無いため、先頭の choice を実行する（暫定）。
-function handleOverlayInteraction(name, idx) {
-  const interaction = overlayInteractions(name)[idx];
+// 掲示中カードの scope（'component' | 'variant'）別 interactions。document common は掲示中
+// カードに出さない（発火判定はアクティブ画面基準 — ADR-0015 — であり掲示中カードの所属ではない）。
+function overlayScopedInteractions(name, scope) {
+  return overlayInteractions(name).filter((inter) => inter.scope === scope);
+}
+
+// 掲示中カードの interaction 発火。cardIdx は表示順（[...overlays.keys()] の添字）。
+// component 名は任意文字列（' や " を含みうる）のため onclick へ直接埋め込むと属性を壊しうる
+// （旧実装のバグ）——名前を埋め込まず表示順インデックスで参照し、クリック時に名前へ解決し直す。
+// 遷移の相対解決は常にアクティブフレーム基準（applyTransition が currentFrame() を見るため、
+// overlay 自身を「現在地」にはしない。SPEC 341）。
+function handleOverlayInteraction(cardIdx, scope, idx, choiceIdx) {
+  const name = [...overlays.keys()][cardIdx];
+  if (!name) return;
+  const interaction = overlayScopedInteractions(name, scope)[idx];
   if (!interaction) return;
-  runChoice(interaction, 0);
+  runChoice(interaction, choiceIdx);
   render();
 }
 
@@ -456,13 +464,15 @@ function docCommonInteractions() {
 }
 
 // 操作一覧のカテゴリ 1 件分（variant固有 / component common / document common）を
-// <details open>（自己完結の折り畳み）で描画する。空カテゴリは呼び出し側で弾く。
+// <details open>（自己完結の折り畳み）で描画する。空カテゴリは呼び出し側（renderActionCategories）で弾く。
 // 各行は行動テキスト + 選択肢ボタンの横並び。choices 空なら [TRUE] ラベル1つのボタンにする。
-function renderActionCategory(label, scope, items) {
+// buildOnclick(idx, choiceIdx) が onclick 属性値を生成する——本体は handleInteraction、
+// 掲示中カードは handleOverlayInteraction を渡す（描画関数自体は本体・掲示中カード共通。Task 4）。
+function renderActionCategory(label, items, buildOnclick) {
   const rows = items.map((inter, idx) => {
     const labels = inter.choices.length > 0 ? inter.choices.map((c) => c.label) : ['TRUE'];
     const buttons = labels.map((l, choiceIdx) =>
-      '<button class="choice-chip" onclick="handleInteraction(\\'' + scope + '\\',' + idx + ',' + choiceIdx + ')">' +
+      '<button class="choice-chip" onclick="' + buildOnclick(idx, choiceIdx) + '">' +
       esc('[' + l + ']') + '</button>'
     ).join('');
     return '<div class="action-row"><span class="action-text">' + esc(inter.actionText) + '</span>' +
@@ -470,6 +480,67 @@ function renderActionCategory(label, scope, items) {
   }).join('');
   return '<details open class="action-category"><summary>' + esc(label) + '</summary>' +
     '<div class="action-list">' + rows + '</div></details>';
+}
+
+// scope カテゴリ群（{label, items, buildOnclick}）を折り畳みリストにまとめる。全カテゴリ空なら
+// 「アクションなし」を出す。本体画面（3カテゴリ）・掲示中カード（2カテゴリ）の両方が使う。
+function renderActionCategories(categories) {
+  const nonEmpty = categories.filter((c) => c.items.length > 0);
+  if (nonEmpty.length === 0) return '<div class="no-actions">アクションなし</div>';
+  return '<div class="action-categories">' +
+    nonEmpty.map((c) => renderActionCategory(c.label, c.items, c.buildOnclick)).join('') +
+    '</div>';
+}
+
+// elements 一覧（commonElements + 表示 variant の elements。document common は呼び出し側が
+// 必要な場合のみ合成して渡す）を描画する。空なら何も出さない。
+function renderElements(els) {
+  if (els.length === 0) return '';
+  return '<div class="elements">' + els.map(e => '<div class="element">' + esc(e) + '</div>').join('') + '</div>';
+}
+
+// 1 枚のカード（タイトル・variant ラベル・elements・操作一覧・任意の付帯マークアップ）を描画する
+// 共通関数。本体画面のカードと掲示中カードの両方がこれを使う（Task 4: 掲示中を本体と同形にする）。
+function renderScreenCard(opts) {
+  const variantLabel = opts.variant ? '<div class="variant-label">## ' + esc(opts.variant) + '</div>' : '';
+  return '<div class="screen' + (opts.extraClass ? ' ' + opts.extraClass : '') + '">' +
+    (opts.badgeHtml ?? '') +
+    '<div class="screen-title">' + esc(opts.title) + '</div>' +
+    variantLabel +
+    (opts.elementsHtml ?? '') +
+    opts.actionsHtml +
+    (opts.trailingHtml ?? '') +
+  '</div>';
+}
+
+// 掲示中 component 1 件分をカードとして描画する（本体と同形。Task 4）。カテゴリは
+// component common / variant固有 の 2 種のみ（document common は出さない。ADR-0015）。
+// cardIdx は表示順（[...overlays.keys()] の添字）——onclick は component 名でなくこの
+// インデックスで掲示中先を参照する（handleOverlayInteraction のコメント参照）。
+function renderOverlayCard(name, cardIdx) {
+  const entry = overlays.get(name);
+  const comp = getComp(entry.module, name);
+  const v = overlayVariant(name);
+  const commonEls = comp?.commonElements ?? [];
+  const varEls = v ? (comp?.variants[v]?.elements ?? []) : [];
+  const elementsHtml = renderElements([...commonEls, ...varEls]);
+
+  const all = overlayInteractions(name);
+  const variantItems = all.filter((inter) => inter.scope === 'variant');
+  const componentItems = all.filter((inter) => inter.scope === 'component');
+  const actionsHtml = renderActionCategories([
+    { label: 'variant固有', items: variantItems, buildOnclick: (idx, choiceIdx) => "handleOverlayInteraction(" + cardIdx + ",'variant'," + idx + "," + choiceIdx + ")" },
+    { label: 'component common', items: componentItems, buildOnclick: (idx, choiceIdx) => "handleOverlayInteraction(" + cardIdx + ",'component'," + idx + "," + choiceIdx + ")" },
+  ]);
+
+  return renderScreenCard({
+    title: name,
+    variant: v,
+    elementsHtml,
+    actionsHtml,
+    badgeHtml: '<div class="overlay-badge">掲示中</div>',
+    extraClass: 'overlay-card',
+  });
 }
 
 function render() {
@@ -484,16 +555,10 @@ function render() {
 
   // elements（document common の要素行は全 component の表示に共通要素として乗る。SPEC「document common」）
   const frameVariant = displayVariant(frame);
-  let elements = '';
   const docEls = DATA.modules[frame.module]?.docCommonElements ?? [];
   const commonEls = comp?.commonElements ?? [];
   const varEls = frameVariant ? (comp?.variants[frameVariant]?.elements ?? []) : [];
-  const allEls = [...docEls, ...commonEls, ...varEls];
-  if (allEls.length > 0) {
-    elements = '<div class="elements">' +
-      allEls.map(e => '<div class="element">' + esc(e) + '</div>').join('') +
-      '</div>';
-  }
+  const elements = renderElements([...docEls, ...commonEls, ...varEls]);
 
   // 操作一覧: scope（variant固有 / component common / document common）ごとにカテゴリ折り畳み。
   // currentInteractions() は姿の merged 実効 interactions（scope が 'variant' か 'component'）、
@@ -503,32 +568,15 @@ function render() {
   const componentItems = allInter.filter((inter) => inter.scope === 'component');
   const documentItems = docCommonInteractions();
 
-  let actionsHtml = '';
-  if (variantItems.length === 0 && componentItems.length === 0 && documentItems.length === 0) {
-    actionsHtml = '<div class="no-actions">アクションなし</div>';
-  } else {
-    actionsHtml = '<div class="action-categories">' +
-      (variantItems.length > 0 ? renderActionCategory('variant固有', 'variant', variantItems) : '') +
-      (componentItems.length > 0 ? renderActionCategory('component common', 'component', componentItems) : '') +
-      (documentItems.length > 0 ? renderActionCategory('document common', 'document', documentItems) : '') +
-      '</div>';
-  }
+  const actionsHtml = renderActionCategories([
+    { label: 'variant固有', items: variantItems, buildOnclick: (idx, choiceIdx) => "handleInteraction('variant'," + idx + "," + choiceIdx + ")" },
+    { label: 'component common', items: componentItems, buildOnclick: (idx, choiceIdx) => "handleInteraction('component'," + idx + "," + choiceIdx + ")" },
+    { label: 'document common', items: documentItems, buildOnclick: (idx, choiceIdx) => "handleInteraction('document'," + idx + "," + choiceIdx + ")" },
+  ]);
 
-  // オーバーレイ帯（掲示中 component。画面下部に常駐。表示 variant と操作ボタンを添える）
-  let overlayHtml = '';
-  if (overlays.size > 0) {
-    overlayHtml = '<div class="overlay-bar">' +
-      [...overlays.keys()].map(n => {
-        const v = overlayVariant(n);
-        const label = v ? n + ' ## ' + v : n;
-        const buttons = overlayInteractions(n).map((inter, idx) =>
-          '<button class="overlay-btn" onclick="handleOverlayInteraction(' + JSON.stringify(n) + ',' + idx + ')">' +
-          esc(inter.actionText) + '</button>'
-        ).join('');
-        return '<span class="overlay-item">▸ ' + esc(label) + buttons + '</span>';
-      }).join('') +
-      '</div>';
-  }
+  // 掲示中カード（本体と同形。表示順 = [...overlays.keys()] の添字が handleOverlayInteraction の
+  // cardIdx と一致する。document common カテゴリは持たない——ADR-0015・renderOverlayCard 参照）
+  const overlayCardsHtml = [...overlays.keys()].map((n, cardIdx) => renderOverlayCard(n, cardIdx)).join('');
 
   // back button（「戻れない」= stack 長 1 または現 frame.wall。disabled でなく DOM から消す）
   const canBack = stack.length > 1 && !currentFrame().wall;
@@ -541,8 +589,6 @@ function render() {
       eventLog.map((e) => '<div class="event-log-item">' + esc(e) + '</div>').join('') +
       '</div>';
   }
-
-  const variantLabel = frameVariant ? '<div class="variant-label">## ' + esc(frameVariant) + '</div>' : '';
 
   // インスタンス variant 手動トグルパネル（gate 観測用。姿を持たない対象は切替不要なので除外）
   const gateTargetsWithVariants = GATE_TARGETS.filter((t) => {
@@ -569,18 +615,20 @@ function render() {
     '</div>';
   }
 
+  const mainCardHtml = renderScreenCard({
+    title: frame.component,
+    variant: frameVariant,
+    elementsHtml: elements,
+    actionsHtml,
+    trailingHtml: backBtn,
+  });
+
   app.innerHTML =
     '<div class="trace-log">' + traceLogHtml + '</div>' +
-    '<div class="screen">' +
-      '<div class="screen-title">' + esc(frame.component) + '</div>' +
-      variantLabel +
-      elements +
-      actionsHtml +
-      backBtn +
-    '</div>' +
+    mainCardHtml +
+    overlayCardsHtml +
     gatePanelHtml +
-    eventLogHtml +
-    overlayHtml;
+    eventLogHtml;
 }
 
 function esc(s) {
