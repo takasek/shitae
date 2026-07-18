@@ -250,4 +250,100 @@ describe('toSimulator', () => {
     const listTexts = JSON.parse(vm.runInContext('JSON.stringify(docCommonInteractions().map(i => i.actionText))', context));
     expect(listTexts).toContain('通知タップ(記事リンク)');
   });
+
+  it('トレースログ: 起動時に初期イベントが1件積まれ、snapshotが現在状態を持つ（toast は全廃）', () => {
+    const doc = parseOk('# ホーム\nロゴ\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).not.toContain('showToast');
+    expect(html).not.toContain('class="toast"');
+    const context = runSimulatorScript(html);
+    expect(vm.runInContext('traceLog.length', context)).toBe(1);
+    const stackLen = vm.runInContext('traceLog[0].snapshot.stack.length', context);
+    expect(stackLen).toBe(1);
+  });
+
+  it('トレースログ: push 2回で起動+2件、trace[1]タップで全状態(stack・sharedVariants・overlays)が巻き戻り trace が2件になる', () => {
+    const doc = parseOk(
+      '# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n> 結果へ -> push(結果)\n\n# 結果\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
+      context,
+    );
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '結果', variant: null } })",
+      context,
+    );
+    expect(vm.runInContext('traceLog.length', context)).toBe(3);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('結果');
+
+    vm.runInContext('jumpToTrace(1)', context);
+    expect(vm.runInContext('traceLog.length', context)).toBe(2);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('検索');
+    expect(vm.runInContext('stack.length', context)).toBe(2);
+  });
+
+  it('イベントログ: effect はイベントログに1件追加されトレースログには入らない', () => {
+    const doc = parseOk('# ホーム\n> 押す -> いいねしました\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    const traceLenBefore = vm.runInContext('traceLog.length', context);
+    vm.runInContext("applyTransition({ type: 'effect', text: 'いいねしました' })", context);
+
+    expect(vm.runInContext('traceLog.length', context)).toBe(traceLenBefore);
+    const eventLog = JSON.parse(vm.runInContext('JSON.stringify(eventLog)', context));
+    expect(eventLog.some((e: string) => e.includes('いいねしました'))).toBe(true);
+  });
+
+  it('戻るボタン相当の関数(goBack): wall で失敗しイベントログに警告、成功時トレースログ末尾が消える', () => {
+    const doc = parseOk('# ホーム\n> モーダル -> present(モーダル)\n\n# モーダル\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'present', target: { module: 'main', component: 'モーダル', variant: null } })",
+      context,
+    );
+    expect(vm.runInContext('traceLog.length', context)).toBe(2);
+
+    // モーダルは present（wall）で積まれたため goBack() は阻まれ、警告がイベントログへ、trace は変化しない
+    vm.runInContext('goBack()', context);
+    expect(vm.runInContext('traceLog.length', context)).toBe(2);
+    const eventLog = JSON.parse(vm.runInContext('JSON.stringify(eventLog)', context));
+    expect(eventLog.some((e: string) => e.includes('壁'))).toBe(true);
+
+    // push（非 wall）した場合は goBack() 成功、trace 末尾が1件消える
+    const doc2 = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html2 = toSimulator(new Map([['main', doc2]]), 'main');
+    const context2 = runSimulatorScript(html2);
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
+      context2,
+    );
+    expect(vm.runInContext('traceLog.length', context2)).toBe(2);
+    vm.runInContext('goBack()', context2);
+    expect(vm.runInContext('traceLog.length', context2)).toBe(1);
+  });
+
+  it('戻れない判定: stack長1またはwallのとき戻るボタンをDOMから消す(disabledでなく非描画)', () => {
+    const doc = parseOk('# ホーム\n> モーダル -> present(モーダル)\n\n# モーダル\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).not.toContain('back-btn:disabled');
+    const context = runSimulatorScript(html);
+
+    // stack 長 1 の初期状態では戻るボタンが描画されない
+    expect(vm.runInContext('app.innerHTML', context)).not.toContain('back-btn');
+
+    // present で wall フレームを積んでも、wall のため戻るボタンは描画されない
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'present', target: { module: 'main', component: 'モーダル', variant: null } }); render()",
+      context,
+    );
+    expect(vm.runInContext('stack.length', context)).toBe(2);
+    expect(vm.runInContext('app.innerHTML', context)).not.toContain('back-btn');
+  });
 });
