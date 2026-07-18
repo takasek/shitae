@@ -1,4 +1,4 @@
-import type { Action, Document, Component, Interaction, Result } from '@shitae/ast';
+import type { Action, Document, Component, ElementLine, Interaction, Result } from '@shitae/ast';
 import { effectiveResults, mergeInteractions, resolveModuleRef } from '@shitae/resolver';
 import { singletonNames } from '@shitae/runtime';
 
@@ -70,6 +70,9 @@ export type SimInteractionScope = 'document' | 'component' | 'variant';
 
 export interface SimInteraction {
   actionText: string;
+  /** action.target の参照名（対象なしは null）。操作の対象紐付け（Task 8）に使う——表示中の
+   * トップレベル要素の表示名（alias 優先）とここを名前一致で照合する */
+  targetName: string | null;
   /** 最初のラベルより前の result 群。常に成立（分岐に依らず順に全部起こる） */
   prelude: SimResultBody[];
   /** 条件ラベル付きの選択肢。ラベル継承（effectiveResults）済み */
@@ -80,15 +83,32 @@ export interface SimInteraction {
   scope: SimInteractionScope;
 }
 
+/** 要素行1件の参照先 component（module はレキシカル解決済みの正準名。Task 8） */
+export interface SimElementRef {
+  module: string;
+  name: string;
+}
+
+/**
+ * 要素行1件（表示名 + 定義済み component への参照）。Task 8「要素の階層表示」。
+ * ref は要素行の参照が project 内で定義済み component に解決する場合のみ設定する。
+ * collection（`{...}`）や未定義参照は ref: null——階層展開できるのは単一 component 参照のみ。
+ */
+export interface SimElement {
+  /** 表示名（alias があればそれ、なければ ref 名 or '{...}'） */
+  name: string;
+  ref: SimElementRef | null;
+}
+
 export interface SimVariant {
-  elements: string[];
+  elements: SimElement[];
   interactions: SimInteraction[];
   /** この姿の実効 interactions に shadow されず生き残った document common（SPEC「document common」3階層shadow） */
   docCommonInteractions: SimInteraction[];
 }
 
 export interface SimComponent {
-  commonElements: string[];
+  commonElements: SimElement[];
   commonInteractions: SimInteraction[];
   /** component common の実効 interactions に shadow されず生き残った document common（姿を持たない component 用） */
   docCommonInteractions: SimInteraction[];
@@ -100,7 +120,7 @@ export interface SimComponent {
 export interface SimModuleData {
   components: Record<string, SimComponent>;
   /** document common の要素行（全 component の表示に共通要素として乗る。SPEC「document common」） */
-  docCommonElements: string[];
+  docCommonElements: SimElement[];
 }
 
 /** module 付き component 参照（singleton・gate 対象の一意識別。ADR-0013） */
@@ -138,14 +158,43 @@ export interface SimulatorData {
   graph: SimGraph;
 }
 
-function elementDisplayName(el: import('@shitae/ast').ElementLine): string {
-  if (el.alias) return el.alias;
-  if (el.value.kind === 'ref') return el.value.name;
-  return '{...}';
-}
-
 /** alias を正準モジュール名へ解決する関数（ADR-0017）。未解決 alias はそのまま返す */
 type ModuleNormalizer = (module: string | null) => string | null;
+
+/**
+ * 要素行1件を SimElement へ変換する（Task 8）。collection（`{...}`）は ref を持てない
+ * ため常に null。ref 参照は module をレキシカル解決（ADR-0018）した上でひとまず候補として
+ * 保持し、project 内で定義済み component に解決するかは全 module 構築後の
+ * pruneUnresolvedElementRefs で確定させる（この時点では他 module が未構築のことがある）。
+ */
+function convertElementLine(el: ElementLine, norm: ModuleNormalizer, sourceModule: string): SimElement {
+  if (el.value.kind === 'inline') {
+    return { name: el.alias ?? '{...}', ref: null };
+  }
+  const module = norm(el.value.module ?? sourceModule) ?? sourceModule;
+  return { name: el.alias ?? el.value.name, ref: { module, name: el.value.name } };
+}
+
+/**
+ * 全 module 構築後、要素行の ref 候補が実在の定義に解決するか検証し、未定義は ref: null へ
+ * 落とす（extractSimData 内で 2 パス目として呼ぶ。convertComponent 単体では他 module が
+ * 未構築の可能性があり判定できないため）。
+ */
+function pruneUnresolvedElementRefs(modules: Record<string, SimModuleData>): void {
+  const isDefined = (ref: SimElementRef) => Boolean(modules[ref.module]?.components[ref.name]);
+  const prune = (elements: SimElement[]): void => {
+    for (const el of elements) {
+      if (el.ref && !isDefined(el.ref)) el.ref = null;
+    }
+  };
+  for (const mod of Object.values(modules)) {
+    prune(mod.docCommonElements);
+    for (const comp of Object.values(mod.components)) {
+      prune(comp.commonElements);
+      for (const v of Object.values(comp.variants)) prune(v.elements);
+    }
+  }
+}
 
 function convertResultBody(r: Result, norm: ModuleNormalizer, sourceModule: string): SimResultBody {
   const { body } = r;
@@ -234,6 +283,7 @@ function convertInteraction(
   }
   return {
     actionText: `${action.text}${targetPart}`,
+    targetName: action.target?.name ?? null,
     prelude,
     choices,
     gate: buildGate(action, norm, sourceModule),
@@ -259,7 +309,7 @@ function convertComponent(
   norm: ModuleNormalizer,
   sourceModule: string,
 ): SimComponent {
-  const commonElements = comp.common.elements.map(elementDisplayName);
+  const commonElements = comp.common.elements.map((el) => convertElementLine(el, norm, sourceModule));
   const commonInteractionsAst = comp.common.interactions;
   const commonInteractions = commonInteractionsAst.map((it) => convertInteraction(it, norm, sourceModule, 'component'));
   const docCommonInteractions = survivingDocCommon(documentCommon, commonInteractionsAst).map(
@@ -274,7 +324,7 @@ function convertComponent(
     // v.body.interactions に含まれるものが姿固有、それ以外は shadow を生き延びた共通由来
     const specificAst = new Set(v.body.interactions);
     variants[v.name] = {
-      elements: v.body.elements.map(elementDisplayName),
+      elements: v.body.elements.map((el) => convertElementLine(el, norm, sourceModule)),
       interactions: effectiveAst.map((it) =>
         convertInteraction(it, norm, sourceModule, specificAst.has(it) ? 'variant' : 'component'),
       ),
@@ -365,9 +415,12 @@ export function extractSimData(
     }
     modules[moduleName] = {
       components,
-      docCommonElements: doc.common.elements.map(elementDisplayName),
+      docCommonElements: doc.common.elements.map((el) => convertElementLine(el, norm, moduleName)),
     };
   }
+
+  // 全 module 構築後に要素行の ref 候補を検証し、未定義参照を ref: null へ落とす（Task 8）
+  pruneUnresolvedElementRefs(modules);
 
   // singleton は定義ファイル単位（素名合流はしない。ADR-0013）
   const singletons: SimComponentRef[] = [];

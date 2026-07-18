@@ -16,7 +16,7 @@ describe('extractSimData', () => {
     expect(data.entryModule).toBe('main');
     expect(data.entryComponent).toBe('ホーム');
     const comp = data.modules['main']!.components['ホーム']!;
-    expect(comp.commonElements).toContain('ロゴ');
+    expect(comp.commonElements.map((e) => e.name)).toContain('ロゴ');
     expect(comp.commonInteractions).toHaveLength(1);
     expect(comp.commonInteractions[0]!.actionText).toContain('タップ');
     expect(comp.variants).toEqual({});
@@ -27,8 +27,8 @@ describe('extractSimData', () => {
     const data = extractSimData(new Map([['main', doc]]), 'main');
     const comp = data.modules['main']!.components['詳細']!;
     expect(Object.keys(comp.variants)).toEqual(['読込中', '表示']);
-    expect(comp.variants['読込中']!.elements).toContain('スピナー');
-    expect(comp.variants['表示']!.elements).toContain('コンテンツ');
+    expect(comp.variants['読込中']!.elements.map((e) => e.name)).toContain('スピナー');
+    expect(comp.variants['表示']!.elements.map((e) => e.name)).toContain('コンテンツ');
     expect(comp.variants['表示']!.interactions).toHaveLength(1);
   });
 
@@ -36,9 +36,9 @@ describe('extractSimData', () => {
     const doc = parseOk('# プロフィール\nヘッダ\n> タップ(ヘッダ) -> back()\n## 未フォロー\nフォローボタン\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
     const comp = data.modules['main']!.components['プロフィール']!;
-    expect(comp.commonElements).toContain('ヘッダ');
+    expect(comp.commonElements.map((e) => e.name)).toContain('ヘッダ');
     expect(comp.commonInteractions).toHaveLength(1);
-    expect(comp.variants['未フォロー']!.elements).toContain('フォローボタン');
+    expect(comp.variants['未フォロー']!.elements.map((e) => e.name)).toContain('フォローボタン');
   });
 
   it('interaction with multiple labeled results → 1 ラベル 1 choice', () => {
@@ -239,7 +239,7 @@ describe('extractSimData', () => {
   it('document common の要素行は docCommonElements として module に載る（SPEC「document common」）', () => {
     const doc = parseOk('共通バッジ\n> 通知 -> push(詳細)\n\n# ホーム\n要素\n\n# 詳細\n本文\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
-    expect(data.modules['main']!.docCommonElements).toEqual(['共通バッジ']);
+    expect(data.modules['main']!.docCommonElements).toEqual([{ name: '共通バッジ', ref: null }]);
   });
 
   it('presence gate: `?` の無い行動は gate が null（always-on）', () => {
@@ -496,5 +496,70 @@ describe('graph: 遷移グラフの抽出', () => {
     expect(data.graph.edges).toEqual([
       { from: { module: 'main', name: '詳細' }, to: { module: 'main', name: '次' } },
     ]);
+  });
+});
+
+describe('elements: 階層表示用の ref 解決（Task 8）', () => {
+  it('定義済み component への参照は ref に module・name を保持する（module はレキシカル解決・正準名）', () => {
+    const doc = parseOk('# ホーム\nログインフォーム\n\n# ログインフォーム\nID入力\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const el = data.modules['main']!.components['ホーム']!.commonElements[0]!;
+    expect(el.name).toBe('ログインフォーム');
+    expect(el.ref).toEqual({ module: 'main', name: 'ログインフォーム' });
+  });
+
+  it('project 内に定義のない参照は ref が null', () => {
+    const doc = parseOk('# ホーム\n存在しない部品\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const el = data.modules['main']!.components['ホーム']!.commonElements[0]!;
+    expect(el.name).toBe('存在しない部品');
+    expect(el.ref).toBeNull();
+  });
+
+  it('collection（{...}）要素は ref が null（参照先は単一 component ではないため）', () => {
+    const doc = parseOk('# ホーム\n一覧: { タイトル }\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const el = data.modules['main']!.components['ホーム']!.commonElements[0]!;
+    expect(el.name).toBe('一覧');
+    expect(el.ref).toBeNull();
+  });
+
+  it('cross-module 参照は alias でなく正準モジュール名（定義ファイル名）で ref.module に解決される（ADR-0017/0018）', () => {
+    const subDoc = parseOk('# 部品\n本体\n');
+    const mainDoc = parseOk('import widgets as w\n# ホーム\nw::部品\n');
+    const data = extractSimData(new Map([['main', mainDoc], ['widgets', subDoc]]), 'main');
+    const el = data.modules['main']!.components['ホーム']!.commonElements[0]!;
+    expect(el.ref).toEqual({ module: 'widgets', name: '部品' });
+  });
+
+  it('alias 付きでも定義済み component に解決すれば ref を持つ（表示名は alias、ref は参照先）', () => {
+    const doc = parseOk('# ホーム\nx: ログインフォーム\n\n# ログインフォーム\nID入力\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const el = data.modules['main']!.components['ホーム']!.commonElements[0]!;
+    expect(el.name).toBe('x');
+    expect(el.ref).toEqual({ module: 'main', name: 'ログインフォーム' });
+  });
+
+  it('未定義 component への他モジュール参照も ref が null（定義が無ければ解決しない）', () => {
+    const doc = parseOk('import widgets as w\n# ホーム\nw::存在しない\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const el = data.modules['main']!.components['ホーム']!.commonElements[0]!;
+    expect(el.ref).toBeNull();
+  });
+});
+
+describe('interaction: 操作の対象紐付け用 targetName（Task 8）', () => {
+  it('action.target を持つ interaction は targetName に対象名を保持する', () => {
+    const doc = parseOk('# ホーム\nロゴ\n> タップ(ロゴ) -> push(設定)\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const inter = data.modules['main']!.components['ホーム']!.commonInteractions[0]!;
+    expect(inter.targetName).toBe('ロゴ');
+  });
+
+  it('対象なしの行動は targetName が null', () => {
+    const doc = parseOk('# ホーム\n> タップ -> push(設定)\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const inter = data.modules['main']!.components['ホーム']!.commonInteractions[0]!;
+    expect(inter.targetName).toBeNull();
   });
 });
