@@ -70,12 +70,13 @@ describe('toSimulator', () => {
     expect(html).toContain('"word":"switch"');
   });
 
-  it('overlay（show/hide）を overlay result body として埋め込み、掲示帯を持つ', () => {
+  it('overlay（show/hide）を overlay result body として埋め込み、掲示中カードとして描画できる', () => {
     const doc = parseOk('# P\n> 再生 -> show(ミニプレイヤー)\n> 停止 -> hide(ミニプレイヤー)\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     expect(html).toContain('"type":"overlay"');
     expect(html).toContain('"op":"show"');
-    expect(html).toContain('overlay-bar');
+    expect(html).toContain('overlay-card');
+    expect(html).not.toContain('overlay-bar');
   });
 
   it('overlay: 掲示中 component の表示 variant を overlays に保持し帯に描画する', () => {
@@ -95,7 +96,104 @@ describe('toSimulator', () => {
     const html = toSimulator(new Map([['main', doc]]), 'main');
     expect(html).toContain('function handleOverlayInteraction(');
     expect(html).toContain('function overlayInteractions(');
-    expect(html).toContain('onclick="handleOverlayInteraction(');
+    const context = runSimulatorScript(html);
+    vm.runInContext(
+      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニプレイヤー', module: 'main', variant: '再生中' }); render()",
+      context,
+    );
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('onclick="handleOverlayInteraction(');
+    vm.runInContext("handleOverlayInteraction(0, 'variant', 0, 0)", context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('プレイヤー');
+  });
+
+  it('掲示中カード: 本体と同形（タイトル・variant表示・elements・操作一覧カテゴリ）で描画され、document common カテゴリは持たない', () => {
+    const doc = parseOk(
+      '> 通知 -> push(受信箱)\n\n' +
+        '# ホーム\nロゴ\n> 出す -> show(ミニ)\n\n' +
+        '# ミニ\n共通要素\n> 共通操作 -> push(共通先)\n\n' +
+        '# 共通先\n本体\n\n# 受信箱\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext(
+      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
+      context,
+    );
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('掲示中');
+    expect(appHtml).toContain('ミニ');
+    expect(appHtml).toContain('共通要素');
+    expect(appHtml).toContain('共通操作');
+    // document common は本体（ホーム）にのみ現れ、掲示中カードには複製されない
+    // （document common の発火判定はアクティブ画面基準 — ADR-0015 — であり掲示中カードの所属ではない）
+    expect((appHtml.match(/document common/g) ?? []).length).toBe(1);
+  });
+
+  it('掲示中カード: 複数ラベル操作もラベル横並びで選んだ choice だけが実行される（overlay 側の暫定・先頭固定を解消）', () => {
+    const doc = parseOk(
+      '# ホーム\nロゴ\n> 出す -> show(ミニ)\n\n' +
+        '# ミニ\n曲名\n> ガチャ ->\n>     [当たり] push(景品)\n>     [ハズレ] push(残念)\n\n' +
+        '# 景品\n本体\n\n# 残念\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext(
+      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
+      context,
+    );
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('[当たり]');
+    expect(appHtml).toContain('[ハズレ]');
+
+    vm.runInContext("handleOverlayInteraction(0, 'component', 0, 1)", context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('残念');
+    const stackComponents = JSON.parse(
+      vm.runInContext('JSON.stringify(stack.map(f => f.component))', context),
+    );
+    expect(stackComponents).not.toContain('景品');
+  });
+
+  it('掲示中カード: interaction 実行の遷移相対解決はアクティブフレーム基準のまま（overlay 自身を現在地にしない）', () => {
+    const doc = parseOk(
+      '# ホーム\nロゴ\n> 出す -> show(ミニ##再生)\n\n' +
+        '# ミニ\n## 再生\n曲名\n> タップ(曲名) -> push(プレイヤー)\n\n' +
+        '# プレイヤー\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext(
+      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: '再生' }); render()",
+      context,
+    );
+    vm.runInContext("handleOverlayInteraction(0, 'variant', 0, 0)", context);
+    const stackComponents = JSON.parse(
+      vm.runInContext('JSON.stringify(stack.map(f => f.component))', context),
+    );
+    // アクティブフレーム（ホーム）基準で push されるため、ミニ自身はスタックに積まれない
+    expect(stackComponents).toEqual(['ホーム', 'プレイヤー']);
+  });
+
+  it('掲示中カードの onclick は component 名を直接埋め込まず表示順インデックスで参照する（名前が \' や " を含んでも onclick 属性を壊さない。旧 handleOverlayInteraction の quote 衝突バグを根治）', () => {
+    const doc = parseOk(
+      '# ホーム\nロゴ\n> 出す -> show(名"前)\n\n' +
+        '# 名"前\n曲名\n> タップ(曲名) -> push(プレイヤー)\n\n' +
+        '# プレイヤー\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext(
+      "applyTransition({ type: 'overlay', op: 'show', component: '名\\\"前', module: 'main', variant: null }); render()",
+      context,
+    );
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    // 旧バグ: JSON.stringify(name) が二重引用符区切り文字列を吐き onclick="..." の
+    // 属性値が途中終端する（onclick="handleOverlayInteraction(" で切れる）
+    expect(appHtml).not.toContain('onclick="handleOverlayInteraction("');
+    // 新実装: component 名でなく表示順インデックス（数値）で参照するため属性は壊れない
+    expect(appHtml).toMatch(/onclick="handleOverlayInteraction\(0,'(variant|component)',\d+,\d+\)"/);
+    vm.runInContext("handleOverlayInteraction(0, 'component', 0, 0)", context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('プレイヤー');
   });
 
   it('singleton: 共有 variant レジストリを持ち、initial variant 解決とは別軸で参照する（ADR-0011）', () => {
