@@ -19,7 +19,7 @@ function buildHtml(data: SimulatorData): string {
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5; color: #111; }
 /* 3 カラム全幅グリッド（開発ツールのためレスポンシブ不要。設計者フィードバック 2026-07-19）:
-   左 = トレースログ / 中央 = 現在の画面 + 遷移マップ / 右 = イベントログ + gate パネル。 */
+   左 = スタック + 統合ログ / 中央 = 現在の画面 + 遷移マップ / 右 = gate パネルのみ（Task 10）。 */
 #app { display: grid; grid-template-columns: 260px 1fr 300px; height: 100vh; }
 .pane { padding: 16px; overflow-y: auto; }
 .pane-trace { background: #fff; border-right: 1px solid #e0e0e0; }
@@ -38,12 +38,11 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
 .stack-item-current { background: #111; color: #fff; }
 .stack-wall { color: #c0392b; margin-right: 2px; }
 .stack-session { color: #2563eb; font-size: 11px; margin-left: 4px; }
-.trace-log { display: flex; flex-wrap: wrap; gap: 4px 6px; font-size: 12px; color: #666; }
-.trace-item { background: #e0e0e0; padding: 2px 8px; border-radius: 10px; cursor: pointer; }
-.trace-item.current { background: #111; color: #fff; }
-.trace-item:hover { background: #ccc; }
-.event-log { margin-top: 4px; font-size: 12px; color: #666; }
-.event-log-item { padding: 3px 0; border-bottom: 1px dashed #eee; }
+.timeline-log { display: flex; flex-wrap: wrap; gap: 4px 6px; font-size: 12px; color: #666; }
+.timeline-item { background: #e0e0e0; padding: 2px 8px; border-radius: 10px; cursor: pointer; }
+.timeline-item-event { background: #eef0ff; color: #4b4f8f; }
+.timeline-item.current { background: #111; color: #fff; }
+.timeline-item:hover { background: #ccc; }
 .screen { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
 .screen-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
 .variant-label { font-size: 12px; color: #888; margin-bottom: 12px; }
@@ -161,13 +160,13 @@ let stack = [{
 
 let overlays = new Map(); // 掲示中 component名 → 表示 variant（null=initial の含意。SPEC「オーバーレイ」。フレーム木とは別軸）
 
-// トレースログ: 遷移イベントの配列 { label, snapshot }。末尾が常に現在地。
-// snapshot はイベント適用後の全状態 { stack, sharedVariants, overlays } の deep copy（Map は entries 配列化）。
-// 起動イベントを先頭に置く（設計判断: Task 2 brief）。現在の frame スタックは別に
-// スタック表示（renderStackList）が専任で描画する（Task 7 でトレースログとの兼用を解消）。
-let traceLog = [{ label: '起動', snapshot: snapshotState() }];
-// イベントログ: 遷移でないもの（effect / set / show / hide）と警告を流し込む append-only リスト。巻き戻し無し。
-let eventLog = [];
+// 統合ログ: 遷移（transition）と出力（event: effect / set / show / hide / 警告）を単一時系列に記録する
+// （Task 10。旧 traceLog/eventLog の分離を統合し「trace 末尾スナップショット陳腐化」を根治）。
+// 各エントリは { kind: 'transition' | 'event', label, snapshot }。snapshot は適用後の全状態
+// { stack, sharedVariants, overlays } の deep copy（Map は entries 配列化）——event エントリも
+// 状態を持つため巻き戻し対象になる。起動イベントを先頭に置く（設計判断: Task 2 brief）。
+// 現在の frame スタックは別にスタック表示（renderStackList）が専任で描画する（Task 7）。
+let timeline = [{ kind: 'transition', label: '起動', snapshot: snapshotState() }];
 
 function getComp(module, name) {
   return DATA.modules[module]?.components[name];
@@ -186,11 +185,17 @@ function snapshotState() {
   };
 }
 
-// snapshot から全状態を復元する（トレースログのイベントタップ用。壁は無視——開発者向けタイムトラベル）
+// snapshot から全状態を復元する（統合ログのエントリタップ用。壁は無視——開発者向けタイムトラベル）
 function restoreState(snapshot) {
   stack = JSON.parse(JSON.stringify(snapshot.stack));
   sharedVariants = new Map(JSON.parse(JSON.stringify(snapshot.sharedVariants)));
   overlays = new Map(JSON.parse(JSON.stringify(snapshot.overlays)));
+}
+
+// 統合ログへ1件追記する共通経路（Task 10）。適用後スナップショットを添える——
+// 遷移だけでなく event（effect/set/show/hide/警告）も状態を持つため巻き戻し対象になる。
+function pushTimelineEntry(kind, label) {
+  timeline.push({ kind, label, snapshot: snapshotState() });
 }
 
 // interaction 1 件分の prelude → 指定 choice（未指定・choices 空なら prelude のみ）を順に適用する。
@@ -338,15 +343,16 @@ function applyTransition(result) {
   const comp = frame.component;
 
   if (result.type === 'effect') {
-    // 効果は遷移でない → イベントログへ（旧トースト表示分。toast の DOM/CSS は全廃）
-    eventLog.push('effect: ' + result.text);
+    // 効果は遷移でない → 統合ログへ event として追記（旧トースト表示分。toast の DOM/CSS は全廃）
+    pushTimelineEntry('event', 'effect: ' + result.text);
     return;
   }
 
   if (result.type === 'overlay') {
     // 掲示中集合を更新（show は表示 variant・module 込みで追加/上書き / hide 除去。hide 空打ち no-op）。フレーム木は動かさない。
     // module 省略時はアクティブフレームの module で解決（push/goto の相対解決と同じ規約）。
-    // show/hide は遷移ではない → イベントログへ 1 行。
+    // show/hide は遷移ではない → 統合ログへ event として1行。適用後の overlays/sharedVariants を
+    // snapshot に持つため、この event エントリへ巻き戻すと掲示状態も復元される。
     if (result.op === 'show') {
       const mod = result.module ?? frame.module;
       // 明示 show(X##v) は singleton の共有レジストリも書き換える（全所在に即時反映。ADR-0011）
@@ -354,23 +360,24 @@ function applyTransition(result) {
         sharedVariants.set(skey(mod, result.component), result.variant);
       }
       overlays.set(result.component, { variant: result.variant, module: mod });
-      eventLog.push('show(' + result.component + (result.variant != null ? '##' + result.variant : '') + ')');
+      pushTimelineEntry('event', 'show(' + result.component + (result.variant != null ? '##' + result.variant : '') + ')');
     } else {
       overlays.delete(result.component);
-      eventLog.push('hide(' + result.component + ')');
+      pushTimelineEntry('event', 'hide(' + result.component + ')');
     }
     return;
   }
 
   if (result.type === 'state') {
     // set（ADR-0014）: 遷移も掲示もせず singleton の共有 variant だけを書き換える。
-    // 非 singleton は no-op（E030 は checker が静的に検出する）。set も遷移ではない → イベントログへ。
+    // 非 singleton は no-op（E030 は checker が静的に検出する）。set も遷移ではない →
+    // 統合ログへ event として追記する（適用後の sharedVariants を snapshot に持つ）。
     const mod = result.module ?? frame.module;
     if (isSingleton(mod, result.component)) {
       sharedVariants.set(skey(mod, result.component), result.variant);
-      eventLog.push('set(' + result.component + '##' + result.variant + ')');
+      pushTimelineEntry('event', 'set(' + result.component + '##' + result.variant + ')');
     } else {
-      eventLog.push('set(' + result.component + '##' + result.variant + ') は singleton でないため無効');
+      pushTimelineEntry('event', 'set(' + result.component + '##' + result.variant + ') は singleton でないため無効');
     }
     return;
   }
@@ -379,30 +386,30 @@ function applyTransition(result) {
   const target = resolveTarget(result, mod, comp);
 
   // 遷移（back/push/present/switch/goto/exit/dismiss）: 実際に stack が変わったものだけ
-  // トレースログへ追加する（イベント適用後の全状態 snapshot を添える）。back も他の
-  // 遷移語と同じくこの共通経路に乗る——トレースログ=実行された遷移の忠実な列という
+  // 統合ログへ transition として追加する（適用後の全状態 snapshot を添える）。back も他の
+  // 遷移語と同じくこの共通経路に乗る——統合ログ=実行された遷移と出力の忠実な列という
   // オートマトン理論の見立てに沿い、back による巻き戻しも記録として残す（設計者確定
   // 事項。旧仕様のトレースログ末尾除去 traceLog.pop() は全廃。Task 7）。
   const beforeStack = JSON.stringify(stack);
 
   // back() は shitae back() 準拠: アクティブパスを1つ遡る。失敗（wall・戻り先なし）は
-  // no-op のため stack は変わらず、警告をイベントログへ流す（trace 追記なし）。
+  // no-op のため stack は変わらず、警告を統合ログへ event として流す（transition 追記なし）。
   if (word === 'back') {
     if (stack.length <= 1) return;
     if (!target) {
       const top = stack[stack.length - 1];
-      if (top.wall) { eventLog.push('back() が壁に阻まれました'); return; }
+      if (top.wall) { pushTimelineEntry('event', 'back() が壁に阻まれました'); return; }
       stack = stack.slice(0, -1);
     } else {
       // back(X): アクティブパスを遡るが barrier（wall）は越えない（runtime に整合）。
-      // 複数段の巻き戻しも stack を1回で切り詰め、trace への追記は末尾で1件だけ起こる。
+      // 複数段の巻き戻しも stack を1回で切り詰め、transition への追記は末尾で1件だけ起こる。
       let found = -1;
       for (let i = stack.length - 1; i >= 0; i--) {
         if (stack[i].component === target.component) { found = i; break; }
         if (stack[i].wall) break; // 壁に阻まれ、これ以上遡れない
       }
       if (found < 0) {
-        eventLog.push('back(' + target.component + ') の戻り先が見つかりません');
+        pushTimelineEntry('event', 'back(' + target.component + ') の戻り先が見つかりません');
       } else if (found < stack.length - 1) {
         stack = stack.slice(0, found + 1);
       }
@@ -447,12 +454,12 @@ function applyTransition(result) {
       }
     }
     if (!found) {
-      eventLog.push(exitDismissWarning(word, sessionName));
+      pushTimelineEntry('event', exitDismissWarning(word, sessionName));
     }
   }
 
   if (JSON.stringify(stack) !== beforeStack) {
-    traceLog.push({ label: transitionLabel(word), snapshot: snapshotState() });
+    pushTimelineEntry('transition', transitionLabel(word));
   }
 }
 
@@ -502,13 +509,13 @@ function goBack() {
   runResults([{ type: 'transition', word: 'back', target: null, session: null }]);
 }
 
-// トレースログのイベントタップ: 全状態巻き戻し（stack・sharedVariants・overlays を snapshot
-// から復元し、trace をそのイベントまで truncate）。壁は無視する（開発者向けタイムトラベル。設計者確定事項）。
-function jumpToTrace(idx) {
-  const entry = traceLog[idx];
+// 統合ログのエントリタップ: 全状態巻き戻し（stack・sharedVariants・overlays を snapshot
+// から復元し、timeline をそのエントリまで truncate）。壁は無視する（開発者向けタイムトラベル。設計者確定事項）。
+function jumpToTimeline(idx) {
+  const entry = timeline[idx];
   if (!entry) return;
   restoreState(entry.snapshot);
-  traceLog = traceLog.slice(0, idx + 1);
+  timeline = timeline.slice(0, idx + 1);
   render();
 }
 
@@ -857,10 +864,11 @@ function render() {
 
   const stackHtml = renderStackList();
 
-  // トレースログ（末尾が常に現在地。タップで全状態巻き戻し）
-  const traceLogHtml = traceLog.map((entry, i) => {
-    const cls = i === traceLog.length - 1 ? 'trace-item current' : 'trace-item';
-    return '<span class="' + cls + '" onclick="jumpToTrace(' + i + ')">' + esc(entry.label) + '</span>';
+  // 統合ログ（末尾が常に現在地。タップで全状態巻き戻し。transition/event 両方クリック可）
+  const timelineHtml = timeline.map((entry, i) => {
+    const kindCls = 'timeline-item-' + entry.kind;
+    const cls = i === timeline.length - 1 ? 'timeline-item ' + kindCls + ' current' : 'timeline-item ' + kindCls;
+    return '<span class="' + cls + '" onclick="jumpToTimeline(' + i + ')">' + esc(entry.label) + '</span>';
   }).join(' › ');
 
   // elements（document common の要素行は全 component の表示に共通要素として乗る。SPEC「document common」）
@@ -892,15 +900,6 @@ function render() {
   // back button（「戻れない」= stack 長 1 または現 frame.wall。disabled でなく DOM から消す）
   const canBack = stack.length > 1 && !currentFrame().wall;
   const backBtn = canBack ? '<button class="back-btn" onclick="goBack()">← 戻る</button>' : '';
-
-  // イベントログ（append-only。effect・set・show/hide・警告を流し込む。巻き戻し無し。
-  // 見出し・役割説明はペイン側（イベントログ — 効果・状態変更の記録）が持つため、ここは項目一覧のみ）
-  let eventLogHtml = '';
-  if (eventLog.length > 0) {
-    eventLogHtml = '<div class="event-log">' +
-      eventLog.map((e) => '<div class="event-log-item">' + esc(e) + '</div>').join('') +
-      '</div>';
-  }
 
   // インスタンス variant 手動トグルパネル（画面外 component の姿切替。presence gate の
   // 効きを手動で試験するための開発者向け UI——姿を持たない対象は切替不要なので除外）。
@@ -941,18 +940,18 @@ function render() {
 
   const graphSectionHtml = renderGraphSection();
 
-  // 全幅 3 カラムグリッド（設計者フィードバック 2026-07-19）: 左 = トレースログ /
-  // 中央 = 現在の画面（上）+ 遷移マップ（下） / 右 = イベントログ + gate パネル（下部）。
-  // 各ペインに見出し・役割説明を添え、エリアの意味が一目で伝わるようにする。説明文には
-  // オートマトンとしての読み方を一言添える（用語は現状のまま。ADR-0022・Task 9）。
+  // 全幅 3 カラムグリッド（設計者フィードバック 2026-07-19）: 左 = スタック + 統合ログ /
+  // 中央 = 現在の画面（上）+ 遷移マップ（下） / 右 = gate パネルのみ（Task 10 でイベントログ
+  // ペインを統合ログへ吸収）。各ペインに見出し・役割説明を添え、エリアの意味が一目で伝わる
+  // ようにする。説明文にはオートマトンとしての読み方を一言添える（用語は現状のまま。ADR-0022）。
   app.innerHTML =
     '<aside class="pane pane-trace">' +
       '<div class="pane-title" title="スタック — 今積み重なっている画面。プッシュダウン構成として読める">スタック</div>' +
       '<div class="pane-desc">今積み重なっている画面。プッシュダウン構成として読める。上が現在地</div>' +
       '<div class="stack-list">' + stackHtml + '</div>' +
-      '<div class="pane-title" title="トレースログ — 実行された遷移の列。クリックでその時点へ巻き戻し">トレースログ</div>' +
-      '<div class="pane-desc">ナビゲーション履歴。実行された遷移の列。クリックでその時点へ巻き戻し</div>' +
-      '<div class="trace-log">' + traceLogHtml + '</div>' +
+      '<div class="pane-title" title="統合ログ — 実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し">統合ログ</div>' +
+      '<div class="pane-desc">ナビゲーション履歴。実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し</div>' +
+      '<div class="timeline-log">' + timelineHtml + '</div>' +
     '</aside>' +
     '<main class="pane pane-center">' +
       '<section class="screen-section">' +
@@ -964,9 +963,6 @@ function render() {
       graphSectionHtml +
     '</main>' +
     '<aside class="pane pane-events">' +
-      '<div class="pane-title" title="イベントログ — 効果・状態変更の記録（巻き戻し不可）">イベントログ</div>' +
-      '<div class="pane-desc">効果・状態変更の記録（巻き戻し不可）</div>' +
-      eventLogHtml +
       gatePanelHtml +
     '</aside>';
 }

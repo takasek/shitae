@@ -361,18 +361,19 @@ describe('toSimulator', () => {
     expect(listTexts).toContain('通知タップ(記事リンク)');
   });
 
-  it('トレースログ: 起動時に初期イベントが1件積まれ、snapshotが現在状態を持つ（toast は全廃）', () => {
+  it('統合ログ: 起動時に初期エントリが1件積まれ、kindがtransitionでsnapshotが現在状態を持つ（toast は全廃）', () => {
     const doc = parseOk('# ホーム\nロゴ\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     expect(html).not.toContain('showToast');
     expect(html).not.toContain('class="toast"');
     const context = runSimulatorScript(html);
-    expect(vm.runInContext('traceLog.length', context)).toBe(1);
-    const stackLen = vm.runInContext('traceLog[0].snapshot.stack.length', context);
+    expect(vm.runInContext('timeline.length', context)).toBe(1);
+    expect(vm.runInContext('timeline[0].kind', context)).toBe('transition');
+    const stackLen = vm.runInContext('timeline[0].snapshot.stack.length', context);
     expect(stackLen).toBe(1);
   });
 
-  it('トレースログ: push 2回で起動+2件、trace[1]タップで全状態(stack・sharedVariants・overlays)が巻き戻り trace が2件になる', () => {
+  it('統合ログ: push 2回で起動+2件、timeline[1]タップで全状態(stack・sharedVariants・overlays)が巻き戻る', () => {
     const doc = parseOk(
       '# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n> 結果へ -> push(結果)\n\n# 結果\n本体\n',
     );
@@ -387,29 +388,30 @@ describe('toSimulator', () => {
       "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '結果', variant: null } })",
       context,
     );
-    expect(vm.runInContext('traceLog.length', context)).toBe(3);
+    expect(vm.runInContext('timeline.length', context)).toBe(3);
     expect(vm.runInContext('currentFrame().component', context)).toBe('結果');
 
-    vm.runInContext('jumpToTrace(1)', context);
-    expect(vm.runInContext('traceLog.length', context)).toBe(2);
+    vm.runInContext('jumpToTimeline(1)', context);
+    expect(vm.runInContext('timeline.length', context)).toBe(2);
     expect(vm.runInContext('currentFrame().component', context)).toBe('検索');
     expect(vm.runInContext('stack.length', context)).toBe(2);
   });
 
-  it('イベントログ: effect はイベントログに1件追加されトレースログには入らない', () => {
+  it('統合ログ: effect はkind: event種別で1件追加され、遷移エントリと同じ配列に時系列で並ぶ', () => {
     const doc = parseOk('# ホーム\n> 押す -> いいねしました\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
 
-    const traceLenBefore = vm.runInContext('traceLog.length', context);
+    const lenBefore = vm.runInContext('timeline.length', context);
     vm.runInContext("applyTransition({ type: 'effect', text: 'いいねしました' })", context);
 
-    expect(vm.runInContext('traceLog.length', context)).toBe(traceLenBefore);
-    const eventLog = JSON.parse(vm.runInContext('JSON.stringify(eventLog)', context));
-    expect(eventLog.some((e: string) => e.includes('いいねしました'))).toBe(true);
+    expect(vm.runInContext('timeline.length', context)).toBe(lenBefore + 1);
+    expect(vm.runInContext('timeline[timeline.length - 1].kind', context)).toBe('event');
+    const timelineJson = JSON.parse(vm.runInContext('JSON.stringify(timeline)', context));
+    expect(timelineJson.some((e: any) => e.label.includes('いいねしました'))).toBe(true);
   });
 
-  it('戻るボタン相当の関数(goBack): wall で失敗しイベントログに警告、成功時トレースログに遷移イベントが追記される（back の trace 追記化。旧 pop 仕様は全廃 — Task 7）', () => {
+  it('戻るボタン相当の関数(goBack): wall で失敗しevent種別の警告エントリが追記、成功時にtransition種別の遷移エントリが追記される（back のtimeline追記化。旧pop仕様は全廃 — Task 7）', () => {
     const doc = parseOk('# ホーム\n> モーダル -> present(モーダル)\n\n# モーダル\n本体\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
@@ -418,15 +420,16 @@ describe('toSimulator', () => {
       "applyTransition({ type: 'transition', word: 'present', target: { module: 'main', component: 'モーダル', variant: null } })",
       context,
     );
-    expect(vm.runInContext('traceLog.length', context)).toBe(2);
+    expect(vm.runInContext('timeline.length', context)).toBe(2);
 
-    // モーダルは present（wall）で積まれたため goBack() は阻まれ、警告がイベントログへ、trace は変化しない
+    // モーダルは present（wall）で積まれたため goBack() は阻まれるが、警告は event エントリとして統合ログへ追記される
     vm.runInContext('goBack()', context);
-    expect(vm.runInContext('traceLog.length', context)).toBe(2);
-    const eventLog = JSON.parse(vm.runInContext('JSON.stringify(eventLog)', context));
-    expect(eventLog.some((e: string) => e.includes('壁'))).toBe(true);
+    expect(vm.runInContext('timeline.length', context)).toBe(3);
+    expect(vm.runInContext('timeline[timeline.length - 1].kind', context)).toBe('event');
+    const warnLabel = vm.runInContext('timeline[timeline.length - 1].label', context);
+    expect(warnLabel).toContain('壁');
 
-    // push（非 wall）した場合は goBack() 成功、トレースログ末尾に back の遷移イベントが追記される（pop しない）
+    // push（非 wall）した場合は goBack() 成功、統合ログ末尾に back の transition エントリが追記される（pop しない）
     const doc2 = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
     const html2 = toSimulator(new Map([['main', doc2]]), 'main');
     const context2 = runSimulatorScript(html2);
@@ -434,15 +437,16 @@ describe('toSimulator', () => {
       "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
       context2,
     );
-    expect(vm.runInContext('traceLog.length', context2)).toBe(2);
+    expect(vm.runInContext('timeline.length', context2)).toBe(2);
     vm.runInContext('goBack()', context2);
-    expect(vm.runInContext('traceLog.length', context2)).toBe(3);
+    expect(vm.runInContext('timeline.length', context2)).toBe(3);
     expect(vm.runInContext('currentFrame().component', context2)).toBe('ホーム');
-    const lastLabel = vm.runInContext('traceLog[traceLog.length - 1].label', context2);
-    expect(lastLabel).toBe('back → ホーム');
+    const lastEntry = JSON.parse(vm.runInContext('JSON.stringify(timeline[timeline.length - 1])', context2));
+    expect(lastEntry.kind).toBe('transition');
+    expect(lastEntry.label).toBe('back → ホーム');
   });
 
-  it('画面内 back() 成功でトレースログに遷移イベントが1件追加される（末尾除去 traceLog.pop() は全廃 — Task 7 受入基準a）', () => {
+  it('画面内 back() 成功で統合ログに transition エントリが1件追加される（末尾除去 traceLog.pop() は全廃 — Task 7 受入基準a）', () => {
     const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
@@ -451,17 +455,17 @@ describe('toSimulator', () => {
       "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
       context,
     );
-    expect(vm.runInContext('traceLog.length', context)).toBe(2);
+    expect(vm.runInContext('timeline.length', context)).toBe(2);
 
     vm.runInContext(
       "applyTransition({ type: 'transition', word: 'back', target: null, session: null })",
       context,
     );
-    expect(vm.runInContext('traceLog.length', context)).toBe(3);
+    expect(vm.runInContext('timeline.length', context)).toBe(3);
     expect(vm.runInContext('currentFrame().component', context)).toBe('ホーム');
   });
 
-  it('back(X) の多段巻き戻しも1イベント追記に一本化され「末尾＝現在地」不変条件が保たれる（Task 7 旧 M1 根治）', () => {
+  it('back(X) の多段巻き戻しも1エントリ追記に一本化され「末尾＝現在地」不変条件が保たれる（Task 7 旧 M1 根治）', () => {
     const doc = parseOk(
       '# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n> 詳細へ -> push(詳細)\n\n# 詳細\n本体\n',
     );
@@ -476,20 +480,64 @@ describe('toSimulator', () => {
       "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '詳細', variant: null } })",
       context,
     );
-    expect(vm.runInContext('traceLog.length', context)).toBe(3);
+    expect(vm.runInContext('timeline.length', context)).toBe(3);
 
-    // ホームまで2段巻き戻す back(X) は、trace を2件 pop するのでなく1件だけ追記する
+    // ホームまで2段巻き戻す back(X) は、timeline を2件 pop するのでなく1件だけ追記する
     vm.runInContext(
       "applyTransition({ type: 'transition', word: 'back', target: { module: 'main', component: 'ホーム', variant: null }, session: null })",
       context,
     );
-    expect(vm.runInContext('traceLog.length', context)).toBe(4);
+    expect(vm.runInContext('timeline.length', context)).toBe(4);
     expect(vm.runInContext('currentFrame().component', context)).toBe('ホーム');
     expect(vm.runInContext('stack.length', context)).toBe(1);
-    const lastEntry = JSON.parse(vm.runInContext('JSON.stringify(traceLog[traceLog.length - 1])', context));
+    const lastEntry = JSON.parse(vm.runInContext('JSON.stringify(timeline[timeline.length - 1])', context));
     // 末尾＝現在地: 追記された snapshot の stack もホーム1件に一致する
+    expect(lastEntry.kind).toBe('transition');
     expect(lastEntry.snapshot.stack.length).toBe(1);
     expect(lastEntry.snapshot.stack[0].component).toBe('ホーム');
+  });
+
+  it('統合ログ: singleton の set による event エントリへ巻き戻すと sharedVariants が復元される（ADR-0014・受入基準e）', () => {
+    const doc = parseOk(
+      '#! 学習\n## 通常\nボタン\n## ハート切れ\n表示\n\n# 問題\n> 使い切る -> set(学習##ハート切れ)\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'state', component: '学習', module: 'main', variant: 'ハート切れ' })",
+      context,
+    );
+    expect(vm.runInContext('timeline.length', context)).toBe(2);
+    expect(vm.runInContext('timeline[1].kind', context)).toBe('event');
+    expect(vm.runInContext("sharedVariants.get(skey('main', '学習'))", context)).toBe('ハート切れ');
+
+    // 起動時点（set 前）へ巻き戻すと共有レジストリから消える
+    vm.runInContext('jumpToTimeline(0)', context);
+    expect(vm.runInContext("sharedVariants.has(skey('main', '学習'))", context)).toBe(false);
+  });
+
+  it('統合ログ: show/hide による event エントリへ巻き戻すと overlays が復元される（受入基準e）', () => {
+    const doc = parseOk('# P\n> 再生 -> show(ミニプレイヤー)\n> 停止 -> hide(ミニプレイヤー)\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニプレイヤー', module: 'main', variant: null })",
+      context,
+    );
+    expect(vm.runInContext('overlays.size', context)).toBe(1);
+    vm.runInContext(
+      "applyTransition({ type: 'overlay', op: 'hide', component: 'ミニプレイヤー' })",
+      context,
+    );
+    expect(vm.runInContext('overlays.size', context)).toBe(0);
+    expect(vm.runInContext('timeline.length', context)).toBe(3);
+    expect(vm.runInContext('timeline[1].kind', context)).toBe('event');
+    expect(vm.runInContext('timeline[2].kind', context)).toBe('event');
+
+    vm.runInContext('jumpToTimeline(1)', context); // show 時点へ戻る
+    expect(vm.runInContext('overlays.size', context)).toBe(1);
   });
 
   it('複数ラベル操作は全ラベルを横並びボタンで提示し、ラベル指定クリックで対応 results だけが走る', () => {
@@ -505,9 +553,9 @@ describe('toSimulator', () => {
     vm.runInContext("handleInteraction('component', 0, 1)", context);
     expect(vm.runInContext('currentFrame().component', context)).toBe('残念');
     // regression guard: 全 choice が走ってしまう退行では最後の push（残念）が勝ち上の
-    // アサートは素通りする。選んだ choice「だけ」が走ったことを traceLog 件数と
+    // アサートは素通りする。選んだ choice「だけ」が走ったことを timeline 件数と
     // stack の中身（[当たり] 側の 景品 frame が積まれていないこと）で縛る。
-    expect(vm.runInContext('traceLog.length', context)).toBe(2);
+    expect(vm.runInContext('timeline.length', context)).toBe(2);
     const stackComponents = JSON.parse(
       vm.runInContext('JSON.stringify(stack.map(f => f.component))', context),
     );
@@ -882,13 +930,13 @@ describe('toSimulator', () => {
     const context = runSimulatorScript(html);
     const appHtml = vm.runInContext('app.innerHTML', context);
 
-    // 左: トレースログ
+    // 左: スタック + 統合ログ
     const traceIdx = appHtml.indexOf('pane-trace');
     expect(traceIdx).toBeGreaterThan(-1);
     // 中央: 現在の画面 + 遷移マップ
     const centerIdx = appHtml.indexOf('pane-center');
     expect(centerIdx).toBeGreaterThan(-1);
-    // 右: イベントログ + gate パネル
+    // 右: gate パネルのみ（Task 10 でイベントログペインを統合ログへ吸収）
     const eventsIdx = appHtml.indexOf('pane-events');
     expect(eventsIdx).toBeGreaterThan(-1);
     // 左→中央→右の順で DOM に現れる
@@ -903,11 +951,10 @@ describe('toSimulator', () => {
     expect(screenIdx).toBeLessThan(graphIdx); // 中央上=画面、中央下=マップ
 
     const eventsSection = appHtml.slice(eventsIdx);
-    const eventLogIdx = eventsSection.indexOf('イベントログ');
     const gatePanelIdx = eventsSection.indexOf('gate-panel');
-    expect(eventLogIdx).toBeGreaterThan(-1);
     expect(gatePanelIdx).toBeGreaterThan(-1);
-    expect(eventLogIdx).toBeLessThan(gatePanelIdx); // イベントログ上、gate パネル下部
+    // 統合ログは右ペインでなく左ペインにある
+    expect(eventsSection).not.toContain('timeline-log');
   });
 
   it('中央ペイン: 現在の画面と遷移マップが独立スクロール領域に分かれる（Task 9 受入基準a）', () => {
@@ -968,19 +1015,22 @@ describe('toSimulator', () => {
   });
 
   it('各ペインに見出しと役割説明を持つ（受入基準c・設計者フィードバック「エリアが何を示しているか分からない」への対応）', () => {
-    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    // 右ペインは gate パネルのみ（Task 10）なので、gate 対象を持つ fixture で検証する
+    const doc = parseOk(
+      '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n# 時間選択\n本文\n',
+    );
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
     const appHtml = vm.runInContext('app.innerHTML', context);
-    expect(appHtml).toContain('トレースログ');
+    expect(appHtml).toContain('統合ログ');
     expect(appHtml).toContain('ナビゲーション履歴');
-    expect(appHtml).toContain('イベントログ');
-    expect(appHtml).toContain('巻き戻し不可');
+    expect(appHtml).toContain('画面外 component の姿切替');
+    expect(appHtml).toContain('gate 試験用');
     expect(appHtml).toContain('遷移マップ');
     expect(appHtml).toContain('閲覧専用');
   });
 
-  it('スタック表示: トレースログの上に見出し・役割説明付きで新設され、push/present 後に @session・壁マーカー付きで描画される（Task 7 受入基準c）', () => {
+  it('スタック表示: 統合ログの上に見出し・役割説明付きで新設され、push/present 後に @session・壁マーカー付きで描画される（Task 7 受入基準c）', () => {
     const doc = parseOk('# ホーム\n本体\n\n# ログイン\n本体\n\n# 確認\n本体\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
@@ -989,10 +1039,10 @@ describe('toSimulator', () => {
     const beforeHtml = vm.runInContext('app.innerHTML', context);
     expect(beforeHtml).toContain('スタック');
     expect(beforeHtml).toContain('プッシュダウン');
-    // 左ペイン（pane-trace）内で「スタック」が「トレースログ」より先に現れる
+    // 左ペイン（pane-trace）内で「スタック」が「統合ログ」より先に現れる
     const traceIdx = beforeHtml.indexOf('pane-trace');
     const traceSection = beforeHtml.slice(traceIdx);
-    expect(traceSection.indexOf('スタック')).toBeLessThan(traceSection.indexOf('トレースログ'));
+    expect(traceSection.indexOf('スタック')).toBeLessThan(traceSection.indexOf('統合ログ'));
 
     vm.runInContext(
       "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: 'ログイン', variant: null }, session: 'login' }); render()",
@@ -1042,9 +1092,11 @@ describe('toSimulator', () => {
       "applyTransition({ type: 'transition', word: 'exit', target: null, session: 'missing' })",
       context,
     );
-    const eventLog = JSON.parse(vm.runInContext('JSON.stringify(eventLog)', context));
-    const warning = eventLog.find((e: string) => e.includes('missing'));
-    expect(warning).toBeDefined();
+    const timelineJson = JSON.parse(vm.runInContext('JSON.stringify(timeline)', context));
+    const warningEntry = timelineJson.find((e: any) => e.label.includes('missing'));
+    expect(warningEntry).toBeDefined();
+    expect(warningEntry.kind).toBe('event');
+    const warning = warningEntry.label;
     expect(warning).toContain('exit(@missing)');
     expect(warning).toContain('@a');
     expect(warning).toContain('@b');
@@ -1061,8 +1113,8 @@ describe('toSimulator', () => {
       "applyTransition({ type: 'transition', word: 'exit', target: null, session: 'missing' })",
       context,
     );
-    const eventLog = JSON.parse(vm.runInContext('JSON.stringify(eventLog)', context));
-    const warning = eventLog.find((e: string) => e.includes('missing'));
+    const timelineJson = JSON.parse(vm.runInContext('JSON.stringify(timeline)', context));
+    const warning = timelineJson.map((e: any) => e.label).find((l: string) => l.includes('missing'));
     expect(warning).toContain('なし');
   });
 
@@ -1079,8 +1131,8 @@ describe('toSimulator', () => {
       "applyTransition({ type: 'transition', word: 'dismiss', target: null, session: 'missing' })",
       context,
     );
-    const eventLog = JSON.parse(vm.runInContext('JSON.stringify(eventLog)', context));
-    const warning = eventLog.find((e: string) => e.includes('missing'));
+    const timelineJson = JSON.parse(vm.runInContext('JSON.stringify(timeline)', context));
+    const warning = timelineJson.map((e: any) => e.label).find((l: string) => l.includes('missing'));
     expect(warning).toContain('dismiss(@missing)');
     expect(warning).toContain('@a');
   });
