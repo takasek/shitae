@@ -910,6 +910,60 @@ describe('toSimulator', () => {
     expect(eventLogIdx).toBeLessThan(gatePanelIdx); // イベントログ上、gate パネル下部
   });
 
+  it('中央ペイン: 現在の画面と遷移マップが独立スクロール領域に分かれる（Task 9 受入基準a）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    // pane-center 自身は外側スクロールを持たず（.pane の overflow-y: auto を上書き）、
+    // grid rows で 2 領域に分割する——画面カードの高さ変化が遷移マップの位置に影響しないため。
+    const centerRuleMatch = html.match(/\.pane-center\s*\{[^}]*\}/);
+    expect(centerRuleMatch).not.toBeNull();
+    expect(centerRuleMatch![0]).toContain('grid-template-rows');
+    expect(centerRuleMatch![0]).toMatch(/overflow:\s*hidden/);
+    // screen-section と graph-section がそれぞれ自前のスクロール領域を持つ（min-height: 0 で
+    // grid item のはみ出しを防ぎ overflow-y: auto を効かせる）
+    const screenRuleMatch = html.match(/\.screen-section\s*\{[^}]*\}/);
+    const graphRuleMatch = html.match(/\.graph-section\s*\{[^}]*\}/);
+    expect(screenRuleMatch).not.toBeNull();
+    expect(graphRuleMatch).not.toBeNull();
+    expect(screenRuleMatch![0]).toMatch(/overflow-y:\s*auto/);
+    expect(graphRuleMatch![0]).toMatch(/overflow-y:\s*auto/);
+  });
+
+  it('遷移マップの hover プレビューはペイン内の常時見える位置（sticky）にあり画面外へフレームアウトしない（Task 9 受入基準b）', () => {
+    const doc = parseOk('# ホーム\n共通要素\n## 通常\n専用A\n## 特殊\n専用B\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    // #graph-preview は position: sticky（ペイン上部固定）
+    const previewRuleMatch = html.match(/\.graph-preview\s*\{[^}]*\}/);
+    expect(previewRuleMatch).not.toBeNull();
+    expect(previewRuleMatch![0]).toMatch(/position:\s*sticky/);
+    // graph-section 内で #graph-preview が SVG（遷移マップ本体）より前に現れる
+    // （マップが縦に伸びてもプレビューはペイン上部にとどまる）
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    const graphSectionIdx = appHtml.indexOf('graph-section');
+    const graphSection = appHtml.slice(graphSectionIdx);
+    const previewIdx = graphSection.indexOf('id="graph-preview"');
+    const svgIdx = graphSection.indexOf('<svg');
+    expect(previewIdx).toBeGreaterThan(-1);
+    expect(svgIdx).toBeGreaterThan(-1);
+    expect(previewIdx).toBeLessThan(svgIdx);
+    // hover プレビューの局所 DOM 更新方式（render() 非経由）は維持される
+    expect(html).toContain("document.getElementById('graph-preview')");
+  });
+
+  it('各ペインの説明文にオートマトンとしての読み方の注記を持つ（Task 9・ADR-0022）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    // スタック: プッシュダウン構成として読める（Task 7 で既出。継続確認）
+    expect(appHtml).toContain('プッシュダウン構成として読める');
+    // トレースログ: 実行された遷移の列
+    expect(appHtml).toContain('実行された遷移の列');
+    // 遷移マップ: 状態遷移図として読める
+    expect(appHtml).toContain('状態遷移図として読める');
+  });
+
   it('各ペインに見出しと役割説明を持つ（受入基準c・設計者フィードバック「エリアが何を示しているか分からない」への対応）', () => {
     const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
