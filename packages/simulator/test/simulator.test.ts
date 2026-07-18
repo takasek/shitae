@@ -409,7 +409,7 @@ describe('toSimulator', () => {
     expect(eventLog.some((e: string) => e.includes('いいねしました'))).toBe(true);
   });
 
-  it('戻るボタン相当の関数(goBack): wall で失敗しイベントログに警告、成功時トレースログ末尾が消える', () => {
+  it('戻るボタン相当の関数(goBack): wall で失敗しイベントログに警告、成功時トレースログに遷移イベントが追記される（back の trace 追記化。旧 pop 仕様は全廃 — Task 7）', () => {
     const doc = parseOk('# ホーム\n> モーダル -> present(モーダル)\n\n# モーダル\n本体\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
@@ -426,7 +426,7 @@ describe('toSimulator', () => {
     const eventLog = JSON.parse(vm.runInContext('JSON.stringify(eventLog)', context));
     expect(eventLog.some((e: string) => e.includes('壁'))).toBe(true);
 
-    // push（非 wall）した場合は goBack() 成功、trace 末尾が1件消える
+    // push（非 wall）した場合は goBack() 成功、トレースログ末尾に back の遷移イベントが追記される（pop しない）
     const doc2 = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
     const html2 = toSimulator(new Map([['main', doc2]]), 'main');
     const context2 = runSimulatorScript(html2);
@@ -436,7 +436,60 @@ describe('toSimulator', () => {
     );
     expect(vm.runInContext('traceLog.length', context2)).toBe(2);
     vm.runInContext('goBack()', context2);
-    expect(vm.runInContext('traceLog.length', context2)).toBe(1);
+    expect(vm.runInContext('traceLog.length', context2)).toBe(3);
+    expect(vm.runInContext('currentFrame().component', context2)).toBe('ホーム');
+    const lastLabel = vm.runInContext('traceLog[traceLog.length - 1].label', context2);
+    expect(lastLabel).toBe('back → ホーム');
+  });
+
+  it('画面内 back() 成功でトレースログに遷移イベントが1件追加される（末尾除去 traceLog.pop() は全廃 — Task 7 受入基準a）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
+      context,
+    );
+    expect(vm.runInContext('traceLog.length', context)).toBe(2);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'back', target: null, session: null })",
+      context,
+    );
+    expect(vm.runInContext('traceLog.length', context)).toBe(3);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('ホーム');
+  });
+
+  it('back(X) の多段巻き戻しも1イベント追記に一本化され「末尾＝現在地」不変条件が保たれる（Task 7 旧 M1 根治）', () => {
+    const doc = parseOk(
+      '# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n> 詳細へ -> push(詳細)\n\n# 詳細\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
+      context,
+    );
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '詳細', variant: null } })",
+      context,
+    );
+    expect(vm.runInContext('traceLog.length', context)).toBe(3);
+
+    // ホームまで2段巻き戻す back(X) は、trace を2件 pop するのでなく1件だけ追記する
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'back', target: { module: 'main', component: 'ホーム', variant: null }, session: null })",
+      context,
+    );
+    expect(vm.runInContext('traceLog.length', context)).toBe(4);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('ホーム');
+    expect(vm.runInContext('stack.length', context)).toBe(1);
+    const lastEntry = JSON.parse(vm.runInContext('JSON.stringify(traceLog[traceLog.length - 1])', context));
+    // 末尾＝現在地: 追記された snapshot の stack もホーム1件に一致する
+    expect(lastEntry.snapshot.stack.length).toBe(1);
+    expect(lastEntry.snapshot.stack[0].component).toBe('ホーム');
   });
 
   it('複数ラベル操作は全ラベルを横並びボタンで提示し、ラベル指定クリックで対応 results だけが走る', () => {
