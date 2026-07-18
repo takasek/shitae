@@ -52,12 +52,15 @@ describe('toSimulator', () => {
     expect(html).not.toMatch(/href="https?:/);
   });
 
-  it('document common を data に含め、常時アクションとして描画する', () => {
+  it('document common を data に含め、操作一覧の document common カテゴリへ統合して描画する', () => {
     const doc = parseOk('> 通知をタップ -> push(詳細)\n\n# ホーム\nロゴ\n\n# 詳細\n本文\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     expect(html).toContain('"documentCommon"');
     expect(html).toContain('通知をタップ');
-    expect(html).toContain('handleDocCommon');
+    expect(html).toContain('document common');
+    const context = runSimulatorScript(html);
+    vm.runInContext("handleInteraction('document', 0, 0)", context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('詳細');
   });
 
   it('switch を transition として扱う（effect 落ちしない）分岐が生成物に含まれる', () => {
@@ -327,6 +330,64 @@ describe('toSimulator', () => {
     expect(vm.runInContext('traceLog.length', context2)).toBe(2);
     vm.runInContext('goBack()', context2);
     expect(vm.runInContext('traceLog.length', context2)).toBe(1);
+  });
+
+  it('複数ラベル操作は全ラベルを横並びボタンで提示し、ラベル指定クリックで対応 results だけが走る', () => {
+    const doc = parseOk(
+      '# ホーム\n> ガチャ ->\n>     [当たり] push(景品)\n>     [ハズレ] push(残念)\n\n# 景品\n本体\n\n# 残念\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('[当たり]');
+    expect(appHtml).toContain('[ハズレ]');
+
+    vm.runInContext("handleInteraction('component', 0, 1)", context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('残念');
+  });
+
+  it('ラベル無し操作（choices 空）は [TRUE] ラベル1つのボタンになり prelude のみ実行する', () => {
+    const doc = parseOk('# ホーム\n> タップ -> push(次)\n\n# 次\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('[TRUE]');
+    vm.runInContext("handleInteraction('component', 0, 0)", context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('次');
+  });
+
+  it('操作一覧を scope カテゴリ（variant固有/component common/document common）に正しく分類する', () => {
+    const doc = parseOk(
+      '> 通知 -> push(受信箱)\n\n' +
+        '# ホーム\n> 共通操作 -> push(共通先)\n## 通常\n姿要素\n> 姿操作 -> push(詳細)\n\n' +
+        '# 詳細\n本体\n\n# 共通先\n本体\n\n# 受信箱\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('variant固有');
+    expect(appHtml).toContain('component common');
+    expect(appHtml).toContain('document common');
+    expect(appHtml).toContain('姿操作');
+    expect(appHtml).toContain('共通操作');
+    expect(appHtml).toContain('通知');
+  });
+
+  it('scope カテゴリが空なら見出しごと出さない', () => {
+    const doc = parseOk('# ホーム\n> 押す -> push(次)\n\n# 次\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).not.toContain('variant固有');
+    expect(appHtml).not.toContain('document common');
+  });
+
+  it('pendingChoice / choice-panel / handleChoice 機構を廃止した', () => {
+    const doc = parseOk('# ホーム\n> 押す -> push(次)\n\n# 次\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).not.toContain('pendingChoice');
+    expect(html).not.toContain('choice-panel');
+    expect(html).not.toContain('function handleChoice(');
   });
 
   it('戻れない判定: stack長1またはwallのとき戻るボタンをDOMから消す(disabledでなく非描画)', () => {
