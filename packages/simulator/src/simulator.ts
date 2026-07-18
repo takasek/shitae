@@ -53,6 +53,17 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
 .gate-panel-body { margin-top: 6px; padding: 8px 10px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; display: flex; flex-direction: column; gap: 6px; }
 .gate-row { display: flex; align-items: center; gap: 8px; }
 .gate-row-label { color: #555; min-width: 80px; }
+.graph-panel { margin-top: 12px; font-size: 12px; }
+.graph-panel-toggle { cursor: pointer; color: #777; font-size: 11px; padding: 4px 0; }
+.graph-panel-body { margin-top: 6px; }
+.graph-svg { max-width: 100%; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; }
+.graph-svg rect { fill: #fff; stroke: #ccc; cursor: pointer; }
+.graph-node:hover rect { stroke: #111; fill: #f0f0f0; }
+.graph-svg text { font-size: 10px; fill: #333; pointer-events: none; }
+.graph-svg line { stroke: #bbb; stroke-width: 1; }
+.graph-svg marker path { fill: #bbb; }
+.graph-preview { margin-top: 6px; padding: 6px 8px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; font-size: 11px; color: #555; min-height: 1em; }
+.graph-preview-title { font-weight: 700; color: #333; }
 </style>
 </head>
 <body>
@@ -621,6 +632,110 @@ function layoutGraph(nodes, edges, entryModule, entryComponent) {
   return nodes.map((n, i) => ({ module: n.module, name: n.name, rank: rank[i], order: order[i] }));
 }
 
+// 遷移マップのノードクリック（goto 相当）。DATA.graph.nodes の配列インデックスで対象を
+// 参照する——component 名を onclick 属性へ直接埋め込むと ' や " を含む名前で属性が
+// 壊れるため（Task 3/4 の quote 衝突根治と同じ理由）。applyTransition の goto 分岐を
+// そのまま再利用するため、trace 追加・variant 解決は既存機構に委ねる。goto は
+// 「stack が実際に変わったものだけ trace 追加」を通るため、現在地ノードのクリックは
+// 自然に no-op になる。
+function gotoNode(idx) {
+  const node = DATA.graph.nodes[idx];
+  if (!node) return;
+  applyTransition({
+    type: 'transition',
+    word: 'goto',
+    target: { kind: 'full', module: node.module, component: node.name, variant: null },
+    session: null,
+  });
+  render();
+}
+
+// 遷移マップの hover プレビュー。render() を経由せず #graph-preview を直接書き換える
+// 局所 DOM 更新にする——render() は innerHTML を丸ごと再構築する設計のため、hover 状態を
+// JS グローバルに持って render() を呼ぶとちらつく。
+function showNodePreview(idx) {
+  const node = DATA.graph.nodes[idx];
+  const el = document.getElementById('graph-preview');
+  if (!node || !el) return;
+  const comp = getComp(node.module, node.name);
+  if (!comp) { el.innerHTML = ''; return; }
+  const variantNames = Object.keys(comp.variants);
+  const elementsHtml = comp.commonElements.length > 0
+    ? '<div class="graph-preview-elements">elements: ' + comp.commonElements.map((e) => esc(e)).join(', ') + '</div>'
+    : '';
+  const variantsHtml = variantNames.length > 0
+    ? '<div class="graph-preview-variants">variant: ' + variantNames.map((v) => esc(v)).join(', ') + '</div>'
+    : '';
+  el.innerHTML =
+    '<div class="graph-preview-title">' + esc(node.name) + '</div>' +
+    '<div class="graph-preview-module">module: ' + esc(node.module) + '</div>' +
+    elementsHtml + variantsHtml;
+}
+
+function hideNodePreview() {
+  const el = document.getElementById('graph-preview');
+  if (el) el.innerHTML = '';
+}
+
+// 遷移マップの SVG（rect + component 名テキストのノード、直線 + 矢印のエッジ）。
+// レイアウトは layoutGraph（純関数）の rank/order を LR（rank=横方向、rank内=縦等間隔）で
+// 座標化する。ノードクリック・hover は component 名でなく DATA.graph.nodes の配列
+// インデックスで参照する（onclick/onmouseenter への任意文字列埋め込みを避ける）。
+// component 名は任意文字列のため SVG テキストへは esc() を通す。
+function renderGraphMap() {
+  const nodes = DATA.graph.nodes;
+  const edges = DATA.graph.edges;
+  const layout = layoutGraph(nodes, edges, DATA.entryModule, DATA.entryComponent);
+  const rankWidth = 160;
+  const rowHeight = 44;
+  const nodeWidth = 120;
+  const nodeHeight = 28;
+  const marginX = 16;
+  const marginY = 16;
+  const maxRank = layout.reduce((m, n) => Math.max(m, n.rank), 0);
+  const maxOrder = layout.reduce((m, n) => Math.max(m, n.order), 0);
+  const width = marginX * 2 + (maxRank + 1) * rankWidth;
+  const height = marginY * 2 + (maxOrder + 1) * rowHeight;
+  const posByKey = new Map(layout.map((n) => [skey(n.module, n.name), n]));
+
+  const nodesHtml = layout.map((n, idx) => {
+    const x = marginX + n.rank * rankWidth;
+    const y = marginY + n.order * rowHeight;
+    return '<g class="graph-node" onclick="gotoNode(' + idx + ')" onmouseenter="showNodePreview(' + idx + ')" onmouseleave="hideNodePreview()">' +
+      '<rect x="' + x + '" y="' + y + '" width="' + nodeWidth + '" height="' + nodeHeight + '" rx="4"></rect>' +
+      '<text x="' + (x + nodeWidth / 2) + '" y="' + (y + nodeHeight / 2 + 4) + '" text-anchor="middle">' + esc(n.name) + '</text>' +
+    '</g>';
+  }).join('');
+
+  const edgesHtml = edges.map((e) => {
+    const from = posByKey.get(skey(e.from.module, e.from.name));
+    const to = posByKey.get(skey(e.to.module, e.to.name));
+    if (!from || !to) return '';
+    const x1 = marginX + from.rank * rankWidth + nodeWidth;
+    const y1 = marginY + from.order * rowHeight + nodeHeight / 2;
+    const x2 = marginX + to.rank * rankWidth;
+    const y2 = marginY + to.order * rowHeight + nodeHeight / 2;
+    return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" marker-end="url(#graph-arrow)"></line>';
+  }).join('');
+
+  return '<svg class="graph-svg" width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '">' +
+    '<defs><marker id="graph-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z"></path></marker></defs>' +
+    edgesHtml + nodesHtml +
+  '</svg>';
+}
+
+// 遷移マップパネル（gate 観測パネルの近くに配置。SPEC外の開発者向け観測 UI）。
+// <details> の折り畳みはブラウザネイティブ——render() が innerHTML を丸ごと再構築する
+// ため開閉状態そのものは再描画のたびに既定（閉）へ戻るが、SVG 自体は常に innerHTML に
+// 含まれるため折り畳み中でも DOM 上には存在する（自己完結 HTML の範囲で足りる簡易実装）。
+function renderGraphPanel() {
+  if (!DATA.graph || DATA.graph.nodes.length === 0) return '';
+  return '<details class="graph-panel">' +
+    '<summary class="graph-panel-toggle">遷移マップ</summary>' +
+    '<div class="graph-panel-body">' + renderGraphMap() + '<div id="graph-preview" class="graph-preview"></div></div>' +
+  '</details>';
+}
+
 function render() {
   const frame = currentFrame();
   const comp = getComp(frame.module, frame.component);
@@ -701,11 +816,14 @@ function render() {
     trailingHtml: backBtn,
   });
 
+  const graphPanelHtml = renderGraphPanel();
+
   app.innerHTML =
     '<div class="trace-log">' + traceLogHtml + '</div>' +
     mainCardHtml +
     overlayCardsHtml +
     gatePanelHtml +
+    graphPanelHtml +
     eventLogHtml;
 }
 

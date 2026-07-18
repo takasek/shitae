@@ -651,12 +651,14 @@ describe('toSimulator', () => {
   it('遷移マップ: ノードクリック・hover の onclick/onmouseenter 属性は component 名でなく配列インデックスで参照する（quote 衝突を避ける）', () => {
     const doc = parseOk('# 名"前\n要素\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
     // 旧 handleOverlayInteraction 系と同型の壊れ方（属性値が component 名の途中で終端）が起きていないことを保証する
-    expect(html).not.toContain('onclick="gotoNode("');
-    expect(html).not.toContain('onmouseenter="showNodePreview("');
-    expect(html).toMatch(/onclick="gotoNode\(\d+\)"/);
-    expect(html).toMatch(/onmouseenter="showNodePreview\(\d+\)"/);
-    expect(html).toContain('onmouseleave="hideNodePreview()"');
+    expect(appHtml).not.toContain('onclick="gotoNode("');
+    expect(appHtml).not.toContain('onmouseenter="showNodePreview("');
+    expect(appHtml).toMatch(/onclick="gotoNode\(\d+\)"/);
+    expect(appHtml).toMatch(/onmouseenter="showNodePreview\(\d+\)"/);
+    expect(appHtml).toContain('onmouseleave="hideNodePreview()"');
   });
 
   it('遷移マップ: ノード hover でプレビュー領域に module・elements・variant 一覧を表示し、外れたら消える', () => {
