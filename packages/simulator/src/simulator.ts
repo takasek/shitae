@@ -28,6 +28,11 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
 .pane-title { font-size: 13px; font-weight: 700; color: #333; margin-bottom: 2px; }
 .pane-desc { font-size: 11px; color: #888; margin-bottom: 10px; }
 .screen-section, .graph-section { display: flex; flex-direction: column; }
+.stack-list { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #333; margin-bottom: 16px; }
+.stack-item { padding: 3px 8px; border-radius: 4px; background: #f5f5f5; }
+.stack-item-current { background: #111; color: #fff; }
+.stack-wall { color: #c0392b; margin-right: 2px; }
+.stack-session { color: #2563eb; font-size: 11px; margin-left: 4px; }
 .trace-log { display: flex; flex-wrap: wrap; gap: 4px 6px; font-size: 12px; color: #666; }
 .trace-item { background: #e0e0e0; padding: 2px 8px; border-radius: 10px; cursor: pointer; }
 .trace-item.current { background: #111; color: #fff; }
@@ -145,9 +150,10 @@ let stack = [{
 
 let overlays = new Map(); // 掲示中 component名 → 表示 variant（null=initial の含意。SPEC「オーバーレイ」。フレーム木とは別軸）
 
-// トレースログ: 遷移イベントの配列 { label, snapshot }。末尾が常に現在地（スタック表示兼用）。
+// トレースログ: 遷移イベントの配列 { label, snapshot }。末尾が常に現在地。
 // snapshot はイベント適用後の全状態 { stack, sharedVariants, overlays } の deep copy（Map は entries 配列化）。
-// 起動イベントを先頭に置く（設計判断: Task 2 brief）。
+// 起動イベントを先頭に置く（設計判断: Task 2 brief）。現在の frame スタックは別に
+// スタック表示（renderStackList）が専任で描画する（Task 7 でトレースログとの兼用を解消）。
 let traceLog = [{ label: '起動', snapshot: snapshotState() }];
 // イベントログ: 遷移でないもの（effect / set / show / hide）と警告を流し込む append-only リスト。巻き戻し無し。
 let eventLog = [];
@@ -186,7 +192,8 @@ function runChoice(interaction, choiceIdx) {
   }
 }
 
-// 遷移イベントの label（適用後の現在地が分かる形。末尾が常に現在地＝スタック表示兼用）
+// 遷移イベントの label（適用後の現在地が分かる形。末尾が常に現在地。back も他の遷移語
+// と同じくこの label を使う——word には 'back' がそのまま渡る。Task 7）
 function transitionLabel(word) {
   const frame = currentFrame();
   const v = displayVariant(frame);
@@ -730,11 +737,34 @@ function renderGraphSection() {
   '</section>';
 }
 
+// スタック表示 1 行分（frame 1 件）。component 名/姿は displayVariant(frame) を使う
+// （singleton は共有レジストリの現在値。ADR-0011）。壁 frame には記号（▌）を、named
+// session（switch/push/present の begin マーカー）には @sessionName を添える（Task 7）。
+function renderStackItem(frame, isCurrent) {
+  const v = displayVariant(frame);
+  const loc = v ? frame.component + ' / ' + v : frame.component;
+  const wallMark = frame.wall ? '<span class="stack-wall" title="壁（barrier）">▌</span>' : '';
+  const sessionMark = frame.sessionName ? '<span class="stack-session">@' + esc(frame.sessionName) + '</span>' : '';
+  const cls = 'stack-item' + (isCurrent ? ' stack-item-current' : '');
+  return '<div class="' + cls + '">' + wallMark + esc(loc) + sessionMark + '</div>';
+}
+
+// フレームスタックの表示（上が現在地＝プッシュダウン構成として上から読む。遷移のたび追随。Task 7）
+function renderStackList() {
+  const rows = [];
+  for (let i = stack.length - 1; i >= 0; i--) {
+    rows.push(renderStackItem(stack[i], i === stack.length - 1));
+  }
+  return rows.join('');
+}
+
 function render() {
   const frame = currentFrame();
   const comp = getComp(frame.module, frame.component);
 
-  // トレースログ（末尾が常に現在地＝スタック表示兼用。タップで全状態巻き戻し）
+  const stackHtml = renderStackList();
+
+  // トレースログ（末尾が常に現在地。タップで全状態巻き戻し）
   const traceLogHtml = traceLog.map((entry, i) => {
     const cls = i === traceLog.length - 1 ? 'trace-item current' : 'trace-item';
     return '<span class="' + cls + '" onclick="jumpToTrace(' + i + ')">' + esc(entry.label) + '</span>';
@@ -822,6 +852,9 @@ function render() {
   // 各ペインに見出し・役割説明を添え、エリアの意味が一目で伝わるようにする。
   app.innerHTML =
     '<aside class="pane pane-trace">' +
+      '<div class="pane-title" title="スタック — 今積み重なっている画面。プッシュダウン構成として上から読む">スタック</div>' +
+      '<div class="pane-desc">今積み重なっている画面（プッシュダウン構成）。上が現在地</div>' +
+      '<div class="stack-list">' + stackHtml + '</div>' +
       '<div class="pane-title" title="トレースログ — ナビゲーション履歴。クリックでその時点へ巻き戻し">トレースログ</div>' +
       '<div class="pane-desc">ナビゲーション履歴。クリックでその時点へ巻き戻し</div>' +
       '<div class="trace-log">' + traceLogHtml + '</div>' +
