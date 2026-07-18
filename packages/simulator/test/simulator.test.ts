@@ -865,7 +865,7 @@ describe('toSimulator', () => {
     expect(html).not.toContain('ontoggle');
     const context = runSimulatorScript(html);
     const appHtml = vm.runInContext('app.innerHTML', context);
-    // action-category の折り畳み（無関係の既存機能）は残るため graph 専用の details 廃止に絞って縛る
+    // 要素階層の <details>（element-hierarchy。Task 8）は別機能として残るため graph 専用の details 廃止に絞って縛る
     expect(appHtml).not.toMatch(/<details[^>]*class="graph-panel"/);
     expect(appHtml).not.toContain('graph-panel-toggle');
     // details でなくとも SVG 自体は常に描画されている
