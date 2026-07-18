@@ -277,6 +277,30 @@ function currentInteractions() {
   return list.filter((inter) => gateEnabled(inter));
 }
 
+// stack 上の sessionName（非 null）一覧を積み順（下から上）で重複除去して返す
+// （exit/dismiss 警告のセッション一覧・スタック表示との突き合わせに使う。Task 7）。
+function currentSessionNames() {
+  const seen = new Set();
+  const names = [];
+  for (const f of stack) {
+    if (f.sessionName != null && !seen.has(f.sessionName)) {
+      seen.add(f.sessionName);
+      names.push(f.sessionName);
+    }
+  }
+  return names;
+}
+
+// exit/dismiss の対象セッション不在警告。スタック表示と突き合わせて理解できるよう、
+// 現在スタックに乗っている session 一覧を併記する（ゼロ件なら「なし」。Task 7 受入基準d）。
+function exitDismissWarning(word, sessionName) {
+  const label = sessionName != null ? '@' + sessionName : '';
+  const target = sessionName != null ? label + 'の開始点' : '直近の無名セッションの開始点';
+  const names = currentSessionNames();
+  const namesText = names.length > 0 ? names.map((n) => '@' + n).join(', ') : 'なし';
+  return word + '(' + label + '): スタックに' + target + 'が積まれていない（現在のセッション: ' + namesText + '）';
+}
+
 function resolveTarget(result, currentModule, currentComponent) {
   if (!result || result.type !== 'transition') return null;
   const t = result.target;
@@ -406,7 +430,7 @@ function applyTransition(result) {
       }
     }
     if (!found) {
-      eventLog.push((word === 'exit' ? 'exit' : 'dismiss') + '(' + (sessionName ?? '') + ') の対象セッションが見つかりません');
+      eventLog.push(exitDismissWarning(word, sessionName));
     }
   }
 
