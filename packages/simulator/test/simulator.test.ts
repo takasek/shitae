@@ -628,37 +628,52 @@ describe('toSimulator', () => {
     expect(appHtml).toContain('検索');
   });
 
-  it('遷移マップ: ノードクリックで本体がそのノードへ goto 相当で置き換わり、トレースログが増える', () => {
-    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
-    const html = toSimulator(new Map([['main', doc]]), 'main');
-    const context = runSimulatorScript(html);
-    const traceLenBefore = vm.runInContext('traceLog.length', context);
-    // DATA.graph.nodes は定義順 → 0:ホーム, 1:検索
-    vm.runInContext('gotoNode(1)', context);
-    expect(vm.runInContext('currentFrame().component', context)).toBe('検索');
-    expect(vm.runInContext('traceLog.length', context)).toBe(traceLenBefore + 1);
-  });
-
-  it('遷移マップ: 同一ノード（現在地）をクリックしても no-op（stack が変わらないため trace は増えない）', () => {
-    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
-    const html = toSimulator(new Map([['main', doc]]), 'main');
-    const context = runSimulatorScript(html);
-    const traceLenBefore = vm.runInContext('traceLog.length', context);
-    vm.runInContext('gotoNode(0)', context); // 現在地（ホーム）自身をクリック
-    expect(vm.runInContext('traceLog.length', context)).toBe(traceLenBefore);
-  });
-
-  it('遷移マップ: ノードクリック・hover の onclick/onmouseenter 属性は component 名でなく配列インデックスで参照する（quote 衝突を避ける）', () => {
+  it('遷移マップ: ノードの hover 属性は component 名でなく配列インデックスで参照する（quote 衝突を避ける）', () => {
     const doc = parseOk('# 名"前\n要素\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
     const appHtml = vm.runInContext('app.innerHTML', context);
     // 旧 handleOverlayInteraction 系と同型の壊れ方（属性値が component 名の途中で終端）が起きていないことを保証する
-    expect(appHtml).not.toContain('onclick="gotoNode("');
     expect(appHtml).not.toContain('onmouseenter="showNodePreview("');
-    expect(appHtml).toMatch(/onclick="gotoNode\(\d+\)"/);
     expect(appHtml).toMatch(/onmouseenter="showNodePreview\(\d+\)"/);
     expect(appHtml).toContain('onmouseleave="hideNodePreview()"');
+  });
+
+  it('遷移マップ: 閲覧専用化のため gotoNode 関数も onclick 属性も存在しない（設計者確定事項 2026-07-19）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).not.toContain('function gotoNode(');
+    expect(html).not.toContain('onclick="gotoNode');
+    const context = runSimulatorScript(html);
+    expect(vm.runInContext("typeof gotoNode", context)).toBe('undefined');
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).not.toMatch(/<g class="graph-node[^"]*" onclick=/);
+  });
+
+  it('遷移マップ: 現在の画面.本体に対応するノードがハイライトされ、遷移後に追随する', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    // 起動直後は entry component（ホーム）のノードがハイライトされる
+    const beforeHtml = vm.runInContext('app.innerHTML', context);
+    const nodeTags = [...beforeHtml.matchAll(/<g class="([^"]*)"[^>]*>[\s\S]*?<\/g>/g)];
+    const homeTag = nodeTags.find((m) => beforeHtml.slice(m.index, m.index! + m[0].length).includes('ホーム'));
+    const searchTag = nodeTags.find((m) => beforeHtml.slice(m.index, m.index! + m[0].length).includes('検索'));
+    expect(homeTag![1]).toMatch(/graph-node-current/);
+    expect(searchTag![1]).not.toMatch(/graph-node-current/);
+
+    // push(検索) で遷移すると、ハイライトは検索ノードへ追随する
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      context,
+    );
+    const afterHtml = vm.runInContext('app.innerHTML', context);
+    const afterTags = [...afterHtml.matchAll(/<g class="([^"]*)"[^>]*>[\s\S]*?<\/g>/g)];
+    const homeTagAfter = afterTags.find((m) => afterHtml.slice(m.index, m.index! + m[0].length).includes('ホーム'));
+    const searchTagAfter = afterTags.find((m) => afterHtml.slice(m.index, m.index! + m[0].length).includes('検索'));
+    expect(homeTagAfter![1]).not.toMatch(/graph-node-current/);
+    expect(searchTagAfter![1]).toMatch(/graph-node-current/);
   });
 
   it('遷移マップ: ノード hover でプレビュー領域に module・elements・variant 一覧を表示し、外れたら消える', () => {
@@ -679,35 +694,82 @@ describe('toSimulator', () => {
     expect(afterHide).toBe('');
   });
 
-  it('遷移マップ: gate 観測パネルの近くに配置される', () => {
+  it('遷移マップ: <details> 折り畳みを廃止し常時表示になった（設計者確定事項 2026-07-19）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).not.toContain('graphPanelOpen');
+    expect(html).not.toContain('ontoggle');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    // action-category の折り畳み（無関係の既存機能）は残るため graph 専用の details 廃止に絞って縛る
+    expect(appHtml).not.toMatch(/<details[^>]*class="graph-panel"/);
+    expect(appHtml).not.toContain('graph-panel-toggle');
+    // details でなくとも SVG 自体は常に描画されている
+    expect(appHtml).toContain('<svg');
+  });
+
+  it('3 ペインレイアウト: 全幅グリッドで #app の max-width が廃止され、左トレース・中央画面+マップ・右イベント+gate の構造を持つ（受入基準c）', () => {
+    const doc = parseOk(
+      '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n# 時間選択\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).not.toContain('max-width: 480px');
+    expect(html).toContain('grid-template-columns');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+
+    // 左: トレースログ
+    const traceIdx = appHtml.indexOf('pane-trace');
+    expect(traceIdx).toBeGreaterThan(-1);
+    // 中央: 現在の画面 + 遷移マップ
+    const centerIdx = appHtml.indexOf('pane-center');
+    expect(centerIdx).toBeGreaterThan(-1);
+    // 右: イベントログ + gate パネル
+    const eventsIdx = appHtml.indexOf('pane-events');
+    expect(eventsIdx).toBeGreaterThan(-1);
+    // 左→中央→右の順で DOM に現れる
+    expect(traceIdx).toBeLessThan(centerIdx);
+    expect(centerIdx).toBeLessThan(eventsIdx);
+
+    const centerSection = appHtml.slice(centerIdx, eventsIdx);
+    const screenIdx = centerSection.indexOf('現在の画面');
+    const graphIdx = centerSection.indexOf('遷移マップ');
+    expect(screenIdx).toBeGreaterThan(-1);
+    expect(graphIdx).toBeGreaterThan(-1);
+    expect(screenIdx).toBeLessThan(graphIdx); // 中央上=画面、中央下=マップ
+
+    const eventsSection = appHtml.slice(eventsIdx);
+    const eventLogIdx = eventsSection.indexOf('イベントログ');
+    const gatePanelIdx = eventsSection.indexOf('gate-panel');
+    expect(eventLogIdx).toBeGreaterThan(-1);
+    expect(gatePanelIdx).toBeGreaterThan(-1);
+    expect(eventLogIdx).toBeLessThan(gatePanelIdx); // イベントログ上、gate パネル下部
+  });
+
+  it('各ペインに見出しと役割説明を持つ（受入基準c・設計者フィードバック「エリアが何を示しているか分からない」への対応）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('トレースログ');
+    expect(appHtml).toContain('ナビゲーション履歴');
+    expect(appHtml).toContain('イベントログ');
+    expect(appHtml).toContain('巻き戻し不可');
+    expect(appHtml).toContain('遷移マップ');
+    expect(appHtml).toContain('閲覧専用');
+  });
+
+  it('gate パネル改名: 画面外 component の姿切替（gate 試験用）という用途が伝わる見出し・説明を持つ（設計者確定事項 2026-07-19）', () => {
     const doc = parseOk(
       '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n# 時間選択\n本文\n',
     );
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
     const appHtml = vm.runInContext('app.innerHTML', context);
-    const gateIdx = appHtml.indexOf('gate-panel');
-    const graphIdx = appHtml.indexOf('graph-panel');
-    expect(gateIdx).toBeGreaterThan(-1);
-    expect(graphIdx).toBeGreaterThan(-1);
-    // 存在チェックだけでは配置順の退行を検出できない — 「近くに配置」を
-    // gate-panel が graph-panel より先に現れる順序として縛る。
-    expect(gateIdx).toBeLessThan(graphIdx);
-  });
-
-  it('遷移マップ: パネルを開いた状態で gotoNode によるノード遷移をしても開閉状態が保持される', () => {
-    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
-    const html = toSimulator(new Map([['main', doc]]), 'main');
-    const context = runSimulatorScript(html);
-
-    // gate 観測パネルと同じ方式 — JS グローバルで開閉状態を持ち render() へ反映する
-    vm.runInContext('graphPanelOpen = true; render()', context);
-    const beforeHtml = vm.runInContext('app.innerHTML', context);
-    expect(beforeHtml).toMatch(/<details open class="graph-panel"/);
-
-    vm.runInContext('gotoNode(1)', context); // DATA.graph.nodes は定義順 → 0:ホーム, 1:検索
-    const afterHtml = vm.runInContext('app.innerHTML', context);
-    // gotoNode → render() のたびに開閉状態が既定（閉）へ戻る退行を検出する
-    expect(afterHtml).toMatch(/<details open class="graph-panel"/);
+    expect(appHtml).toContain('画面外 component の姿切替');
+    expect(appHtml).toContain('gate 試験用');
+    // 機能（トグル・variant 切替）は現状維持
+    expect(html).toContain('function setInstanceVariant(');
+    expect(html).toContain('function toggleGatePanel(');
   });
 });
