@@ -330,18 +330,24 @@ function applyTransition(result) {
   const word = result.word;
   const target = resolveTarget(result, mod, comp);
 
-  // back() は shitae back() 準拠: 成功時は「前に進んだ記録を取り消す」= トレースログ末尾を
-  // 1 件取り除く（新規イベントは積まない。設計者確定事項）。失敗（wall・戻り先なし）は
-  // no-op のため trace は変えず、警告をイベントログへ流す。
+  // 遷移（back/push/present/switch/goto/exit/dismiss）: 実際に stack が変わったものだけ
+  // トレースログへ追加する（イベント適用後の全状態 snapshot を添える）。back も他の
+  // 遷移語と同じくこの共通経路に乗る——トレースログ=実行された遷移の忠実な列という
+  // オートマトン理論の見立てに沿い、back による巻き戻しも記録として残す（設計者確定
+  // 事項。旧仕様のトレースログ末尾除去 traceLog.pop() は全廃。Task 7）。
+  const beforeStack = JSON.stringify(stack);
+
+  // back() は shitae back() 準拠: アクティブパスを1つ遡る。失敗（wall・戻り先なし）は
+  // no-op のため stack は変わらず、警告をイベントログへ流す（trace 追記なし）。
   if (word === 'back') {
     if (stack.length <= 1) return;
     if (!target) {
       const top = stack[stack.length - 1];
       if (top.wall) { eventLog.push('back() が壁に阻まれました'); return; }
       stack = stack.slice(0, -1);
-      traceLog.pop();
     } else {
       // back(X): アクティブパスを遡るが barrier（wall）は越えない（runtime に整合）。
+      // 複数段の巻き戻しも stack を1回で切り詰め、trace への追記は末尾で1件だけ起こる。
       let found = -1;
       for (let i = stack.length - 1; i >= 0; i--) {
         if (stack[i].component === target.component) { found = i; break; }
@@ -351,18 +357,10 @@ function applyTransition(result) {
         eventLog.push('back(' + target.component + ') の戻り先が見つかりません');
       } else if (found < stack.length - 1) {
         stack = stack.slice(0, found + 1);
-        traceLog.pop();
       }
       // found === stack.length - 1 は既に対象がアクティブ（no-op）
     }
-    return;
-  }
-
-  // 遷移（push/present/switch/goto/exit/dismiss）: 実際に stack が変わったものだけ
-  // トレースログへ追加する（イベント適用後の全状態 snapshot を添える）。
-  const beforeStack = JSON.stringify(stack);
-
-  if (word === 'push' || word === 'present') {
+  } else if (word === 'push' || word === 'present') {
     if (!target) return;
     const variant = resolveEntryVariant(target);
     stack = [...stack, { module: target.module, component: target.component, variant, wall: word === 'present', sessionName: result.session ?? null }];
