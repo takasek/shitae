@@ -694,4 +694,20 @@ describe('toSimulator', () => {
     // gate-panel が graph-panel より先に現れる順序として縛る。
     expect(gateIdx).toBeLessThan(graphIdx);
   });
+
+  it('遷移マップ: パネルを開いた状態で gotoNode によるノード遷移をしても開閉状態が保持される', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    // gate 観測パネルと同じ方式 — JS グローバルで開閉状態を持ち render() へ反映する
+    vm.runInContext('graphPanelOpen = true; render()', context);
+    const beforeHtml = vm.runInContext('app.innerHTML', context);
+    expect(beforeHtml).toMatch(/<details open class="graph-panel"/);
+
+    vm.runInContext('gotoNode(1)', context); // DATA.graph.nodes は定義順 → 0:ホーム, 1:検索
+    const afterHtml = vm.runInContext('app.innerHTML', context);
+    // gotoNode → render() のたびに開閉状態が既定（閉）へ戻る退行を検出する
+    expect(afterHtml).toMatch(/<details open class="graph-panel"/);
+  });
 });

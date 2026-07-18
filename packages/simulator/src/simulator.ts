@@ -94,6 +94,11 @@ let sharedVariants = new Map();
 const GATE_TARGETS = DATA.gateTargets || [];
 let gatePanelOpen = false;
 
+// 遷移マップパネルの開閉状態（gate 観測パネルの gatePanelOpen と同じ方式）。
+// ノードクリック探索が遷移マップの主用途のため、gotoNode → render() のたびに
+// 閉じては使い物にならない——開閉はネイティブ <details> の ontoggle で同期する。
+let graphPanelOpen = false;
+
 // 対象インスタンスの variant を手動で書き換える（gate 観測用）
 function setInstanceVariant(module, name, variant) {
   sharedVariants.set(skey(module, name), variant);
@@ -725,12 +730,12 @@ function renderGraphMap() {
 }
 
 // 遷移マップパネル（gate 観測パネルの近くに配置。SPEC外の開発者向け観測 UI）。
-// <details> の折り畳みはブラウザネイティブ——render() が innerHTML を丸ごと再構築する
-// ため開閉状態そのものは再描画のたびに既定（閉）へ戻るが、SVG 自体は常に innerHTML に
-// 含まれるため折り畳み中でも DOM 上には存在する（自己完結 HTML の範囲で足りる簡易実装）。
+// 開閉状態は graphPanelOpen に保持し render() のたびに open 属性へ反映する——ノード
+// クリック探索が主用途のため gotoNode 後も開いたままであるべきで、ontoggle で
+// ネイティブ <details> の開閉操作を graphPanelOpen へ同期する。
 function renderGraphPanel() {
   if (!DATA.graph || DATA.graph.nodes.length === 0) return '';
-  return '<details class="graph-panel">' +
+  return '<details' + (graphPanelOpen ? ' open' : '') + ' class="graph-panel" ontoggle="graphPanelOpen = this.open">' +
     '<summary class="graph-panel-toggle">遷移マップ</summary>' +
     '<div class="graph-panel-body">' + renderGraphMap() + '<div id="graph-preview" class="graph-preview"></div></div>' +
   '</details>';
