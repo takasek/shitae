@@ -919,6 +919,7 @@ describe('toSimulator', () => {
     expect(centerRuleMatch).not.toBeNull();
     expect(centerRuleMatch![0]).toContain('grid-template-rows');
     expect(centerRuleMatch![0]).toMatch(/overflow:\s*hidden/);
+    expect(centerRuleMatch![0]).toMatch(/grid-template-rows:\s*minmax\(0,\s*1fr\)\s*minmax\(0,\s*1fr\)/);
     // screen-section と graph-section がそれぞれ自前のスクロール領域を持つ（min-height: 0 で
     // grid item のはみ出しを防ぎ overflow-y: auto を効かせる）
     const screenRuleMatch = html.match(/\.screen-section\s*\{[^}]*\}/);
@@ -926,7 +927,9 @@ describe('toSimulator', () => {
     expect(screenRuleMatch).not.toBeNull();
     expect(graphRuleMatch).not.toBeNull();
     expect(screenRuleMatch![0]).toMatch(/overflow-y:\s*auto/);
+    expect(screenRuleMatch![0]).toMatch(/min-height:\s*0/);
     expect(graphRuleMatch![0]).toMatch(/overflow-y:\s*auto/);
+    expect(graphRuleMatch![0]).toMatch(/min-height:\s*0/);
   });
 
   it('遷移マップの hover プレビューはペイン内の常時見える位置（sticky）にあり画面外へフレームアウトしない（Task 9 受入基準b）', () => {
