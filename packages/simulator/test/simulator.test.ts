@@ -857,6 +857,66 @@ describe('toSimulator', () => {
     expect((afterHtml.match(/class="stack-item[^"]*"/g) ?? []).length).toBe(1);
   });
 
+  it('exit 警告改善: 対象セッション不在時に現在のセッション一覧（重複除去・積み順）を含む（Task 7 受入基準d）', () => {
+    const doc = parseOk('# ホーム\n本体\n\n# A\n本体\n\n# B\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: 'A', variant: null }, session: 'a' })",
+      context,
+    );
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: 'B', variant: null }, session: 'b' })",
+      context,
+    );
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'exit', target: null, session: 'missing' })",
+      context,
+    );
+    const eventLog = JSON.parse(vm.runInContext('JSON.stringify(eventLog)', context));
+    const warning = eventLog.find((e: string) => e.includes('missing'));
+    expect(warning).toBeDefined();
+    expect(warning).toContain('exit(@missing)');
+    expect(warning).toContain('@a');
+    expect(warning).toContain('@b');
+    // 積み順（a が先に push された）を保つ
+    expect(warning.indexOf('@a')).toBeLessThan(warning.indexOf('@b'));
+  });
+
+  it('exit 警告改善: 現在のセッションがゼロ件なら「なし」と表示する（Task 7 受入基準d）', () => {
+    const doc = parseOk('# ホーム\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'exit', target: null, session: 'missing' })",
+      context,
+    );
+    const eventLog = JSON.parse(vm.runInContext('JSON.stringify(eventLog)', context));
+    const warning = eventLog.find((e: string) => e.includes('missing'));
+    expect(warning).toContain('なし');
+  });
+
+  it('dismiss 警告改善: 対象セッション不在時も exit と同じ形式で現在のセッション一覧を含む（Task 7 受入基準d）', () => {
+    const doc = parseOk('# ホーム\n本体\n\n# A\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: 'A', variant: null }, session: 'a' })",
+      context,
+    );
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'dismiss', target: null, session: 'missing' })",
+      context,
+    );
+    const eventLog = JSON.parse(vm.runInContext('JSON.stringify(eventLog)', context));
+    const warning = eventLog.find((e: string) => e.includes('missing'));
+    expect(warning).toContain('dismiss(@missing)');
+    expect(warning).toContain('@a');
+  });
+
   it('gate パネル改名: 画面外 component の姿切替（gate 試験用）という用途が伝わる見出し・説明を持つ（設計者確定事項 2026-07-19）', () => {
     const doc = parseOk(
       '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n# 時間選択\n本文\n',
