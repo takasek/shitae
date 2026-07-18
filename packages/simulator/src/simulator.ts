@@ -543,6 +543,84 @@ function renderOverlayCard(name, cardIdx) {
   });
 }
 
+// 遷移マップ（Task 5）: DATA.graph を GraphViz dot 風の簡易レイヤードで配置する純関数。
+// rank 割当: entryModule/entryComponent を rank 0 とし、エッジに沿って BFS する
+// （エッジは静的な push/present/goto/switch のみ。SimGraph の定義参照）。エッジで
+// 到達しないノードは最終 rank の次に隔離してまとめる。rank 内順序は前 rank の
+// 隣接ノードの平均位置（barycenter）で 1 パス整列する——前 rank に隣接がなければ
+// 末尾へ、barycenter が同着なら nodes の定義順を保つ（安定ソート）。
+// 戻り値は { module, name, rank, order }[]（座標変換は呼び出し側が rank/order から行う）。
+function layoutGraph(nodes, edges, entryModule, entryComponent) {
+  const keyOf = (n) => skey(n.module, n.name);
+  const indexByKey = new Map(nodes.map((n, i) => [keyOf(n), i]));
+  const adj = nodes.map(() => []);
+  const predAdj = nodes.map(() => []);
+  for (const e of edges) {
+    const fromIdx = indexByKey.get(keyOf(e.from));
+    const toIdx = indexByKey.get(keyOf(e.to));
+    if (fromIdx == null || toIdx == null) continue;
+    adj[fromIdx].push(toIdx);
+    predAdj[toIdx].push(fromIdx);
+  }
+
+  const rank = new Array(nodes.length).fill(-1);
+  const entryIdx = indexByKey.get(skey(entryModule, entryComponent));
+  if (entryIdx != null) {
+    rank[entryIdx] = 0;
+    const queue = [entryIdx];
+    while (queue.length > 0) {
+      const cur = queue.shift();
+      for (const next of adj[cur]) {
+        if (rank[next] === -1) {
+          rank[next] = rank[cur] + 1;
+          queue.push(next);
+        }
+      }
+    }
+  }
+  const reachedRanks = rank.filter((r) => r >= 0);
+  const maxRank = reachedRanks.length > 0 ? Math.max(...reachedRanks) : -1;
+  const unreachedRank = maxRank + 1;
+  for (let i = 0; i < rank.length; i++) {
+    if (rank[i] === -1) rank[i] = unreachedRank;
+  }
+
+  // rank ごとにノード index をグループ化し、rank 昇順に barycenter 整列する
+  // （直前に処理した rank の順序だけを見る 1 パス。BFS の rank は連番のため
+  // 「直前に処理した rank」は常に r-1 と一致する）。
+  const byRank = new Map();
+  for (let i = 0; i < nodes.length; i++) {
+    if (!byRank.has(rank[i])) byRank.set(rank[i], []);
+    byRank.get(rank[i]).push(i);
+  }
+  const rankKeys = [...byRank.keys()].sort((a, b) => a - b);
+  const order = new Array(nodes.length).fill(0);
+  let prevOrder = new Map();
+  for (const r of rankKeys) {
+    const idxs = byRank.get(r);
+    if (prevOrder.size > 0) {
+      const baryOf = new Map();
+      for (const idx of idxs) {
+        const preds = predAdj[idx].filter((p) => prevOrder.has(p));
+        baryOf.set(
+          idx,
+          preds.length === 0 ? Infinity : preds.reduce((sum, p) => sum + prevOrder.get(p), 0) / preds.length,
+        );
+      }
+      idxs.sort((a, b) => {
+        const diff = baryOf.get(a) - baryOf.get(b);
+        return diff !== 0 ? diff : a - b; // 同着は定義順（index）を保つ
+      });
+    } else {
+      idxs.sort((a, b) => a - b); // 最初に処理する rank 群は定義順
+    }
+    idxs.forEach((idx, i) => { order[idx] = i; });
+    prevOrder = new Map(idxs.map((idx, i) => [idx, i]));
+  }
+
+  return nodes.map((n, i) => ({ module: n.module, name: n.name, rank: rank[i], order: order[i] }));
+}
+
 function render() {
   const frame = currentFrame();
   const comp = getComp(frame.module, frame.component);
