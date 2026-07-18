@@ -19,9 +19,13 @@ function buildHtml(data: SimulatorData): string {
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5; color: #111; }
 #app { max-width: 480px; margin: 0 auto; padding: 16px; }
-.stack-bar { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 12px; font-size: 12px; color: #666; }
-.stack-item { background: #e0e0e0; padding: 2px 8px; border-radius: 10px; }
-.stack-item.current { background: #111; color: #fff; }
+.trace-log { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 12px; font-size: 12px; color: #666; }
+.trace-item { background: #e0e0e0; padding: 2px 8px; border-radius: 10px; cursor: pointer; }
+.trace-item.current { background: #111; color: #fff; }
+.trace-item:hover { background: #ccc; }
+.event-log { margin-top: 12px; font-size: 12px; color: #666; }
+.event-log-label { font-size: 11px; color: #999; margin-bottom: 4px; }
+.event-log-item { padding: 3px 0; border-bottom: 1px dashed #eee; }
 .screen { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
 .screen-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
 .variant-label { font-size: 12px; color: #888; margin-bottom: 12px; }
@@ -39,9 +43,6 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
 .choice-btn:hover { background: #f5f5f5; }
 .back-btn { margin-top: 12px; background: none; border: 1px solid #ccc; border-radius: 6px; padding: 8px 14px; cursor: pointer; font-size: 12px; color: #555; }
 .back-btn:hover { background: #f0f0f0; }
-.back-btn:disabled { opacity: 0.4; cursor: default; }
-.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; }
-.toast.show { opacity: 1; }
 .no-actions { color: #bbb; font-size: 13px; font-style: italic; }
 .doc-common { margin-top: 12px; padding-top: 10px; border-top: 1px dashed #ddd; }
 .doc-common-label { font-size: 11px; color: #999; margin-bottom: 6px; }
@@ -59,11 +60,9 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
 </head>
 <body>
 <div id="app"></div>
-<div class="toast" id="toast"></div>
 <script>
 const DATA = ${json};
 const app = document.getElementById('app');
-const toastEl = document.getElementById('toast');
 // (module, component) の合成キー（ADR-0013: singleton の共有スコープは定義ファイル単位）
 function skey(module, component) { return JSON.stringify([module, component]); }
 const SINGLETONS = new Set((DATA.singletons || []).map(s => skey(s.module, s.name)));
@@ -130,8 +129,14 @@ let stack = [{
 }];
 
 let pendingChoice = null; // { actionText, choices }
-let toastTimer = null;
 let overlays = new Map(); // 掲示中 component名 → 表示 variant（null=initial の含意。SPEC「オーバーレイ」。フレーム木とは別軸）
+
+// トレースログ: 遷移イベントの配列 { label, snapshot }。末尾が常に現在地（スタック表示兼用）。
+// snapshot はイベント適用後の全状態 { stack, sharedVariants, overlays } の deep copy（Map は entries 配列化）。
+// 起動イベントを先頭に置く（設計判断: Task 2 brief）。
+let traceLog = [{ label: '起動', snapshot: snapshotState() }];
+// イベントログ: 遷移でないもの（effect / set / show / hide）と警告を流し込む append-only リスト。巻き戻し無し。
+let eventLog = [];
 
 function getComp(module, name) {
   return DATA.modules[module]?.components[name];
@@ -139,6 +144,30 @@ function getComp(module, name) {
 
 function currentFrame() {
   return stack[stack.length - 1];
+}
+
+// 現在の全状態 { stack, sharedVariants, overlays } の deep copy を作る（Map は entries 配列化。structuredClone 相当）
+function snapshotState() {
+  return {
+    stack: JSON.parse(JSON.stringify(stack)),
+    sharedVariants: JSON.parse(JSON.stringify([...sharedVariants.entries()])),
+    overlays: JSON.parse(JSON.stringify([...overlays.entries()])),
+  };
+}
+
+// snapshot から全状態を復元する（トレースログのイベントタップ用。壁は無視——開発者向けタイムトラベル）
+function restoreState(snapshot) {
+  stack = JSON.parse(JSON.stringify(snapshot.stack));
+  sharedVariants = new Map(JSON.parse(JSON.stringify(snapshot.sharedVariants)));
+  overlays = new Map(JSON.parse(JSON.stringify(snapshot.overlays)));
+}
+
+// 遷移イベントの label（適用後の現在地が分かる形。末尾が常に現在地＝スタック表示兼用）
+function transitionLabel(word) {
+  const frame = currentFrame();
+  const v = displayVariant(frame);
+  const loc = v ? frame.component + ' / ' + v : frame.component;
+  return word + ' → ' + loc;
 }
 
 // 掲示中 component の表示 variant（省略指定は initial。SPEC「オーバーレイ」）
@@ -237,13 +266,15 @@ function applyTransition(result) {
   const comp = frame.component;
 
   if (result.type === 'effect') {
-    showToast(result.text);
+    // 効果は遷移でない → イベントログへ（旧トースト表示分。toast の DOM/CSS は全廃）
+    eventLog.push('effect: ' + result.text);
     return;
   }
 
   if (result.type === 'overlay') {
     // 掲示中集合を更新（show は表示 variant・module 込みで追加/上書き / hide 除去。hide 空打ち no-op）。フレーム木は動かさない。
     // module 省略時はアクティブフレームの module で解決（push/goto の相対解決と同じ規約）。
+    // show/hide は遷移ではない → イベントログへ 1 行。
     if (result.op === 'show') {
       const mod = result.module ?? frame.module;
       // 明示 show(X##v) は singleton の共有レジストリも書き換える（全所在に即時反映。ADR-0011）
@@ -251,26 +282,61 @@ function applyTransition(result) {
         sharedVariants.set(skey(mod, result.component), result.variant);
       }
       overlays.set(result.component, { variant: result.variant, module: mod });
+      eventLog.push('show(' + result.component + (result.variant != null ? '##' + result.variant : '') + ')');
     } else {
       overlays.delete(result.component);
+      eventLog.push('hide(' + result.component + ')');
     }
     return;
   }
 
   if (result.type === 'state') {
     // set（ADR-0014）: 遷移も掲示もせず singleton の共有 variant だけを書き換える。
-    // 非 singleton は no-op（E030 は checker が静的に検出する）。
+    // 非 singleton は no-op（E030 は checker が静的に検出する）。set も遷移ではない → イベントログへ。
     const mod = result.module ?? frame.module;
     if (isSingleton(mod, result.component)) {
       sharedVariants.set(skey(mod, result.component), result.variant);
+      eventLog.push('set(' + result.component + '##' + result.variant + ')');
     } else {
-      showToast('set(' + result.component + '##' + result.variant + ') は singleton でないため無効');
+      eventLog.push('set(' + result.component + '##' + result.variant + ') は singleton でないため無効');
     }
     return;
   }
 
   const word = result.word;
   const target = resolveTarget(result, mod, comp);
+
+  // back() は shitae back() 準拠: 成功時は「前に進んだ記録を取り消す」= トレースログ末尾を
+  // 1 件取り除く（新規イベントは積まない。設計者確定事項）。失敗（wall・戻り先なし）は
+  // no-op のため trace は変えず、警告をイベントログへ流す。
+  if (word === 'back') {
+    if (stack.length <= 1) return;
+    if (!target) {
+      const top = stack[stack.length - 1];
+      if (top.wall) { eventLog.push('back() が壁に阻まれました'); return; }
+      stack = stack.slice(0, -1);
+      traceLog.pop();
+    } else {
+      // back(X): アクティブパスを遡るが barrier（wall）は越えない（runtime に整合）。
+      let found = -1;
+      for (let i = stack.length - 1; i >= 0; i--) {
+        if (stack[i].component === target.component) { found = i; break; }
+        if (stack[i].wall) break; // 壁に阻まれ、これ以上遡れない
+      }
+      if (found < 0) {
+        eventLog.push('back(' + target.component + ') の戻り先が見つかりません');
+      } else if (found < stack.length - 1) {
+        stack = stack.slice(0, found + 1);
+        traceLog.pop();
+      }
+      // found === stack.length - 1 は既に対象がアクティブ（no-op）
+    }
+    return;
+  }
+
+  // 遷移（push/present/switch/goto/exit/dismiss）: 実際に stack が変わったものだけ
+  // トレースログへ追加する（イベント適用後の全状態 snapshot を添える）。
+  const beforeStack = JSON.stringify(stack);
 
   if (word === 'push' || word === 'present') {
     if (!target) return;
@@ -297,26 +363,12 @@ function applyTransition(result) {
     const variant = resolveEntryVariant(target);
     const newFrame = { ...frame, component: target.component, variant, module: target.module };
     stack = [...stack.slice(0, -1), newFrame];
-  } else if (word === 'back') {
-    if (stack.length <= 1) return;
-    if (!target) {
-      const top = stack[stack.length - 1];
-      if (top.wall) { showToast('back() が壁に阻まれました'); return; }
-      stack = stack.slice(0, -1);
-    } else {
-      // back(X): アクティブパスを遡るが barrier（wall）は越えない（runtime に整合）。
-      let found = -1;
-      for (let i = stack.length - 1; i >= 0; i--) {
-        if (stack[i].component === target.component) { found = i; break; }
-        if (stack[i].wall) break; // 壁に阻まれ、これ以上遡れない
-      }
-      if (found >= 0) stack = stack.slice(0, found + 1);
-      else showToast('back(' + target.component + ') の戻り先が見つかりません');
-    }
   } else if (word === 'exit' || word === 'dismiss') {
     const sessionName = result.session ?? null;
+    let found = false;
     for (let i = stack.length - 1; i >= 0; i--) {
       if (stack[i].sessionName === sessionName) {
+        found = true;
         stack = stack.slice(0, i);
         if (stack.length === 0) {
           stack = [{ module: DATA.entryModule, component: DATA.entryComponent, variant: initialVariant(DATA.entryModule, DATA.entryComponent), wall: false, sessionName: null }];
@@ -324,6 +376,13 @@ function applyTransition(result) {
         break;
       }
     }
+    if (!found) {
+      eventLog.push((word === 'exit' ? 'exit' : 'dismiss') + '(' + (sessionName ?? '') + ') の対象セッションが見つかりません');
+    }
+  }
+
+  if (JSON.stringify(stack) !== beforeStack) {
+    traceLog.push({ label: transitionLabel(word), snapshot: snapshotState() });
   }
 }
 
@@ -332,13 +391,6 @@ function runResults(bodies) {
   for (const body of bodies) applyTransition(body);
   pendingChoice = null;
   render();
-}
-
-function showToast(text) {
-  toastEl.textContent = text;
-  toastEl.classList.add('show');
-  if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2500);
 }
 
 function handleInteraction(idx) {
@@ -385,6 +437,17 @@ function goBack() {
   runResults([{ type: 'transition', word: 'back', target: null, session: null }]);
 }
 
+// トレースログのイベントタップ: 全状態巻き戻し（stack・sharedVariants・overlays を snapshot
+// から復元し、trace をそのイベントまで truncate）。壁は無視する（開発者向けタイムトラベル。設計者確定事項）。
+function jumpToTrace(idx) {
+  const entry = traceLog[idx];
+  if (!entry) return;
+  restoreState(entry.snapshot);
+  traceLog = traceLog.slice(0, idx + 1);
+  pendingChoice = null;
+  render();
+}
+
 // document common（最初の # より前）のインタラクション。どの画面でも常に有効だが、
 // 現在画面の実効 interactions に shadow されたものは除外する（SPEC「document common」3階層shadow）。
 function docCommonInteractions() {
@@ -419,12 +482,10 @@ function render() {
   const frame = currentFrame();
   const comp = getComp(frame.module, frame.component);
 
-  // breadcrumb（singleton の variant は表示時も共有レジストリの現在値を見る。ADR-0011）
-  const breadcrumb = stack.map((f, i) => {
-    const v = displayVariant(f);
-    const label = v ? f.component + ' / ' + v : f.component;
-    const cls = i === stack.length - 1 ? 'stack-item current' : 'stack-item';
-    return '<span class="' + cls + '">' + esc(label) + '</span>';
+  // トレースログ（末尾が常に現在地＝スタック表示兼用。タップで全状態巻き戻し）
+  const traceLogHtml = traceLog.map((entry, i) => {
+    const cls = i === traceLog.length - 1 ? 'trace-item current' : 'trace-item';
+    return '<span class="' + cls + '" onclick="jumpToTrace(' + i + ')">' + esc(entry.label) + '</span>';
   }).join(' › ');
 
   // elements（document common の要素行は全 component の表示に共通要素として乗る。SPEC「document common」）
@@ -487,9 +548,17 @@ function render() {
       '</div>';
   }
 
-  // back button
+  // back button（「戻れない」= stack 長 1 または現 frame.wall。disabled でなく DOM から消す）
   const canBack = stack.length > 1 && !currentFrame().wall;
-  const backBtn = '<button class="back-btn" onclick="goBack()" ' + (canBack ? '' : 'disabled') + '>← 戻る</button>';
+  const backBtn = canBack ? '<button class="back-btn" onclick="goBack()">← 戻る</button>' : '';
+
+  // イベントログ（append-only。effect・set・show/hide・警告を流し込む。巻き戻し無し）
+  let eventLogHtml = '';
+  if (eventLog.length > 0) {
+    eventLogHtml = '<div class="event-log"><div class="event-log-label">イベントログ</div>' +
+      eventLog.map((e) => '<div class="event-log-item">' + esc(e) + '</div>').join('') +
+      '</div>';
+  }
 
   const variantLabel = frameVariant ? '<div class="variant-label">## ' + esc(frameVariant) + '</div>' : '';
 
@@ -519,7 +588,7 @@ function render() {
   }
 
   app.innerHTML =
-    '<div class="stack-bar">' + breadcrumb + '</div>' +
+    '<div class="trace-log">' + traceLogHtml + '</div>' +
     '<div class="screen">' +
       '<div class="screen-title">' + esc(frame.component) + '</div>' +
       variantLabel +
@@ -529,6 +598,7 @@ function render() {
       backBtn +
     '</div>' +
     gatePanelHtml +
+    eventLogHtml +
     overlayHtml;
 }
 
