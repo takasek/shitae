@@ -23,11 +23,16 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
 #app { display: grid; grid-template-columns: 260px 1fr 300px; height: 100vh; }
 .pane { padding: 16px; overflow-y: auto; }
 .pane-trace { background: #fff; border-right: 1px solid #e0e0e0; }
-.pane-center { background: #f5f5f5; display: flex; flex-direction: column; gap: 20px; }
+/* 中央ペインは自身を単一スクロール領域にしない（.pane の overflow-y: auto を上書き）——
+   画面カードと遷移マップを grid rows で独立スクロールの 2 領域に分割する（Task 9）。
+   画面カードの高さが変わっても遷移マップの表示位置（row の開始位置）は動かない。 */
+.pane-center { background: #f5f5f5; padding: 0; overflow: hidden; display: grid; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
 .pane-events { background: #fff; border-left: 1px solid #e0e0e0; }
 .pane-title { font-size: 13px; font-weight: 700; color: #333; margin-bottom: 2px; }
 .pane-desc { font-size: 11px; color: #888; margin-bottom: 10px; }
-.screen-section, .graph-section { display: flex; flex-direction: column; }
+/* min-height: 0 は grid item の暗黙の最小高さ（auto）を打ち消し overflow-y: auto を効かせるために必須 */
+.screen-section { display: flex; flex-direction: column; overflow-y: auto; min-height: 0; padding: 16px 16px 8px; }
+.graph-section { display: flex; flex-direction: column; overflow-y: auto; min-height: 0; padding: 8px 16px 16px; border-top: 1px solid #e0e0e0; }
 .stack-list { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #333; margin-bottom: 16px; }
 .stack-item { padding: 3px 8px; border-radius: 4px; background: #f5f5f5; }
 .stack-item-current { background: #111; color: #fff; }
@@ -77,7 +82,10 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
 .graph-svg text { font-size: 10px; fill: #333; pointer-events: none; }
 .graph-svg line { stroke: #bbb; stroke-width: 1; }
 .graph-svg marker path { fill: #bbb; }
-.graph-preview { margin-top: 6px; padding: 6px 8px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; font-size: 11px; color: #555; min-height: 1em; }
+/* 遷移マップペイン上部に sticky で固定する（Task 9）——マップが縦に伸びて
+   ペイン内スクロールが生じても hover プレビューは常時見える位置にとどまり、
+   画面下へフレームアウトしない。z-index と不透明背景でノード矩形の上に重ねて表示する。 */
+.graph-preview { position: sticky; top: 0; z-index: 1; margin-bottom: 6px; padding: 6px 8px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; font-size: 11px; color: #555; min-height: 1em; }
 .graph-preview-title { font-weight: 700; color: #333; }
 </style>
 </head>
@@ -808,14 +816,17 @@ function renderGraphMap() {
   '</svg>';
 }
 
-// 遷移マップの区画（中央下ペインの主役。設計者フィードバック 2026-07-19 で <details> 折り畳みを
-// 廃止し常時表示にした——閲覧専用化でノードクリック探索という開閉維持の理由が消えたため）。
+// 遷移マップの区画（中央下ペインの主役、独立スクロール領域。設計者フィードバック 2026-07-19 で
+// <details> 折り畳みを廃止し常時表示にした——閲覧専用化でノードクリック探索という開閉維持の
+// 理由が消えたため）。#graph-preview はマップ本体（SVG）より前に置く——sticky でペイン上部に
+// 固定するには DOM 上もペイン先頭にあるのが自然で、マップが縦に伸びてスクロールしても
+// hover プレビューが画面外へフレームアウトしない（Task 9 受入基準b）。
 function renderGraphSection() {
   if (!DATA.graph || DATA.graph.nodes.length === 0) return '';
   return '<section class="graph-section">' +
-    '<div class="pane-title" title="遷移マップ — 画面間の遷移関係（閲覧専用）">遷移マップ</div>' +
-    '<div class="pane-desc">画面間の遷移関係（閲覧専用）。現在の画面.本体に対応するノードを強調表示し、hover でプレビューを表示します。</div>' +
-    renderGraphMap() + '<div id="graph-preview" class="graph-preview"></div>' +
+    '<div class="pane-title" title="遷移マップ — 画面間の遷移関係（閲覧専用）。状態遷移図として読める">遷移マップ</div>' +
+    '<div class="pane-desc">画面間の遷移関係（閲覧専用）。状態遷移図として読める。現在の画面.本体に対応するノードを強調表示し、hover でプレビューを表示します。</div>' +
+    '<div id="graph-preview" class="graph-preview"></div>' + renderGraphMap() +
   '</section>';
 }
 
@@ -932,14 +943,15 @@ function render() {
 
   // 全幅 3 カラムグリッド（設計者フィードバック 2026-07-19）: 左 = トレースログ /
   // 中央 = 現在の画面（上）+ 遷移マップ（下） / 右 = イベントログ + gate パネル（下部）。
-  // 各ペインに見出し・役割説明を添え、エリアの意味が一目で伝わるようにする。
+  // 各ペインに見出し・役割説明を添え、エリアの意味が一目で伝わるようにする。説明文には
+  // オートマトンとしての読み方を一言添える（用語は現状のまま。ADR-0022・Task 9）。
   app.innerHTML =
     '<aside class="pane pane-trace">' +
-      '<div class="pane-title" title="スタック — 今積み重なっている画面。プッシュダウン構成として上から読む">スタック</div>' +
-      '<div class="pane-desc">今積み重なっている画面（プッシュダウン構成）。上が現在地</div>' +
+      '<div class="pane-title" title="スタック — 今積み重なっている画面。プッシュダウン構成として読める">スタック</div>' +
+      '<div class="pane-desc">今積み重なっている画面。プッシュダウン構成として読める。上が現在地</div>' +
       '<div class="stack-list">' + stackHtml + '</div>' +
-      '<div class="pane-title" title="トレースログ — ナビゲーション履歴。クリックでその時点へ巻き戻し">トレースログ</div>' +
-      '<div class="pane-desc">ナビゲーション履歴。クリックでその時点へ巻き戻し</div>' +
+      '<div class="pane-title" title="トレースログ — 実行された遷移の列。クリックでその時点へ巻き戻し">トレースログ</div>' +
+      '<div class="pane-desc">ナビゲーション履歴。実行された遷移の列。クリックでその時点へ巻き戻し</div>' +
       '<div class="trace-log">' + traceLogHtml + '</div>' +
     '</aside>' +
     '<main class="pane pane-center">' +
