@@ -524,7 +524,7 @@ describe('toSimulator', () => {
     expect(vm.runInContext('currentFrame().component', context)).toBe('次');
   });
 
-  it('操作一覧を scope カテゴリ（variant固有/component common/document common）に正しく分類する', () => {
+  it('操作一覧: scope はカテゴリ見出しでなく各操作行のバッジで示す（variant固有/component common/document common の3種。Task 8 受入基準d）', () => {
     const doc = parseOk(
       '> 通知 -> push(受信箱)\n\n' +
         '# ホーム\n> 共通操作 -> push(共通先)\n## 通常\n姿要素\n> 姿操作 -> push(詳細)\n\n' +
@@ -533,12 +533,123 @@ describe('toSimulator', () => {
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
     const appHtml = vm.runInContext('app.innerHTML', context);
+    // カテゴリ <details> ではなく行ごとのバッジ表示
+    expect(appHtml).not.toContain('action-category');
+    expect(appHtml).toContain('scope-badge');
     expect(appHtml).toContain('variant固有');
     expect(appHtml).toContain('component common');
     expect(appHtml).toContain('document common');
     expect(appHtml).toContain('姿操作');
     expect(appHtml).toContain('共通操作');
     expect(appHtml).toContain('通知');
+  });
+
+  it('要素の階層表示: ref を持つ要素は参照先 component の中身（commonElements + 現在 variant）を <details open> で入れ子展開する（Task 8 受入基準a）', () => {
+    const doc = parseOk('# ホーム\nログインフォーム\n\n# ログインフォーム\nID入力\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('ログインフォーム');
+    expect(appHtml).toMatch(/<details open class="element-hierarchy">/);
+    expect(appHtml).toContain('ID入力');
+  });
+
+  it('要素の階層表示: variant を持つ参照先は sharedVariants → initialVariant の順で解決した variant の elements を展開する（Task 8）', () => {
+    const doc = parseOk(
+      '# ホーム\n詳細\n\n# 詳細\n## 読込中\nスピナー\n## 表示\nコンテンツ\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    // sharedVariants 未設定 → initialVariant（読込中）の中身が展開される
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('スピナー');
+    expect(appHtml).not.toContain('コンテンツ');
+
+    // sharedVariants に「表示」を設定すると、展開はそちらへ追随する
+    vm.runInContext("sharedVariants.set(skey('main', '詳細'), '表示'); render()", context);
+    const afterHtml = vm.runInContext('app.innerHTML', context);
+    expect(afterHtml).toContain('コンテンツ');
+  });
+
+  it('要素の階層表示: 循環参照は展開経路上の (module,name) 再訪で打ち切り「（循環）」を示す（無限展開しない。Task 8 受入基準b）', () => {
+    const doc = parseOk('# A\nB\n\n# B\nA\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    // 循環があっても render() が有限時間で完了し、循環を示す表記が出ること自体がガードの証跡
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('（循環）');
+  });
+
+  it('操作の対象紐付け: action.target がトップレベル要素の表示名に一致する操作はその要素行の直下に、不一致・対象なしはフラットリストに出る（Task 8 受入基準c）', () => {
+    const doc = parseOk(
+      '# ホーム\nロゴ\n他要素\n> タップ(ロゴ) -> push(設定)\n> 押す -> push(次)\n\n' +
+        '# 設定\n本体\n\n# 次\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+
+    const logoIdx = appHtml.indexOf('>ロゴ<');
+    const attachedIdx = appHtml.indexOf('タップ(ロゴ)');
+    const otherElIdx = appHtml.indexOf('>他要素<');
+    const flatIdx = appHtml.indexOf('押す');
+    // 対象一致（タップ(ロゴ)）は ロゴ 要素行の直下（次の要素行より前）に紐付けて出る
+    expect(logoIdx).toBeGreaterThan(-1);
+    expect(attachedIdx).toBeGreaterThan(logoIdx);
+    expect(attachedIdx).toBeLessThan(otherElIdx);
+    // 対象なし（押す）は要素より後のフラットリストに出る
+    expect(flatIdx).toBeGreaterThan(otherElIdx);
+
+    vm.runInContext("handleInteraction('component', 0, 0)", context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('設定');
+  });
+
+  it('操作の対象紐付け: onclick は scope 固定キー + gate フィルタ済みリスト内インデックスを参照し、描画とハンドラでずれない（Task 8）', () => {
+    const doc = parseOk(
+      '# ホーム\nロゴ\n> 押す(非表示要素?) -> push(A)\n> タップ(ロゴ) -> push(設定)\n\n' +
+        '# 設定\n本体\n\n# A\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    // 押す(非表示要素?) は gate off（ホームの実効 body に非表示要素が無い）でフィルタされ、
+    // フィルタ済み component リストは [タップ(ロゴ)] のみ——描画された onclick の idx は 0
+    expect(appHtml).not.toContain('押す');
+    const m = appHtml.match(/onclick="(handleInteraction\('component',\d+,\d+\))"/);
+    expect(m).not.toBeNull();
+    // 描画された onclick をそのまま実行すると、紐付け表示された タップ(ロゴ) が発火して 設定 へ遷移する
+    vm.runInContext(m![1]!, context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('設定');
+  });
+
+  it('掲示中カード: 要素の階層展開・対象紐付け・scope バッジが本体と同じ描画経路で効く（Task 8 本体・掲示中共通）', () => {
+    const doc = parseOk(
+      '# ホーム\nロゴ\n> 出す -> show(ミニ)\n\n' +
+        '# ミニ\n曲名\n中身\n> タップ(曲名) -> push(プレイヤー)\n\n' +
+        '# 中身\n詳細行\n\n# プレイヤー\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext(
+      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
+      context,
+    );
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    const overlayIdx = appHtml.indexOf('overlay-card');
+    expect(overlayIdx).toBeGreaterThan(-1);
+    const overlaySection = appHtml.slice(overlayIdx);
+    // 中身（定義済み component への参照）は掲示中カード内でも入れ子展開される
+    expect(overlaySection).toContain('element-hierarchy');
+    expect(overlaySection).toContain('詳細行');
+    // タップ(曲名) は 曲名 要素行の直下に紐付き、scope バッジを持つ
+    const nameIdx = overlaySection.indexOf('>曲名<');
+    const attachedIdx = overlaySection.indexOf('タップ(曲名)');
+    expect(nameIdx).toBeGreaterThan(-1);
+    expect(attachedIdx).toBeGreaterThan(nameIdx);
+    expect(overlaySection).toContain('scope-badge');
+    // 紐付け表示された操作もクリックで実行できる（アクティブフレーム基準の遷移は不変）
+    vm.runInContext("handleOverlayInteraction(0, 'component', 0, 0)", context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('プレイヤー');
   });
 
   it('choice-chip の onclick は scope を単一引用符の JS 文字列リテラルとして埋め込み onclick 属性を壊さない', () => {
@@ -558,7 +669,7 @@ describe('toSimulator', () => {
     expect(appHtml).toContain("onclick=\"handleInteraction('document'");
   });
 
-  it('scope カテゴリが空なら見出しごと出さない', () => {
+  it('存在しない scope のバッジ表記は出ない（component 操作だけなら variant固有・document common の文字は現れない）', () => {
     const doc = parseOk('# ホーム\n> 押す -> push(次)\n\n# 次\n本体\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
