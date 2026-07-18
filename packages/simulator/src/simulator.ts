@@ -42,6 +42,7 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
 .timeline-item { background: #e0e0e0; padding: 2px 8px; border-radius: 10px; cursor: pointer; }
 .timeline-item-event { background: #eef0ff; color: #4b4f8f; }
 .timeline-item.current { background: #111; color: #fff; }
+.timeline-item.ghost { opacity: .4; }
 .timeline-item:hover { background: #ccc; }
 .screen { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
 .screen-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
@@ -167,6 +168,10 @@ let overlays = new Map(); // 掲示中 component名 → 表示 variant（null=in
 // 状態を持つため巻き戻し対象になる。起動イベントを先頭に置く（設計判断: Task 2 brief）。
 // 現在の frame スタックは別にスタック表示（renderStackList）が専任で描画する（Task 7）。
 let timeline = [{ kind: 'transition', label: '起動', snapshot: snapshotState() }];
+// 巻き戻し位置（timeline 上のインデックス）。現在地は「cursor が指すエントリ」に一般化される
+// （旧「末尾が現在地」の後継。Task 10）。cursor より未来のエントリは ghost として保持され、
+// クリック（jumpToTimeline）で前後どちらへも移動できる（undo/redo）。新規追記時のみ ghost を消す。
+let cursor = 0;
 
 function getComp(module, name) {
   return DATA.modules[module]?.components[name];
@@ -194,8 +199,12 @@ function restoreState(snapshot) {
 
 // 統合ログへ1件追記する共通経路（Task 10）。適用後スナップショットを添える——
 // 遷移だけでなく event（effect/set/show/hide/警告）も状態を持つため巻き戻し対象になる。
+// cursor より未来に残っていた ghost エントリはここで消去してから追記する（実際に log へ
+// 追記が起きる実行の時点でタイムライン分岐が確定し、以降の ghost は無意味になるため）。
 function pushTimelineEntry(kind, label) {
+  timeline = timeline.slice(0, cursor + 1);
   timeline.push({ kind, label, snapshot: snapshotState() });
+  cursor = timeline.length - 1;
 }
 
 // interaction 1 件分の prelude → 指定 choice（未指定・choices 空なら prelude のみ）を順に適用する。
@@ -510,12 +519,14 @@ function goBack() {
 }
 
 // 統合ログのエントリタップ: 全状態巻き戻し（stack・sharedVariants・overlays を snapshot
-// から復元し、timeline をそのエントリまで truncate）。壁は無視する（開発者向けタイムトラベル。設計者確定事項）。
+// から復元し、cursor をそのエントリへ移す）。timeline は truncate しない——cursor より
+// 未来のエントリは ghost として残り、再クリックで前後どちらへも移動できる（undo/redo。
+// Task 10 受入基準b・c）。壁は無視する（開発者向けタイムトラベル。設計者確定事項）。
 function jumpToTimeline(idx) {
   const entry = timeline[idx];
   if (!entry) return;
   restoreState(entry.snapshot);
-  timeline = timeline.slice(0, idx + 1);
+  cursor = idx;
   render();
 }
 
@@ -864,11 +875,13 @@ function render() {
 
   const stackHtml = renderStackList();
 
-  // 統合ログ（末尾が常に現在地。タップで全状態巻き戻し。transition/event 両方クリック可）
+  // 統合ログ（cursor が指すエントリ＝現在地。タップで全状態巻き戻し・redo。
+  // transition/event 両方クリック可。cursor より未来のエントリは ghost（半透明）表示）
   const timelineHtml = timeline.map((entry, i) => {
-    const kindCls = 'timeline-item-' + entry.kind;
-    const cls = i === timeline.length - 1 ? 'timeline-item ' + kindCls + ' current' : 'timeline-item ' + kindCls;
-    return '<span class="' + cls + '" onclick="jumpToTimeline(' + i + ')">' + esc(entry.label) + '</span>';
+    const classes = ['timeline-item', 'timeline-item-' + entry.kind];
+    if (i === cursor) classes.push('current');
+    if (i > cursor) classes.push('ghost');
+    return '<span class="' + classes.join(' ') + '" onclick="jumpToTimeline(' + i + ')">' + esc(entry.label) + '</span>';
   }).join(' › ');
 
   // elements（document common の要素行は全 component の表示に共通要素として乗る。SPEC「document common」）
@@ -949,8 +962,8 @@ function render() {
       '<div class="pane-title" title="スタック — 今積み重なっている画面。プッシュダウン構成として読める">スタック</div>' +
       '<div class="pane-desc">今積み重なっている画面。プッシュダウン構成として読める。上が現在地</div>' +
       '<div class="stack-list">' + stackHtml + '</div>' +
-      '<div class="pane-title" title="統合ログ — 実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し">統合ログ</div>' +
-      '<div class="pane-desc">ナビゲーション履歴。実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し</div>' +
+      '<div class="pane-title" title="統合ログ — 実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は ghost として残ります">統合ログ</div>' +
+      '<div class="pane-desc">ナビゲーション履歴。実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は薄く（ghost）表示され、再クリックでやり直せます</div>' +
       '<div class="timeline-log">' + timelineHtml + '</div>' +
     '</aside>' +
     '<main class="pane pane-center">' +

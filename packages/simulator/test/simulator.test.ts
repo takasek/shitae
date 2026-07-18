@@ -373,7 +373,7 @@ describe('toSimulator', () => {
     expect(stackLen).toBe(1);
   });
 
-  it('統合ログ: push 2回で起動+2件、timeline[1]タップで全状態(stack・sharedVariants・overlays)が巻き戻る', () => {
+  it('統合ログ: push 2回で起動+2件、timeline[1]タップで全状態(stack・sharedVariants・overlays)が巻き戻る（受入基準b: 未来分は ghost として残り truncate されない）', () => {
     const doc = parseOk(
       '# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n> 結果へ -> push(結果)\n\n# 結果\n本体\n',
     );
@@ -389,12 +389,74 @@ describe('toSimulator', () => {
       context,
     );
     expect(vm.runInContext('timeline.length', context)).toBe(3);
+    expect(vm.runInContext('cursor', context)).toBe(2);
     expect(vm.runInContext('currentFrame().component', context)).toBe('結果');
 
     vm.runInContext('jumpToTimeline(1)', context);
-    expect(vm.runInContext('timeline.length', context)).toBe(2);
+    // ghost 巻き戻し: 未来分（結果）は削除されず timeline に残る。現在地は cursor が示す
+    expect(vm.runInContext('timeline.length', context)).toBe(3);
+    expect(vm.runInContext('cursor', context)).toBe(1);
     expect(vm.runInContext('currentFrame().component', context)).toBe('検索');
     expect(vm.runInContext('stack.length', context)).toBe(2);
+  });
+
+  it('ゴースト巻き戻し: 過去へ巻き戻した後、ghost だったエントリをクリックすると redo できる（受入基準c）', () => {
+    const doc = parseOk(
+      '# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n> 結果へ -> push(結果)\n\n# 結果\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
+      context,
+    );
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '結果', variant: null } })",
+      context,
+    );
+
+    vm.runInContext('jumpToTimeline(1)', context); // 検索まで戻る。「結果」は ghost
+    expect(vm.runInContext('currentFrame().component', context)).toBe('検索');
+
+    vm.runInContext('jumpToTimeline(2)', context); // ghost をクリックして redo
+    expect(vm.runInContext('cursor', context)).toBe(2);
+    expect(vm.runInContext('timeline.length', context)).toBe(3);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('結果');
+    expect(vm.runInContext('stack.length', context)).toBe(3);
+  });
+
+  it('ゴースト巻き戻し: ghost 保持中に新しい操作を行うと ghost が消え新エントリが積まれる（受入基準d）', () => {
+    const doc = parseOk(
+      '# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n> 結果へ -> push(結果)\n\n# 結果\n本体\n\n# 設定\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
+      context,
+    );
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '結果', variant: null } })",
+      context,
+    );
+    expect(vm.runInContext('timeline.length', context)).toBe(3);
+
+    vm.runInContext('jumpToTimeline(1)', context); // 検索まで戻る。「結果」は ghost として残る
+    expect(vm.runInContext('timeline.length', context)).toBe(3);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '設定', variant: null } })",
+      context,
+    );
+    // ghost だった「結果」は消え、新エントリ「設定」に置き換わる（総数は変わらず3のまま）
+    expect(vm.runInContext('timeline.length', context)).toBe(3);
+    expect(vm.runInContext('cursor', context)).toBe(2);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('設定');
+    const labels = JSON.parse(vm.runInContext('JSON.stringify(timeline.map(e => e.label))', context));
+    expect(labels).not.toContain('push → 結果');
+    expect(labels[2]).toBe('push → 設定');
   });
 
   it('統合ログ: effect はkind: event種別で1件追加され、遷移エントリと同じ配列に時系列で並ぶ', () => {
