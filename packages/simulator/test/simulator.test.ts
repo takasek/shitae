@@ -275,12 +275,21 @@ describe('toSimulator', () => {
   // 埋め込み JS ランタイムを node:vm で実際に評価し、実行時の関数呼び出しで振る舞いを検証する。
   // 戻り値の context は同一 realm を共有するので、後続の vm.runInContext(code, context) で
   // トップレベルの let/function（overlays・overlayInteractions 等）へアクセスできる。
+  // getElementById は id ごとにダミー要素をキャッシュする（同じ id への複数回の呼び出しが
+  // 同一オブジェクトを返す——hover プレビューのような render() を経由しない局所 DOM 更新を
+  // vm テストから観測できるようにするため）。
   function runSimulatorScript(html: string): vm.Context {
     const m = html.match(/<script>\n([\s\S]*)\n<\/script>/);
     if (!m) throw new Error('embedded script not found');
+    const elements = new Map<string, { innerHTML: string; textContent: string; classList: { add(): void; remove(): void } }>();
     const context = vm.createContext({
       document: {
-        getElementById: () => ({ innerHTML: '', textContent: '', classList: { add() {}, remove() {} } }),
+        getElementById: (id: string) => {
+          if (!elements.has(id)) {
+            elements.set(id, { innerHTML: '', textContent: '', classList: { add() {}, remove() {} } });
+          }
+          return elements.get(id);
+        },
       },
       setTimeout: () => 0,
       clearTimeout: () => {},
@@ -529,5 +538,81 @@ describe('toSimulator', () => {
     );
     expect(vm.runInContext('stack.length', context)).toBe(2);
     expect(vm.runInContext('app.innerHTML', context)).not.toContain('back-btn');
+  });
+
+  it('layoutGraph: entry component を rank 0 とし、エッジに沿って BFS で rank を割り当てる', () => {
+    const doc = parseOk('# A\n要素\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const nodes = [
+      { module: 'main', name: 'A' },
+      { module: 'main', name: 'B' },
+      { module: 'main', name: 'C' },
+    ];
+    const edges = [
+      { from: { module: 'main', name: 'A' }, to: { module: 'main', name: 'B' } },
+      { from: { module: 'main', name: 'B' }, to: { module: 'main', name: 'C' } },
+    ];
+    const layout = JSON.parse(
+      vm.runInContext(
+        `JSON.stringify(layoutGraph(${JSON.stringify(nodes)}, ${JSON.stringify(edges)}, 'main', 'A'))`,
+        context,
+      ),
+    );
+    const rankOf = (name: string) => layout.find((n: any) => n.name === name).rank;
+    expect(rankOf('A')).toBe(0);
+    expect(rankOf('B')).toBe(1);
+    expect(rankOf('C')).toBe(2);
+  });
+
+  it('layoutGraph: エッジで到達しないノードは最終 rank の次にまとめる', () => {
+    const doc = parseOk('# A\n要素\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const nodes = [
+      { module: 'main', name: 'A' },
+      { module: 'main', name: 'B' },
+      { module: 'main', name: 'D' }, // 孤立ノード（エッジで到達しない）
+    ];
+    const edges = [{ from: { module: 'main', name: 'A' }, to: { module: 'main', name: 'B' } }];
+    const layout = JSON.parse(
+      vm.runInContext(
+        `JSON.stringify(layoutGraph(${JSON.stringify(nodes)}, ${JSON.stringify(edges)}, 'main', 'A'))`,
+        context,
+      ),
+    );
+    const rankOf = (name: string) => layout.find((n: any) => n.name === name).rank;
+    expect(rankOf('A')).toBe(0);
+    expect(rankOf('B')).toBe(1);
+    expect(rankOf('D')).toBe(2); // maxRank(=1) の次にまとめる
+  });
+
+  it('layoutGraph: rank 内順序を前 rank の隣接ノードの平均位置（barycenter）で 1 パス整列する', () => {
+    const doc = parseOk('# A\n要素\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    // 定義順は P が Q より先。X(order0)→Q、Y(order1)→P という隣接関係により
+    // barycenter 整列後は Q（親 X の位置0）が P（親 Y の位置1）より先に来るはず。
+    const nodes = [
+      { module: 'main', name: 'A' },
+      { module: 'main', name: 'X' },
+      { module: 'main', name: 'Y' },
+      { module: 'main', name: 'P' },
+      { module: 'main', name: 'Q' },
+    ];
+    const edges = [
+      { from: { module: 'main', name: 'A' }, to: { module: 'main', name: 'X' } },
+      { from: { module: 'main', name: 'A' }, to: { module: 'main', name: 'Y' } },
+      { from: { module: 'main', name: 'Y' }, to: { module: 'main', name: 'P' } },
+      { from: { module: 'main', name: 'X' }, to: { module: 'main', name: 'Q' } },
+    ];
+    const layout = JSON.parse(
+      vm.runInContext(
+        `JSON.stringify(layoutGraph(${JSON.stringify(nodes)}, ${JSON.stringify(edges)}, 'main', 'A'))`,
+        context,
+      ),
+    );
+    const orderOf = (name: string) => layout.find((n: any) => n.name === name).order;
+    expect(orderOf('Q')).toBeLessThan(orderOf('P'));
   });
 });
