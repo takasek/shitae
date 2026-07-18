@@ -33,21 +33,19 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
 .element { padding: 6px 0; border-bottom: 1px solid #f0f0f0; color: #333; }
 .element:last-child { border-bottom: none; }
 .element.collection::before { content: "×N  "; color: #999; font-size: 11px; }
-.actions { display: flex; flex-direction: column; gap: 8px; }
-.action-btn { background: #f0f0f0; border: none; border-radius: 6px; padding: 10px 14px; text-align: left; cursor: pointer; font-size: 13px; }
-.action-btn:hover { background: #e0e0e0; }
-.choice-panel { margin-top: 8px; padding: 10px; background: #fff9e6; border-radius: 6px; border: 1px solid #f0c040; }
-.choice-label { font-size: 12px; color: #888; margin-bottom: 6px; }
-.choices { display: flex; flex-wrap: wrap; gap: 6px; }
-.choice-btn { background: #fff; border: 1px solid #ccc; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 12px; }
-.choice-btn:hover { background: #f5f5f5; }
+.action-categories { display: flex; flex-direction: column; gap: 10px; }
+.action-category { border: 1px solid #eee; border-radius: 6px; padding: 6px 10px; }
+.action-category > summary { cursor: pointer; font-size: 12px; color: #888; padding: 4px 0; }
+.action-list { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+.action-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding: 6px 0; border-bottom: 1px solid #f5f5f5; }
+.action-row:last-child { border-bottom: none; }
+.action-text { font-size: 13px; color: #333; }
+.action-choices { display: flex; flex-wrap: wrap; gap: 6px; }
+.choice-chip { background: #f0f0f0; border: none; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 12px; }
+.choice-chip:hover { background: #e0e0e0; }
 .back-btn { margin-top: 12px; background: none; border: 1px solid #ccc; border-radius: 6px; padding: 8px 14px; cursor: pointer; font-size: 12px; color: #555; }
 .back-btn:hover { background: #f0f0f0; }
 .no-actions { color: #bbb; font-size: 13px; font-style: italic; }
-.doc-common { margin-top: 12px; padding-top: 10px; border-top: 1px dashed #ddd; }
-.doc-common-label { font-size: 11px; color: #999; margin-bottom: 6px; }
-.dc-btn { background: #eef; }
-.dc-btn:hover { background: #dde; }
 .overlay-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #222; color: #fff; padding: 8px 16px; display: flex; gap: 12px; font-size: 12px; }
 .overlay-item { background: #444; padding: 2px 10px; border-radius: 10px; }
 .overlay-btn { margin-left: 6px; background: #666; color: #fff; border: none; border-radius: 8px; padding: 1px 8px; cursor: pointer; font-size: 11px; }
@@ -128,7 +126,6 @@ let stack = [{
   sessionName: null,
 }];
 
-let pendingChoice = null; // { actionText, choices }
 let overlays = new Map(); // 掲示中 component名 → 表示 variant（null=initial の含意。SPEC「オーバーレイ」。フレーム木とは別軸）
 
 // トレースログ: 遷移イベントの配列 { label, snapshot }。末尾が常に現在地（スタック表示兼用）。
@@ -160,6 +157,16 @@ function restoreState(snapshot) {
   stack = JSON.parse(JSON.stringify(snapshot.stack));
   sharedVariants = new Map(JSON.parse(JSON.stringify(snapshot.sharedVariants)));
   overlays = new Map(JSON.parse(JSON.stringify(snapshot.overlays)));
+}
+
+// interaction 1 件分の prelude → 指定 choice（未指定・choices 空なら prelude のみ）を順に適用する。
+// [TRUE] ラベル1つ（choices 空）は choiceIdx を渡しても choice が無いため prelude だけが起こる。
+function runChoice(interaction, choiceIdx) {
+  for (const body of interaction.prelude) applyTransition(body);
+  const choice = interaction.choices[choiceIdx];
+  if (choice) {
+    for (const body of choice.results) applyTransition(body);
+  }
 }
 
 // 遷移イベントの label（適用後の現在地が分かる形。末尾が常に現在地＝スタック表示兼用）
@@ -389,48 +396,34 @@ function applyTransition(result) {
 // 選択肢 1 つ分の result 群を順に全部起こす
 function runResults(bodies) {
   for (const body of bodies) applyTransition(body);
-  pendingChoice = null;
   render();
 }
 
-function handleInteraction(idx) {
-  const interaction = currentInteractions()[idx];
+// scope（'variant' | 'component' | 'document'）ごとの実効 interactions 一覧。
+// 操作一覧のカテゴリ折り畳み・クリックハンドラの両方がこの分類を基準にする。
+function scopedInteractions(scope) {
+  if (scope === 'document') return docCommonInteractions();
+  return currentInteractions().filter((inter) => inter.scope === scope);
+}
+
+// 操作一覧のラベルボタンクリック。choiceIdx はラベル無し操作（[TRUE] 1 ボタン）なら 0 のまま
+// 渡ってくるが choices が空のため runChoice は prelude のみ実行する。
+function handleInteraction(scope, idx, choiceIdx) {
+  const interaction = scopedInteractions(scope)[idx];
   if (!interaction) return;
-  // prelude（最初のラベルより前の result 群）は常に成立
-  for (const body of interaction.prelude) applyTransition(body);
-  if (interaction.choices.length === 0) {
-    pendingChoice = null;
-    render();
-  } else if (interaction.choices.length === 1) {
-    runResults(interaction.choices[0].results);
-  } else {
-    pendingChoice = { actionText: interaction.actionText, choices: interaction.choices };
-    render();
-  }
+  runChoice(interaction, choiceIdx);
+  render();
 }
 
 // 掲示中 component の interaction 発火。遷移の相対解決は常にアクティブフレーム基準
 // （applyTransition が currentFrame() を見るため、overlay 自身を「現在地」にはしない。SPEC 341）
+// overlay-bar は interaction あたり1ボタンのまま（このタスクでは変更しない。Task 4 の領分）——
+// 複数ラベルの選択 UI は overlay 側にまだ無いため、先頭の choice を実行する（暫定）。
 function handleOverlayInteraction(name, idx) {
   const interaction = overlayInteractions(name)[idx];
   if (!interaction) return;
-  for (const body of interaction.prelude) applyTransition(body);
-  if (interaction.choices.length === 0) {
-    pendingChoice = null;
-    render();
-  } else if (interaction.choices.length === 1) {
-    runResults(interaction.choices[0].results);
-  } else {
-    pendingChoice = { actionText: interaction.actionText, choices: interaction.choices };
-    render();
-  }
-}
-
-function handleChoice(idx) {
-  if (!pendingChoice) return;
-  const choice = pendingChoice.choices[idx];
-  pendingChoice = null;
-  runResults(choice.results);
+  runChoice(interaction, 0);
+  render();
 }
 
 function goBack() {
@@ -444,7 +437,6 @@ function jumpToTrace(idx) {
   if (!entry) return;
   restoreState(entry.snapshot);
   traceLog = traceLog.slice(0, idx + 1);
-  pendingChoice = null;
   render();
 }
 
@@ -463,19 +455,21 @@ function docCommonInteractions() {
   return list.filter((inter) => gateEnabled(inter));
 }
 
-function handleDocCommon(idx) {
-  const interaction = docCommonInteractions()[idx];
-  if (!interaction) return;
-  for (const body of interaction.prelude) applyTransition(body);
-  if (interaction.choices.length === 0) {
-    pendingChoice = null;
-    render();
-  } else if (interaction.choices.length === 1) {
-    runResults(interaction.choices[0].results);
-  } else {
-    pendingChoice = { actionText: interaction.actionText, choices: interaction.choices };
-    render();
-  }
+// 操作一覧のカテゴリ 1 件分（variant固有 / component common / document common）を
+// <details open>（自己完結の折り畳み）で描画する。空カテゴリは呼び出し側で弾く。
+// 各行は行動テキスト + 選択肢ボタンの横並び。choices 空なら [TRUE] ラベル1つのボタンにする。
+function renderActionCategory(label, scope, items) {
+  const rows = items.map((inter, idx) => {
+    const labels = inter.choices.length > 0 ? inter.choices.map((c) => c.label) : ['TRUE'];
+    const buttons = labels.map((l, choiceIdx) =>
+      '<button class="choice-chip" onclick="handleInteraction(' + JSON.stringify(scope) + ',' + idx + ',' + choiceIdx + ')">' +
+      esc('[' + l + ']') + '</button>'
+    ).join('');
+    return '<div class="action-row"><span class="action-text">' + esc(inter.actionText) + '</span>' +
+      '<span class="action-choices">' + buttons + '</span></div>';
+  }).join('');
+  return '<details open class="action-category"><summary>' + esc(label) + '</summary>' +
+    '<div class="action-list">' + rows + '</div></details>';
 }
 
 function render() {
@@ -501,35 +495,23 @@ function render() {
       '</div>';
   }
 
-  // interactions
+  // 操作一覧: scope（variant固有 / component common / document common）ごとにカテゴリ折り畳み。
+  // currentInteractions() は姿の merged 実効 interactions（scope が 'variant' か 'component'）、
+  // docCommonInteractions() は生存 document common（shadow 済み・gate フィルタ済み）を返す。
   const allInter = currentInteractions();
+  const variantItems = allInter.filter((inter) => inter.scope === 'variant');
+  const componentItems = allInter.filter((inter) => inter.scope === 'component');
+  const documentItems = docCommonInteractions();
 
   let actionsHtml = '';
-  if (allInter.length === 0) {
+  if (variantItems.length === 0 && componentItems.length === 0 && documentItems.length === 0) {
     actionsHtml = '<div class="no-actions">アクションなし</div>';
   } else {
-    actionsHtml = '<div class="actions">';
-    allInter.forEach((inter, idx) => {
-      actionsHtml += '<button class="action-btn" onclick="handleInteraction(' + idx + ')">' + esc(inter.actionText) + '</button>';
-    });
-    actionsHtml += '</div>';
-    if (pendingChoice) {
-      const choices = pendingChoice.choices.map((c, idx) =>
-        '<button class="choice-btn" onclick="handleChoice(' + idx + ')">' +
-        esc('[' + c.label + ']') + '</button>'
-      ).join('');
-      actionsHtml += '<div class="choice-panel"><div class="choice-label">' + esc(pendingChoice.actionText) + ' の結果を選択:</div><div class="choices">' + choices + '</div></div>';
-    }
-  }
-
-  // document common アクション（どの画面でも常に有効。画面固有アクションとは別枠）
-  let docCommonHtml = '';
-  const dc = docCommonInteractions();
-  if (dc.length > 0) {
-    docCommonHtml = '<div class="doc-common"><div class="doc-common-label">どの画面でも</div>' +
-      dc.map((inter, idx) =>
-        '<button class="action-btn dc-btn" onclick="handleDocCommon(' + idx + ')">' + esc(inter.actionText) + '</button>'
-      ).join('') + '</div>';
+    actionsHtml = '<div class="action-categories">' +
+      (variantItems.length > 0 ? renderActionCategory('variant固有', 'variant', variantItems) : '') +
+      (componentItems.length > 0 ? renderActionCategory('component common', 'component', componentItems) : '') +
+      (documentItems.length > 0 ? renderActionCategory('document common', 'document', documentItems) : '') +
+      '</div>';
   }
 
   // オーバーレイ帯（掲示中 component。画面下部に常駐。表示 variant と操作ボタンを添える）
@@ -594,7 +576,6 @@ function render() {
       variantLabel +
       elements +
       actionsHtml +
-      docCommonHtml +
       backBtn +
     '</div>' +
     gatePanelHtml +
