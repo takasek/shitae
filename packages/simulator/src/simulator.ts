@@ -18,13 +18,21 @@ function buildHtml(data: SimulatorData): string {
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5; color: #111; }
-#app { max-width: 480px; margin: 0 auto; padding: 16px; }
-.trace-log { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 12px; font-size: 12px; color: #666; }
+/* 3 カラム全幅グリッド（開発ツールのためレスポンシブ不要。設計者フィードバック 2026-07-19）:
+   左 = トレースログ / 中央 = 現在の画面 + 遷移マップ / 右 = イベントログ + gate パネル。 */
+#app { display: grid; grid-template-columns: 260px 1fr 300px; height: 100vh; }
+.pane { padding: 16px; overflow-y: auto; }
+.pane-trace { background: #fff; border-right: 1px solid #e0e0e0; }
+.pane-center { background: #f5f5f5; display: flex; flex-direction: column; gap: 20px; }
+.pane-events { background: #fff; border-left: 1px solid #e0e0e0; }
+.pane-title { font-size: 13px; font-weight: 700; color: #333; margin-bottom: 2px; }
+.pane-desc { font-size: 11px; color: #888; margin-bottom: 10px; }
+.screen-section, .graph-section { display: flex; flex-direction: column; }
+.trace-log { display: flex; flex-wrap: wrap; gap: 4px 6px; font-size: 12px; color: #666; }
 .trace-item { background: #e0e0e0; padding: 2px 8px; border-radius: 10px; cursor: pointer; }
 .trace-item.current { background: #111; color: #fff; }
 .trace-item:hover { background: #ccc; }
-.event-log { margin-top: 12px; font-size: 12px; color: #666; }
-.event-log-label { font-size: 11px; color: #999; margin-bottom: 4px; }
+.event-log { margin-top: 4px; font-size: 12px; color: #666; }
 .event-log-item { padding: 3px 0; border-bottom: 1px dashed #eee; }
 .screen { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
 .screen-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
@@ -48,17 +56,16 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
 .no-actions { color: #bbb; font-size: 13px; font-style: italic; }
 .overlay-card { margin-top: 12px; border: 1px dashed #999; }
 .overlay-badge { display: inline-block; font-size: 11px; color: #fff; background: #555; padding: 1px 8px; border-radius: 8px; margin-bottom: 8px; }
-.gate-panel { margin-top: 12px; font-size: 12px; }
+.gate-panel { margin-top: 20px; font-size: 12px; }
 .gate-panel-toggle { background: none; border: 1px solid #ddd; border-radius: 6px; padding: 4px 10px; cursor: pointer; color: #777; font-size: 11px; }
+.gate-panel-desc { margin-top: 6px; font-size: 11px; color: #888; }
 .gate-panel-body { margin-top: 6px; padding: 8px 10px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; display: flex; flex-direction: column; gap: 6px; }
 .gate-row { display: flex; align-items: center; gap: 8px; }
 .gate-row-label { color: #555; min-width: 80px; }
-.graph-panel { margin-top: 12px; font-size: 12px; }
-.graph-panel-toggle { cursor: pointer; color: #777; font-size: 11px; padding: 4px 0; }
-.graph-panel-body { margin-top: 6px; }
 .graph-svg { max-width: 100%; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; }
-.graph-svg rect { fill: #fff; stroke: #ccc; cursor: pointer; }
+.graph-svg rect { fill: #fff; stroke: #ccc; }
 .graph-node:hover rect { stroke: #111; fill: #f0f0f0; }
+.graph-node-current rect { fill: #dbeafe; stroke: #2563eb; stroke-width: 2; }
 .graph-svg text { font-size: 10px; fill: #333; pointer-events: none; }
 .graph-svg line { stroke: #bbb; stroke-width: 1; }
 .graph-svg marker path { fill: #bbb; }
@@ -93,11 +100,6 @@ let sharedVariants = new Map();
 // gate 対象 component（{module, name}）の一覧（手動トグルパネル用。定義 module へ解決済み）
 const GATE_TARGETS = DATA.gateTargets || [];
 let gatePanelOpen = false;
-
-// 遷移マップパネルの開閉状態（gate 観測パネルの gatePanelOpen と同じ方式）。
-// ノードクリック探索が遷移マップの主用途のため、gotoNode → render() のたびに
-// 閉じては使い物にならない——開閉はネイティブ <details> の ontoggle で同期する。
-let graphPanelOpen = false;
 
 // 対象インスタンスの variant を手動で書き換える（gate 観測用）
 function setInstanceVariant(module, name, variant) {
@@ -637,24 +639,6 @@ function layoutGraph(nodes, edges, entryModule, entryComponent) {
   return nodes.map((n, i) => ({ module: n.module, name: n.name, rank: rank[i], order: order[i] }));
 }
 
-// 遷移マップのノードクリック（goto 相当）。DATA.graph.nodes の配列インデックスで対象を
-// 参照する——component 名を onclick 属性へ直接埋め込むと ' や " を含む名前で属性が
-// 壊れるため（Task 3/4 の quote 衝突根治と同じ理由）。applyTransition の goto 分岐を
-// そのまま再利用するため、trace 追加・variant 解決は既存機構に委ねる。goto は
-// 「stack が実際に変わったものだけ trace 追加」を通るため、現在地ノードのクリックは
-// 自然に no-op になる。
-function gotoNode(idx) {
-  const node = DATA.graph.nodes[idx];
-  if (!node) return;
-  applyTransition({
-    type: 'transition',
-    word: 'goto',
-    target: { kind: 'full', module: node.module, component: node.name, variant: null },
-    session: null,
-  });
-  render();
-}
-
 // 遷移マップの hover プレビュー。render() を経由せず #graph-preview を直接書き換える
 // 局所 DOM 更新にする——render() は innerHTML を丸ごと再構築する設計のため、hover 状態を
 // JS グローバルに持って render() を呼ぶとちらつく。
@@ -684,9 +668,12 @@ function hideNodePreview() {
 
 // 遷移マップの SVG（rect + component 名テキストのノード、直線 + 矢印のエッジ）。
 // レイアウトは layoutGraph（純関数）の rank/order を LR（rank=横方向、rank内=縦等間隔）で
-// 座標化する。ノードクリック・hover は component 名でなく DATA.graph.nodes の配列
-// インデックスで参照する（onclick/onmouseenter への任意文字列埋め込みを避ける）。
-// component 名は任意文字列のため SVG テキストへは esc() を通す。
+// 座標化する。閲覧専用（設計者確定事項 2026-07-19）——ノードクリック遷移(gotoNode)は
+// 廃止済みで onclick は持たない。hover は component 名でなく DATA.graph.nodes の配列
+// インデックスで参照する（onmouseenter への任意文字列埋め込みを避ける）。
+// component 名は任意文字列のため SVG テキストへは esc() を通す。現在の画面.本体に
+// 対応するノードは module・name の両方一致で判定し graph-node-current を付けて
+// ハイライトする——render() が毎回 innerHTML を再構築するため遷移のたびに自然に追随する。
 function renderGraphMap() {
   const nodes = DATA.graph.nodes;
   const edges = DATA.graph.edges;
@@ -703,10 +690,15 @@ function renderGraphMap() {
   const height = marginY * 2 + (maxOrder + 1) * rowHeight;
   const posByKey = new Map(layout.map((n) => [skey(n.module, n.name), n]));
 
+  const frame = currentFrame();
+  const currentKey = skey(frame.module, frame.component);
+
   const nodesHtml = layout.map((n, idx) => {
     const x = marginX + n.rank * rankWidth;
     const y = marginY + n.order * rowHeight;
-    return '<g class="graph-node" onclick="gotoNode(' + idx + ')" onmouseenter="showNodePreview(' + idx + ')" onmouseleave="hideNodePreview()">' +
+    const isCurrent = skey(n.module, n.name) === currentKey;
+    const cls = 'graph-node' + (isCurrent ? ' graph-node-current' : '');
+    return '<g class="' + cls + '" onmouseenter="showNodePreview(' + idx + ')" onmouseleave="hideNodePreview()">' +
       '<rect x="' + x + '" y="' + y + '" width="' + nodeWidth + '" height="' + nodeHeight + '" rx="4"></rect>' +
       '<text x="' + (x + nodeWidth / 2) + '" y="' + (y + nodeHeight / 2 + 4) + '" text-anchor="middle">' + esc(n.name) + '</text>' +
     '</g>';
@@ -729,16 +721,15 @@ function renderGraphMap() {
   '</svg>';
 }
 
-// 遷移マップパネル（gate 観測パネルの近くに配置。SPEC外の開発者向け観測 UI）。
-// 開閉状態は graphPanelOpen に保持し render() のたびに open 属性へ反映する——ノード
-// クリック探索が主用途のため gotoNode 後も開いたままであるべきで、ontoggle で
-// ネイティブ <details> の開閉操作を graphPanelOpen へ同期する。
-function renderGraphPanel() {
+// 遷移マップの区画（中央下ペインの主役。設計者フィードバック 2026-07-19 で <details> 折り畳みを
+// 廃止し常時表示にした——閲覧専用化でノードクリック探索という開閉維持の理由が消えたため）。
+function renderGraphSection() {
   if (!DATA.graph || DATA.graph.nodes.length === 0) return '';
-  return '<details' + (graphPanelOpen ? ' open' : '') + ' class="graph-panel" ontoggle="graphPanelOpen = this.open">' +
-    '<summary class="graph-panel-toggle">遷移マップ</summary>' +
-    '<div class="graph-panel-body">' + renderGraphMap() + '<div id="graph-preview" class="graph-preview"></div></div>' +
-  '</details>';
+  return '<section class="graph-section">' +
+    '<div class="pane-title" title="遷移マップ — 画面間の遷移関係（閲覧専用）">遷移マップ</div>' +
+    '<div class="pane-desc">画面間の遷移関係（閲覧専用）。現在の画面.本体に対応するノードを強調表示し、hover でプレビューを表示します。</div>' +
+    renderGraphMap() + '<div id="graph-preview" class="graph-preview"></div>' +
+  '</section>';
 }
 
 function render() {
@@ -780,15 +771,19 @@ function render() {
   const canBack = stack.length > 1 && !currentFrame().wall;
   const backBtn = canBack ? '<button class="back-btn" onclick="goBack()">← 戻る</button>' : '';
 
-  // イベントログ（append-only。effect・set・show/hide・警告を流し込む。巻き戻し無し）
+  // イベントログ（append-only。effect・set・show/hide・警告を流し込む。巻き戻し無し。
+  // 見出し・役割説明はペイン側（イベントログ — 効果・状態変更の記録）が持つため、ここは項目一覧のみ）
   let eventLogHtml = '';
   if (eventLog.length > 0) {
-    eventLogHtml = '<div class="event-log"><div class="event-log-label">イベントログ</div>' +
+    eventLogHtml = '<div class="event-log">' +
       eventLog.map((e) => '<div class="event-log-item">' + esc(e) + '</div>').join('') +
       '</div>';
   }
 
-  // インスタンス variant 手動トグルパネル（gate 観測用。姿を持たない対象は切替不要なので除外）
+  // インスタンス variant 手動トグルパネル（画面外 component の姿切替。presence gate の
+  // 効きを手動で試験するための開発者向け UI——姿を持たない対象は切替不要なので除外）。
+  // 見出しは用途が伝わる表記（設計者確定事項 2026-07-19。旧「インスタンス variant（gate 観測用）」
+  // は何をするパネルか伝わらないという指摘）。機能（トグル開閉・variant 切替）は現状維持。
   const gateTargetsWithVariants = GATE_TARGETS.filter((t) => {
     const comp = getComp(t.module, t.name);
     return comp && Object.keys(comp.variants).length > 0;
@@ -807,8 +802,9 @@ function render() {
     }).join('');
     gatePanelHtml = '<div class="gate-panel">' +
       '<button class="gate-panel-toggle" onclick="toggleGatePanel()">' +
-        (gatePanelOpen ? '▾' : '▸') + ' インスタンス variant（gate 観測用）' +
+        (gatePanelOpen ? '▾' : '▸') + ' 画面外 component の姿切替（gate 試験用）' +
       '</button>' +
+      '<p class="gate-panel-desc">今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。</p>' +
       (gatePanelOpen ? '<div class="gate-panel-body">' + rows + '</div>' : '') +
     '</div>';
   }
@@ -821,15 +817,32 @@ function render() {
     trailingHtml: backBtn,
   });
 
-  const graphPanelHtml = renderGraphPanel();
+  const graphSectionHtml = renderGraphSection();
 
+  // 全幅 3 カラムグリッド（設計者フィードバック 2026-07-19）: 左 = トレースログ /
+  // 中央 = 現在の画面（上）+ 遷移マップ（下） / 右 = イベントログ + gate パネル（下部）。
+  // 各ペインに見出し・役割説明を添え、エリアの意味が一目で伝わるようにする。
   app.innerHTML =
-    '<div class="trace-log">' + traceLogHtml + '</div>' +
-    mainCardHtml +
-    overlayCardsHtml +
-    gatePanelHtml +
-    graphPanelHtml +
-    eventLogHtml;
+    '<aside class="pane pane-trace">' +
+      '<div class="pane-title" title="トレースログ — ナビゲーション履歴。クリックでその時点へ巻き戻し">トレースログ</div>' +
+      '<div class="pane-desc">ナビゲーション履歴。クリックでその時点へ巻き戻し</div>' +
+      '<div class="trace-log">' + traceLogHtml + '</div>' +
+    '</aside>' +
+    '<main class="pane pane-center">' +
+      '<section class="screen-section">' +
+        '<div class="pane-title">現在の画面</div>' +
+        '<div class="pane-desc">アクティブな frame の表示（本体）と掲示中カード</div>' +
+        mainCardHtml +
+        overlayCardsHtml +
+      '</section>' +
+      graphSectionHtml +
+    '</main>' +
+    '<aside class="pane pane-events">' +
+      '<div class="pane-title" title="イベントログ — 効果・状態変更の記録（巻き戻し不可）">イベントログ</div>' +
+      '<div class="pane-desc">効果・状態変更の記録（巻き戻し不可）</div>' +
+      eventLogHtml +
+      gatePanelHtml +
+    '</aside>';
 }
 
 function esc(s) {
