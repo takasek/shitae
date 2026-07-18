@@ -812,6 +812,51 @@ describe('toSimulator', () => {
     expect(appHtml).toContain('閲覧専用');
   });
 
+  it('スタック表示: トレースログの上に見出し・役割説明付きで新設され、push/present 後に @session・壁マーカー付きで描画される（Task 7 受入基準c）', () => {
+    const doc = parseOk('# ホーム\n本体\n\n# ログイン\n本体\n\n# 確認\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    // 見出し・役割説明（プッシュダウン構成としての読み方を一言）を持つ
+    const beforeHtml = vm.runInContext('app.innerHTML', context);
+    expect(beforeHtml).toContain('スタック');
+    expect(beforeHtml).toContain('プッシュダウン');
+    // 左ペイン（pane-trace）内で「スタック」が「トレースログ」より先に現れる
+    const traceIdx = beforeHtml.indexOf('pane-trace');
+    const traceSection = beforeHtml.slice(traceIdx);
+    expect(traceSection.indexOf('スタック')).toBeLessThan(traceSection.indexOf('トレースログ'));
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: 'ログイン', variant: null }, session: 'login' }); render()",
+      context,
+    );
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'present', target: { module: 'main', component: '確認', variant: null } }); render()",
+      context,
+    );
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('@login');
+    expect(appHtml).toContain('▌'); // 壁 frame の記号
+    expect((appHtml.match(/class="stack-item[^"]*"/g) ?? []).length).toBe(3);
+  });
+
+  it('スタック表示: back 後に縮む（遷移のたび追随。Task 7 受入基準c）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      context,
+    );
+    const beforeHtml = vm.runInContext('app.innerHTML', context);
+    expect((beforeHtml.match(/class="stack-item[^"]*"/g) ?? []).length).toBe(2);
+
+    vm.runInContext('goBack(); render()', context);
+    const afterHtml = vm.runInContext('app.innerHTML', context);
+    expect((afterHtml.match(/class="stack-item[^"]*"/g) ?? []).length).toBe(1);
+  });
+
   it('gate パネル改名: 画面外 component の姿切替（gate 試験用）という用途が伝わる見出し・説明を持つ（設計者確定事項 2026-07-19）', () => {
     const doc = parseOk(
       '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n# 時間選択\n本文\n',
