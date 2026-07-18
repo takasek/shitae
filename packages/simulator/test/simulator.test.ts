@@ -602,6 +602,47 @@ describe('toSimulator', () => {
     expect(vm.runInContext('overlays.size', context)).toBe(1);
   });
 
+  it('イベントトグル: 「イベントを表示」チェックボックスを持ち、既定でON（event行を表示）（受入基準f）', () => {
+    const doc = parseOk('# ホーム\n> 押す -> いいねしました\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).toContain('イベントを表示');
+    expect(html).toContain('type="checkbox"');
+    expect(html).toContain('function toggleShowEvents(');
+    const context = runSimulatorScript(html);
+    expect(vm.runInContext('showEvents', context)).toBe(true);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('checked');
+  });
+
+  it('イベントトグル: OFF にすると event 行は非表示になるが transition 行は常時表示、データは保持される（受入基準f）', () => {
+    const doc = parseOk(
+      '# ホーム\n> 押す -> いいねしました\n> 検索へ -> push(検索)\n\n# 検索\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext("applyTransition({ type: 'effect', text: 'いいねしました' })", context);
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      context,
+    );
+
+    const shownHtml = vm.runInContext('app.innerHTML', context);
+    expect(shownHtml).toContain('effect: いいねしました');
+    expect(shownHtml).toContain('push → 検索');
+
+    vm.runInContext('toggleShowEvents(); render()', context);
+    expect(vm.runInContext('showEvents', context)).toBe(false);
+    const hiddenHtml = vm.runInContext('app.innerHTML', context);
+    expect(hiddenHtml).not.toContain('effect: いいねしました'); // event 行は非表示
+    expect(hiddenHtml).toContain('push → 検索'); // transition 行は常時表示
+
+    // データ自体は保持されている（トグルは表示のみ）
+    const kinds = JSON.parse(vm.runInContext('JSON.stringify(timeline.map(e => e.kind))', context));
+    expect(kinds).toContain('event');
+    expect(vm.runInContext('timeline.length', context)).toBe(3);
+  });
+
   it('複数ラベル操作は全ラベルを横並びボタンで提示し、ラベル指定クリックで対応 results だけが走る', () => {
     const doc = parseOk(
       '# ホーム\n> ガチャ ->\n>     [当たり] push(景品)\n>     [ハズレ] push(残念)\n\n# 景品\n本体\n\n# 残念\n本体\n',

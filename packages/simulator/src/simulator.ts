@@ -44,6 +44,7 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
 .timeline-item.current { background: #111; color: #fff; }
 .timeline-item.ghost { opacity: .4; }
 .timeline-item:hover { background: #ccc; }
+.timeline-toggle { display: flex; align-items: center; gap: 4px; margin-bottom: 6px; font-size: 11px; color: #666; }
 .screen { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
 .screen-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
 .variant-label { font-size: 12px; color: #888; margin-bottom: 12px; }
@@ -172,6 +173,15 @@ let timeline = [{ kind: 'transition', label: '起動', snapshot: snapshotState()
 // （旧「末尾が現在地」の後継。Task 10）。cursor より未来のエントリは ghost として保持され、
 // クリック（jumpToTimeline）で前後どちらへも移動できる（undo/redo）。新規追記時のみ ghost を消す。
 let cursor = 0;
+// event 行（effect/set/show/hide/警告）の表示トグル。表示のみでデータ（timeline 本体）は
+// 保持される——transition 行は常時表示（Task 10 受入基準f）。既定は表示（旧 eventLog の
+// 常時可視という挙動を維持）。
+let showEvents = true;
+
+function toggleShowEvents() {
+  showEvents = !showEvents;
+  render();
+}
 
 function getComp(module, name) {
   return DATA.modules[module]?.components[name];
@@ -876,13 +886,18 @@ function render() {
   const stackHtml = renderStackList();
 
   // 統合ログ（cursor が指すエントリ＝現在地。タップで全状態巻き戻し・redo。
-  // transition/event 両方クリック可。cursor より未来のエントリは ghost（半透明）表示）
-  const timelineHtml = timeline.map((entry, i) => {
+  // transition/event 両方クリック可。cursor より未来のエントリは ghost（半透明）表示。
+  // onclick へは timeline インデックス（数値）のみを埋め込むため、showEvents による
+  // event 行の除外（DOM から省く）はクリックインデックスの整合を壊さない。
+  const timelineParts = [];
+  timeline.forEach((entry, i) => {
+    if (entry.kind === 'event' && !showEvents) return;
     const classes = ['timeline-item', 'timeline-item-' + entry.kind];
     if (i === cursor) classes.push('current');
     if (i > cursor) classes.push('ghost');
-    return '<span class="' + classes.join(' ') + '" onclick="jumpToTimeline(' + i + ')">' + esc(entry.label) + '</span>';
-  }).join(' › ');
+    timelineParts.push('<span class="' + classes.join(' ') + '" onclick="jumpToTimeline(' + i + ')">' + esc(entry.label) + '</span>');
+  });
+  const timelineHtml = timelineParts.join(' › ');
 
   // elements（document common の要素行は全 component の表示に共通要素として乗る。SPEC「document common」）
   const frameVariant = displayVariant(frame);
@@ -964,6 +979,7 @@ function render() {
       '<div class="stack-list">' + stackHtml + '</div>' +
       '<div class="pane-title" title="統合ログ — 実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は ghost として残ります">統合ログ</div>' +
       '<div class="pane-desc">ナビゲーション履歴。実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は薄く（ghost）表示され、再クリックでやり直せます</div>' +
+      '<label class="timeline-toggle"><input type="checkbox" ' + (showEvents ? 'checked' : '') + ' onchange="toggleShowEvents()"> イベントを表示</label>' +
       '<div class="timeline-log">' + timelineHtml + '</div>' +
     '</aside>' +
     '<main class="pane pane-center">' +
