@@ -8,6 +8,9 @@ const ecommerceSrc = readFileSync(join(import.meta.dirname, '../../../docs/examp
 const musicSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/music.shitae'), 'utf8');
 const deliverySrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/delivery.shitae'), 'utf8');
 const langlearnSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/langlearn.shitae'), 'utf8');
+const fleamarketMainSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/fleamarket/main.shitae'), 'utf8');
+const fleamarketListingSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/fleamarket/listing.shitae'), 'utf8');
+const fleamarketTradeSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/fleamarket/trade.shitae'), 'utf8');
 const smarthomeMainSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/smarthome/main.shitae'), 'utf8');
 const smarthomeDevicesSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/smarthome/devices.shitae'), 'utf8');
 const smarthomeAutomationSrc = readFileSync(join(import.meta.dirname, '../../../docs/examples/smarthome/automation.shitae'), 'utf8');
@@ -60,8 +63,26 @@ describe('integration: examples/ecommerce.shitae', () => {
   it('has correct component count', () => {
     const { document } = parse(ecommerceSrc);
     // スプラッシュ, 商品一覧, 商品詳細, フィルタシート, カート, チェックアウト, 完了,
-    // 商品詳細追記, 共有シート, 投稿編集, 検索, レビュー詳細, 住所編集
-    expect(document.components).toHaveLength(13);
+    // 共有シート, 投稿編集, 検索, レビュー詳細, 住所編集
+    expect(document.components).toHaveLength(12);
+  });
+
+  it('カート は singleton（#!）で 空／商品あり の 2 variants を持つ', () => {
+    const { document } = parse(ecommerceSrc);
+    const cart = document.components.find(c => c.name === 'カート');
+    expect(cart).toBeDefined();
+    expect(cart!.singleton).toBe(true);
+    expect(cart!.variants.map(v => v.name)).toEqual(['空', '商品あり']);
+  });
+
+  it('set(カート##商品あり) / set(カート##空) の StateWrite を含む', () => {
+    const { document } = parse(ecommerceSrc);
+    const writes = document.components
+      .flatMap(c => [...c.common.interactions, ...c.variants.flatMap(v => v.body.interactions)])
+      .flatMap(i => i.results)
+      .filter(r => r.body.kind === 'state')
+      .map(r => (r.body.kind === 'state' ? r.body.target.variant : ''));
+    expect(writes.sort()).toEqual(['商品あり', '空']);
   });
 
   it('商品詳細 has 2 variants', () => {
@@ -179,14 +200,14 @@ describe('integration: examples/langlearn.shitae（set・singleton タブ・gate
     expect(singletons.sort()).toEqual(['ストリークバッジ', '学習']);
   });
 
-  it('set(学習##ハート切れ) / set(学習##通常) の StateWrite を含む', () => {
+  it('set(学習##ハート切れ) / set(学習##通常) / set(ストリークバッジ##達成) の StateWrite を含む', () => {
     const { document } = parse(langlearnSrc);
     const writes = document.components
       .flatMap(c => [...c.common.interactions, ...c.variants.flatMap(v => v.body.interactions)])
       .flatMap(i => i.results)
       .filter(r => r.body.kind === 'state')
       .map(r => (r.body.kind === 'state' ? r.body.target.variant : ''));
-    expect(writes.sort()).toEqual(['ハート切れ', '通常']);
+    expect(writes.sort()).toEqual(['ハート切れ', '通常', '達成']);
   });
 
   it('document common に presence gate 付き deep link を持つ（ADR-0015 の実例）', () => {
@@ -237,5 +258,67 @@ describe('integration: examples/smarthome/*.shitae（モジュール分割・sin
       .map(r => (r.body.kind === 'state' ? r.body.target : null));
     expect(writes.every(w => w?.module === 'devices')).toBe(true);
     expect(writes).toHaveLength(3);
+  });
+});
+
+describe('integration: examples/fleamarket/*.shitae（メルカリ風。タブ慣用句・module 修飾の要素行・singleton タブへの set・出口固定慣用句の実例）', () => {
+  it('main.shitae は import 2 件 + parse エラーなし', () => {
+    const { document, diagnostics } = parse(fleamarketMainSrc);
+    expect(diagnostics.filter(d => d.severity === 'error')).toHaveLength(0);
+    expect(document.imports.map(i => i.alias).sort()).toEqual(['listing', 'trade']);
+  });
+
+  it('main.shitae の お知らせ は singleton（#!）で 未読なし／未読あり を持ち、document common の set が書き込む', () => {
+    const { document } = parse(fleamarketMainSrc);
+    const news = document.components.find(c => c.name === 'お知らせ');
+    expect(news).toBeDefined();
+    expect(news!.singleton).toBe(true);
+    expect(news!.variants.map(v => v.name)).toEqual(['未読なし', '未読あり']);
+    const write = document.common.interactions
+      .flatMap(i => i.results)
+      .find(r => r.body.kind === 'state');
+    expect(write).toBeDefined();
+    expect(write!.body.kind === 'state' && write!.body.target.name).toBe('お知らせ');
+  });
+
+  it('main.shitae の ホーム は module 修飾の要素行（*おすすめ: trade::商品カード）を持つ（ADR-0020 の実例）', () => {
+    const { document } = parse(fleamarketMainSrc);
+    const home = document.components.find(c => c.name === 'ホーム');
+    expect(home).toBeDefined();
+    const card = home!.common.elements.find(e => e.alias === 'おすすめ');
+    expect(card).toBeDefined();
+    expect(card!.collection).toBe(true);
+    expect(card!.value.kind === 'ref' && card!.value.module).toBe('trade');
+    expect(card!.value.kind === 'ref' && card!.value.name).toBe('商品カード');
+  });
+
+  it('listing.shitae は parse エラーなし・@listing の出口固定慣用句（exit(@listing)）を複数箇所に持つ', () => {
+    const { document, diagnostics } = parse(fleamarketListingSrc);
+    expect(diagnostics.filter(d => d.severity === 'error')).toHaveLength(0);
+    const exits = document.components
+      .flatMap(c => [...c.common.interactions, ...c.variants.flatMap(v => v.body.interactions)])
+      .flatMap(i => i.results)
+      .filter(r => r.body.kind === 'transition' && r.body.word === 'exit' && r.body.session?.name === 'listing');
+    expect(exits.length).toBeGreaterThanOrEqual(3);  // 閉じる・下書き保存・出品完了
+  });
+
+  it('trade.shitae は parse エラーなし・取引 が進行 4 variants を持つ', () => {
+    const { document, diagnostics } = parse(fleamarketTradeSrc);
+    expect(diagnostics.filter(d => d.severity === 'error')).toHaveLength(0);
+    const deal = document.components.find(c => c.name === '取引');
+    expect(deal).toBeDefined();
+    expect(deal!.variants.map(v => v.name)).toEqual(['取引中', '発送済', '評価中', '取引完了']);
+  });
+
+  it('trade.shitae の 商品カード は無修飾 push(商品詳細) のデフォルト挙動を持つ（ADR-0018 レキシカル解決の実例）', () => {
+    const { document } = parse(fleamarketTradeSrc);
+    const card = document.components.find(c => c.name === '商品カード');
+    expect(card).toBeDefined();
+    const nav = card!.common.interactions
+      .flatMap(i => i.results)
+      .find(r => r.body.kind === 'transition' && r.body.word === 'push');
+    expect(nav).toBeDefined();
+    expect(nav!.body.kind === 'transition' && nav!.body.target?.kind === 'component' && nav!.body.target.name).toBe('商品詳細');
+    expect(nav!.body.kind === 'transition' && nav!.body.target?.kind === 'component' && nav!.body.target.module).toBe(null);
   });
 });

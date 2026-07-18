@@ -1,4 +1,5 @@
-// 例：対戦ゲームアプリ（shitae 全機能の通し書き）
+// 例：対戦ゲームアプリ（コア構文の通し書き。#! singleton・set・show/hide・module は
+// delivery / langlearn / smarthome / fleamarket を参照）
 
 // alias / collection(*) / variant(##) / component common(##より前) / document common(最初の # より前) /
 // variant change(goto) / ログイン後モード(present+exit) / タブ(switch・anchor frame) /
