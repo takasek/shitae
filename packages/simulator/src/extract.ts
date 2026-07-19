@@ -73,6 +73,9 @@ export interface SimInteraction {
   /** action.target の参照名（対象なしは null）。操作の対象紐付け（Task 8）に使う——表示中の
    * トップレベル要素の表示名（alias 優先）とここを名前一致で照合する */
   targetName: string | null;
+  /** action.target.member（`対象.member` 参照の member 部分。対象なし・member 無しは null）。
+   * actionText の member 復元と、埋め込み部品の外側上書きマッチング（Task 13）に使う */
+  targetMember: string | null;
   /** 最初のラベルより前の result 群。常に成立（分岐に依らず順に全部起こる） */
   prelude: SimResultBody[];
   /** 条件ラベル付きの選択肢。ラベル継承（effectiveResults）済み */
@@ -291,7 +294,10 @@ function convertInteraction(
   scope: SimInteractionScope,
 ): SimInteraction {
   const action = i.action;
-  const targetPart = action.target ? `(${action.target.name})` : '';
+  const member = action.target?.member ?? null;
+  // member 参照（対象.member）は表示・マッチング用に member を残す——落とすと部品要素配下の
+  // どの操作への上書きかが読み取れなくなる（UX評価3.4、Task 13）
+  const targetPart = action.target ? `(${action.target.name}${member ? `.${member}` : ''})` : '';
   const prelude: SimResultBody[] = [];
   const choices: SimChoice[] = [];
   for (const { label, result } of effectiveResults(i)) {
@@ -312,6 +318,7 @@ function convertInteraction(
   return {
     actionText: `${action.text}${targetPart}`,
     targetName: action.target?.name ?? null,
+    targetMember: member,
     prelude,
     choices,
     gate: buildGate(action, norm, sourceModule),

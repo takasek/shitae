@@ -642,4 +642,40 @@ describe('interaction: 操作の対象紐付け用 targetName（Task 8）', () =
     const inter = data.modules['main']!.components['ホーム']!.commonInteractions[0]!;
     expect(inter.targetName).toBeNull();
   });
+
+  it('member 参照（対象.member）は targetMember を保持し actionText を 行動(対象.member) の形に復元する（Task 13）', () => {
+    const doc = parseOk(
+      '# ホーム\nプロフィールカード\n> タップ(プロフィールカード.本体) -> push(編集)\n\n# プロフィールカード\n本体\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const inter = data.modules['main']!.components['ホーム']!.commonInteractions[0]!;
+    expect(inter.targetName).toBe('プロフィールカード');
+    expect(inter.targetMember).toBe('本体');
+    expect(inter.actionText).toBe('タップ(プロフィールカード.本体)');
+  });
+
+  it('member 無しの対象は targetMember が null のまま（既存 actionText 挙動を変えない。Task 13）', () => {
+    const doc = parseOk('# ホーム\nロゴ\n> タップ(ロゴ) -> push(設定)\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const inter = data.modules['main']!.components['ホーム']!.commonInteractions[0]!;
+    expect(inter.targetMember).toBeNull();
+    expect(inter.actionText).toBe('タップ(ロゴ)');
+  });
+
+  it('member gate（対象.要素?）も actionText に member を復元する（Task 13）', () => {
+    const doc = parseOk(
+      '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n\n# 時間選択\n本文\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const inter = data.modules['main']!.components['予約']!.commonInteractions[0]!;
+    expect(inter.targetMember).toBe('選択可能');
+    expect(inter.actionText).toBe('タップ(日付.選択可能)');
+  });
+
+  it('対象なしの行動は targetMember も null（Task 13）', () => {
+    const doc = parseOk('# ホーム\n> タップ -> push(設定)\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const inter = data.modules['main']!.components['ホーム']!.commonInteractions[0]!;
+    expect(inter.targetMember).toBeNull();
+  });
 });
