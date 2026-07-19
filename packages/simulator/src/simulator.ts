@@ -271,7 +271,7 @@ function pushTimelineEntry(kind, label) {
 }
 
 // interaction 1 件分の prelude → 指定 choice（未指定・choices 空なら prelude のみ）を順に適用する。
-// [TRUE] ラベル1つ（choices 空）は choiceIdx を渡しても choice が無いため prelude だけが起こる。
+// ラベル無し操作（choices 空、行全体がボタン）は choiceIdx を渡しても choice が無いため prelude だけが起こる。
 function runChoice(interaction, choiceIdx) {
   for (const body of interaction.prelude) applyTransition(body);
   const choice = interaction.choices[choiceIdx];
@@ -558,7 +558,7 @@ function scopedInteractions(scope) {
   return currentInteractions().filter((inter) => inter.scope === scope);
 }
 
-// 操作一覧のラベルボタンクリック。choiceIdx はラベル無し操作（[TRUE] 1 ボタン）なら 0 のまま
+// 操作一覧のラベルボタンクリック。choiceIdx はラベル無し操作（行全体が1つのボタン）なら 0 のまま
 // 渡ってくるが choices が空のため runChoice は prelude のみ実行する。
 function handleInteraction(scope, idx, choiceIdx) {
   const interaction = scopedInteractions(scope)[idx];
