@@ -617,6 +617,44 @@ describe('toSimulator', () => {
     expect(vm.runInContext('overlays.size', context)).toBe(1);
   });
 
+  it('統合ログ: 各エントリに記録時のアクティブ画面（component/variant）を薄いラベルで併記する。遷移エントリは遷移後の画面（Task 18 受入基準a）', () => {
+    const doc = parseOk(
+      '# ホーム\n> 押す -> いいねしました\n> 検索へ -> push(検索)\n\n# 検索\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext("applyTransition({ type: 'effect', text: 'いいねしました' }); render()", context);
+    const afterEffectHtml = vm.runInContext('app.innerHTML', context);
+    // event エントリは記録時点のアクティブ画面（ホーム）を併記する
+    expect(afterEffectHtml).toMatch(/<span class="timeline-item-screen">\[ホーム\]<\/span> effect: いいねしました/);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      context,
+    );
+    const afterPushHtml = vm.runInContext('app.innerHTML', context);
+    // 遷移エントリは遷移後の画面（検索）を併記する
+    expect(afterPushHtml).toMatch(/<span class="timeline-item-screen">\[検索\]<\/span> push → 検索/);
+
+    // 表示だけでなくエントリ構造自体にも screen フィールドとして残る
+    const timelineJson = JSON.parse(vm.runInContext('JSON.stringify(timeline)', context));
+    expect(timelineJson[0].screen).toBe('ホーム'); // 起動
+    expect(timelineJson[2].screen).toBe('検索'); // push → 検索
+  });
+
+  it('統合ログ: 画面名ラベルは姿(variant)を伴うとき "component / variant" 形式になる（Task 18 受入基準a）', () => {
+    const doc = parseOk('# 詳細\n## 読込中\nスピナー\n> 完了 -> goto(##表示)\n## 表示\nコンテンツ\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'goto', target: { kind: 'variant', variant: '表示' } }); render()",
+      context,
+    );
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('[詳細 / 表示]');
+  });
+
   it('イベントトグル: 「イベントを表示」チェックボックスを持ち、既定でON（event行を表示）（受入基準f）', () => {
     const doc = parseOk('# ホーム\n> 押す -> いいねしました\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');

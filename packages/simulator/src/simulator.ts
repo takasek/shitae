@@ -54,6 +54,7 @@ summary.pane-title { cursor: pointer; }
 .timeline-log { display: flex; flex-wrap: wrap; gap: 4px 6px; font-size: 12px; color: #666; }
 .timeline-item { background: #e0e0e0; padding: 2px 8px; border-radius: 10px; cursor: pointer; }
 .timeline-item-event { background: #eef0ff; color: #4b4f8f; }
+.timeline-item-screen { font-size: 10px; opacity: .65; margin-right: 2px; }
 .timeline-item.current { background: #111; color: #fff; }
 .timeline-item.ghost { opacity: .4; }
 .timeline-item:hover { background: #ccc; }
@@ -227,7 +228,7 @@ let overlays = new Map(); // 掲示中 component名 → 表示 variant（null=in
 // { stack, sharedVariants, overlays } の deep copy（Map は entries 配列化）——event エントリも
 // 状態を持つため巻き戻し対象になる。起動イベントを先頭に置く（設計判断: Task 2 brief）。
 // 現在の frame スタックは別にスタック表示（renderStackList）が専任で描画する（Task 7）。
-let timeline = [{ kind: 'transition', label: '起動', snapshot: snapshotState() }];
+let timeline = [{ kind: 'transition', label: '起動', screen: currentLocationLabel(), snapshot: snapshotState() }];
 // 巻き戻し位置（timeline 上のインデックス）。現在地は「cursor が指すエントリ」に一般化される
 // （旧「末尾が現在地」の後継。Task 10）。cursor より未来のエントリは ghost として保持され、
 // クリック（jumpToTimeline）で前後どちらへも移動できる（undo/redo）。新規追記時のみ ghost を消す。
@@ -283,7 +284,7 @@ function restoreState(snapshot) {
 // 追記が起きる実行の時点でタイムライン分岐が確定し、以降の ghost は無意味になるため）。
 function pushTimelineEntry(kind, label) {
   timeline = timeline.slice(0, cursor + 1);
-  timeline.push({ kind, label, snapshot: snapshotState() });
+  timeline.push({ kind, label, screen: currentLocationLabel(), snapshot: snapshotState() });
   cursor = timeline.length - 1;
 }
 
@@ -297,13 +298,20 @@ function runChoice(interaction, choiceIdx) {
   }
 }
 
+// 現在のアクティブ画面の位置ラベル（"component" または "component / variant"）。統合ログの
+// 遷移ラベル（transitionLabel）と、各エントリに併記する記録時の画面名ラベル（Task 18 受入
+// 基準a）の両方が同じ算出方法を共有する——遷移エントリは pushTimelineEntry が
+// applyTransition の末尾（stack 更新後）で呼ばれるため、自然に「遷移後の画面」になる。
+function currentLocationLabel() {
+  const frame = currentFrame();
+  const v = displayVariant(frame);
+  return v ? frame.component + ' / ' + v : frame.component;
+}
+
 // 遷移イベントの label（適用後の現在地が分かる形。末尾が常に現在地。back も他の遷移語
 // と同じくこの label を使う——word には 'back' がそのまま渡る。Task 7）
 function transitionLabel(word) {
-  const frame = currentFrame();
-  const v = displayVariant(frame);
-  const loc = v ? frame.component + ' / ' + v : frame.component;
-  return word + ' → ' + loc;
+  return word + ' → ' + currentLocationLabel();
 }
 
 // 掲示中 component の表示 variant（省略指定は initial。SPEC「オーバーレイ」）
@@ -1546,7 +1554,10 @@ function render() {
     const classes = ['timeline-item', 'timeline-item-' + entry.kind];
     if (i === cursor) classes.push('current');
     if (i > cursor) classes.push('ghost');
-    timelineParts.push('<span class="' + classes.join(' ') + '" onclick="jumpToTimeline(' + i + ')">' + esc(entry.label) + '</span>');
+    // 記録時のアクティブ画面（component/variant）を薄いラベルで併記する（Task 18 受入基準a）——
+    // 「effect: 盤面が更新される」のような1行が前後の遷移行を見なくても自己完結して読める。
+    const screenBadge = '<span class="timeline-item-screen">[' + esc(entry.screen) + ']</span> ';
+    timelineParts.push('<span class="' + classes.join(' ') + '" onclick="jumpToTimeline(' + i + ')">' + screenBadge + esc(entry.label) + '</span>');
   }
   const timelineHtml = timelineParts.join(' › ');
 
