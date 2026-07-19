@@ -1677,5 +1677,64 @@ describe('toSimulator', () => {
     vm.runInContext(m![1]!, context);
     expect(vm.runInContext('currentFrame().component', context)).toBe('検索');
   });
+
+  describe('外側上書き（SPEC 116-124「対象の指す要素」・受入基準d）', () => {
+    it('親の 行動(部品要素.member) が行動一致・member一致なら部品側 interaction を隠す（親が勝つ）', () => {
+      const doc = parseOk(
+        '# ホーム\nプロフィールカード\n> タップ(プロフィールカード.本体) -> push(編集)\n\n' +
+          '# プロフィールカード\n本体\n> タップ(本体) -> push(詳細)\n\n' +
+          '# 編集\n本文\n\n# 詳細\n本文\n',
+      );
+      const html = toSimulator(new Map([['main', doc]]), 'main');
+      const context = runSimulatorScript(html);
+      const appHtml = vm.runInContext('app.innerHTML', context);
+      // 親の上書き（member 復元済みラベル）は表示される
+      expect(appHtml).toContain('タップ(プロフィールカード.本体)');
+      // 部品側の同一 (行動, 対象) は隠れる——重複表示されない
+      expect((appHtml.match(/タップ\(本体\)/g) ?? []).length).toBe(0);
+      // クリックすると親の上書き先（編集）へ遷移する（部品側の詳細ではなく）
+      const m = appHtml.match(/onclick="(handleInteraction\([^"]+)"/);
+      expect(m).not.toBeNull();
+      vm.runInContext(m![1]!, context);
+      expect(vm.runInContext('currentFrame().component', context)).toBe('編集');
+    });
+
+    it('行動文字列が違えば部品側と親側の両方が残る', () => {
+      const doc = parseOk(
+        '# ホーム\nプロフィールカード\n> 長押し(プロフィールカード.本体) -> push(編集)\n\n' +
+          '# プロフィールカード\n本体\n> タップ(本体) -> push(詳細)\n\n' +
+          '# 編集\n本文\n\n# 詳細\n本文\n',
+      );
+      const html = toSimulator(new Map([['main', doc]]), 'main');
+      const context = runSimulatorScript(html);
+      const appHtml = vm.runInContext('app.innerHTML', context);
+      expect(appHtml).toContain('長押し(プロフィールカード.本体)');
+      expect(appHtml).toContain('タップ(本体)');
+    });
+
+    it('外側上書きは掲示中カードでも同じ機構で効く', () => {
+      const doc = parseOk(
+        '# ホーム\n> 出す -> show(ミニ)\n\n' +
+          '# ミニ\nプロフィールカード\n> タップ(プロフィールカード.本体) -> push(編集)\n\n' +
+          '# プロフィールカード\n本体\n> タップ(本体) -> push(詳細)\n\n' +
+          '# 編集\n本文\n\n# 詳細\n本文\n',
+      );
+      const html = toSimulator(new Map([['main', doc]]), 'main');
+      const context = runSimulatorScript(html);
+      vm.runInContext(
+        "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
+        context,
+      );
+      const appHtml = vm.runInContext('app.innerHTML', context);
+      const overlayIdx = appHtml.indexOf('overlay-card');
+      const overlaySection = appHtml.slice(overlayIdx);
+      expect(overlaySection).toContain('タップ(プロフィールカード.本体)');
+      expect((overlaySection.match(/タップ\(本体\)/g) ?? []).length).toBe(0);
+      const m = overlaySection.match(/onclick="(handleOverlayInteraction\([^"]+)"/);
+      expect(m).not.toBeNull();
+      vm.runInContext(m![1]!, context);
+      expect(vm.runInContext('currentFrame().component', context)).toBe('編集');
+    });
+  });
   });
 });

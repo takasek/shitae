@@ -603,21 +603,43 @@ function renderActionRow(item, buildOnclick) {
     '<span class="action-choices">' + buttons + '</span></div>';
 }
 
+// interaction の行動テキストから対象部分 "(対象[.member])" を除いた行動語だけを取り出す
+// （外側上書きの行動一致判定に使う。actionText は extract 側で word + targetPart として
+// 組み立てられているため、同じ規則で targetPart 長だけ末尾を落とせば word が復元できる。Task 13）。
+function actionWord(inter) {
+  if (inter.targetName == null) return inter.actionText;
+  const targetPart = '(' + inter.targetName + (inter.targetMember != null ? '.' + inter.targetMember : '') + ')';
+  return inter.actionText.slice(0, inter.actionText.length - targetPart.length);
+}
+
+// 外側上書き（SPEC「部品の内部要素参照・外側上書き」116-124 行）: 親の行動(部品要素.member) が
+// 行動文字列一致・member（parentItem.inter.targetMember）と部品側 interaction の対象
+// （inter.targetName）一致なら、部品側のその interaction を隠す（親が勝つ）。行動が違えば
+// 両方残る（Task 13 受入基準d）。overrideItems は「その部品要素に紐付いた親（またはさらに外側）
+// 側の attached items のうち targetMember を持つもの」——renderElementsAndActions /
+// resolveNestedItems が同じ computeAttachments から算出して渡す。
+function isOverriddenByOuter(inter, overrideItems) {
+  if (!overrideItems || overrideItems.length === 0 || inter.targetName == null) return false;
+  return overrideItems.some(
+    (item) => item.inter.targetMember === inter.targetName && actionWord(item.inter) === actionWord(inter),
+  );
+}
+
 // 部品要素 1 件が指す component 自身の実効 interactions（表示 variant で mergeInteractions 済み。
-// DATA の commonInteractions / variants[v].interactions そのもの）を、部品自身の gate 判定込みで
-// 組み立てる（埋め込み部品の interaction 有効化。Task 13。SPEC「部品の内部要素参照・外側上書き」
-// 116-124 行・タブバー慣用句 450-461 行）。裸 gate は overlayInteractions と同じ hostCtx 方式
-// （ADR-0019）を部品自身に適用する——アクティブ画面の body ではなく部品自身の表示 variant の
-// 実効 body で判定する。document common 由来はここに含めない（アクティブ画面基準の既存経路
-// のみが扱う。brief 明記）。戻り値の childEls は再帰展開の次段要素配列。
-function computeOwnComponentContext(elRef) {
+// DATA の commonInteractions / variants[v].interactions そのもの）を、部品自身の gate 判定と
+// 外側上書き済みで組み立てる（埋め込み部品の interaction 有効化。Task 13。SPEC「部品の内部要素
+// 参照・外側上書き」116-124 行・タブバー慣用句 450-461 行）。裸 gate は overlayInteractions と
+// 同じ hostCtx 方式（ADR-0019）を部品自身に適用する——アクティブ画面の body ではなく部品自身の
+// 表示 variant の実効 body で判定する。document common 由来はここに含めない（アクティブ画面
+// 基準の既存経路のみが扱う。brief 明記）。戻り値の childEls は再帰展開の次段要素配列。
+function computeOwnComponentContext(elRef, overrideItems) {
   const comp = getComp(elRef.module, elRef.name);
   if (!comp) return null;
   const key = skey(elRef.module, elRef.name);
   const v = sharedVariants.has(key) ? sharedVariants.get(key) : comp.initialVariant;
   const hostCtx = { module: elRef.module, component: elRef.name, variant: v };
   const ownRaw = v ? (comp.variants[v]?.interactions ?? []) : comp.commonInteractions;
-  const ownFiltered = ownRaw.filter((inter) => gateEnabled(inter, hostCtx));
+  const ownFiltered = ownRaw.filter((inter) => gateEnabled(inter, hostCtx) && !isOverriddenByOuter(inter, overrideItems));
   const ownItems = [
     ...ownFiltered.filter((inter) => inter.scope === 'variant').map((inter, idx) => ({ inter, scope: 'variant', idx })),
     ...ownFiltered.filter((inter) => inter.scope === 'component').map((inter, idx) => ({ inter, scope: 'component', idx })),
@@ -636,8 +658,10 @@ function computeOwnComponentContext(elRef) {
 // cardIdx・path は部品自身の interaction 実行用（Task 13）: cardIdx は本体なら -1、掲示中
 // カードなら [...overlays.keys()] の索引。path はここまでの要素インデックス列——
 // resolveNestedItems（クリック時）がこの path を辿って同じ展開・フィルタ結果を再構築し、
-// 描画とハンドラでインデックスがずれないようにする。
-function renderElementNode(el, visited, attachedHtml, cardIdx, path) {
+// 描画とハンドラでインデックスがずれないようにする。overrideItems は el に紐付いた親（または
+// さらに外側）側の attached items のうち targetMember を持つもの——外側上書き（Task 13
+// 受入基準d）の判定に computeOwnComponentContext へそのまま渡す。
+function renderElementNode(el, visited, attachedHtml, cardIdx, path, overrideItems) {
   const comp = el.ref ? getComp(el.ref.module, el.ref.name) : null;
   if (!comp) {
     return '<div class="element">' + esc(el.name) + '</div>' + attachedHtml;
@@ -648,7 +672,7 @@ function renderElementNode(el, visited, attachedHtml, cardIdx, path) {
   }
   const nextVisited = new Set(visited);
   nextVisited.add(key);
-  const ctx = computeOwnComponentContext(el.ref);
+  const ctx = computeOwnComponentContext(el.ref, overrideItems);
   const buildOwnOnclick = (scope, idx, choiceIdx) =>
     "handleNestedInteraction(" + cardIdx + ",[" + path.join(",") + "],'" + scope + "'," + idx + "," + choiceIdx + ")";
   const { elementsHtml: childElementsHtml, actionsHtml: ownActionsHtml } =
@@ -662,13 +686,13 @@ function renderElementNode(el, visited, attachedHtml, cardIdx, path) {
 // action.target の参照名（targetName）がトップレベル要素の表示名に一致した操作はその要素行の
 // 直下へ紐付け、残り（不一致・対象なし）はフラットリストへ出す。同名要素が複数あるときは
 // 最初の要素にだけ紐付ける（発火する interaction は同一のため重複表示しない）。
-// visitedBase は循環ガードの起点集合（カード自身の (module,component) を含む Set）。
-// cardIdx・path は Task 13 の部品 interaction 実行用（renderElementNode 参照）——
-// 再帰呼び出し（部品自身の子要素展開）では showEmptyState を false にして「アクションなし」の
-// 空状態表示を最上位カードだけに限定する（部品ノードごとに表示すると入れ子で冗長になるため）。
-function renderElementsAndActions(els, items, buildOnclick, visitedBase, cardIdx, path, showEmptyState = true) {
+// 要素配列 els への操作 items の紐付けを計算する（Task 8 の対象紐付けアルゴリズムそのもの）。
+// 同名要素が複数あるときは els の並び順で最初の要素にだけ紐付ける（items も並び順で走査し、
+// 一度紐付いた item は他の要素へは付かない）。renderElementsAndActions と resolveNestedItems
+// の両方がこれを呼ぶ——描画時の紐付けとクリック時の外側上書き判定（Task 13）が同じ結果を見る。
+function computeAttachments(els, items) {
   const consumed = new Set();
-  const elementRows = els.map((el, elIdx) => {
+  const attachedByIndex = els.map((el) => {
     const attached = [];
     items.forEach((item, i) => {
       if (!consumed.has(i) && item.inter.targetName != null && item.inter.targetName === el.name) {
@@ -676,12 +700,28 @@ function renderElementsAndActions(els, items, buildOnclick, visitedBase, cardIdx
         attached.push(item);
       }
     });
+    return attached;
+  });
+  const flat = items.filter((item, i) => !consumed.has(i));
+  return { attachedByIndex, flat };
+}
+
+// visitedBase は循環ガードの起点集合（カード自身の (module,component) を含む Set）。
+// cardIdx・path は Task 13 の部品 interaction 実行用（renderElementNode 参照）——
+// 再帰呼び出し（部品自身の子要素展開）では showEmptyState を false にして「アクションなし」の
+// 空状態表示を最上位カードだけに限定する（部品ノードごとに表示すると入れ子で冗長になるため）。
+function renderElementsAndActions(els, items, buildOnclick, visitedBase, cardIdx, path, showEmptyState = true) {
+  const { attachedByIndex, flat } = computeAttachments(els, items);
+  const elementRows = els.map((el, elIdx) => {
+    const attached = attachedByIndex[elIdx];
     const attachedHtml = attached.length > 0
       ? '<div class="action-list element-actions">' + attached.map((item) => renderActionRow(item, buildOnclick)).join('') + '</div>'
       : '';
-    return renderElementNode(el, visitedBase, attachedHtml, cardIdx, [...path, elIdx]);
+    // attached のうち targetMember を持つものは「対象.member」形の外側上書き——el が指す
+    // 部品自身の interaction（targetName === その member）を隠すのに使う（Task 13 受入基準d）。
+    const overrideItems = attached.filter((item) => item.inter.targetMember != null);
+    return renderElementNode(el, visitedBase, attachedHtml, cardIdx, [...path, elIdx], overrideItems);
   }).join('');
-  const flat = items.filter((item, i) => !consumed.has(i));
   let actionsHtml = '';
   if (items.length === 0) {
     if (showEmptyState) actionsHtml = '<div class="no-actions">アクションなし</div>';
@@ -752,14 +792,19 @@ function overlayTopLevelItems(cardIdx) {
 function resolveNestedItems(cardIdx, path) {
   if (!path || path.length === 0) return null;
   let els = cardIdx === -1 ? mainTopLevelElements() : overlayTopLevelElements(cardIdx);
-  if (!els) return null;
+  let items = cardIdx === -1 ? mainTopLevelItems() : overlayTopLevelItems(cardIdx);
+  if (!els || !items) return null;
   for (let i = 0; i < path.length; i++) {
     const el = els[path[i]];
     if (!el || !el.ref) return null;
-    const ctx = computeOwnComponentContext(el.ref);
+    // el に紐付く（親側の）attached items のうち targetMember 持ちが外側上書き（Task 13 受入基準d）
+    const { attachedByIndex } = computeAttachments(els, items);
+    const overrideItems = (attachedByIndex[path[i]] ?? []).filter((item) => item.inter.targetMember != null);
+    const ctx = computeOwnComponentContext(el.ref, overrideItems);
     if (!ctx) return null;
     if (i === path.length - 1) return ctx.ownItems;
     els = ctx.childEls;
+    items = ctx.ownItems;
   }
   return null;
 }
