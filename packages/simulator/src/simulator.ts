@@ -99,8 +99,12 @@ summary.pane-title { cursor: pointer; }
 .gate-row-label { color: #555; min-width: 80px; }
 /* マップ全体を viewBox で縮小して収めていた旧方式（Task 5〜15）を廃止し（UX round2・fleamarket
    18ノードで12px級まで縮小し判読不能と実測）、ノード矩形は固定寸法のまま、はみ出た分は
-   このスクロール領域内の横縦スクロールで見る（Task 16 受入基準c）。 */
-.graph-map-scroll { overflow: auto; max-height: 480px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; }
+   このスクロール領域内の横縦スクロールで見る（Task 16 受入基準c）。position: relative は
+   ノード近傍 tooltip（.graph-tooltip）の絶対配置の基準にするため（Task 16 受入基準e）——
+   ノードと tooltip を同じ座標系（このスクロール領域内のローカル座標）に置くことで、マップを
+   スクロールしても tooltip がノードから相対的にズレない。z-index は外クリックで pin を
+   解除するバックドロップ（.graph-tooltip-backdrop、z-index 1）より上に出すため。 */
+.graph-map-scroll { position: relative; z-index: 2; overflow: auto; max-height: 480px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; }
 .graph-svg { display: block; }
 .graph-svg rect { fill: #fff; stroke: #ccc; }
 .graph-node:hover rect { stroke: #111; fill: #f0f0f0; }
@@ -109,23 +113,31 @@ summary.pane-title { cursor: pointer; }
 .graph-svg text.graph-lane-title { font-size: 12px; font-weight: 700; fill: #555; }
 .graph-svg line { stroke: #bbb; stroke-width: 1; }
 .graph-svg marker path { fill: #bbb; }
-/* 遷移マップペイン上部に sticky で固定する（Task 9）——マップが縦に伸びて
-   ペイン内スクロールが生じても hover プレビューは常時見える位置にとどまり、
-   画面下へフレームアウトしない。z-index と不透明背景でノード矩形の上に重ねて表示する。
-   min-height は最大内容（title/module/elements/variant の4行）分をあらかじめ予約する
-   ——空(1行)から内容表示(4行)へ高さが変わるとレイアウトが下方向へシフトし、直下の
-   ノードがカーソル位置から逃げて mouseenter/mouseleave が無限ループするフリッカを
-   起こしていた（UX評価3.3、Task 12）。固定高にすることで内容の出入りに関わらず
-   レイアウトが不動になり、sticky 配置とも両立する。予約量は決定的に導出する:
-   line-height 1.4 を明示 → 4行 = 5.6em、上下 padding 12px（border-box、font-size 11px
-   基準で約1.1em）を含め 6.8em を確保する。 */
-.graph-preview { position: sticky; top: 0; z-index: 1; margin-bottom: 6px; padding: 6px 8px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; font-size: 11px; line-height: 1.4; color: #555; min-height: 6.8em; }
-.graph-preview-title { font-weight: 700; color: #333; }
+/* ノード近傍への絶対配置 tooltip（Task 16 受入基準e）。ペイン上部固定領域だった旧
+   #graph-preview（sticky + min-height 予約、Task 9/12）を廃止し、ホバー中のノードの
+   すぐそば（直下）に出す方式へ切替えた。position: absolute はドキュメントフローから
+   外れるためレイアウトに影響しない（他要素の並び・サイズを変えない）。pointer-events: none
+   は pin されていない間の既定——tooltip が別ノードの矩形に重なっても、マウスイベントは
+   tooltip を素通りして下のノードへ届く。これが Task 12 のフリッカ（tooltip の出現で
+   直下のノードの mouseleave/mouseenter が連鎖する）を構造的に防ぐ根拠になる（旧方式は
+   固定 min-height でレイアウトシフトを止めていたが、今回はそもそも重なっても効かない
+   ようにする、より直接的な対策）。:empty は「何もホバーしていない」既定状態を非表示にする。 */
+.graph-tooltip { position: absolute; z-index: 1; max-width: 220px; padding: 6px 8px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; font-size: 11px; line-height: 1.4; color: #555; pointer-events: none; }
+.graph-tooltip:empty { display: none; }
+/* pin（ノードクリックで固定表示）中は分割/統合・閉じるボタンを押せるよう pointer-events を
+   戻し、見た目も「浮いているカード」として実線・影を付けて hover 中の淡いプレビューと区別する。 */
+.graph-tooltip-pinned { pointer-events: auto; border-style: solid; border-color: #ccc; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+.graph-tooltip-title { font-weight: 700; color: #333; }
+.graph-tooltip-actions { display: flex; gap: 6px; margin-top: 6px; }
+.graph-tooltip-btn { background: #f0f0f0; border: none; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 12px; }
+.graph-tooltip-btn:hover { background: #e0e0e0; }
 .graph-node { cursor: pointer; }
-.graph-menu { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; padding: 6px 8px; background: #fff; border: 1px solid #ccc; border-radius: 6px; font-size: 12px; }
-.graph-menu-title { font-weight: 700; color: #333; }
-.graph-menu-item { background: #f0f0f0; border: none; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 12px; }
-.graph-menu-item:hover { background: #e0e0e0; }
+/* pin 中だけ現れる透明な外クリック検知用バックドロップ（「外クリックか閉じるで解除」。
+   Task 16 受入基準e）。position: fixed で viewport 全体を覆うが、.graph-map-scroll に
+   z-index: 2（このバックドロップは z-index: 1）を与えているため、マップ内のノード・
+   tooltip はバックドロップより上に出て操作できる——実質「マップの外」をクリックしたときだけ
+   このバックドロップが拾って pin を閉じる、という素直な動作になる。 */
+.graph-tooltip-backdrop { position: fixed; inset: 0; z-index: 1; }
 .graph-save-btn { align-self: flex-start; margin-bottom: 6px; background: none; border: 1px solid #ccc; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 11px; color: #555; }
 .graph-save-btn:hover { background: #f0f0f0; }
 </style>
@@ -1095,38 +1107,62 @@ function filterGraphNeighborhood(nodes, edges, currentIdx) {
   return { nodes: filteredNodes, edges: filteredEdges };
 }
 
-// 直近の描画で表示した集約後ノード一覧（renderGraphMap が更新する）。hover プレビューと
-// ノードメニューは onclick/onmouseenter に数値インデックスだけを埋め込み、このリストで
-// 解決する（component 名文字列の属性埋め込みによる quote 衝突バグの根治方針を踏襲）。
+// 直近の描画で表示した集約後ノード一覧（renderGraphMap が更新する）。hover/pin tooltip は
+// onclick/onmouseenter に数値インデックスだけを埋め込み、このリストで解決する（component
+// 名文字列の属性埋め込みによる quote 衝突バグの根治方針を踏襲）。graphNodePositions は
+// 同じ添字で各ノードのローカル座標 { x, y, w, h }（.graph-map-scroll 内、renderGraphMap の
+// レイアウト計算そのもの）を持ち、pin 中の tooltip をノード直下へ絶対配置する際に使う。
 let graphNodesView = [];
+let graphNodePositions = [];
 
-// 開いているノードメニューの集約後ノードインデックス（null = 非表示）。マップは閲覧専用
-// （ノードクリックは遷移しない）のためクリックをメニューに使える（ADR-0022 4）。
-let graphMenu = null;
+// tooltip を pin（固定表示）しているノードの識別子（null = pin なし。Task 16 受入基準e、
+// 粒度メニューを tooltip へ統合。旧 graphMenu の後継）。生の配列インデックスでなく
+// { module, component, variant } で持つ——近傍表示（Task 16 受入基準d）は現在地に応じて
+// graphNodesView の中身・順序が変わりうるため、素の idx を保持すると近傍集合が変わった際に
+// 無関係な別ノードを指してしまう。render() のたびに renderGraphSection が現在の
+// graphNodesView 上の位置へ解決し直し、対象ノードが可視集合から消えていれば自動的に
+// pin を解除する（resolveGraphPinnedIdx）。
+let graphPinnedKey = null;
 
-// ノードメニューを開く。variant を持たない component はメニュー不要（分割できない）なので no-op
-function openGraphMenu(idx) {
+// graphPinnedKey を今回描画の graphNodesView 上のインデックスへ解決する。見つからなければ
+// pin 対象が近傍表示や粒度切替で可視集合から外れたということなので、pin 自体を解除して
+// -1 を返す（呼び出し側は render() の戻り経路の中にいるため、ここでは render() を再帰呼び
+// 出ししない——次の render() 開始時点の graphPinnedKey が null になっていれば十分）。
+function resolveGraphPinnedIdx() {
+  if (graphPinnedKey == null) return -1;
+  const idx = graphNodesView.findIndex((n) =>
+    n.module === graphPinnedKey.module && n.component === graphPinnedKey.component && n.variant === graphPinnedKey.variant,
+  );
+  if (idx === -1) graphPinnedKey = null;
+  return idx;
+}
+
+// tooltip を pin する。ノード情報表示はどのノードでも有効（variant の有無を問わない）——
+// 分割/統合ボタンの表示可否は renderGraphSection 側で個別に判定する。
+function pinGraphTooltip(idx) {
+  // 実イベント経由の呼び出しでは event が暗黙に束縛される（インライン属性ハンドラの仕様）。
+  // 外クリックバックドロップへのバブリングでこの直後に unpinGraphTooltip が連鎖しないよう
+  // 止める。vm テストのような直接呼び出しでは event 自体が存在しないため typeof で防御する。
+  if (typeof event !== 'undefined' && event && event.stopPropagation) event.stopPropagation();
   const node = graphNodesView[idx];
   if (!node) return;
-  const comp = getComp(node.module, node.component);
-  if (!comp || Object.keys(comp.variants).length === 0) return;
-  graphMenu = idx;
+  graphPinnedKey = { module: node.module, component: node.component, variant: node.variant };
   render();
 }
 
-function closeGraphMenu() {
-  graphMenu = null;
+function unpinGraphTooltip() {
+  graphPinnedKey = null;
   render();
 }
 
-// メニューの split/統合切替。集約後インデックスは粒度切替でずれるため、切替と同時に閉じる
+// pin の split/統合切替。集約後インデックスは粒度切替でずれるため、切替と同時に pin を解除する
 function toggleGraphSplit(idx) {
   const node = graphNodesView[idx];
   if (!node) return;
   const k = skey(node.module, node.component);
   if (graphSplit.has(k)) graphSplit.delete(k);
   else graphSplit.add(k);
-  graphMenu = null;
+  graphPinnedKey = null;
   render();
 }
 
@@ -1225,59 +1261,70 @@ function aggregateGraph(nodes, edges, splitSet) {
   return { nodes: aggNodes, edges: [...aggEdges.values()] };
 }
 
-// 遷移マップの hover プレビュー。render() を経由せず #graph-preview を直接書き換える
-// 局所 DOM 更新にする——render() は innerHTML を丸ごと再構築する設計のため、hover 状態を
-// JS グローバルに持って render() を呼ぶとちらつく。idx は集約後ノード（graphNodesView）の
-// インデックス（Task 11 で DATA.graph.nodes 直参照から変更）。
-function showNodePreview(idx) {
-  const node = graphNodesView[idx];
-  const el = document.getElementById('graph-preview');
-  if (!node || !el) return;
+// tooltip の本文（ノード名・module・elements・variant 一覧）。hover 表示・pin 表示の
+// 両方から使う共通部分（Task 16 受入基準e、粒度メニュー統合に伴い pin 側は
+// renderGraphTooltipPinnedContent がこれへボタン行を足す）。
+function renderGraphTooltipBody(node) {
   const comp = getComp(node.module, node.component);
-  if (!comp) { el.innerHTML = ''; return; }
+  if (!comp) return '';
   const variantNames = Object.keys(comp.variants);
   const elementsHtml = comp.commonElements.length > 0
-    ? '<div class="graph-preview-elements">elements: ' + comp.commonElements.map((e) => esc(e.name)).join(', ') + '</div>'
+    ? '<div class="graph-tooltip-elements">elements: ' + comp.commonElements.map((e) => esc(e.name)).join(', ') + '</div>'
     : '';
   const variantsHtml = variantNames.length > 0
-    ? '<div class="graph-preview-variants">variant: ' + variantNames.map((v) => esc(v)).join(', ') + '</div>'
+    ? '<div class="graph-tooltip-variants">variant: ' + variantNames.map((v) => esc(v)).join(', ') + '</div>'
     : '';
-  el.innerHTML =
-    '<div class="graph-preview-title">' + esc(node.name) + '</div>' +
-    '<div class="graph-preview-module">module: ' + esc(node.module) + '</div>' +
+  return '<div class="graph-tooltip-title">' + esc(node.name) + '</div>' +
+    '<div class="graph-tooltip-module">module: ' + esc(node.module) + '</div>' +
     elementsHtml + variantsHtml;
 }
 
-function hideNodePreview() {
-  const el = document.getElementById('graph-preview');
+// 遷移マップの hover tooltip。render() を経由せず #graph-tooltip を直接書き換える
+// 局所 DOM 更新にする——render() は innerHTML を丸ごと再構築する設計のため、hover 状態を
+// JS グローバルに持って render() を呼ぶとちらつく（#graph-preview 時代からの理由を踏襲）。
+// idx は集約後ノード（graphNodesView）のインデックス。x, y はノード描画時（renderGraphNodeSvg）
+// に計算済みの固定座標——ノード直下（フリッカを避ける重ならない位置）を指す数値のみで、
+// onmouseenter への埋め込みも数値のみに保つ。pin 中は hover に奪われない（pin が優先）。
+function showNodeTooltip(idx, x, y) {
+  if (graphPinnedKey != null) return;
+  const node = graphNodesView[idx];
+  const el = document.getElementById('graph-tooltip');
+  if (!node || !el) return;
+  el.innerHTML = renderGraphTooltipBody(node);
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+}
+
+function hideNodeTooltip() {
+  if (graphPinnedKey != null) return;
+  const el = document.getElementById('graph-tooltip');
   if (el) el.innerHTML = '';
 }
 
 // 遷移マップの SVG（rect + component 名テキストのノード、直線 + 矢印のエッジ）。
 // aggregateGraph で粒度状態（graphSplit）に応じた集約を行ってから layoutGraph（純関数）へ
 // 渡し、rank/order を LR（rank=横方向、rank内=縦等間隔）で座標化する（Task 11）。
-// 閲覧専用（設計者確定事項 2026-07-19）——ノードクリックは遷移せずメニューを開くだけ。
-// hover/click は component 名でなく集約後ノードの配列インデックスで参照する
+// 遷移関係は閲覧専用（設計者確定事項 2026-07-19）——ノードクリックは遷移せず tooltip を
+// pin するだけ。hover/click は component 名でなく集約後ノードの配列インデックスで参照する
 // （属性への任意文字列埋め込みを避ける）。component 名は任意文字列のため SVG テキストへは
 // esc() を通す。現在の画面.本体に対応するノードは module・component の両方一致
 // （split 時はさらに現在 variant 一致）で判定し graph-node-current を付けてハイライトする
 // ——render() が毎回 innerHTML を再構築するため遷移のたびに自然に追随する。
 // ノード 1 個分の <g>（rect + テキスト）。idx は集約後ノード（graphNodesView）配列上の
 // インデックス（レーン分割後も agg.nodes 上の絶対位置を指す。onclick/onmouseenter に
-// 埋め込むのはこのインデックスのみ——component 名の quote 衝突を避ける方針を踏襲）。
+// 埋め込むのはこのインデックスと固定オフセット座標のみ——component 名の quote 衝突を
+// 避ける方針を踏襲）。tooltip の位置はノード直下（y + h + 4px）に固定オフセットする——
+// ノード自身の矩形と重ならない位置にすることで Task 12 のフリッカ連鎖を起こさない
+// （.graph-tooltip の pointer-events: none と合わせた二重の対策。Task 16 受入基準e）。
 function renderGraphNodeSvg(view, idx, x, y, w, h) {
   const frame = currentFrame();
   const frameVariant = displayVariant(frame);
   const isCurrent = view.module === frame.module && view.component === frame.component &&
     (view.variant == null || view.variant === frameVariant);
   const cls = 'graph-node' + (isCurrent ? ' graph-node-current' : '');
-  // variant を持つ component のノードだけクリックで粒度メニューを開く（遷移はしない。
-  // 閲覧専用マップなのでクリックをメニューに使える——ADR-0022 4。数値インデックスのみ埋め込む）
-  const comp = getComp(view.module, view.component);
-  const clickAttr = comp && Object.keys(comp.variants).length > 0
-    ? ' onclick="openGraphMenu(' + idx + ')"'
-    : '';
-  return '<g class="' + cls + '" onmouseenter="showNodePreview(' + idx + ')" onmouseleave="hideNodePreview()"' + clickAttr + '>' +
+  const tooltipY = y + h + 4;
+  return '<g class="' + cls + '" onmouseenter="showNodeTooltip(' + idx + ',' + x + ',' + tooltipY + ')" ' +
+      'onmouseleave="hideNodeTooltip()" onclick="pinGraphTooltip(' + idx + ')">' +
     '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="4"></rect>' +
     '<text x="' + (x + w / 2) + '" y="' + (y + h / 2 + 4) + '" text-anchor="middle">' + esc(view.name) + '</text>' +
   '</g>';
@@ -1337,6 +1384,9 @@ function renderGraphMap() {
   const nodesHtmlParts = [];
   let yCursor = marginY;
   let width = 0;
+  // graphNodesView と同じ添字で各ノードのローカル座標を記録する（tooltip の pin 表示で
+  // renderGraphSection がノード直下へ絶対配置する際に使う。Task 16 受入基準e）
+  graphNodePositions = new Array(nodes.length);
 
   for (const laneModule of laneModules) {
     const laneEntries = nodesWithIdx.filter((n) => n.module === laneModule);
@@ -1362,6 +1412,7 @@ function renderGraphMap() {
       const x = marginX + n.rank * rankWidth;
       const y = laneTop + n.order * rowHeight;
       posByKey.set(skey(n.module, n.name), { x, y });
+      graphNodePositions[view._idx] = { x, y, w: nodeWidth, h: nodeHeight };
       nodesHtmlParts.push(renderGraphNodeSvg(view, view._idx, x, y, nodeWidth, nodeHeight));
     });
 
@@ -1384,41 +1435,61 @@ function renderGraphMap() {
     '<defs><marker id="graph-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z"></path></marker></defs>' +
     edgesHtml + nodesHtmlParts.join('') +
   '</svg>';
+
+  // pin 中の tooltip（Task 16 受入基準e、粒度メニューを tooltip へ統合）。graphPinnedKey を
+  // 今回描画の graphNodesView 上のインデックスへ解決し、見つかればノード直下へ絶対配置し
+  // 分割/統合ボタン + 閉じるボタンを内蔵する。見つからなければ（近傍表示や粒度切替で
+  // pin 対象が可視集合から外れた）resolveGraphPinnedIdx の副作用として pin 自体を解除する。
+  const pinnedIdx = resolveGraphPinnedIdx();
+  let tooltipHtml = '<div id="graph-tooltip" class="graph-tooltip"></div>';
+  let backdropHtml = '';
+  if (pinnedIdx >= 0) {
+    const node = graphNodesView[pinnedIdx];
+    const pos = graphNodePositions[pinnedIdx];
+    const comp = getComp(node.module, node.component);
+    const isSplit = graphSplit.has(skey(node.module, node.component));
+    const splitBtn = comp && Object.keys(comp.variants).length > 0
+      ? '<button class="graph-tooltip-btn" onclick="toggleGraphSplit(' + pinnedIdx + ')">' +
+          (isSplit ? '統合' : 'variant で分割') + '</button>'
+      : '';
+    tooltipHtml = '<div id="graph-tooltip" class="graph-tooltip graph-tooltip-pinned" style="left:' + pos.x + 'px; top:' + (pos.y + pos.h + 4) + 'px;">' +
+      renderGraphTooltipBody(node) +
+      '<div class="graph-tooltip-actions">' + splitBtn +
+        '<button class="graph-tooltip-btn" onclick="unpinGraphTooltip()">閉じる</button>' +
+      '</div>' +
+    '</div>';
+    // 外クリックで pin を解除するバックドロップ（「外クリックか閉じるで解除」）。pin 中だけ出す
+    backdropHtml = '<div class="graph-tooltip-backdrop" onclick="unpinGraphTooltip()"></div>';
+  }
+
   // ノード寸法固定 + はみ出た分はスクロールで見る（受入基準c）——マップ全体を
-  // viewBox で縮小して収める旧方式はここで廃止した
-  return '<div class="graph-map-scroll">' + svg + '</div>';
+  // viewBox で縮小して収める旧方式はここで廃止した。tooltip は .graph-map-scroll の中に
+  // 置く（.graph-map-scroll が position: relative の基準になり、ノードと同じローカル座標系で
+  // 絶対配置できる——マップをスクロールしてもノードから相対的にズレない）。
+  return backdropHtml + '<div class="graph-map-scroll">' + svg + tooltipHtml + '</div>';
 }
 
 // 遷移マップの区画（中央ペイン最下段、スタックと1つのスクロール領域を共有する。UX round2で
 // 折畳み可能に戻した——閲覧専用化でノードクリック探索という開閉維持の理由は消えたが、
 // スタックとマップが同じスクロール領域を分け合う以上、双方を閉じられる方が長い文書で有利
 // という設計者判断による。開閉状態は mapPanelOpen に保持し、ネイティブ <details> の
-// ontoggle で同期する（Task 5 時代の graphPanelOpen と同じ方式。Task 14）。#graph-preview は
-// マップ本体（SVG）より前に置く——sticky でペイン上部に固定するには DOM 上もペイン先頭にある
-// のが自然で、マップが縦に伸びてスクロールしても hover プレビューが画面外へフレームアウトしない
-// （Task 9 受入基準b）。
+// ontoggle で同期する（Task 5 時代の graphPanelOpen と同じ方式。Task 14）。ノード情報の
+// tooltip（pin 中は粒度メニューも内蔵）はノード近傍へ絶対配置するため mapHtml
+// （renderGraphMap の戻り値）に含まれており、この関数で個別に組み立てる必要はない
+// （旧 #graph-preview・.graph-menu はここで担っていたが Task 16 で廃止した）。
 function renderGraphSection() {
   if (!DATA.graph || DATA.graph.nodes.length === 0) return '';
-  // renderGraphMap が graphNodesView を更新するため、メニューはマップ描画後に組み立てる
   const mapHtml = renderGraphMap();
-  let menuHtml = '';
-  if (graphMenu != null && graphNodesView[graphMenu]) {
-    const node = graphNodesView[graphMenu];
-    const isSplit = graphSplit.has(skey(node.module, node.component));
-    menuHtml = '<div class="graph-menu">' +
-      '<span class="graph-menu-title">' + esc(node.name) + '</span>' +
-      '<button class="graph-menu-item" onclick="toggleGraphSplit(' + graphMenu + ')">' +
-        (isSplit ? '統合' : 'variant で分割') + '</button>' +
-      '<button class="graph-menu-item" onclick="closeGraphMenu()">閉じる</button>' +
-    '</div>';
-  }
+  // 「遷移関係は閲覧専用（クリックでは遷移しない）」と「表示（ノード情報・分割粒度）は
+  // クリックで操作できる」を明確に書き分ける——両者が同じ短い説明文に同居すると「閲覧専用な
+  // のになぜクリックで何か起きるのか」と読めてしまう（UX round2 指摘、Task 16 項目3）。
   return '<details' + (mapPanelOpen ? ' open' : '') + ' class="graph-section" ontoggle="mapPanelOpen = this.open">' +
-    '<summary class="pane-title" title="遷移マップ — 画面間の遷移関係（閲覧専用）。状態遷移図として読める">遷移マップ</summary>' +
-    '<div class="pane-desc">画面間の遷移関係（閲覧専用）。状態遷移図として読める。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示し、hover でプレビューを表示します。variant を持つノードはクリックで粒度メニュー（variant で分割 / 統合）を開きます。</div>' +
+    '<summary class="pane-title" title="遷移マップ — 画面間の遷移関係（表示のみ。状態遷移図として読める）">遷移マップ</summary>' +
+    '<div class="pane-desc">画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。</div>' +
     '<button class="graph-save-btn" onclick="saveGraphConfig()">設定を保存</button>' +
     '<label class="graph-scope-toggle"><input type="checkbox" ' + (graphShowAll ? 'checked' : '') +
       ' onchange="toggleGraphShowAll()"> 全体を見る</label>' +
-    '<div id="graph-preview" class="graph-preview"></div>' + menuHtml + mapHtml +
+    mapHtml +
   '</details>';
 }
 

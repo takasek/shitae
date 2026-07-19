@@ -289,17 +289,19 @@ describe('toSimulator', () => {
   // 戻り値の context は同一 realm を共有するので、後続の vm.runInContext(code, context) で
   // トップレベルの let/function（overlays・overlayInteractions 等）へアクセスできる。
   // getElementById は id ごとにダミー要素をキャッシュする（同じ id への複数回の呼び出しが
-  // 同一オブジェクトを返す——hover プレビューのような render() を経由しない局所 DOM 更新を
-  // vm テストから観測できるようにするため）。
+  // 同一オブジェクトを返す——hover tooltip のような render() を経由しない局所 DOM 更新を
+  // vm テストから観測できるようにするため）。style はノード近傍への絶対配置 tooltip
+  // （Task 16）が left/top を直接代入するためのプレーンオブジェクト——実 CSSStyleDeclaration
+  // ではないが、代入した値がそのまま読み戻せれば位置決めロジックの検証には十分。
   function runSimulatorScript(html: string): vm.Context {
     const m = html.match(/<script>\n([\s\S]*)\n<\/script>/);
     if (!m) throw new Error('embedded script not found');
-    const elements = new Map<string, { innerHTML: string; textContent: string; classList: { add(): void; remove(): void } }>();
+    const elements = new Map<string, { innerHTML: string; textContent: string; style: Record<string, string>; classList: { add(): void; remove(): void } }>();
     const context = vm.createContext({
       document: {
         getElementById: (id: string) => {
           if (!elements.has(id)) {
-            elements.set(id, { innerHTML: '', textContent: '', classList: { add() {}, remove() {} } });
+            elements.set(id, { innerHTML: '', textContent: '', style: {}, classList: { add() {}, remove() {} } });
           }
           return elements.get(id);
         },
@@ -1370,18 +1372,19 @@ describe('toSimulator', () => {
     expect(vm.runInContext('graphShowAll', context)).toBe(true);
   });
 
-  it('遷移マップ: ノードの hover 属性は component 名でなく配列インデックスで参照する（quote 衝突を避ける）', () => {
+  it('遷移マップ: ノードの hover 属性は component 名でなく配列インデックス + 数値座標で参照する（quote 衝突を避ける）', () => {
     const doc = parseOk('# 名"前\n要素\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
     const appHtml = vm.runInContext('app.innerHTML', context);
     // 旧 handleOverlayInteraction 系と同型の壊れ方（属性値が component 名の途中で終端）が起きていないことを保証する
-    expect(appHtml).not.toContain('onmouseenter="showNodePreview("');
-    expect(appHtml).toMatch(/onmouseenter="showNodePreview\(\d+\)"/);
-    expect(appHtml).toContain('onmouseleave="hideNodePreview()"');
+    expect(appHtml).not.toContain('onmouseenter="showNodeTooltip("');
+    // idx, x, y の3引数とも数値のみ（tooltip 位置はノード描画時に決定済みの固定値を渡す）
+    expect(appHtml).toMatch(/onmouseenter="showNodeTooltip\(\d+,\s*-?\d+,\s*-?\d+\)"/);
+    expect(appHtml).toContain('onmouseleave="hideNodeTooltip()"');
   });
 
-  it('遷移マップ: 閲覧専用化のため gotoNode 関数も onclick 属性も存在しない（設計者確定事項 2026-07-19）', () => {
+  it('遷移マップ: 閲覧専用化のため gotoNode 関数は存在せず、ノードクリックは遷移せず tooltip の pin のみ行う（設計者確定事項 2026-07-19、Task 16 受入基準e）', () => {
     const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     expect(html).not.toContain('function gotoNode(');
@@ -1389,7 +1392,9 @@ describe('toSimulator', () => {
     const context = runSimulatorScript(html);
     expect(vm.runInContext("typeof gotoNode", context)).toBe('undefined');
     const appHtml = vm.runInContext('app.innerHTML', context);
-    expect(appHtml).not.toMatch(/<g class="graph-node[^"]*" onclick=/);
+    // クリックは遷移でなく tooltip の pin（数値インデックスのみ埋め込む。全ノードで有効——
+    // 情報表示に variant の有無は関係ないため）
+    expect(appHtml).toMatch(/<g class="graph-node[^"]*" onmouseenter="[^"]*" onmouseleave="[^"]*" onclick="pinGraphTooltip\(\d+\)">/);
   });
 
   it('遷移マップ: 現在の画面.本体に対応するノードがハイライトされ、遷移後に追随する', () => {
@@ -1418,21 +1423,25 @@ describe('toSimulator', () => {
     expect(searchTagAfter![1]).toMatch(/graph-node-current/);
   });
 
-  it('遷移マップ: ノード hover でプレビュー領域に module・elements・variant 一覧を表示し、外れたら消える', () => {
+  it('遷移マップ: ノード hover で tooltip に module・elements・variant 一覧をノード近傍の座標に表示し、外れたら消える（Task 16 受入基準e）', () => {
     const doc = parseOk('# ホーム\n共通要素\n## 通常\n専用A\n## 特殊\n専用B\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
 
-    vm.runInContext('showNodePreview(0)', context);
-    const previewHtml = vm.runInContext("document.getElementById('graph-preview').innerHTML", context);
+    vm.runInContext('showNodeTooltip(0, 42, 77)', context);
+    const tooltipEl = "document.getElementById('graph-tooltip')";
+    const previewHtml = vm.runInContext(tooltipEl + '.innerHTML', context);
     expect(previewHtml).toContain('ホーム');
     expect(previewHtml).toContain('main');
     expect(previewHtml).toContain('共通要素');
     expect(previewHtml).toContain('通常');
     expect(previewHtml).toContain('特殊');
+    // 渡された数値座標がそのまま tooltip の絶対配置へ反映される
+    expect(vm.runInContext(tooltipEl + '.style.left', context)).toBe('42px');
+    expect(vm.runInContext(tooltipEl + '.style.top', context)).toBe('77px');
 
-    vm.runInContext('hideNodePreview()', context);
-    const afterHide = vm.runInContext("document.getElementById('graph-preview').innerHTML", context);
+    vm.runInContext('hideNodeTooltip()', context);
+    const afterHide = vm.runInContext(tooltipEl + '.innerHTML', context);
     expect(afterHide).toBe('');
   });
 
@@ -1567,45 +1576,54 @@ describe('toSimulator', () => {
     expect(stackSectionIdx).toBeLessThan(graphSectionIdx);
   });
 
-  it('遷移マップの hover プレビューはペイン内の常時見える位置（sticky）にあり画面外へフレームアウトしない（Task 9 受入基準b）', () => {
+  it('遷移マップの hover tooltip は絶対配置でドキュメントフローに影響しない（#graph-preview のペイン上部固定領域を廃止。Task 9 の後継・Task 16 受入基準e）', () => {
     const doc = parseOk('# ホーム\n共通要素\n## 通常\n専用A\n## 特殊\n専用B\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
-    // #graph-preview は position: sticky（ペイン上部固定）
-    const previewRuleMatch = html.match(/\.graph-preview\s*\{[^}]*\}/);
-    expect(previewRuleMatch).not.toBeNull();
-    expect(previewRuleMatch![0]).toMatch(/position:\s*sticky/);
-    // graph-section 内で #graph-preview が SVG（遷移マップ本体）より前に現れる
-    // （マップが縦に伸びてもプレビューはペイン上部にとどまる）
+    // 旧 #graph-preview（ペイン上部固定領域）は廃止済み
+    expect(html).not.toMatch(/\.graph-preview\s*\{/);
+    expect(html).not.toContain('id="graph-preview"');
+    // 新 .graph-tooltip は position: absolute（レイアウト上の場所を取らない。他要素の並びに影響しない）
+    const tooltipRuleMatch = html.match(/\.graph-tooltip\s*\{[^}]*\}/);
+    expect(tooltipRuleMatch).not.toBeNull();
+    expect(tooltipRuleMatch![0]).toMatch(/position:\s*absolute/);
+    // マップのスクロール領域（.graph-map-scroll）を基準に配置する——マップがスクロールしても
+    // ノードと同じ座標系のまま追随させるため。ペイン全体基準にすると要素サイズが変わっても
+    // 元のスクロール領域の overflow 計算に影響しない点も含め、レイアウト非干渉の根拠になる。
+    const scrollRuleMatch = html.match(/\.graph-map-scroll\s*\{[^}]*\}/);
+    expect(scrollRuleMatch).not.toBeNull();
+    expect(scrollRuleMatch![0]).toMatch(/position:\s*relative/);
+    // hover tooltip の局所 DOM 更新方式（render() 非経由。ちらつき防止は Task 9/12 から継続）は維持される
+    expect(html).toContain("document.getElementById('graph-tooltip')");
     const context = runSimulatorScript(html);
     const appHtml = vm.runInContext('app.innerHTML', context);
-    const graphSectionIdx = appHtml.indexOf('graph-section');
-    const graphSection = appHtml.slice(graphSectionIdx);
-    const previewIdx = graphSection.indexOf('id="graph-preview"');
-    const svgIdx = graphSection.indexOf('<svg');
-    expect(previewIdx).toBeGreaterThan(-1);
-    expect(svgIdx).toBeGreaterThan(-1);
-    expect(previewIdx).toBeLessThan(svgIdx);
-    // hover プレビューの局所 DOM 更新方式（render() 非経由）は維持される
-    expect(html).toContain("document.getElementById('graph-preview')");
+    expect(appHtml).toContain('id="graph-tooltip"');
   });
 
-  it('遷移マップの hover プレビューは固定高でレイアウトシフトしない（内容の出入りで mouseenter/mouseleave が無限ループするフリッカを根治。UX評価3.3、Task 12 受入基準c）', () => {
+  it('遷移マップの hover tooltip はノードと重ならない位置（ノード直下）に出て、pointer-events: none で他ノードの hover を奪わない（mouseenter/mouseleave 連鎖フリッカの再発防止。UX評価3.3・Task 12 の後継・Task 16 受入基準e）', () => {
     const doc = parseOk('# ホーム\n共通要素\n## 通常\n専用A\n## 特殊\n専用B\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
-    const previewRuleMatch = html.match(/\.graph-preview\s*\{[^}]*\}/);
-    expect(previewRuleMatch).not.toBeNull();
-    // sticky 配置は維持したまま（Task 9 と両立）、内容が空(1行)⇔4行（title/module/elements/
-    // variant）に変わっても高さが変わらないよう、最大内容分の高さをあらかじめ予約する
-    // （固定 min-height 方式。旧 min-height: 1em は空状態の1行分しか予約せず、内容表示時に
-    // レイアウトが下方向へシフトしてノードがカーソル直下から逃げていた——UX評価3.3の根因）。
-    // 予約量を決定的にするため line-height を明示し、min-height は 4行 × line-height 1.4 =
-    // 5.6em + 上下 padding 12px（border-box、font-size 11px 基準で約1.1em）≥ 6.7em を要求する。
-    expect(previewRuleMatch![0]).not.toMatch(/min-height:\s*1em\b/);
-    expect(previewRuleMatch![0]).toMatch(/line-height:\s*1\.4\b/);
-    const minHeightMatch = previewRuleMatch![0].match(/min-height:\s*([\d.]+)em\b/);
-    expect(minHeightMatch).not.toBeNull();
-    expect(parseFloat(minHeightMatch![1]!)).toBeGreaterThanOrEqual(6.7);
-    expect(previewRuleMatch![0]).toMatch(/position:\s*sticky/);
+    // pin されていない間は pointer-events: none——tooltip がノード矩形に重なっても
+    // マウスイベントは tooltip を素通りして下のノードへ届く（旧フリッカの原因になった
+    // 「tooltip 自身がノードを覆って mouseleave/mouseenter を連鎖させる」経路を構造的に断つ）
+    const tooltipRuleMatch = html.match(/\.graph-tooltip\s*\{[^}]*\}/);
+    expect(tooltipRuleMatch).not.toBeNull();
+    expect(tooltipRuleMatch![0]).toMatch(/pointer-events:\s*none/);
+    // pin 中（.graph-tooltip-pinned）は分割/統合・閉じるボタンを押せるよう pointer-events を戻す
+    const pinnedRuleMatch = html.match(/\.graph-tooltip-pinned\s*\{[^}]*\}/);
+    expect(pinnedRuleMatch).not.toBeNull();
+    expect(pinnedRuleMatch![0]).toMatch(/pointer-events:\s*auto/);
+
+    // 実際の座標: onmouseenter に渡す y はノード自身の rect の y + height より真に大きい
+    // （ノードの直下に置き、ノード自身の矩形とは重ならない）
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    const nodeMatch = appHtml.match(/<rect x="(-?[\d.]+)" y="(-?[\d.]+)" width="[\d.]+" height="([\d.]+)"[^>]*>/);
+    const hoverMatch = appHtml.match(/onmouseenter="showNodeTooltip\((\d+),\s*(-?[\d.]+),\s*(-?[\d.]+)\)"/);
+    expect(nodeMatch).not.toBeNull();
+    expect(hoverMatch).not.toBeNull();
+    const nodeBottom = parseFloat(nodeMatch![2]!) + parseFloat(nodeMatch![3]!);
+    const tooltipY = parseFloat(hoverMatch![3]!);
+    expect(tooltipY).toBeGreaterThan(nodeBottom);
   });
 
   it('各ペインの説明文にオートマトンとしての読み方の注記を持つ（Task 9・ADR-0022）', () => {
@@ -1933,62 +1951,117 @@ describe('toSimulator', () => {
     expect(appHtml).not.toContain('ホーム ## 通常');
   });
 
-  it('ノードメニュー: variant を持つノードのクリックでメニューが開き、split/統合を切り替えられる（Task 11）', () => {
+  it('遷移マップ tooltip: variant を持つノードのクリックで tooltip が pin され、内蔵の分割/統合ボタンで粒度を切り替えられる（Task 11 の後継、粒度メニューを tooltip へ統合。Task 16 受入基準e）', () => {
     const doc = parseOk('# ホーム\n## 通常\n要素\n## 特殊\n要素2\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
     const appHtml = vm.runInContext('app.innerHTML', context);
-    expect(appHtml).toMatch(/onclick="openGraphMenu\(\d+\)"/);
+    expect(appHtml).toMatch(/onclick="pinGraphTooltip\(\d+\)"/);
 
-    vm.runInContext('openGraphMenu(0)', context);
-    const menuHtml = vm.runInContext('app.innerHTML', context);
-    expect(menuHtml).toContain('variant で分割');
-    expect(menuHtml).toContain('閉じる');
+    vm.runInContext('pinGraphTooltip(0)', context);
+    const pinnedHtml = vm.runInContext('app.innerHTML', context);
+    expect(pinnedHtml).toContain('graph-tooltip-pinned');
+    expect(pinnedHtml).toContain('variant で分割');
+    expect(pinnedHtml).toContain('閉じる');
 
     vm.runInContext('toggleGraphSplit(0)', context);
     const splitHtml = vm.runInContext('app.innerHTML', context);
     expect(splitHtml).toContain('ホーム ## 通常');
     expect(splitHtml).toContain('ホーム ## 特殊');
-    // 切替後はメニューが閉じる（集約後インデックスが変わるため開いたままにしない）
-    expect(vm.runInContext('graphMenu', context)).toBeNull();
+    // 切替後は pin が外れる（集約後インデックスが変わるため開いたままにしない。従来の graphMenu と同じ方針）
+    expect(vm.runInContext('graphPinnedKey', context)).toBeNull();
 
-    // split 済みノードのメニューは「統合」になり、実行で component 粒度へ戻る
-    vm.runInContext('openGraphMenu(0)', context);
+    // split 済みノードの tooltip は「統合」になり、実行で component 粒度へ戻る
+    vm.runInContext('pinGraphTooltip(0)', context);
     expect(vm.runInContext('app.innerHTML', context)).toContain('統合');
     vm.runInContext('toggleGraphSplit(0)', context);
     const unifiedHtml = vm.runInContext('app.innerHTML', context);
     expect(unifiedHtml).not.toContain('ホーム ## 通常');
   });
 
-  it('ノードメニュー: variant を持たない component のノードには onclick を付けない（メニュー不要。Task 11）', () => {
+  it('遷移マップ tooltip: variant を持たない component のノードも pin できるが、分割/統合ボタンは出さない（情報表示のみ。Task 11 の後継）', () => {
     const doc = parseOk('# ホーム\n要素\n\n# 詳細\n本文\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
     const appHtml = vm.runInContext('app.innerHTML', context);
-    expect(appHtml).not.toContain('openGraphMenu(');
-    // 関数呼び出しでも variant なしは no-op（メニューは開かない）
-    vm.runInContext('openGraphMenu(0)', context);
-    expect(vm.runInContext('graphMenu', context)).toBeNull();
+    // クリックは全ノードで有効（tooltip の pin はノード情報表示のためで variant の有無を問わない）
+    expect(appHtml).toMatch(/onclick="pinGraphTooltip\(\d+\)"/);
+
+    vm.runInContext('pinGraphTooltip(0)', context);
+    const pinnedHtml = vm.runInContext('app.innerHTML', context);
+    expect(pinnedHtml).toContain('graph-tooltip-pinned');
+    expect(pinnedHtml).toContain('ホーム'); // ノード情報自体は表示される
+    // tooltip 内の操作行だけを見る（appHtml 全体だと「統合ログ」のような無関係な語に
+    // 「統合」が部分一致してしまうため、graph-tooltip-actions 部分だけ切り出して検証する）
+    const actionsMatch = pinnedHtml.match(/<div class="graph-tooltip-actions">([\s\S]*?)<\/div>/);
+    expect(actionsMatch).not.toBeNull();
+    const actionsHtml = actionsMatch![1]!;
+    expect(actionsHtml).not.toContain('variant で分割');
+    expect(actionsHtml).not.toContain('統合');
+    expect(actionsHtml).toContain('閉じる'); // 閉じるボタンは分割メニューの有無に関わらず常に出る
   });
 
-  it('ノードメニュー: 閉じるでメニューが消える（Task 11）', () => {
+  it('遷移マップ tooltip: 閉じるボタンで pin が解除される（Task 11 の後継）', () => {
     const doc = parseOk('# ホーム\n## 通常\n要素\n## 特殊\n要素2\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
-    vm.runInContext('openGraphMenu(0)', context);
-    expect(vm.runInContext('app.innerHTML', context)).toContain('graph-menu');
-    vm.runInContext('closeGraphMenu()', context);
-    expect(vm.runInContext('graphMenu', context)).toBeNull();
-    expect(vm.runInContext('app.innerHTML', context)).not.toContain('class="graph-menu"');
+    vm.runInContext('pinGraphTooltip(0)', context);
+    expect(vm.runInContext('app.innerHTML', context)).toContain('graph-tooltip-pinned');
+    vm.runInContext('unpinGraphTooltip()', context);
+    expect(vm.runInContext('graphPinnedKey', context)).toBeNull();
+    expect(vm.runInContext('app.innerHTML', context)).not.toContain('graph-tooltip-pinned');
   });
 
-  it('ノードメニュー: onclick へは数値インデックスのみを埋め込む（quote を含む component 名でも属性が壊れない）', () => {
+  it('遷移マップ tooltip: pin 中だけ外クリック用のバックドロップが出て、クリックで pin が解除される（「外クリックか閉じるで解除」。Task 16 受入基準e）', () => {
+    const doc = parseOk('# ホーム\n## 通常\n要素\n## 特殊\n要素2\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const beforeHtml = vm.runInContext('app.innerHTML', context);
+    expect(beforeHtml).not.toContain('graph-tooltip-backdrop');
+
+    vm.runInContext('pinGraphTooltip(0)', context);
+    const pinnedHtml = vm.runInContext('app.innerHTML', context);
+    expect(pinnedHtml).toMatch(/<div class="graph-tooltip-backdrop" onclick="unpinGraphTooltip\(\)"><\/div>/);
+
+    vm.runInContext('unpinGraphTooltip()', context);
+    const afterHtml = vm.runInContext('app.innerHTML', context);
+    expect(afterHtml).not.toContain('graph-tooltip-backdrop');
+  });
+
+  it('遷移マップ tooltip: pin 中のノードが遷移で近傍表示から外れると自動的に pin が解除される（生の配列インデックスでなく (module,component,variant) で同定するインデックス崩れ対策。Task 16 受入基準d・e）', () => {
+    const doc = parseOk(
+      '# 起点\n> 進む -> push(n1)\n\n# n1\n> 進む -> push(n2)\n\n# n2\n> 進む -> push(n3)\n\n' +
+        '# n3\n> 進む -> push(n4)\n\n# n4\n> 進む -> push(n5)\n\n# n5\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    // 起点にいる間、n1 は近傍（1ホップ）に見えるので pin できる
+    const nodesBefore: string[] = vm.runInContext('graphNodesView.map(n => n.name)', context);
+    const n1Idx = nodesBefore.indexOf('n1');
+    expect(n1Idx).toBeGreaterThan(-1);
+    vm.runInContext('pinGraphTooltip(' + n1Idx + ')', context);
+    expect(vm.runInContext('graphPinnedKey', context)).not.toBeNull();
+
+    // n4 まで遷移すると n1 は近傍（2ホップ）から外れる
+    for (const target of ['n1', 'n2', 'n3', 'n4']) {
+      vm.runInContext(
+        `applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '${target}', variant: null } }); render()`,
+        context,
+      );
+    }
+    const namesAfter: string[] = vm.runInContext('graphNodesView.map(n => n.name)', context);
+    expect(namesAfter).not.toContain('n1');
+    expect(vm.runInContext('graphPinnedKey', context)).toBeNull();
+  });
+
+  it('遷移マップ tooltip: pin の onclick へは数値インデックスのみを埋め込む（quote を含む component 名でも属性が壊れない）', () => {
     const doc = parseOk('# 名"前\n## a\n要素\n## b\n要素\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
     const appHtml = vm.runInContext('app.innerHTML', context);
-    expect(appHtml).not.toContain('onclick="openGraphMenu("');
-    expect(appHtml).toMatch(/onclick="openGraphMenu\(\d+\)"/);
+    expect(appHtml).not.toContain('onclick="pinGraphTooltip("');
+    expect(appHtml).toMatch(/onclick="pinGraphTooltip\(\d+\)"/);
   });
 
   it('設定を保存: buildSimConfigJson が現在の split 集合を確定形式で出力する（Task 11 形式確定事項）', () => {
