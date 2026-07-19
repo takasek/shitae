@@ -125,9 +125,12 @@ describe('toSimulator', () => {
     expect(appHtml).toContain('ミニ');
     expect(appHtml).toContain('共通要素');
     expect(appHtml).toContain('共通操作');
-    // document common は本体（ホーム）にのみ現れ、掲示中カードには複製されない
-    // （document common の発火判定はアクティブ画面基準 — ADR-0015 — であり掲示中カードの所属ではない）
-    expect((appHtml.match(/document common/g) ?? []).length).toBe(1);
+    // document common は本体（ホーム、外部イベントセクション内）にのみ現れ、掲示中カードには
+    // 複製されない（document common の発火判定はアクティブ画面基準 — ADR-0015 — であり掲示中
+    // カードの所属ではない。Task 18 で外部イベントセクションへ分離後も dedup は不変）
+    const overlayIdx = appHtml.indexOf('overlay-card');
+    expect(appHtml.slice(0, overlayIdx)).toContain('document common');
+    expect(appHtml.slice(overlayIdx)).not.toContain('document common');
   });
 
   it('掲示中カード: 複数ラベル操作もラベル横並びで選んだ choice だけが実行される（overlay 側の暫定・先頭固定を解消）', () => {
@@ -917,6 +920,94 @@ describe('toSimulator', () => {
     expect(appHtml).toContain('姿操作');
     expect(appHtml).toContain('共通操作');
     expect(appHtml).toContain('通知');
+  });
+
+  it('scope バッジ: 3種のバッジがそれぞれ意味を説明する title 属性を持つ（Task 18 受入基準c）', () => {
+    const doc = parseOk(
+      '> 通知 -> push(受信箱)\n\n' +
+        '# ホーム\n> 共通操作 -> push(共通先)\n## 通常\n姿要素\n> 姿操作 -> push(詳細)\n\n' +
+        '# 詳細\n本体\n\n# 共通先\n本体\n\n# 受信箱\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    const badgeMatches = [...appHtml.matchAll(/<span class="scope-badge" title="([^"]+)">([^<]+)<\/span>/g)];
+    const titleByLabel = new Map(badgeMatches.map((m) => [m[2], m[1]]));
+    expect(titleByLabel.get('variant固有')).toBeTruthy();
+    expect(titleByLabel.get('component common')).toBeTruthy();
+    expect(titleByLabel.get('document common')).toBeTruthy();
+    // 3種とも異なる説明文を持つ（同じ文言の使い回しではない）
+    const titles = new Set(titleByLabel.values());
+    expect(titles.size).toBe(3);
+  });
+
+  it('外部イベントセクション: scope==="document" の操作は主操作リストから除外され、既定閉の「外部イベントを発生させる」<details> にまとまる（Task 18 受入基準b）', () => {
+    const doc = parseOk(
+      '> 通知 -> push(受信箱)\n\n' +
+        '# ホーム\n> 共通操作 -> push(共通先)\n\n' +
+        '# 共通先\n本体\n\n# 受信箱\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+
+    const sectionMatch = appHtml.match(/<details[^>]*class="doc-events-section"[^>]*>[\s\S]*?<\/details>/);
+    expect(sectionMatch).not.toBeNull();
+    expect(sectionMatch![0]).toContain('外部イベントを発生させる');
+    // 既定は閉（open 属性なし）
+    expect(sectionMatch![0]).not.toMatch(/^<details open/);
+    expect(sectionMatch![0]).toContain('通知');
+
+    // 主操作リスト（外部イベントセクションより前の画面カード部分）には document common が出ない
+    const mainCardHtml = appHtml.slice(0, appHtml.indexOf('doc-events-section'));
+    expect(mainCardHtml).not.toContain('通知');
+    expect(mainCardHtml).toContain('共通操作'); // component scope は従来どおり主リストに残る
+
+    // 実行機構は不変（handleInteraction('document', idx, ...) で引き続き発火する）
+    const m = sectionMatch![0].match(/onclick="(handleInteraction\('document'[^"]+)"/);
+    expect(m).not.toBeNull();
+    vm.runInContext(m![1]!, context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('受信箱');
+  });
+
+  it('外部イベントセクション: document common 操作が無ければセクション自体を出さない', () => {
+    const doc = parseOk('# ホーム\n> 押す -> push(次)\n\n# 次\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).not.toContain('doc-events-section');
+    expect(appHtml).not.toContain('外部イベントを発生させる');
+  });
+
+  it('外部イベントセクション: 開閉状態は JS グローバルで保持され render() をまたいで維持される（stackPanelOpen と同じ方式）', () => {
+    const doc = parseOk('> 通知 -> push(受信箱)\n\n# ホーム\n本体\n\n# 受信箱\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const closedHtml = vm.runInContext('app.innerHTML', context);
+    expect(closedHtml).not.toMatch(/<details open class="doc-events-section"/);
+
+    vm.runInContext('docEventsPanelOpen = true; render()', context);
+    const openHtml = vm.runInContext('app.innerHTML', context);
+    expect(openHtml).toMatch(/<details open class="doc-events-section"/);
+  });
+
+  it('掲示中カードは従来どおり外部イベントセクションを持たない（document common はアクティブ画面基準。ADR-0015）', () => {
+    const doc = parseOk(
+      '> 通知 -> push(受信箱)\n\n' +
+        '# ホーム\nロゴ\n> 出す -> show(ミニ)\n\n' +
+        '# ミニ\n共通要素\n\n# 受信箱\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext(
+      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
+      context,
+    );
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    const overlayIdx = appHtml.indexOf('overlay-card');
+    expect(overlayIdx).toBeGreaterThan(-1);
+    const overlaySection = appHtml.slice(overlayIdx);
+    expect(overlaySection).not.toContain('doc-events-section');
   });
 
   it('要素の階層表示: ref を持つ要素は参照先 component の中身（commonElements + 現在 variant）を <details open> で入れ子展開する（Task 8 受入基準a）', () => {

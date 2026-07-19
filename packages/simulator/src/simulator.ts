@@ -90,6 +90,7 @@ summary.pane-title { cursor: pointer; }
 .back-btn { margin-top: 12px; background: none; border: 1px solid #ccc; border-radius: 6px; padding: 8px 14px; cursor: pointer; font-size: 12px; color: #555; }
 .back-btn:hover { background: #f0f0f0; }
 .no-actions { color: #bbb; font-size: 13px; font-style: italic; }
+.doc-events-section { border-top: 1px solid #e0e0e0; margin-top: 12px; padding-top: 8px; }
 .overlay-card { margin-top: 12px; border: 1px dashed #999; }
 .overlay-badge { display: inline-block; font-size: 11px; color: #fff; background: #555; padding: 1px 8px; border-radius: 8px; margin-bottom: 8px; }
 .gate-panel { margin-top: 20px; font-size: 12px; }
@@ -177,6 +178,12 @@ let gatePanelOpen = false;
 // 場所と合わせて復活。設計者確定事項）。既定はスタック開・マップ開。
 let stackPanelOpen = true;
 let mapPanelOpen = true;
+
+// 「外部イベントを発生させる」（document common 由来の操作。scope==='document'）セクションの
+// 折畳み状態。主操作と違い頻繁に触るものではないため既定は閉——画面を開いた瞬間に主操作より
+// 前へ割り込まないようにする（UX round2 2-1・2-3、Task 18 項目2）。開閉状態は stackPanelOpen 等
+// と同じ JS グローバル + ネイティブ <details> の ontoggle 同期方式。
+let docEventsPanelOpen = false;
 
 // 対象インスタンスの variant を手動で書き換える（gate 観測用）
 function setInstanceVariant(module, name, variant) {
@@ -645,6 +652,13 @@ function docCommonInteractions() {
 
 // scope バッジの表示ラベル（有効範囲の明示。旧カテゴリ見出しの置き換え——Task 8 / ADR-0022 5）
 const SCOPE_BADGE_LABELS = { variant: 'variant固有', component: 'component common', document: 'document common' };
+// scope バッジの title 属性（hover での一言説明。3種の見分けが初見では自明でないという
+// 指摘への対応——UX round2 2-1、Task 18 受入基準c）
+const SCOPE_BADGE_TITLES = {
+  variant: 'この姿（variant）でだけ有効な操作',
+  component: 'この component のどの姿でも共通して有効な操作',
+  document: 'この文書のどの画面でも常に有効な操作（外部イベント。document common 由来）',
+};
 
 // 操作行 1 件（行動テキスト + scope バッジ + 選択肢ボタン横並び）。item は { inter, scope, idx }
 // ——idx はその scope のフィルタ済みリスト（scopedInteractions / overlayScopedInteractions）内の
@@ -656,7 +670,8 @@ const SCOPE_BADGE_LABELS = { variant: 'variant固有', component: 'component com
 // 一本化することで解消する。
 function renderActionRow(item, buildOnclick) {
   const inter = item.inter;
-  const badge = '<span class="scope-badge">' + esc(SCOPE_BADGE_LABELS[item.scope] ?? item.scope) + '</span>';
+  const badge = '<span class="scope-badge" title="' + esc(SCOPE_BADGE_TITLES[item.scope] ?? '') + '">' +
+    esc(SCOPE_BADGE_LABELS[item.scope] ?? item.scope) + '</span>';
   if (inter.choices.length === 0) {
     return '<div class="action-row action-row-solo" onclick="' + buildOnclick(item.scope, item.idx, 0) + '">' +
       '<span class="action-text">' + esc(inter.actionText) + '</span>' + badge + '</div>';
@@ -819,14 +834,23 @@ function mainTopLevelElements() {
   return [...docEls, ...commonEls, ...varEls];
 }
 
-// 本体画面のトップレベル操作一覧（scope 別 idx 付き）。render() と resolveNestedItems 共通。
+// 本体画面のトップレベル操作一覧（scope 別 idx 付き、variant/component のみ）。render() と
+// resolveNestedItems 共通。document common（scope==='document'）はここに含めない——主操作
+// リストから分離し、専用の外部イベントセクションへ回す（documentEventItems。Task 18 項目2）。
 function mainTopLevelItems() {
   const allInter = currentInteractions();
   return [
     ...allInter.filter((inter) => inter.scope === 'variant').map((inter, idx) => ({ inter, scope: 'variant', idx })),
     ...allInter.filter((inter) => inter.scope === 'component').map((inter, idx) => ({ inter, scope: 'component', idx })),
-    ...docCommonInteractions().map((inter, idx) => ({ inter, scope: 'document', idx })),
   ];
+}
+
+// 外部イベント（document common 由来。scope==='document'）の一覧——「外部イベントを発生させる」
+// details へ分離して描画する専用リスト（Task 18 項目2）。idx は docCommonInteractions() 内の
+// 位置のままなので、handleInteraction('document', idx, ...) は主リスト分離前と同じ発火経路・
+// 同じ実効 interactions（gate フィルタ込み）を引く——実行機構自体は変わらない。
+function documentEventItems() {
+  return docCommonInteractions().map((inter, idx) => ({ inter, scope: 'document', idx }));
 }
 
 // 掲示中カード cardIdx（[...overlays.keys()] の索引）の component 名。見つからなければ null
@@ -1535,6 +1559,23 @@ function renderStackSection() {
   '</details>';
 }
 
+// 「外部イベントを発生させる」区画（画面カードの主操作リストと視覚的な優先度を分ける。
+// UX round2 2-4(a)2・Task 18 項目2）。document common 操作（プッシュ通知・セッション切れ検知
+// 等、稀に起こる外的要因を模す）は「今できる主操作」と優先度が異なるという指摘への対応——
+// scope==='document' の操作だけをここへ集め、既定閉の <details> にまとめる。実行機構は
+// 変わらない（handleInteraction('document', idx, ...) が docCommonInteractions() を直接引く）。
+// 対象ゼロならセクション自体を出さない（無言の空 details を避ける）。
+function renderExternalEventsSection() {
+  const items = documentEventItems();
+  if (items.length === 0) return '';
+  const buildOnclick = (scope, idx, choiceIdx) => "handleInteraction('" + scope + "'," + idx + "," + choiceIdx + ")";
+  const rowsHtml = items.map((item) => renderActionRow(item, buildOnclick)).join('');
+  return '<details' + (docEventsPanelOpen ? ' open' : '') + ' class="doc-events-section" ontoggle="docEventsPanelOpen = this.open">' +
+    '<summary class="pane-title" title="外部イベントを発生させる — この文書のどの画面でも常に有効な操作（document common）。プッシュ通知やセッション切れなど、稀に起こる外的要因を模す">外部イベントを発生させる</summary>' +
+    '<div class="action-list">' + rowsHtml + '</div>' +
+  '</details>';
+}
+
 function render() {
   const frame = currentFrame();
   const comp = getComp(frame.module, frame.component);
@@ -1619,6 +1660,8 @@ function render() {
     trailingHtml: backBtn,
   });
 
+  const externalEventsHtml = renderExternalEventsSection();
+
   const graphSectionHtml = renderGraphSection();
 
   // 全幅 3 カラムグリッド（UX round2・設計者フィードバック 2026-07-20）: 左 = 統合ログ専用 /
@@ -1640,6 +1683,7 @@ function render() {
         '<div class="pane-desc">アクティブな frame の表示（本体）と掲示中カード</div>' +
         '<label class="action-toggle"><input type="checkbox" ' + (showActions ? 'checked' : '') + ' onchange="toggleShowActions()"> アクションを表示</label>' +
         mainCardHtml +
+        externalEventsHtml +
         overlayCardsHtml +
       '</section>' +
       '<div class="lower-section">' +
