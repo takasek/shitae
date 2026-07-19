@@ -92,6 +92,11 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
    画面下へフレームアウトしない。z-index と不透明背景でノード矩形の上に重ねて表示する。 */
 .graph-preview { position: sticky; top: 0; z-index: 1; margin-bottom: 6px; padding: 6px 8px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; font-size: 11px; color: #555; min-height: 1em; }
 .graph-preview-title { font-weight: 700; color: #333; }
+.graph-node { cursor: pointer; }
+.graph-menu { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; padding: 6px 8px; background: #fff; border: 1px solid #ccc; border-radius: 6px; font-size: 12px; }
+.graph-menu-title { font-weight: 700; color: #333; }
+.graph-menu-item { background: #f0f0f0; border: none; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 12px; }
+.graph-menu-item:hover { background: #e0e0e0; }
 </style>
 </head>
 <body>
@@ -775,6 +780,36 @@ let graphSplit = new Set(((DATA.graphConfig && DATA.graphConfig.split) || []).ma
 // 解決する（component 名文字列の属性埋め込みによる quote 衝突バグの根治方針を踏襲）。
 let graphNodesView = [];
 
+// 開いているノードメニューの集約後ノードインデックス（null = 非表示）。マップは閲覧専用
+// （ノードクリックは遷移しない）のためクリックをメニューに使える（ADR-0022 4）。
+let graphMenu = null;
+
+// ノードメニューを開く。variant を持たない component はメニュー不要（分割できない）なので no-op
+function openGraphMenu(idx) {
+  const node = graphNodesView[idx];
+  if (!node) return;
+  const comp = getComp(node.module, node.component);
+  if (!comp || Object.keys(comp.variants).length === 0) return;
+  graphMenu = idx;
+  render();
+}
+
+function closeGraphMenu() {
+  graphMenu = null;
+  render();
+}
+
+// メニューの split/統合切替。集約後インデックスは粒度切替でずれるため、切替と同時に閉じる
+function toggleGraphSplit(idx) {
+  const node = graphNodesView[idx];
+  if (!node) return;
+  const k = skey(node.module, node.component);
+  if (graphSplit.has(k)) graphSplit.delete(k);
+  else graphSplit.add(k);
+  graphMenu = null;
+  render();
+}
+
 // 遷移マップの集約（Task 11）: 最細粒度 edges（variant 単位）を粒度状態 splitSet に応じて
 // ノード集合へ集約する純関数（layoutGraph の前段）。統合 component は 1 ノード、split
 // component は variant ごとのノード（表示名 X ## v）。エッジ規則: to.variant null の split 先は
@@ -896,7 +931,13 @@ function renderGraphMap() {
     const isCurrent = view.module === frame.module && view.component === frame.component &&
       (view.variant == null || view.variant === frameVariant);
     const cls = 'graph-node' + (isCurrent ? ' graph-node-current' : '');
-    return '<g class="' + cls + '" onmouseenter="showNodePreview(' + idx + ')" onmouseleave="hideNodePreview()">' +
+    // variant を持つ component のノードだけクリックで粒度メニューを開く（遷移はしない。
+    // 閲覧専用マップなのでクリックをメニューに使える——ADR-0022 4。数値インデックスのみ埋め込む）
+    const comp = getComp(view.module, view.component);
+    const clickAttr = comp && Object.keys(comp.variants).length > 0
+      ? ' onclick="openGraphMenu(' + idx + ')"'
+      : '';
+    return '<g class="' + cls + '" onmouseenter="showNodePreview(' + idx + ')" onmouseleave="hideNodePreview()"' + clickAttr + '>' +
       '<rect x="' + x + '" y="' + y + '" width="' + nodeWidth + '" height="' + nodeHeight + '" rx="4"></rect>' +
       '<text x="' + (x + nodeWidth / 2) + '" y="' + (y + nodeHeight / 2 + 4) + '" text-anchor="middle">' + esc(n.name) + '</text>' +
     '</g>';
@@ -926,10 +967,23 @@ function renderGraphMap() {
 // hover プレビューが画面外へフレームアウトしない（Task 9 受入基準b）。
 function renderGraphSection() {
   if (!DATA.graph || DATA.graph.nodes.length === 0) return '';
+  // renderGraphMap が graphNodesView を更新するため、メニューはマップ描画後に組み立てる
+  const mapHtml = renderGraphMap();
+  let menuHtml = '';
+  if (graphMenu != null && graphNodesView[graphMenu]) {
+    const node = graphNodesView[graphMenu];
+    const isSplit = graphSplit.has(skey(node.module, node.component));
+    menuHtml = '<div class="graph-menu">' +
+      '<span class="graph-menu-title">' + esc(node.name) + '</span>' +
+      '<button class="graph-menu-item" onclick="toggleGraphSplit(' + graphMenu + ')">' +
+        (isSplit ? '統合' : 'variant で分割') + '</button>' +
+      '<button class="graph-menu-item" onclick="closeGraphMenu()">閉じる</button>' +
+    '</div>';
+  }
   return '<section class="graph-section">' +
     '<div class="pane-title" title="遷移マップ — 画面間の遷移関係（閲覧専用）。状態遷移図として読める">遷移マップ</div>' +
-    '<div class="pane-desc">画面間の遷移関係（閲覧専用）。状態遷移図として読める。現在の画面.本体に対応するノードを強調表示し、hover でプレビューを表示します。</div>' +
-    '<div id="graph-preview" class="graph-preview"></div>' + renderGraphMap() +
+    '<div class="pane-desc">画面間の遷移関係（閲覧専用）。状態遷移図として読める。現在の画面.本体に対応するノードを強調表示し、hover でプレビューを表示します。variant を持つノードはクリックで粒度メニュー（variant で分割 / 統合）を開きます。</div>' +
+    '<div id="graph-preview" class="graph-preview"></div>' + menuHtml + mapHtml +
   '</section>';
 }
 

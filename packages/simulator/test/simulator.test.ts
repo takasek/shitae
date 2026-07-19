@@ -1385,4 +1385,62 @@ describe('toSimulator', () => {
     const appHtml = vm.runInContext('app.innerHTML', context);
     expect(appHtml).not.toContain('ホーム ## 通常');
   });
+
+  it('ノードメニュー: variant を持つノードのクリックでメニューが開き、split/統合を切り替えられる（Task 11）', () => {
+    const doc = parseOk('# ホーム\n## 通常\n要素\n## 特殊\n要素2\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toMatch(/onclick="openGraphMenu\(\d+\)"/);
+
+    vm.runInContext('openGraphMenu(0)', context);
+    const menuHtml = vm.runInContext('app.innerHTML', context);
+    expect(menuHtml).toContain('variant で分割');
+    expect(menuHtml).toContain('閉じる');
+
+    vm.runInContext('toggleGraphSplit(0)', context);
+    const splitHtml = vm.runInContext('app.innerHTML', context);
+    expect(splitHtml).toContain('ホーム ## 通常');
+    expect(splitHtml).toContain('ホーム ## 特殊');
+    // 切替後はメニューが閉じる（集約後インデックスが変わるため開いたままにしない）
+    expect(vm.runInContext('graphMenu', context)).toBeNull();
+
+    // split 済みノードのメニューは「統合」になり、実行で component 粒度へ戻る
+    vm.runInContext('openGraphMenu(0)', context);
+    expect(vm.runInContext('app.innerHTML', context)).toContain('統合');
+    vm.runInContext('toggleGraphSplit(0)', context);
+    const unifiedHtml = vm.runInContext('app.innerHTML', context);
+    expect(unifiedHtml).not.toContain('ホーム ## 通常');
+  });
+
+  it('ノードメニュー: variant を持たない component のノードには onclick を付けない（メニュー不要。Task 11）', () => {
+    const doc = parseOk('# ホーム\n要素\n\n# 詳細\n本文\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).not.toContain('openGraphMenu(');
+    // 関数呼び出しでも variant なしは no-op（メニューは開かない）
+    vm.runInContext('openGraphMenu(0)', context);
+    expect(vm.runInContext('graphMenu', context)).toBeNull();
+  });
+
+  it('ノードメニュー: 閉じるでメニューが消える（Task 11）', () => {
+    const doc = parseOk('# ホーム\n## 通常\n要素\n## 特殊\n要素2\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext('openGraphMenu(0)', context);
+    expect(vm.runInContext('app.innerHTML', context)).toContain('graph-menu');
+    vm.runInContext('closeGraphMenu()', context);
+    expect(vm.runInContext('graphMenu', context)).toBeNull();
+    expect(vm.runInContext('app.innerHTML', context)).not.toContain('class="graph-menu"');
+  });
+
+  it('ノードメニュー: onclick へは数値インデックスのみを埋め込む（quote を含む component 名でも属性が壊れない）', () => {
+    const doc = parseOk('# 名"前\n## a\n要素\n## b\n要素\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).not.toContain('onclick="openGraphMenu("');
+    expect(appHtml).toMatch(/onclick="openGraphMenu\(\d+\)"/);
+  });
 });
