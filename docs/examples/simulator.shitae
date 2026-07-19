@@ -36,7 +36,7 @@ gate観測パネル: { // トグルボタンで開くオーバーレイドロワ
 // split中のcomponentはvariantごとのノード（表示名 X ## v）になり、現在地ハイライトは現在variantのノードに付く。variant省略の遷移先は初期姿ノードへ、common由来の遷移元は全variantノードから結ばれる。
 // 粒度は「設定を保存」ボタンで <entryModule>.simconfig.json へ保存できる（File System Access APIで取得したファイルへ以後上書き。非対応ブラウザはダウンロード）。CLI simulate はentryの兄弟simconfigを読み初期粒度として埋め込む。
 *ノード // 遷移関係のあるもの同士がedgeで結ばれる
-> hover(ノード) -> goto(##プレビュー表示中); hoverプレビューにそのノードの情報を表示（ペイン上部固定。マップの縦スクロールでフレームアウトしない。Task 9）
+> hover(ノード) -> goto(##プレビュー表示中); hoverプレビューにそのノードの情報を表示（ノード近傍の tooltip。タップで固定して粒度メニューと gate 試験切替を内包、外タップで解除。レイアウト非干渉）
 ## 通常
 ## プレビュー表示中
 hoverプレビュー
