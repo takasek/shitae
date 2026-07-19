@@ -1115,8 +1115,8 @@ function layoutGraph(nodes, edges, entryModule, entryComponent) {
   }
 
   // rank ごとにノード index をグループ化し、rank 昇順に barycenter 整列する
-  // （直前に処理した rank の順序だけを見る 1 パス。BFS の rank は連番のため
-  // 「直前に処理した rank」は常に r-1 と一致する）。
+  // （直前に処理した rank の順序だけを見る 1 パス。longest-path の rank も 0 から maxRank
+  // まで連番で埋まるため（上のコメント参照）「直前に処理した rank」は常に r-1 と一致する）。
   const byRank = new Map();
   for (let i = 0; i < nodes.length; i++) {
     if (!byRank.has(rank[i])) byRank.set(rank[i], []);
