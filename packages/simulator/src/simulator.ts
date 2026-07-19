@@ -891,7 +891,7 @@ function render() {
   // event 行の除外（DOM から省く）はクリックインデックスの整合を壊さない。
   const timelineParts = [];
   timeline.forEach((entry, i) => {
-    if (entry.kind === 'event' && !showEvents) return;
+    if (entry.kind === 'event' && !showEvents && i !== cursor) return;
     const classes = ['timeline-item', 'timeline-item-' + entry.kind];
     if (i === cursor) classes.push('current');
     if (i > cursor) classes.push('ghost');

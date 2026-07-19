@@ -643,6 +643,25 @@ describe('toSimulator', () => {
     expect(vm.runInContext('timeline.length', context)).toBe(3);
   });
 
+  it('イベントトグル: cursor が event エントリを指すときは showEvents OFF でも .current は描画される（現在位置表示を失わない）', () => {
+    const doc = parseOk('# ホーム\n> 押す -> いいねしました\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext("applyTransition({ type: 'effect', text: 'いいねしました' }); render()", context);
+
+    expect(vm.runInContext('showEvents', context)).toBe(true);
+    const shownHtml = vm.runInContext('app.innerHTML', context);
+    expect(shownHtml).toContain('timeline-item-event');
+    expect(shownHtml).toContain('current');
+
+    vm.runInContext('toggleShowEvents(); render()', context);
+    expect(vm.runInContext('showEvents', context)).toBe(false);
+    const hiddenHtml = vm.runInContext('app.innerHTML', context);
+    expect(hiddenHtml).toContain('timeline-item-event');
+    expect(hiddenHtml).toContain('current');
+  });
+
   it('複数ラベル操作は全ラベルを横並びボタンで提示し、ラベル指定クリックで対応 results だけが走る', () => {
     const doc = parseOk(
       '# ホーム\n> ガチャ ->\n>     [当たり] push(景品)\n>     [ハズレ] push(残念)\n\n# 景品\n本体\n\n# 残念\n本体\n',
