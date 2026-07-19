@@ -89,8 +89,13 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
 .graph-svg marker path { fill: #bbb; }
 /* 遷移マップペイン上部に sticky で固定する（Task 9）——マップが縦に伸びて
    ペイン内スクロールが生じても hover プレビューは常時見える位置にとどまり、
-   画面下へフレームアウトしない。z-index と不透明背景でノード矩形の上に重ねて表示する。 */
-.graph-preview { position: sticky; top: 0; z-index: 1; margin-bottom: 6px; padding: 6px 8px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; font-size: 11px; color: #555; min-height: 1em; }
+   画面下へフレームアウトしない。z-index と不透明背景でノード矩形の上に重ねて表示する。
+   min-height は最大内容（title/module/elements/variant の4行）分をあらかじめ予約する
+   ——空(1行)から内容表示(4行)へ高さが変わるとレイアウトが下方向へシフトし、直下の
+   ノードがカーソル位置から逃げて mouseenter/mouseleave が無限ループするフリッカを
+   起こしていた（UX評価3.3、Task 12）。固定高にすることで内容の出入りに関わらず
+   レイアウトが不動になり、sticky 配置とも両立する。 */
+.graph-preview { position: sticky; top: 0; z-index: 1; margin-bottom: 6px; padding: 6px 8px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; font-size: 11px; color: #555; min-height: 4.4em; }
 .graph-preview-title { font-weight: 700; color: #333; }
 .graph-node { cursor: pointer; }
 .graph-menu { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; padding: 6px 8px; background: #fff; border: 1px solid #ccc; border-radius: 6px; font-size: 12px; }

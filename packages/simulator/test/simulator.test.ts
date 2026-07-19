@@ -1123,6 +1123,20 @@ describe('toSimulator', () => {
     expect(html).toContain("document.getElementById('graph-preview')");
   });
 
+  it('遷移マップの hover プレビューは固定高でレイアウトシフトしない（内容の出入りで mouseenter/mouseleave が無限ループするフリッカを根治。UX評価3.3、Task 12 受入基準c）', () => {
+    const doc = parseOk('# ホーム\n共通要素\n## 通常\n専用A\n## 特殊\n専用B\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const previewRuleMatch = html.match(/\.graph-preview\s*\{[^}]*\}/);
+    expect(previewRuleMatch).not.toBeNull();
+    // sticky 配置は維持したまま（Task 9 と両立）、内容が空(1行)⇔4行（title/module/elements/
+    // variant）に変わっても高さが変わらないよう、最大内容分の高さをあらかじめ予約する
+    // （固定 min-height 方式。旧 min-height: 1em は空状態の1行分しか予約せず、内容表示時に
+    // レイアウトが下方向へシフトしてノードがカーソル直下から逃げていた——UX評価3.3の根因）。
+    expect(previewRuleMatch![0]).not.toMatch(/min-height:\s*1em\b/);
+    expect(previewRuleMatch![0]).toMatch(/min-height:\s*4(\.\d+)?em\b/);
+    expect(previewRuleMatch![0]).toMatch(/position:\s*sticky/);
+  });
+
   it('各ペインの説明文にオートマトンとしての読み方の注記を持つ（Task 9・ADR-0022）', () => {
     const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
