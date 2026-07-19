@@ -91,6 +91,16 @@ summary.pane-title { cursor: pointer; }
 .back-btn:hover { background: #f0f0f0; }
 .no-actions { color: #bbb; font-size: 13px; font-style: italic; }
 .doc-events-section { border-top: 1px solid #e0e0e0; margin-top: 12px; padding-top: 8px; }
+/* member gate 付きアクション行のインラインバッジ・select（Task 18 項目4）。off の行は
+   .action-row-disabled で見た目を沈め（背景を薄く・カーソルを not-allowed に）、行自体は
+   消さない——「gate off で操作が消えて存在に気づけない」の解消が目的のため、視認できる
+   ことが要件。select はバッジと違い操作可能なので pointer-events は殺さない。 */
+.gate-inline-badge { font-size: 10px; color: #7c5cbf; background: #f3f0fb; border-radius: 8px; padding: 1px 6px; white-space: nowrap; }
+.gate-inline-select { font-size: 11px; }
+.gate-off-mark { font-size: 11px; color: #c0392b; }
+.action-row-disabled { background: #f5f5f5; opacity: .7; }
+.action-row-disabled.action-row-solo { cursor: not-allowed; }
+.action-row-disabled .choice-chip { cursor: not-allowed; opacity: .6; }
 .overlay-card { margin-top: 12px; border: 1px dashed #999; }
 .overlay-badge { display: inline-block; font-size: 11px; color: #fff; background: #555; padding: 1px 8px; border-radius: 8px; margin-bottom: 8px; }
 .gate-panel { margin-top: 20px; font-size: 12px; }
@@ -344,7 +354,7 @@ function overlayInteractions(name) {
   const v = overlayVariant(name);
   const list = v ? (comp.variants[v]?.interactions ?? []) : comp.commonInteractions;
   const hostCtx = { module: entry.module, component: name, variant: v };
-  return list.filter((inter) => gateEnabled(inter, hostCtx));
+  return filterHostGate(list, hostCtx);
 }
 
 // 要素配列（SimElement { name, ref }）から表示名（alias 優先）の一覧を得る。gate の
@@ -391,6 +401,17 @@ function gateEnabled(inter, hostCtx) {
   return elementNames([...commonEls, ...varEls]).includes(gate.name);
 }
 
+// interaction 一覧のフィルタ（Task 18 項目4）: host gate（裸参照）は従来どおり行ごと除外する
+// ——判定対象が発火元 component 自身のため切り替える余地がなく、無効表示にしても操作しようが
+// ない。member gate は除外せずそのまま残す——off でも行として見えることで「gate off で操作が
+// 消えて存在に気づけない」を解消する（無効理由の可視化）。有効/無効の実際の判定は renderActionRow
+// 側が gateEnabled で個別に再計算し、無効な行に「無効」表示と disabled を付ける。gate なしの
+// interaction はそのまま通す。currentInteractions/docCommonInteractions/overlayInteractions/
+// computeOwnComponentContext の4経路すべてがこの1関数を通ることで挙動を一貫させる（brief 明記）。
+function filterHostGate(list, hostCtx) {
+  return list.filter((inter) => !inter.gate || inter.gate.kind !== 'host' || gateEnabled(inter, hostCtx));
+}
+
 function currentInteractions() {
   const frame = currentFrame();
   const comp = getComp(frame.module, frame.component);
@@ -398,9 +419,7 @@ function currentInteractions() {
   // 姿の interactions は抽出時に mergeInteractions(共通, 姿固有) 済み（shadow 合成）
   const variant = displayVariant(frame);
   const list = variant ? (comp.variants[variant]?.interactions ?? []) : comp.commonInteractions;
-  // Array#filter は (item, index, array) を渡す。gateEnabled を直接渡すと index が
-  // hostCtx に化けるため、単項の呼び出しに包んで既定（currentFrame() 基準）を強制する。
-  return list.filter((inter) => gateEnabled(inter));
+  return filterHostGate(list);
 }
 
 // stack 上の sessionName（非 null）一覧を積み順（下から上）で重複除去して返す
@@ -590,11 +609,19 @@ function scopedInteractions(scope) {
   return currentInteractions().filter((inter) => inter.scope === scope);
 }
 
+// member gate 付きで現在 off の interaction か（Task 18 項目4）。host gate は filterHostGate が
+// 一覧の時点で既に除外しているためここでは判定不要——member gate だけが「行は残るが押せない」
+// 状態を持つ。gateEnabled は hostCtx を渡さなくても member 分岐では参照しないため単項呼び出しでよい
+// （gateEnabled のコメント参照）。UI の disabled 属性に加え、直接ハンドラを呼ばれた場合の防御も兼ねる。
+function isMemberGateBlocked(inter) {
+  return inter.gate != null && inter.gate.kind === 'member' && !gateEnabled(inter);
+}
+
 // 操作一覧のラベルボタンクリック。choiceIdx はラベル無し操作（行全体が1つのボタン）なら 0 のまま
 // 渡ってくるが choices が空のため runChoice は prelude のみ実行する。
 function handleInteraction(scope, idx, choiceIdx) {
   const interaction = scopedInteractions(scope)[idx];
-  if (!interaction) return;
+  if (!interaction || isMemberGateBlocked(interaction)) return;
   runChoice(interaction, choiceIdx);
   render();
 }
@@ -614,7 +641,7 @@ function handleOverlayInteraction(cardIdx, scope, idx, choiceIdx) {
   const name = [...overlays.keys()][cardIdx];
   if (!name) return;
   const interaction = overlayScopedInteractions(name, scope)[idx];
-  if (!interaction) return;
+  if (!interaction || isMemberGateBlocked(interaction)) return;
   runChoice(interaction, choiceIdx);
   render();
 }
@@ -640,14 +667,12 @@ function jumpToTimeline(idx) {
 function docCommonInteractions() {
   const frame = currentFrame();
   const comp = getComp(frame.module, frame.component);
-  // Array#filter は (item, index, array) を渡す。gateEnabled を直接渡すと index が
-  // hostCtx に化けるため、単項の呼び出しに包んで既定（currentFrame() 基準・ADR-0015）を強制する。
-  if (!comp) return (DATA.documentCommon ?? []).filter((inter) => gateEnabled(inter));
+  if (!comp) return filterHostGate(DATA.documentCommon ?? []);
   const variant = displayVariant(frame);
   const list = variant
     ? (comp.variants[variant]?.docCommonInteractions ?? DATA.documentCommon ?? [])
     : (comp.docCommonInteractions ?? DATA.documentCommon ?? []);
-  return list.filter((inter) => gateEnabled(inter));
+  return filterHostGate(list);
 }
 
 // scope バッジの表示ラベル（有効範囲の明示。旧カテゴリ見出しの置き換え——Task 8 / ADR-0022 5）
@@ -668,20 +693,55 @@ const SCOPE_BADGE_TITLES = {
 // 「[TRUE] は押せるボタンなのか内部フラグ表示なのか分からない」という指摘（UX round2）を、
 // チップという内部状態的な見た目自体を無くし行の押せる見た目（action-row-solo。Task 15）へ
 // 一本化することで解消する。
+// member gate 付きアクション行に添えるインライン UI（Task 18 項目4）: 現在の判定対象 variant を
+// 示す小バッジ + その場で切り替える select——既存 setInstanceVariant を呼ぶため、書換え先の
+// 共有レジストリ（sharedVariants）は右ドロワーの手動トグルパネルと同一で、どちらから切り替えて
+// も同期する。off の行にも付ける——その場で対象 variant を切り替えて有効化を試せるように
+// するため（brief「その場で variant を切り替える select」）。対象が variant を持たない
+// （切替の余地がない）場合はバッジのみで select を省く。
+function renderGateInlineControls(gate) {
+  const mod = gate.module ?? currentFrame().module;
+  const comp = getComp(mod, gate.targetComponent);
+  if (!comp) return '';
+  const k = skey(mod, gate.targetComponent);
+  const current = sharedVariants.has(k) ? sharedVariants.get(k) : comp.initialVariant;
+  const badgeLabel = gate.targetComponent + (current ? ' / ' + current : '');
+  const badge = '<span class="gate-inline-badge" title="member gate 判定対象: ' +
+    esc(gate.targetComponent) + '.' + esc(gate.name) + '">' + esc(badgeLabel) + '</span>';
+  const variantNames = Object.keys(comp.variants);
+  if (variantNames.length === 0) return badge;
+  const options = variantNames.map((v) =>
+    '<option value="' + esc(v) + '"' + (v === current ? ' selected' : '') + '>' + esc(v) + '</option>'
+  ).join('');
+  const select = '<select class="gate-inline-select" onchange="setInstanceVariant(' +
+    esc(JSON.stringify(mod)) + ', ' + esc(JSON.stringify(gate.targetComponent)) + ', this.value)">' + options + '</select>';
+  return badge + select;
+}
+
+// 操作行 1 件の描画。member gate 付きの行は renderGateInlineControls のバッジ+select を添え、
+// gate off なら行を消さず「無効」表示（.action-row-disabled + .gate-off-mark）にして onclick・
+// choice-chip の disabled 属性で押せなくする（Task 18 受入基準d）。host gate 付きの行は
+// 一覧の時点（filterHostGate）で既に除外されているためここには現れない。
 function renderActionRow(item, buildOnclick) {
   const inter = item.inter;
   const badge = '<span class="scope-badge" title="' + esc(SCOPE_BADGE_TITLES[item.scope] ?? '') + '">' +
     esc(SCOPE_BADGE_LABELS[item.scope] ?? item.scope) + '</span>';
+  const isMemberGate = inter.gate != null && inter.gate.kind === 'member';
+  const gateHtml = isMemberGate ? renderGateInlineControls(inter.gate) : '';
+  const gateOff = isMemberGate && !gateEnabled(inter);
+  const offMark = gateOff ? '<span class="gate-off-mark">gate off で無効</span>' : '';
+  const rowClass = 'action-row' + (gateOff ? ' action-row-disabled' : '');
   if (inter.choices.length === 0) {
-    return '<div class="action-row action-row-solo" onclick="' + buildOnclick(item.scope, item.idx, 0) + '">' +
-      '<span class="action-text">' + esc(inter.actionText) + '</span>' + badge + '</div>';
+    const onclickAttr = gateOff ? '' : ' onclick="' + buildOnclick(item.scope, item.idx, 0) + '"';
+    return '<div class="' + rowClass + ' action-row-solo"' + onclickAttr + '>' +
+      '<span class="action-text">' + esc(inter.actionText) + '</span>' + gateHtml + offMark + badge + '</div>';
   }
   const buttons = inter.choices.map((c, choiceIdx) =>
-    '<button class="choice-chip" onclick="' + buildOnclick(item.scope, item.idx, choiceIdx) + '">' +
+    '<button class="choice-chip" onclick="' + buildOnclick(item.scope, item.idx, choiceIdx) + '"' + (gateOff ? ' disabled' : '') + '>' +
     esc('[' + c.label + ']') + '</button>'
   ).join('');
-  return '<div class="action-row"><span class="action-text">' + esc(inter.actionText) + '</span>' +
-    badge + '<span class="action-choices">' + buttons + '</span></div>';
+  return '<div class="' + rowClass + '"><span class="action-text">' + esc(inter.actionText) + '</span>' +
+    gateHtml + offMark + badge + '<span class="action-choices">' + buttons + '</span></div>';
 }
 
 // interaction の行動テキストから対象部分 "(対象[.member])" を除いた行動語だけを取り出す
@@ -720,7 +780,7 @@ function computeOwnComponentContext(elRef, overrideItems) {
   const v = sharedVariants.has(key) ? sharedVariants.get(key) : comp.initialVariant;
   const hostCtx = { module: elRef.module, component: elRef.name, variant: v };
   const ownRaw = v ? (comp.variants[v]?.interactions ?? []) : comp.commonInteractions;
-  const ownFiltered = ownRaw.filter((inter) => gateEnabled(inter, hostCtx) && !isOverriddenByOuter(inter, overrideItems));
+  const ownFiltered = filterHostGate(ownRaw, hostCtx).filter((inter) => !isOverriddenByOuter(inter, overrideItems));
   const ownItems = [
     ...ownFiltered.filter((inter) => inter.scope === 'variant').map((inter, idx) => ({ inter, scope: 'variant', idx })),
     ...ownFiltered.filter((inter) => inter.scope === 'component').map((inter, idx) => ({ inter, scope: 'component', idx })),
@@ -912,7 +972,7 @@ function handleNestedInteraction(cardIdx, path, scope, idx, choiceIdx) {
   const items = resolveNestedItems(cardIdx, path);
   if (!items) return;
   const found = items.find((item) => item.scope === scope && item.idx === idx);
-  if (!found) return;
+  if (!found || isMemberGateBlocked(found.inter)) return;
   runChoice(found.inter, choiceIdx);
   render();
 }

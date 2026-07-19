@@ -225,15 +225,17 @@ describe('toSimulator', () => {
     expect(html).toContain('comp.variants[variant]?.docCommonInteractions');
   });
 
-  it('presence gate: gate 付き interaction を構造的 presence でフィルタする', () => {
-    const doc = parseOk(
-      '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n# 時間選択\n本文\n',
-    );
+  it('presence gate: host gate（裸参照）付き interaction は構造的 presence が満たされないと行ごと除外される', () => {
+    // 「押す(非表示要素?)」は host gate（裸参照）——ホームの実効 body に「非表示要素」が
+    // 無いため gate off。member gate と異なり host gate は対象切替の余地がないため、
+    // Task 18 以降も従来どおり行ごと除外する（brief 項目4は member gate のみが対象）。
+    const doc = parseOk('# ホーム\nロゴ\n> 押す(非表示要素?) -> push(A)\n\n# A\n本体\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     expect(html).toContain('function gateEnabled(');
-    // ADR-0019: gateEnabled が hostCtx を受けるようになったため、Array#filter の
-    // (item, index, array) 引数漏れを避けて単項呼び出しに包む（simulator.ts 参照）。
-    expect(html).toContain('list.filter((inter) => gateEnabled(inter))');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).not.toContain('押す');
+    expect(appHtml).not.toContain('gate-off-mark');
   });
 
   it('presence gate 手動トグル: member gate 対象の variant を選ぶ UI を持つ（ADR-0002 Consequence）', () => {
@@ -245,6 +247,108 @@ describe('toSimulator', () => {
     expect(html).toContain('function setInstanceVariant(');
     expect(html).toContain('gate-panel');
     expect(html).toContain('sharedVariants.set(skey(module, name), variant)');
+  });
+
+  it('gate インライン化: member gate 付きアクション行は判定対象の現在 variant を示すバッジと切替 select を添えて描画される（Task 18 受入基準d）', () => {
+    const doc = parseOk(
+      '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n# 時間選択\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    // 初期姿（選択可能）が対象の初期 variant のため gate on——行は押せる（onclick 付き）
+    const rowMatch = appHtml.match(/<div class="action-row[^"]*" onclick="(handleInteraction\('component'[^"]+)">[\s\S]*?<\/div>/);
+    expect(rowMatch).not.toBeNull();
+    const row = rowMatch![0];
+    expect(row).toContain('タップ(日付.選択可能)');
+    expect(row).toMatch(/<span class="gate-inline-badge"[^>]*>日付 \/ 選択可能<\/span>/);
+    const selectMatch = row.match(/<select class="gate-inline-select" onchange="([^"]+)">([\s\S]*?)<\/select>/);
+    expect(selectMatch).not.toBeNull();
+    expect(selectMatch![2]).toContain('選択可能');
+    expect(selectMatch![2]).toContain('満席');
+
+    // クリックで発火する（gate on のため無効化されていない）
+    vm.runInContext(rowMatch![1]!, context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('時間選択');
+  });
+
+  it('gate インライン化: member gate off の行は消えず「無効」表示で残り、押せない。select から現地で有効化できる（Task 18 受入基準d）', () => {
+    const doc = parseOk(
+      '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n# 時間選択\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext("setInstanceVariant('main', '日付', '満席'); render()", context);
+    const offHtml = vm.runInContext('app.innerHTML', context);
+
+    // 行自体は消えない（brief: off だと存在に気づけない現状の解消）
+    expect(offHtml).toContain('タップ(日付.選択可能)');
+    expect(offHtml).toContain('gate-off-mark');
+    expect(offHtml).toContain('action-row-disabled');
+    // 対象 variant バッジは現在値（満席）へ追随する
+    expect(offHtml).toMatch(/<span class="gate-inline-badge"[^>]*>日付 \/ 満席<\/span>/);
+    // solo 行に onclick が付かない（押せない）
+    expect(offHtml).not.toMatch(/<div class="action-row[^"]*action-row-disabled[^"]*" onclick=/);
+
+    // 直接ハンドラを呼んでも無効な間は発火しない（ボタンが disabled でもコード上の防御）
+    const beforeComponent = vm.runInContext('currentFrame().component', context);
+    vm.runInContext("handleInteraction('component', 0, 0); render()", context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe(beforeComponent);
+
+    // 同じ行の select から現地で対象 variant を有効な方へ切り替えると、次の render で押せるようになる
+    vm.runInContext("setInstanceVariant('main', '日付', '選択可能'); render()", context);
+    const onHtml = vm.runInContext('app.innerHTML', context);
+    expect(onHtml).not.toContain('gate-off-mark');
+    const m = onHtml.match(/<div class="action-row[^"]*" onclick="(handleInteraction\('component'[^"]+)">/);
+    expect(m).not.toBeNull();
+    vm.runInContext(m![1]!, context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('時間選択');
+  });
+
+  it('gate インライン化: 部品（埋め込み要素）自身の interaction にある member gate も同じ機構で無効表示される（経路一貫性。Task 18 受入基準d）', () => {
+    const doc = parseOk(
+      '# ホーム\n部品A\n\n# 部品A\n> タップ(日付.選択可能?) -> push(時間選択)\n\n' +
+        '# 日付\n## 選択可能\n要素\n## 満席\n要素2\n\n# 時間選択\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext("setInstanceVariant('main', '日付', '満席'); render()", context);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('タップ(日付.選択可能)');
+    expect(appHtml).toContain('gate-off-mark');
+  });
+
+  it('gate インライン化: 掲示中カード自身の member gate も同じ機構で無効表示される（経路一貫性。Task 18 受入基準d）', () => {
+    const doc = parseOk(
+      '# ホーム\n> 出す -> show(ミニ)\n\n# ミニ\n> タップ(日付.選択可能?) -> push(時間選択)\n\n' +
+        '# 日付\n## 選択可能\n要素\n## 満席\n要素2\n\n# 時間選択\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext(
+      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); " +
+        "setInstanceVariant('main', '日付', '満席'); render()",
+      context,
+    );
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    const overlayIdx = appHtml.indexOf('overlay-card');
+    expect(overlayIdx).toBeGreaterThan(-1);
+    const overlaySection = appHtml.slice(overlayIdx);
+    expect(overlaySection).toContain('タップ(日付.選択可能)');
+    expect(overlaySection).toContain('gate-off-mark');
+  });
+
+  it('gate インライン化: 外部イベント（document common）の member gate も同じ機構で無効表示される（経路一貫性。Task 18 受入基準d）', () => {
+    const doc = parseOk(
+      '> タップ(日付.選択可能?) -> push(時間選択)\n\n# ホーム\n本体\n\n' +
+        '# 日付\n## 選択可能\n要素\n## 満席\n要素2\n\n# 時間選択\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext("setInstanceVariant('main', '日付', '満席'); docEventsPanelOpen = true; render()", context);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('タップ(日付.選択可能)');
+    expect(appHtml).toContain('gate-off-mark');
   });
 
   it('set: state result を singleton の共有レジストリ書き換えとして適用する（ADR-0014）', () => {
