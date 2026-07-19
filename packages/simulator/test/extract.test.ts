@@ -553,6 +553,32 @@ describe('graph: 遷移グラフの抽出', () => {
   });
 });
 
+describe('graphConfig: 遷移マップ粒度 config の埋め込み（Task 11）', () => {
+  it('config.graph.split が graphConfig.split に反映される', () => {
+    const doc = parseOk('# ホーム\n## 通常\n要素\n## 特殊\n要素2\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main', {
+      graph: { split: [{ module: 'main', component: 'ホーム' }] },
+    });
+    expect(data.graphConfig).toEqual({ split: [{ module: 'main', component: 'ホーム' }] });
+  });
+
+  it('config 省略時は空の split（後方互換）', () => {
+    const doc = parseOk('# ホーム\n要素\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.graphConfig).toEqual({ split: [] });
+  });
+
+  it('不正な split 要素（module/component が文字列でない）と未知キーは無視される', () => {
+    const doc = parseOk('# ホーム\n要素\n');
+    const config = {
+      graph: { split: [{ module: 'main' }, 42, { module: 'main', component: 'ホーム', extra: true }] },
+      unknownKey: 'x',
+    } as any;
+    const data = extractSimData(new Map([['main', doc]]), 'main', config);
+    expect(data.graphConfig).toEqual({ split: [{ module: 'main', component: 'ホーム' }] });
+  });
+});
+
 describe('elements: 階層表示用の ref 解決（Task 8）', () => {
   it('定義済み component への参照は ref に module・name を保持する（module はレキシカル解決・正準名）', () => {
     const doc = parseOk('# ホーム\nログインフォーム\n\n# ログインフォーム\nID入力\n');

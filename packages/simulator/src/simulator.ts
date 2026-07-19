@@ -1,9 +1,13 @@
 import type { Document } from '@shitae/ast';
 import { extractSimData } from './extract.js';
-import type { SimulatorData } from './extract.js';
+import type { SimulatorData, SimulatorConfig } from './extract.js';
 
-export function toSimulator(documents: Map<string, Document>, entryModule: string): string {
-  const data = extractSimData(documents, entryModule);
+export function toSimulator(
+  documents: Map<string, Document>,
+  entryModule: string,
+  config?: SimulatorConfig,
+): string {
+  const data = extractSimData(documents, entryModule, config);
   return buildHtml(data);
 }
 
@@ -762,14 +766,73 @@ function layoutGraph(nodes, edges, entryModule, entryComponent) {
   return nodes.map((n, i) => ({ module: n.module, name: n.name, rank: rank[i], order: order[i] }));
 }
 
+// 遷移マップの粒度状態（Task 11）: variant で分割表示する component の skey 集合。
+// 初期値は CLI が simconfig から埋め込んだ DATA.graphConfig.split。
+let graphSplit = new Set(((DATA.graphConfig && DATA.graphConfig.split) || []).map((s) => skey(s.module, s.component)));
+
+// 直近の描画で表示した集約後ノード一覧（renderGraphMap が更新する）。hover プレビューと
+// ノードメニューは onclick/onmouseenter に数値インデックスだけを埋め込み、このリストで
+// 解決する（component 名文字列の属性埋め込みによる quote 衝突バグの根治方針を踏襲）。
+let graphNodesView = [];
+
+// 遷移マップの集約（Task 11）: 最細粒度 edges（variant 単位）を粒度状態 splitSet に応じて
+// ノード集合へ集約する純関数（layoutGraph の前段）。統合 component は 1 ノード、split
+// component は variant ごとのノード（表示名 X ## v）。エッジ規則: to.variant null の split 先は
+// 初期姿ノードへ、from.variant null（component common 由来）の split 元は全 variant ノードから。
+// 自己 edge もそのまま残す。戻り値ノードは { module, name, component, variant }——
+// name は layoutGraph の識別キー（skey(module, name)）を兼ねる表示名。
+function aggregateGraph(nodes, edges, splitSet) {
+  const variantsOf = (module, component) => {
+    const comp = getComp(module, component);
+    return comp ? Object.keys(comp.variants) : [];
+  };
+  const isSplit = (module, component) =>
+    splitSet.has(skey(module, component)) && variantsOf(module, component).length > 0;
+  const nameOf = (component, variant) => (variant != null ? component + ' ## ' + variant : component);
+
+  const aggNodes = [];
+  for (const n of nodes) {
+    if (isSplit(n.module, n.name)) {
+      for (const v of variantsOf(n.module, n.name)) {
+        aggNodes.push({ module: n.module, name: nameOf(n.name, v), component: n.name, variant: v });
+      }
+    } else {
+      aggNodes.push({ module: n.module, name: n.name, component: n.name, variant: null });
+    }
+  }
+
+  // エッジ端点 → 集約後ノード名。from は複数ノードに膨らみうる（variant null の split 元）
+  const fromNamesOf = (ep) => {
+    if (!isSplit(ep.module, ep.component)) return [ep.component];
+    if (ep.variant != null) return [nameOf(ep.component, ep.variant)];
+    return variantsOf(ep.module, ep.component).map((v) => nameOf(ep.component, v));
+  };
+  const toNameOf = (ep) => {
+    if (!isSplit(ep.module, ep.component)) return ep.component;
+    const v = ep.variant != null ? ep.variant : initialVariant(ep.module, ep.component);
+    return nameOf(ep.component, v);
+  };
+
+  const aggEdges = new Map();
+  for (const e of edges) {
+    const toName = toNameOf(e.to);
+    for (const fromName of fromNamesOf(e.from)) {
+      const edge = { from: { module: e.from.module, name: fromName }, to: { module: e.to.module, name: toName } };
+      aggEdges.set(JSON.stringify([edge.from, edge.to]), edge);
+    }
+  }
+  return { nodes: aggNodes, edges: [...aggEdges.values()] };
+}
+
 // 遷移マップの hover プレビュー。render() を経由せず #graph-preview を直接書き換える
 // 局所 DOM 更新にする——render() は innerHTML を丸ごと再構築する設計のため、hover 状態を
-// JS グローバルに持って render() を呼ぶとちらつく。
+// JS グローバルに持って render() を呼ぶとちらつく。idx は集約後ノード（graphNodesView）の
+// インデックス（Task 11 で DATA.graph.nodes 直参照から変更）。
 function showNodePreview(idx) {
-  const node = DATA.graph.nodes[idx];
+  const node = graphNodesView[idx];
   const el = document.getElementById('graph-preview');
   if (!node || !el) return;
-  const comp = getComp(node.module, node.name);
+  const comp = getComp(node.module, node.component);
   if (!comp) { el.innerHTML = ''; return; }
   const variantNames = Object.keys(comp.variants);
   const elementsHtml = comp.commonElements.length > 0
@@ -790,17 +853,25 @@ function hideNodePreview() {
 }
 
 // 遷移マップの SVG（rect + component 名テキストのノード、直線 + 矢印のエッジ）。
-// レイアウトは layoutGraph（純関数）の rank/order を LR（rank=横方向、rank内=縦等間隔）で
-// 座標化する。閲覧専用（設計者確定事項 2026-07-19）——ノードクリック遷移(gotoNode)は
-// 廃止済みで onclick は持たない。hover は component 名でなく DATA.graph.nodes の配列
-// インデックスで参照する（onmouseenter への任意文字列埋め込みを避ける）。
-// component 名は任意文字列のため SVG テキストへは esc() を通す。現在の画面.本体に
-// 対応するノードは module・name の両方一致で判定し graph-node-current を付けて
-// ハイライトする——render() が毎回 innerHTML を再構築するため遷移のたびに自然に追随する。
+// aggregateGraph で粒度状態（graphSplit）に応じた集約を行ってから layoutGraph（純関数）へ
+// 渡し、rank/order を LR（rank=横方向、rank内=縦等間隔）で座標化する（Task 11）。
+// 閲覧専用（設計者確定事項 2026-07-19）——ノードクリックは遷移せずメニューを開くだけ。
+// hover/click は component 名でなく集約後ノードの配列インデックスで参照する
+// （属性への任意文字列埋め込みを避ける）。component 名は任意文字列のため SVG テキストへは
+// esc() を通す。現在の画面.本体に対応するノードは module・component の両方一致
+// （split 時はさらに現在 variant 一致）で判定し graph-node-current を付けてハイライトする
+// ——render() が毎回 innerHTML を再構築するため遷移のたびに自然に追随する。
 function renderGraphMap() {
-  const nodes = DATA.graph.nodes;
-  const edges = DATA.graph.edges;
-  const layout = layoutGraph(nodes, edges, DATA.entryModule, DATA.entryComponent);
+  const agg = aggregateGraph(DATA.graph.nodes, DATA.graph.edges, graphSplit);
+  graphNodesView = agg.nodes;
+  const nodes = agg.nodes;
+  const edges = agg.edges;
+  // entry component が split されているときは初期姿ノードを rank 0 の起点にする
+  const entryName = graphSplit.has(skey(DATA.entryModule, DATA.entryComponent)) &&
+    initialVariant(DATA.entryModule, DATA.entryComponent) != null
+    ? DATA.entryComponent + ' ## ' + initialVariant(DATA.entryModule, DATA.entryComponent)
+    : DATA.entryComponent;
+  const layout = layoutGraph(nodes, edges, DATA.entryModule, entryName);
   const rankWidth = 160;
   const rowHeight = 44;
   const nodeWidth = 120;
@@ -814,12 +885,16 @@ function renderGraphMap() {
   const posByKey = new Map(layout.map((n) => [skey(n.module, n.name), n]));
 
   const frame = currentFrame();
-  const currentKey = skey(frame.module, frame.component);
+  const frameVariant = displayVariant(frame);
 
+  // layout は入力 nodes と同順・同 index（layoutGraph は並べ替えず座標だけ返す）——
+  // nodes[idx] で集約後ノードの component/variant を引ける
   const nodesHtml = layout.map((n, idx) => {
+    const view = nodes[idx];
     const x = marginX + n.rank * rankWidth;
     const y = marginY + n.order * rowHeight;
-    const isCurrent = skey(n.module, n.name) === currentKey;
+    const isCurrent = view.module === frame.module && view.component === frame.component &&
+      (view.variant == null || view.variant === frameVariant);
     const cls = 'graph-node' + (isCurrent ? ' graph-node-current' : '');
     return '<g class="' + cls + '" onmouseenter="showNodePreview(' + idx + ')" onmouseleave="hideNodePreview()">' +
       '<rect x="' + x + '" y="' + y + '" width="' + nodeWidth + '" height="' + nodeHeight + '" rx="4"></rect>' +

@@ -1272,4 +1272,117 @@ describe('toSimulator', () => {
     expect(html).toContain('function setInstanceVariant(');
     expect(html).toContain('function toggleGatePanel(');
   });
+
+  it('aggregateGraph: split 集合に応じてノード集合が component 1 個 ↔ variant 群に変わり、エッジは粒度に合わせて dedupe される（Task 11 受入基準a）', () => {
+    const doc = parseOk(
+      '# 詳細\n> 閉じる -> push(次)\n## 読込中\nスピナー\n## 表示\nコンテンツ\n\n# 次\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const unified = JSON.parse(
+      vm.runInContext('JSON.stringify(aggregateGraph(DATA.graph.nodes, DATA.graph.edges, new Set()))', context),
+    );
+    expect(unified.nodes.map((n: any) => n.name)).toEqual(['詳細', '次']);
+    // 2 variant 由来の細粒度エッジが統合ノードでは 1 本に dedupe される
+    expect(unified.edges).toEqual([
+      { from: { module: 'main', name: '詳細' }, to: { module: 'main', name: '次' } },
+    ]);
+    const split = JSON.parse(
+      vm.runInContext(
+        "JSON.stringify(aggregateGraph(DATA.graph.nodes, DATA.graph.edges, new Set([skey('main', '詳細')])))",
+        context,
+      ),
+    );
+    expect(split.nodes.map((n: any) => n.name)).toEqual(['詳細 ## 読込中', '詳細 ## 表示', '次']);
+    expect(split.edges).toEqual([
+      { from: { module: 'main', name: '詳細 ## 読込中' }, to: { module: 'main', name: '次' } },
+      { from: { module: 'main', name: '詳細 ## 表示' }, to: { module: 'main', name: '次' } },
+    ]);
+  });
+
+  it('aggregateGraph: to.variant null の split 先は初期姿ノードへ、明示 variant はそのノードへ集約される（Task 11 受入基準b）', () => {
+    const doc = parseOk(
+      '# ホーム\n> 進む -> push(詳細)\n> 直行 -> push(詳細##表示)\n\n# 詳細\n## 読込中\nスピナー\n## 表示\nコンテンツ\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const split = JSON.parse(
+      vm.runInContext(
+        "JSON.stringify(aggregateGraph(DATA.graph.nodes, DATA.graph.edges, new Set([skey('main', '詳細')])))",
+        context,
+      ),
+    );
+    expect(split.edges).toEqual([
+      { from: { module: 'main', name: 'ホーム' }, to: { module: 'main', name: '詳細 ## 読込中' } },
+      { from: { module: 'main', name: 'ホーム' }, to: { module: 'main', name: '詳細 ## 表示' } },
+    ]);
+  });
+
+  it('aggregateGraph: from.variant null（component common 由来）の split 元は全 variant ノードから出る（Task 11）', () => {
+    const doc = parseOk('# ホーム\n本体\n\n# 詳細\n## 読込中\nスピナー\n## 表示\nコンテンツ\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const result = JSON.parse(
+      vm.runInContext(
+        "JSON.stringify(aggregateGraph(DATA.graph.nodes, [{ from: { module: 'main', component: '詳細', variant: null }, to: { module: 'main', component: 'ホーム', variant: null } }], new Set([skey('main', '詳細')])))",
+        context,
+      ),
+    );
+    expect(result.edges).toEqual([
+      { from: { module: 'main', name: '詳細 ## 読込中' }, to: { module: 'main', name: 'ホーム' } },
+      { from: { module: 'main', name: '詳細 ## 表示' }, to: { module: 'main', name: 'ホーム' } },
+    ]);
+  });
+
+  it('遷移マップ: split 時の現在地ハイライトは現在 variant のノードへ付き、姿替えに追随する（Task 11 受入基準c）', () => {
+    const doc = parseOk('# ホーム\n## 通常\n要素\n> 切替 -> goto(##特殊)\n## 特殊\n要素2\n');
+    const html = toSimulator(
+      new Map([['main', doc]]),
+      'main',
+      { graph: { split: [{ module: 'main', component: 'ホーム' }] } },
+    );
+    const context = runSimulatorScript(html);
+    const beforeHtml = vm.runInContext('app.innerHTML', context);
+    const tagsOf = (s: string) => [...s.matchAll(/<g class="([^"]*)"[^>]*>[\s\S]*?<\/g>/g)];
+    const before = tagsOf(beforeHtml);
+    const normalBefore = before.find((m) => m[0].includes('ホーム ## 通常'));
+    const specialBefore = before.find((m) => m[0].includes('ホーム ## 特殊'));
+    expect(normalBefore![1]).toMatch(/graph-node-current/);
+    expect(specialBefore![1]).not.toMatch(/graph-node-current/);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'goto', target: { kind: 'variant', variant: '特殊' } }); render()",
+      context,
+    );
+    const afterHtml = vm.runInContext('app.innerHTML', context);
+    const after = tagsOf(afterHtml);
+    const normalAfter = after.find((m) => m[0].includes('ホーム ## 通常'));
+    const specialAfter = after.find((m) => m[0].includes('ホーム ## 特殊'));
+    expect(normalAfter![1]).not.toMatch(/graph-node-current/);
+    expect(specialAfter![1]).toMatch(/graph-node-current/);
+  });
+
+  it('初期 config 埋め込み: toSimulator の第 3 引数 graph.split が DATA.graphConfig として埋め込まれ初回描画から split される（Task 11 受入基準d）', () => {
+    const doc = parseOk('# ホーム\n## 通常\n要素\n## 特殊\n要素2\n');
+    const html = toSimulator(
+      new Map([['main', doc]]),
+      'main',
+      { graph: { split: [{ module: 'main', component: 'ホーム' }] } },
+    );
+    expect(html).toContain('"graphConfig"');
+    const context = runSimulatorScript(html);
+    expect(vm.runInContext("graphSplit.has(skey('main', 'ホーム'))", context)).toBe(true);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('ホーム ## 通常');
+    expect(appHtml).toContain('ホーム ## 特殊');
+  });
+
+  it('初期 config 埋め込み: config 省略時は split 空で従来どおり component 粒度（後方互換）', () => {
+    const doc = parseOk('# ホーム\n## 通常\n要素\n## 特殊\n要素2\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    expect(vm.runInContext('graphSplit.size', context)).toBe(0);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).not.toContain('ホーム ## 通常');
+  });
 });

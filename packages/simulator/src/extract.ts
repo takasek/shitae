@@ -152,6 +152,20 @@ export interface SimGraph {
   edges: { from: SimGraphEndpoint; to: SimGraphEndpoint }[];
 }
 
+/** 遷移マップで variant 分割表示する component の指定 1 件（Task 11） */
+export interface SimGraphSplitEntry {
+  module: string;
+  component: string;
+}
+
+/**
+ * simulator の外部 config（`<basename>.simconfig.json` の中身。Task 11）。
+ * 読むのは graph.split のみ——未知キーは無視する（前方互換）。
+ */
+export interface SimulatorConfig {
+  graph?: { split?: SimGraphSplitEntry[] };
+}
+
 export interface SimulatorData {
   modules: Record<string, SimModuleData>;
   entryModule: string;
@@ -168,6 +182,8 @@ export interface SimulatorData {
   gateTargets: SimComponentRef[];
   /** 遷移グラフ（simulator の遷移マップ描画用） */
   graph: SimGraph;
+  /** 遷移マップ粒度の初期値（simconfig 由来。ブラウザ側 graphSplit の初期集合。Task 11） */
+  graphConfig: { split: SimGraphSplitEntry[] };
 }
 
 /** alias を正準モジュール名へ解決する関数（ADR-0017）。未解決 alias はそのまま返す */
@@ -398,9 +414,27 @@ function collectGateTargets(
   }
 }
 
+/**
+ * config.graph.split を検証して正規化する（Task 11）。JSON 由来の任意値が来るため、
+ * module/component が文字列のエントリだけを {module, component} の形へ絞って残す
+ * （余分なキーは落とす）。未知キー・不正エントリは黙って無視する（CLI 側は不正 JSON のみ警告）。
+ */
+function sanitizeGraphConfig(config: SimulatorConfig | undefined): { split: SimGraphSplitEntry[] } {
+  const raw = config?.graph?.split;
+  if (!Array.isArray(raw)) return { split: [] };
+  const split: SimGraphSplitEntry[] = [];
+  for (const entry of raw) {
+    if (entry && typeof entry === 'object' && typeof entry.module === 'string' && typeof entry.component === 'string') {
+      split.push({ module: entry.module, component: entry.component });
+    }
+  }
+  return { split };
+}
+
 export function extractSimData(
   documents: Map<string, Document>,
   entryModule: string,
+  config?: SimulatorConfig,
 ): SimulatorData {
   const entryDoc = documents.get(entryModule);
   const entryComponent = entryDoc?.components[0]?.name ?? '';
@@ -483,5 +517,6 @@ export function extractSimData(
     singletons,
     gateTargets: [...gateTargetMap.values()],
     graph: { nodes: graphNodes, edges: [...graphEdgeMap.values()] },
+    graphConfig: sanitizeGraphConfig(config),
   };
 }
