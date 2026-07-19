@@ -767,14 +767,33 @@ describe('toSimulator', () => {
     expect(stackComponents).not.toContain('景品');
   });
 
-  it('ラベル無し操作（choices 空）は [TRUE] ラベル1つのボタンになり prelude のみ実行する', () => {
+  it('ラベル無し操作（choices 空）は行全体がボタンになり prelude のみ実行する（UX round2: [TRUE] 表記は「押せるのか内部フラグ表示か紛らわしい」ため廃し行自体を押せる見た目にする。Task 15）', () => {
     const doc = parseOk('# ホーム\n> タップ -> push(次)\n\n# 次\n本体\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
     const appHtml = vm.runInContext('app.innerHTML', context);
-    expect(appHtml).toContain('[TRUE]');
-    vm.runInContext("handleInteraction('component', 0, 0)", context);
+    expect(appHtml).toContain('action-row-solo');
+    expect(appHtml).not.toContain('[TRUE]');
+    const m = appHtml.match(/<div class="action-row action-row-solo" onclick="(handleInteraction\([^"]+)">/);
+    expect(m).not.toBeNull();
+    vm.runInContext(m![1]!, context);
     expect(vm.runInContext('currentFrame().component', context)).toBe('次');
+  });
+
+  it('アクション行はボタン風の枠・背景を持ち、要素行（静的表示）と視覚的に区別される（Task 15 受入基準a）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const styleMatch = html.match(/<style>([\s\S]*)<\/style>/);
+    expect(styleMatch).not.toBeNull();
+    const style = styleMatch![1]!;
+    const actionRowRule = style.match(/\.action-row\s*\{([^}]*)\}/);
+    expect(actionRowRule).not.toBeNull();
+    // ボタン風の枠・背景（.element の border-bottom だけの静的行と区別する）
+    expect(actionRowRule![1]).toMatch(/border:\s*1px/);
+    expect(actionRowRule![1]).toMatch(/background:\s*#/);
+    const soloRule = style.match(/\.action-row-solo\s*\{([^}]*)\}/);
+    expect(soloRule).not.toBeNull();
+    expect(soloRule![1]).toMatch(/cursor:\s*pointer/);
   });
 
   it('操作一覧: scope はカテゴリ見出しでなく各操作行のバッジで示す（variant固有/component common/document common の3種。Task 8 受入基準d）', () => {
@@ -1715,8 +1734,10 @@ describe('toSimulator', () => {
     // タブバー要素として置いただけの画面から、部品側の switch 操作が両方見える
     expect(appHtml).toContain('タップ(ホームボタン)');
     expect(appHtml).toContain('タップ(検索ボタン)');
-    const idx = appHtml.indexOf('タップ(検索ボタン)');
-    const m = appHtml.slice(idx).match(/onclick="(handleNestedInteraction\([^"]+)"/);
+    // ラベル無し操作（Task 15）は行全体がボタンになり onclick は action-text より前（囲む div 側）に
+    // 出るため、同じ action-row 内で結びつくことを1つの正規表現で縛る（テキスト以降だけを見る
+    // slice では onclick を取りこぼす）。
+    const m = appHtml.match(/onclick="(handleNestedInteraction\([^"]+)"><span class="action-text">タップ\(検索ボタン\)<\/span>/);
     expect(m).not.toBeNull();
     // onclick には部品名などの文字列は埋め込まれず、数値インデックス列 + scope 固定キーのみ
     expect(m![1]).toMatch(/^handleNestedInteraction\(-1,\[\d+\],'(variant|component)',\d+,\d+\)$/);
@@ -1731,9 +1752,10 @@ describe('toSimulator', () => {
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
     const appHtml = vm.runInContext('app.innerHTML', context);
-    const idx = appHtml.indexOf('タップ(本体)');
-    expect(idx).toBeGreaterThan(-1);
-    const m = appHtml.slice(idx).match(/onclick="(handleNestedInteraction\([^"]+)"/);
+    expect(appHtml).toContain('タップ(本体)');
+    // ラベル無し操作（Task 15）は行全体がボタンになり onclick は action-text より前に出るため、
+    // 同じ action-row 内で結びつくことを1つの正規表現で縛る。
+    const m = appHtml.match(/onclick="(handleNestedInteraction\([^"]+)"><span class="action-text">タップ\(本体\)<\/span>/);
     expect(m).not.toBeNull();
     vm.runInContext(m![1]!, context);
     expect(vm.runInContext('currentFrame().component', context)).toBe('次');
@@ -1774,9 +1796,10 @@ describe('toSimulator', () => {
     const html = toSimulator(new Map([['main', mainDoc], ['widgets', widgetsDoc]]), 'main');
     const context = runSimulatorScript(html);
     const appHtml = vm.runInContext('app.innerHTML', context);
-    const idx = appHtml.indexOf('タップ(検索ボタン)');
-    expect(idx).toBeGreaterThan(-1);
-    const m = appHtml.slice(idx).match(/onclick="(handleNestedInteraction\([^"]+)"/);
+    expect(appHtml).toContain('タップ(検索ボタン)');
+    // ラベル無し操作（Task 15）は行全体がボタンになり onclick は action-text より前に出るため、
+    // 同じ action-row 内で結びつくことを1つの正規表現で縛る。
+    const m = appHtml.match(/onclick="(handleNestedInteraction\([^"]+)"><span class="action-text">タップ\(検索ボタン\)<\/span>/);
     expect(m).not.toBeNull();
     vm.runInContext(m![1]!, context);
     expect(vm.runInContext('currentFrame().module', context)).toBe('widgets');

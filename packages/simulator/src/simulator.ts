@@ -72,12 +72,19 @@ summary.pane-title { cursor: pointer; }
 .scope-badge { font-size: 10px; color: #888; background: #f0f0f0; border-radius: 8px; padding: 1px 6px; white-space: nowrap; }
 .action-flat { border-top: 1px solid #eee; padding-top: 6px; }
 .action-list { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
-.action-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding: 6px 0; border-bottom: 1px solid #f5f5f5; }
-.action-row:last-child { border-bottom: none; }
+/* アクション行は「押せるもの」と分かる見た目にし、要素行（.element、静的表示）と視覚的に
+   区別する（UX round2・Task 15）。枠・背景・角丸でボタン風の境界を持たせる。 */
+.action-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding: 8px 10px; margin: 4px 0; background: #eef4ff; border: 1px solid #c7d7f5; border-radius: 8px; }
+.action-row:hover { background: #e2ecff; }
+/* ラベル無し操作（choices 空）はチップを出さず行全体をボタンにする——「[TRUE] は押せる
+   ボタンなのか内部フラグ表示なのか分からない」という指摘（UX round2）を、行自体に
+   cursor: pointer を与え押せることを明示することで解消する（Task 15）。 */
+.action-row-solo { cursor: pointer; }
+.action-row-solo:hover { background: #d6e4ff; }
 .action-text { font-size: 13px; color: #333; }
 .action-choices { display: flex; flex-wrap: wrap; gap: 6px; }
-.choice-chip { background: #f0f0f0; border: none; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 12px; }
-.choice-chip:hover { background: #e0e0e0; }
+.choice-chip { background: #fff; border: 1px solid #a9c2f0; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 12px; }
+.choice-chip:hover { background: #eaf1ff; }
 .back-btn { margin-top: 12px; background: none; border: 1px solid #ccc; border-radius: 6px; padding: 8px 14px; cursor: pointer; font-size: 12px; color: #555; }
 .back-btn:hover { background: #f0f0f0; }
 .no-actions { color: #bbb; font-size: 13px; font-style: italic; }
@@ -602,21 +609,27 @@ function docCommonInteractions() {
 // scope バッジの表示ラベル（有効範囲の明示。旧カテゴリ見出しの置き換え——Task 8 / ADR-0022 5）
 const SCOPE_BADGE_LABELS = { variant: 'variant固有', component: 'component common', document: 'document common' };
 
-// 操作行 1 件（行動テキスト + scope バッジ + 選択肢ボタン横並び）。choices 空なら [TRUE]
-// ラベル1つのボタンにする。item は { inter, scope, idx }——idx はその scope のフィルタ済み
-// リスト（scopedInteractions / overlayScopedInteractions）内の位置で、描画とクリックハンドラが
-// 同じフィルタ済みリストを参照するためインデックスはずれない。onclick へは scope 固定キーと
-// 数値だけを埋め込む（任意文字列の埋め込みによる quote 衝突バグの根治方針を踏襲）。
+// 操作行 1 件（行動テキスト + scope バッジ + 選択肢ボタン横並び）。item は { inter, scope, idx }
+// ——idx はその scope のフィルタ済みリスト（scopedInteractions / overlayScopedInteractions）内の
+// 位置で、描画とクリックハンドラが同じフィルタ済みリストを参照するためインデックスはずれない。
+// onclick へは scope 固定キーと数値だけを埋め込む（任意文字列の埋め込みによる quote 衝突バグの
+// 根治方針を踏襲）。choices 空（旧 [TRUE] 表記）はチップを出さず行全体をボタンにする——
+// 「[TRUE] は押せるボタンなのか内部フラグ表示なのか分からない」という指摘（UX round2）を、
+// チップという内部状態的な見た目自体を無くし行の押せる見た目（action-row-solo。Task 15）へ
+// 一本化することで解消する。
 function renderActionRow(item, buildOnclick) {
   const inter = item.inter;
-  const labels = inter.choices.length > 0 ? inter.choices.map((c) => c.label) : ['TRUE'];
-  const buttons = labels.map((l, choiceIdx) =>
+  const badge = '<span class="scope-badge">' + esc(SCOPE_BADGE_LABELS[item.scope] ?? item.scope) + '</span>';
+  if (inter.choices.length === 0) {
+    return '<div class="action-row action-row-solo" onclick="' + buildOnclick(item.scope, item.idx, 0) + '">' +
+      '<span class="action-text">' + esc(inter.actionText) + '</span>' + badge + '</div>';
+  }
+  const buttons = inter.choices.map((c, choiceIdx) =>
     '<button class="choice-chip" onclick="' + buildOnclick(item.scope, item.idx, choiceIdx) + '">' +
-    esc('[' + l + ']') + '</button>'
+    esc('[' + c.label + ']') + '</button>'
   ).join('');
   return '<div class="action-row"><span class="action-text">' + esc(inter.actionText) + '</span>' +
-    '<span class="scope-badge">' + esc(SCOPE_BADGE_LABELS[item.scope] ?? item.scope) + '</span>' +
-    '<span class="action-choices">' + buttons + '</span></div>';
+    badge + '<span class="action-choices">' + buttons + '</span></div>';
 }
 
 // interaction の行動テキストから対象部分 "(対象[.member])" を除いた行動語だけを取り出す
