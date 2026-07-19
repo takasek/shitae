@@ -1185,6 +1185,80 @@ describe('toSimulator', () => {
     expect(appHtml).toContain('検索');
   });
 
+  it('遷移マップ: module 別スイムレーンに分けて描画し、レーンごとに座標範囲が分離する（受入基準b）', () => {
+    const widgetsDoc = parseOk('# 詳細\n本文\n');
+    const mainDoc = parseOk('import widgets as w\n# ホーム\n> 進む -> push(w::詳細)\n');
+    const html = toSimulator(new Map([['main', mainDoc], ['widgets', widgetsDoc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    // レーン見出しとして両モジュール名が現れる（複数レーン時は省略しない）
+    expect(appHtml).toContain('graph-lane-title');
+    expect(appHtml).toContain('main');
+    expect(appHtml).toContain('widgets');
+
+    // 各ノードの rect y 座標を取り出し、main レーンのノード（ホーム）と
+    // widgets レーンのノード（詳細）が重ならない y 範囲に分離していることを確認する
+    // （SVG 領域だけに絞る——「ホーム」「詳細」は screen-title/stack-item にも同名で
+    // 現れるため、探索範囲を graph-svg 以降に限定する必要がある）
+    const svgHtml = appHtml.slice(appHtml.indexOf('<svg class="graph-svg"'));
+    const yOf = (name: string) => {
+      const idx = svgHtml.indexOf('>' + name + '<');
+      const rectRegex = /<rect[^>]*\by="(\d+)"/g;
+      let match: RegExpExecArray | null;
+      let lastY: number | null = null;
+      while ((match = rectRegex.exec(svgHtml)) !== null) {
+        if (match.index > idx) break;
+        lastY = Number(match[1]);
+      }
+      return lastY;
+    };
+    const homeY = yOf('ホーム');
+    const detailY = yOf('詳細');
+    expect(homeY).not.toBeNull();
+    expect(detailY).not.toBeNull();
+    expect(homeY).not.toBe(detailY);
+  });
+
+  it('遷移マップ: 単一 module のみなら レーン見出しは省略される（受入基準b）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).not.toContain('graph-lane-title');
+  });
+
+  it('遷移マップ: ノード矩形は固定寸法でノード数に依らず、はみ出た分は viewBox 縮小でなくマップ領域内スクロールで見る（受入基準c）', () => {
+    const smallDoc = parseOk('# A\n要素\n\n# B\n要素\n');
+    const smallHtml = toSimulator(new Map([['main', smallDoc]]), 'main');
+    const manyScreens = Array.from({ length: 15 }, (_, i) => `# 画面${i}\n要素\n`).join('\n');
+    const bigDoc = parseOk(manyScreens);
+    const bigHtml = toSimulator(new Map([['main', bigDoc]]), 'main');
+
+    const rectSizeOf = (html: string) => {
+      const m = html.match(/<rect[^>]*width="(\d+)"[^>]*height="(\d+)"/);
+      return m ? { width: m[1], height: m[2] } : null;
+    };
+    const smallContext = runSimulatorScript(smallHtml);
+    const bigContext = runSimulatorScript(bigHtml);
+    const smallRect = rectSizeOf(vm.runInContext('app.innerHTML', smallContext));
+    const bigRect = rectSizeOf(vm.runInContext('app.innerHTML', bigContext));
+    expect(smallRect).not.toBeNull();
+    expect(bigRect).not.toBeNull();
+    expect(bigRect).toEqual(smallRect); // ノード数が増えても矩形寸法は不変（固定サイズ）
+
+    // マップ全体を viewBox で縮小して収める旧方式（.graph-svg の max-width: 100%）をやめ、
+    // .graph-map-scroll がマップ領域内の横縦スクロールを担う
+    expect(smallHtml).not.toMatch(/\.graph-svg\s*\{[^}]*max-width/);
+    const scrollRuleMatch = smallHtml.match(/\.graph-map-scroll\s*\{[^}]*\}/);
+    expect(scrollRuleMatch).not.toBeNull();
+    expect(scrollRuleMatch![0]).toMatch(/overflow:\s*auto/);
+    // マップ本体の svg は .graph-map-scroll の中にある
+    const scrollIdx = smallHtml.indexOf('graph-map-scroll');
+    const svgIdxAfterScroll = smallHtml.indexOf('<svg', scrollIdx);
+    expect(scrollIdx).toBeGreaterThan(-1);
+    expect(svgIdxAfterScroll).toBeGreaterThan(scrollIdx);
+  });
+
   it('遷移マップ: ノードの hover 属性は component 名でなく配列インデックスで参照する（quote 衝突を避ける）', () => {
     const doc = parseOk('# 名"前\n要素\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');

@@ -97,11 +97,16 @@ summary.pane-title { cursor: pointer; }
 .gate-panel-body { margin-top: 6px; padding: 8px 10px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; display: flex; flex-direction: column; gap: 6px; }
 .gate-row { display: flex; align-items: center; gap: 8px; }
 .gate-row-label { color: #555; min-width: 80px; }
-.graph-svg { max-width: 100%; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; }
+/* マップ全体を viewBox で縮小して収めていた旧方式（Task 5〜15）を廃止し（UX round2・fleamarket
+   18ノードで12px級まで縮小し判読不能と実測）、ノード矩形は固定寸法のまま、はみ出た分は
+   このスクロール領域内の横縦スクロールで見る（Task 16 受入基準c）。 */
+.graph-map-scroll { overflow: auto; max-height: 480px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; }
+.graph-svg { display: block; }
 .graph-svg rect { fill: #fff; stroke: #ccc; }
 .graph-node:hover rect { stroke: #111; fill: #f0f0f0; }
 .graph-node-current rect { fill: #dbeafe; stroke: #2563eb; stroke-width: 2; }
 .graph-svg text { font-size: 10px; fill: #333; pointer-events: none; }
+.graph-svg text.graph-lane-title { font-size: 12px; font-weight: 700; fill: #555; }
 .graph-svg line { stroke: #bbb; stroke-width: 1; }
 .graph-svg marker path { fill: #bbb; }
 /* 遷移マップペイン上部に sticky で固定する（Task 9）——マップが縦に伸びて
@@ -1194,6 +1199,37 @@ function hideNodePreview() {
 // esc() を通す。現在の画面.本体に対応するノードは module・component の両方一致
 // （split 時はさらに現在 variant 一致）で判定し graph-node-current を付けてハイライトする
 // ——render() が毎回 innerHTML を再構築するため遷移のたびに自然に追随する。
+// ノード 1 個分の <g>（rect + テキスト）。idx は集約後ノード（graphNodesView）配列上の
+// インデックス（レーン分割後も agg.nodes 上の絶対位置を指す。onclick/onmouseenter に
+// 埋め込むのはこのインデックスのみ——component 名の quote 衝突を避ける方針を踏襲）。
+function renderGraphNodeSvg(view, idx, x, y, w, h) {
+  const frame = currentFrame();
+  const frameVariant = displayVariant(frame);
+  const isCurrent = view.module === frame.module && view.component === frame.component &&
+    (view.variant == null || view.variant === frameVariant);
+  const cls = 'graph-node' + (isCurrent ? ' graph-node-current' : '');
+  // variant を持つ component のノードだけクリックで粒度メニューを開く（遷移はしない。
+  // 閲覧専用マップなのでクリックをメニューに使える——ADR-0022 4。数値インデックスのみ埋め込む）
+  const comp = getComp(view.module, view.component);
+  const clickAttr = comp && Object.keys(comp.variants).length > 0
+    ? ' onclick="openGraphMenu(' + idx + ')"'
+    : '';
+  return '<g class="' + cls + '" onmouseenter="showNodePreview(' + idx + ')" onmouseleave="hideNodePreview()"' + clickAttr + '>' +
+    '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="4"></rect>' +
+    '<text x="' + (x + w / 2) + '" y="' + (y + h / 2 + 4) + '" text-anchor="middle">' + esc(view.name) + '</text>' +
+  '</g>';
+}
+
+// 遷移マップ本体（Task 16: モジュール別スイムレーン）。集約後ノードを module ごとの
+// 水平レーンへ分け、レーンごとに layoutGraph（純関数）を回してレーン内で rank 横並びに
+// する（レーン単位の縦積み構成）。レーン内の「起点」は、そのレーンが実文書の entry
+// module を含むならその entry ノード、それ以外は当該レーンの先頭ノード（nodes の定義順で
+// 最初）——複数レーンそれぞれに DAG としての起点を与える素朴な拡張（単一 entry しか
+// 持たない layoutGraph のインターフェースは変えない）。単一 module のみならレーンは
+// 1本になりレーン見出しは省略する。cross-module エッジはレーンをまたいで直線で結ぶ
+// （多少の交差は許容——ラフツール）。ノード寸法は固定（nodeWidth/nodeHeight）で
+// ノード数に依らない——マップ全体を viewBox で縮小する旧方式をやめ、はみ出た分は
+// 呼び出し側（.graph-map-scroll）のスクロールで見る。
 function renderGraphMap() {
   const agg = aggregateGraph(DATA.graph.nodes, DATA.graph.edges, graphSplit);
   graphNodesView = agg.nodes;
@@ -1204,58 +1240,76 @@ function renderGraphMap() {
     initialVariant(DATA.entryModule, DATA.entryComponent) != null
     ? DATA.entryComponent + ' ## ' + initialVariant(DATA.entryModule, DATA.entryComponent)
     : DATA.entryComponent;
-  const layout = layoutGraph(nodes, edges, DATA.entryModule, entryName);
+
   const rankWidth = 160;
   const rowHeight = 44;
   const nodeWidth = 120;
   const nodeHeight = 28;
   const marginX = 16;
   const marginY = 16;
-  const maxRank = layout.reduce((m, n) => Math.max(m, n.rank), 0);
-  const maxOrder = layout.reduce((m, n) => Math.max(m, n.order), 0);
-  const width = marginX * 2 + (maxRank + 1) * rankWidth;
-  const height = marginY * 2 + (maxOrder + 1) * rowHeight;
-  const posByKey = new Map(layout.map((n) => [skey(n.module, n.name), n]));
+  const laneHeadingHeight = 24;
+  const laneGap = 20;
 
-  const frame = currentFrame();
-  const frameVariant = displayVariant(frame);
+  // module ごとにスイムレーンへ分ける（nodes 内の初出順を保つ）
+  const laneModules = [];
+  for (const n of nodes) if (!laneModules.includes(n.module)) laneModules.push(n.module);
+  const showLaneHeading = laneModules.length > 1;
 
-  // layout は入力 nodes と同順・同 index（layoutGraph は並べ替えず座標だけ返す）——
-  // nodes[idx] で集約後ノードの component/variant を引ける
-  const nodesHtml = layout.map((n, idx) => {
-    const view = nodes[idx];
-    const x = marginX + n.rank * rankWidth;
-    const y = marginY + n.order * rowHeight;
-    const isCurrent = view.module === frame.module && view.component === frame.component &&
-      (view.variant == null || view.variant === frameVariant);
-    const cls = 'graph-node' + (isCurrent ? ' graph-node-current' : '');
-    // variant を持つ component のノードだけクリックで粒度メニューを開く（遷移はしない。
-    // 閲覧専用マップなのでクリックをメニューに使える——ADR-0022 4。数値インデックスのみ埋め込む）
-    const comp = getComp(view.module, view.component);
-    const clickAttr = comp && Object.keys(comp.variants).length > 0
-      ? ' onclick="openGraphMenu(' + idx + ')"'
-      : '';
-    return '<g class="' + cls + '" onmouseenter="showNodePreview(' + idx + ')" onmouseleave="hideNodePreview()"' + clickAttr + '>' +
-      '<rect x="' + x + '" y="' + y + '" width="' + nodeWidth + '" height="' + nodeHeight + '" rx="4"></rect>' +
-      '<text x="' + (x + nodeWidth / 2) + '" y="' + (y + nodeHeight / 2 + 4) + '" text-anchor="middle">' + esc(n.name) + '</text>' +
-    '</g>';
-  }).join('');
+  const nodesWithIdx = nodes.map((n, i) => ({ ...n, _idx: i }));
+  const posByKey = new Map(); // skey(module,name) -> { x, y }（レーン跨ぎのエッジ描画用）
+  const nodesHtmlParts = [];
+  let yCursor = marginY;
+  let width = 0;
+
+  for (const laneModule of laneModules) {
+    const laneEntries = nodesWithIdx.filter((n) => n.module === laneModule);
+    const laneEdges = edges.filter((e) => e.from.module === laneModule && e.to.module === laneModule);
+    const laneEntryName = laneModule === DATA.entryModule && laneEntries.some((n) => n.name === entryName)
+      ? entryName
+      : laneEntries[0].name;
+    const layout = layoutGraph(laneEntries, laneEdges, laneModule, laneEntryName);
+    const laneMaxRank = layout.reduce((m, n) => Math.max(m, n.rank), 0);
+    const laneMaxOrder = layout.reduce((m, n) => Math.max(m, n.order), 0);
+    width = Math.max(width, marginX * 2 + (laneMaxRank + 1) * rankWidth);
+
+    const laneTop = yCursor + (showLaneHeading ? laneHeadingHeight : 0);
+    if (showLaneHeading) {
+      nodesHtmlParts.push(
+        '<text class="graph-lane-title" x="' + marginX + '" y="' + (yCursor + laneHeadingHeight - 8) + '">' +
+          esc(laneModule) + '</text>',
+      );
+    }
+    // layout は laneEntries と同順・同 index（layoutGraph は並べ替えず座標だけ返す）
+    layout.forEach((n, j) => {
+      const view = laneEntries[j];
+      const x = marginX + n.rank * rankWidth;
+      const y = laneTop + n.order * rowHeight;
+      posByKey.set(skey(n.module, n.name), { x, y });
+      nodesHtmlParts.push(renderGraphNodeSvg(view, view._idx, x, y, nodeWidth, nodeHeight));
+    });
+
+    yCursor = laneTop + (laneMaxOrder + 1) * rowHeight + laneGap;
+  }
+  const height = yCursor - laneGap + marginY;
 
   const edgesHtml = edges.map((e) => {
     const from = posByKey.get(skey(e.from.module, e.from.name));
     const to = posByKey.get(skey(e.to.module, e.to.name));
     if (!from || !to) return '';
-    const x1 = marginX + from.rank * rankWidth + nodeWidth;
-    const y1 = marginY + from.order * rowHeight + nodeHeight / 2;
-    const x2 = marginX + to.rank * rankWidth;
-    const y2 = marginY + to.order * rowHeight + nodeHeight / 2;
+    const x1 = from.x + nodeWidth;
+    const y1 = from.y + nodeHeight / 2;
+    const x2 = to.x;
+    const y2 = to.y + nodeHeight / 2;
     return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" marker-end="url(#graph-arrow)"></line>';
   }).join('');
 
-  return '<svg class="graph-svg" width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '">' +
+  const svg = '<svg class="graph-svg" width="' + width + '" height="' + height + '">' +
     '<defs><marker id="graph-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z"></path></marker></defs>' +
-    edgesHtml + nodesHtml +
+    edgesHtml + nodesHtmlParts.join('') +
   '</svg>';
+  // ノード寸法固定 + はみ出た分はスクロールで見る（受入基準c）——マップ全体を
+  // viewBox で縮小して収める旧方式はここで廃止した
+  return '<div class="graph-map-scroll">' + svg + '</div>';
 }
 
 // 遷移マップの区画（中央ペイン最下段、スタックと1つのスクロール領域を共有する。UX round2で
