@@ -97,6 +97,8 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
 .graph-menu-title { font-weight: 700; color: #333; }
 .graph-menu-item { background: #f0f0f0; border: none; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 12px; }
 .graph-menu-item:hover { background: #e0e0e0; }
+.graph-save-btn { align-self: flex-start; margin-bottom: 6px; background: none; border: 1px solid #ccc; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 11px; color: #555; }
+.graph-save-btn:hover { background: #f0f0f0; }
 </style>
 </head>
 <body>
@@ -810,6 +812,52 @@ function toggleGraphSplit(idx) {
   render();
 }
 
+// 「設定を保存」の書き込み内容（simconfig JSON 文字列）を生成する（Task 11 形式確定事項:
+// { "graph": { "split": [ { "module", "component" } ] } }）。ファイル書き込み手段
+// （FS Access API / ダウンロード fallback）から分離してあり、内容生成だけを vm テストで縛れる。
+function buildSimConfigJson() {
+  const split = [...graphSplit].map((k) => {
+    const pair = JSON.parse(k); // skey は JSON.stringify([module, component])
+    return { module: pair[0], component: pair[1] };
+  });
+  return JSON.stringify({ graph: { split } }, null, 2);
+}
+
+// showSaveFilePicker で取得したハンドル。初回保存でユーザが選んだファイルへ、以後は
+// ピッカーを出さず同じハンドルで上書きする
+let saveFileHandle = null;
+
+// 「設定を保存」ボタン。File System Access API があれば showSaveFilePicker
+// （suggestedName = <entryModule>.simconfig.json）、無ければ a[download] での
+// JSON ダウンロード fallback（self-contained 維持——どちらも組み込み API のみ）。
+async function saveGraphConfig() {
+  const json = buildSimConfigJson();
+  const fileName = DATA.entryModule + '.simconfig.json';
+  if (typeof window !== 'undefined' && window.showSaveFilePicker) {
+    try {
+      if (!saveFileHandle) {
+        saveFileHandle = await window.showSaveFilePicker({
+          suggestedName: fileName,
+          types: [{ description: 'shitae simulator config', accept: { 'application/json': ['.json'] } }],
+        });
+      }
+      const writable = await saveFileHandle.createWritable();
+      await writable.write(json);
+      await writable.close();
+    } catch (e) {
+      // ピッカーのキャンセル等は黙って無視（次回の保存で改めて試せる）
+    }
+    return;
+  }
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 // 遷移マップの集約（Task 11）: 最細粒度 edges（variant 単位）を粒度状態 splitSet に応じて
 // ノード集合へ集約する純関数（layoutGraph の前段）。統合 component は 1 ノード、split
 // component は variant ごとのノード（表示名 X ## v）。エッジ規則: to.variant null の split 先は
@@ -983,6 +1031,7 @@ function renderGraphSection() {
   return '<section class="graph-section">' +
     '<div class="pane-title" title="遷移マップ — 画面間の遷移関係（閲覧専用）。状態遷移図として読める">遷移マップ</div>' +
     '<div class="pane-desc">画面間の遷移関係（閲覧専用）。状態遷移図として読める。現在の画面.本体に対応するノードを強調表示し、hover でプレビューを表示します。variant を持つノードはクリックで粒度メニュー（variant で分割 / 統合）を開きます。</div>' +
+    '<button class="graph-save-btn" onclick="saveGraphConfig()">設定を保存</button>' +
     '<div id="graph-preview" class="graph-preview"></div>' + menuHtml + mapHtml +
   '</section>';
 }

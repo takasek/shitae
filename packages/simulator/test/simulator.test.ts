@@ -1443,4 +1443,40 @@ describe('toSimulator', () => {
     expect(appHtml).not.toContain('onclick="openGraphMenu("');
     expect(appHtml).toMatch(/onclick="openGraphMenu\(\d+\)"/);
   });
+
+  it('設定を保存: buildSimConfigJson が現在の split 集合を確定形式で出力する（Task 11 形式確定事項）', () => {
+    const doc = parseOk('# ホーム\n## 通常\n要素\n## 特殊\n要素2\n\n# 詳細\n本文\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    expect(JSON.parse(vm.runInContext('buildSimConfigJson()', context))).toEqual({ graph: { split: [] } });
+    vm.runInContext("graphSplit.add(skey('main', 'ホーム'))", context);
+    expect(JSON.parse(vm.runInContext('buildSimConfigJson()', context))).toEqual({
+      graph: { split: [{ module: 'main', component: 'ホーム' }] },
+    });
+  });
+
+  it('設定を保存: 埋め込み config と保存内容がラウンドトリップする（読み込んだ split をそのまま書き出せる）', () => {
+    const doc = parseOk('# ホーム\n## 通常\n要素\n## 特殊\n要素2\n');
+    const config = { graph: { split: [{ module: 'main', component: 'ホーム' }] } };
+    const html = toSimulator(new Map([['main', doc]]), 'main', config);
+    const context = runSimulatorScript(html);
+    expect(JSON.parse(vm.runInContext('buildSimConfigJson()', context))).toEqual(config);
+  });
+
+  it('設定を保存: ボタンが遷移マップ区画にあり、FS Access API（suggestedName・ハンドル保持）とダウンロード fallback を持つ', () => {
+    const doc = parseOk('# ホーム\n## 通常\n要素\n## 特殊\n要素2\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('設定を保存');
+    expect(appHtml).toContain('onclick="saveGraphConfig()"');
+    // FS Access API の実呼び出しは vm では検証できない（Cannot-verify）——構成要素の存在を縛る。
+    // ハンドルは初回取得後 JS 変数に保持し、以後は同じファイルへ上書きする
+    expect(html).toContain('window.showSaveFilePicker');
+    expect(html).toContain('suggestedName');
+    expect(html).toContain(".simconfig.json");
+    expect(html).toContain('let saveFileHandle');
+    // 非対応ブラウザは a[download] での JSON ダウンロード fallback
+    expect(html).toContain('.download = ');
+  });
 });
