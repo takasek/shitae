@@ -796,6 +796,69 @@ describe('toSimulator', () => {
     expect(soloRule![1]).toMatch(/cursor:\s*pointer/);
   });
 
+  it('アクション表示トグル: 「現在の画面」ペインに「アクションを表示」チェックボックスを持ち既定でON（Task 15 受入基準b）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).toContain('アクションを表示');
+    expect(html).toContain('function toggleShowActions(');
+    const context = runSimulatorScript(html);
+    expect(vm.runInContext('showActions', context)).toBe(true);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('action-toggle');
+    expect(appHtml).toContain('checked');
+  });
+
+  it('アクション表示トグル: OFF で紐付け・フラット・部品由来・掲示中カードのアクション行が全て消え要素階層は残り、ON で復帰しクリックも正しく効く（Task 15 受入基準b・c）', () => {
+    const doc = parseOk(
+      '# ホーム\nロゴ\n部品A\n> タップ(ロゴ) -> push(設定)\n> 検索へ -> push(検索)\n> 出す -> show(ミニ)\n\n' +
+        '# 部品A\n内側要素\n> 内側操作 -> push(詳細)\n\n' +
+        '# ミニ\nミニ内側\n> ミニ操作 -> push(詳細)\n\n' +
+        '# 設定\n本体\n\n# 検索\n本体\n\n# 詳細\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext(
+      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
+      context,
+    );
+
+    const onHtml = vm.runInContext('app.innerHTML', context);
+    expect(onHtml).toContain('タップ(ロゴ)'); // 紐付け
+    expect(onHtml).toContain('検索へ'); // フラット
+    expect(onHtml).toContain('内側操作'); // 部品由来
+    expect(onHtml).toContain('ミニ操作'); // 掲示中カード
+    expect(onHtml).toContain('action-row');
+
+    vm.runInContext('toggleShowActions(); render()', context);
+    expect(vm.runInContext('showActions', context)).toBe(false);
+    const offHtml = vm.runInContext('app.innerHTML', context);
+    expect(offHtml).not.toContain('action-row');
+    expect(offHtml).not.toContain('タップ(ロゴ)');
+    expect(offHtml).not.toContain('検索へ');
+    expect(offHtml).not.toContain('内側操作');
+    expect(offHtml).not.toContain('ミニ操作');
+    // 要素階層は残る
+    expect(offHtml).toContain('ロゴ');
+    expect(offHtml).toContain('部品A');
+    expect(offHtml).toContain('内側要素');
+    expect(offHtml).toContain('ミニ内側');
+    expect(offHtml).toContain('overlay-card');
+
+    vm.runInContext('toggleShowActions(); render()', context);
+    expect(vm.runInContext('showActions', context)).toBe(true);
+    const restoredHtml = vm.runInContext('app.innerHTML', context);
+    expect(restoredHtml).toContain('タップ(ロゴ)');
+    expect(restoredHtml).toContain('検索へ');
+    expect(restoredHtml).toContain('内側操作');
+    expect(restoredHtml).toContain('ミニ操作');
+
+    // クリックも復帰後に正しく効く（フラット操作: 検索へ → 検索）
+    const m = restoredHtml.match(/onclick="(handleInteraction\([^"]+)"><span class="action-text">検索へ<\/span>/);
+    expect(m).not.toBeNull();
+    vm.runInContext(m![1]!, context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('検索');
+  });
+
   it('操作一覧: scope はカテゴリ見出しでなく各操作行のバッジで示す（variant固有/component common/document common の3種。Task 8 受入基準d）', () => {
     const doc = parseOk(
       '> 通知 -> push(受信箱)\n\n' +

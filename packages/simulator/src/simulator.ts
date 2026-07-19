@@ -58,6 +58,7 @@ summary.pane-title { cursor: pointer; }
 .timeline-item.ghost { opacity: .4; }
 .timeline-item:hover { background: #ccc; }
 .timeline-toggle { display: flex; align-items: center; gap: 4px; margin-bottom: 6px; font-size: 11px; color: #666; }
+.action-toggle { display: flex; align-items: center; gap: 4px; margin-bottom: 8px; font-size: 11px; color: #666; }
 .screen { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
 .screen-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
 .variant-label { font-size: 12px; color: #888; margin-bottom: 12px; }
@@ -221,6 +222,17 @@ let showEvents = true;
 
 function toggleShowEvents() {
   showEvents = !showEvents;
+  render();
+}
+
+// アクション行（紐付け・フラット・部品由来のいずれも）の表示トグル。表示のみで対象データ
+// （interactions・要素構造）自体は変わらない——要素階層は off でも残る（設計者注文「アクション
+// 自体がノイズになる局面もあるので『現在の画面』にアクション表示するかどうかをチェックボックスで
+// 選べるとよい」。showEvents と同じ JS グローバル + render() パターン。既定は表示。Task 15）。
+let showActions = true;
+
+function toggleShowActions() {
+  showActions = !showActions;
   render();
 }
 
@@ -739,11 +751,15 @@ function computeAttachments(els, items) {
 // cardIdx・path は Task 13 の部品 interaction 実行用（renderElementNode 参照）——
 // 再帰呼び出し（部品自身の子要素展開）では showEmptyState を false にして「アクションなし」の
 // 空状態表示を最上位カードだけに限定する（部品ノードごとに表示すると入れ子で冗長になるため）。
+// アクション表示トグル（showActions）は紐付け（attachedHtml）・フラット・部品由来（ここでの
+// 再帰呼び出しが同じ関数を通るため自動的に含まれる）の3経路すべてをここ1箇所で止める——
+// 要素構造（elementsHtml・renderElementNode への展開）自体は showActions に関係なく組み立てる
+// ため要素階層は off でも残る（Task 15 受入基準b）。
 function renderElementsAndActions(els, items, buildOnclick, visitedBase, cardIdx, path, showEmptyState = true) {
   const { attachedByIndex, flat } = computeAttachments(els, items);
   const elementRows = els.map((el, elIdx) => {
     const attached = attachedByIndex[elIdx];
-    const attachedHtml = attached.length > 0
+    const attachedHtml = showActions && attached.length > 0
       ? '<div class="action-list element-actions">' + attached.map((item) => renderActionRow(item, buildOnclick)).join('') + '</div>'
       : '';
     // attached のうち targetMember を持つものは「対象.member」形の外側上書き——el が指す
@@ -752,10 +768,12 @@ function renderElementsAndActions(els, items, buildOnclick, visitedBase, cardIdx
     return renderElementNode(el, visitedBase, attachedHtml, cardIdx, [...path, elIdx], overrideItems);
   }).join('');
   let actionsHtml = '';
-  if (items.length === 0) {
-    if (showEmptyState) actionsHtml = '<div class="no-actions">アクションなし</div>';
-  } else if (flat.length > 0) {
-    actionsHtml = '<div class="action-list action-flat">' + flat.map((item) => renderActionRow(item, buildOnclick)).join('') + '</div>';
+  if (showActions) {
+    if (items.length === 0) {
+      if (showEmptyState) actionsHtml = '<div class="no-actions">アクションなし</div>';
+    } else if (flat.length > 0) {
+      actionsHtml = '<div class="action-list action-flat">' + flat.map((item) => renderActionRow(item, buildOnclick)).join('') + '</div>';
+    }
   }
   return {
     elementsHtml: els.length > 0 ? '<div class="elements">' + elementRows + '</div>' : '',
@@ -1373,6 +1391,7 @@ function render() {
       '<section class="screen-section">' +
         '<div class="pane-title">現在の画面</div>' +
         '<div class="pane-desc">アクティブな frame の表示（本体）と掲示中カード</div>' +
+        '<label class="action-toggle"><input type="checkbox" ' + (showActions ? 'checked' : '') + ' onchange="toggleShowActions()"> アクションを表示</label>' +
         mainCardHtml +
         overlayCardsHtml +
       '</section>' +
