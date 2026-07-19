@@ -22,12 +22,14 @@ function buildHtml(data: SimulatorData): string {
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5; color: #111; }
-/* 3 カラム全幅グリッド（開発ツールのためレスポンシブ不要。UX round2・設計者フィードバック
-   2026-07-20）: 左 = 統合ログ専用 / 中央 = 現在の画面 → スタック → 遷移マップの縦3領域
-   （ミクロ→マクロ。スタック・マップは折畳み可） / 右 = gate パネルのみ（Task 10）。
-   スタックは左ペインから中央へ移し、左は統合ログ専用にしてスタックとの場所の奪い合いを
-   解消する（UX評価round2 2-4(c)）。 */
-#app { display: grid; grid-template-columns: 260px 1fr 300px; height: 100vh; }
+/* 2 カラム全幅グリッド（開発ツールのためレスポンシブ不要。UX round2・設計者フィードバック
+   2026-07-20 に加え、右カラム（gate パネル専用、常に対象なしの文書では空白のまま横幅を
+   占有し続けていた——UX round2 2-4(d)）を廃止しドロワー化。空いた分は中央（1fr）へ還元する
+   （Task 18 項目5）。左 = 統合ログ専用 / 中央 = 現在の画面 → スタック → 遷移マップの縦3領域
+   （ミクロ→マクロ。スタック・マップは折畳み可）。gate パネルはトグルボタンで開く
+   オーバーレイドロワー（.gate-drawer、position: fixed）へ移した——グリッドのカラムには
+   含まれない（レイアウトの外に浮く）。 */
+#app { display: grid; grid-template-columns: 260px 1fr; height: 100vh; }
 .pane { padding: 16px; overflow-y: auto; }
 .pane-trace { background: #fff; border-right: 1px solid #e0e0e0; }
 /* 中央ペインは自身を単一スクロール領域にしない（.pane の overflow-y: auto を上書き）——
@@ -35,7 +37,6 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
    grid rows 2 領域に分割する（Task 9 の後継・Task 14）。画面カードの高さが変わっても
    下2つ（スタック・マップ）の表示位置（row の開始位置）は動かない。 */
 .pane-center { background: #f5f5f5; padding: 0; overflow: hidden; display: grid; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
-.pane-events { background: #fff; border-left: 1px solid #e0e0e0; }
 .pane-title { font-size: 13px; font-weight: 700; color: #333; margin-bottom: 2px; }
 summary.pane-title { cursor: pointer; }
 .pane-desc { font-size: 11px; color: #888; margin-bottom: 10px; }
@@ -103,9 +104,19 @@ summary.pane-title { cursor: pointer; }
 .action-row-disabled .choice-chip { cursor: not-allowed; opacity: .6; }
 .overlay-card { margin-top: 12px; border: 1px dashed #999; }
 .overlay-badge { display: inline-block; font-size: 11px; color: #fff; background: #555; padding: 1px 8px; border-radius: 8px; margin-bottom: 8px; }
-.gate-panel { margin-top: 20px; font-size: 12px; }
-.gate-panel-toggle { background: none; border: 1px solid #ddd; border-radius: 6px; padding: 4px 10px; cursor: pointer; color: #777; font-size: 11px; }
+/* gate ドロワー（Task 18 項目5）: 常設の第3カラムだった旧 .gate-panel を廃し、トグルボタン
+   （画面上部）で開くオーバーレイへ移した。トグル本体（.gate-toggle-block）は見出し・説明を
+   常時表示する（旧 Task 12 の empty state 継承——対象ゼロでも白紙に見えないようにする方針を
+   ドロワー化後も保つ）。ドロワー本体（.gate-drawer）だけが開閉に応じて DOM へ出入りする。 */
+.gate-toggle-block { margin: 4px 0 10px; font-size: 12px; }
+.gate-drawer-toggle { background: none; border: 1px solid #ddd; border-radius: 6px; padding: 4px 10px; cursor: pointer; color: #777; font-size: 11px; }
 .gate-panel-desc { margin-top: 6px; font-size: 11px; color: #888; }
+/* position: fixed でグリッドの外に浮かせる（レイアウトに影響しない。他ペインの幅は変わらない）。
+   閉じるボタン + 背景クリック（.gate-drawer-backdrop）のどちらでも解除できる（brief 明記）。 */
+.gate-drawer-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.15); z-index: 20; }
+.gate-drawer { position: fixed; top: 0; right: 0; height: 100vh; width: 320px; max-width: 90vw; background: #fff; z-index: 21; padding: 16px; overflow-y: auto; box-shadow: -2px 0 8px rgba(0,0,0,.2); font-size: 12px; }
+.gate-drawer-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.gate-drawer-close { background: none; border: 1px solid #ccc; border-radius: 6px; padding: 4px 10px; cursor: pointer; color: #555; font-size: 11px; }
 .gate-panel-body { margin-top: 6px; padding: 8px 10px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; display: flex; flex-direction: column; gap: 6px; }
 .gate-row { display: flex; align-items: center; gap: 8px; }
 .gate-row-label { color: #555; min-width: 80px; }
@@ -141,6 +152,7 @@ summary.pane-title { cursor: pointer; }
 .graph-tooltip-pinned { pointer-events: auto; border-style: solid; border-color: #ccc; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
 .graph-tooltip-title { font-weight: 700; color: #333; }
 .graph-tooltip-actions { display: flex; gap: 6px; margin-top: 6px; }
+.graph-tooltip-gate { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
 .graph-tooltip-btn { background: #f0f0f0; border: none; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 12px; }
 .graph-tooltip-btn:hover { background: #e0e0e0; }
 .graph-node { cursor: pointer; }
@@ -699,6 +711,17 @@ const SCOPE_BADGE_TITLES = {
 // も同期する。off の行にも付ける——その場で対象 variant を切り替えて有効化を試せるように
 // するため（brief「その場で variant を切り替える select」）。対象が variant を持たない
 // （切替の余地がない）場合はバッジのみで select を省く。
+// 対象 component の variant 切替 select（member gate インライン化・マップ tooltip gate 統合の
+// 両方が使う共通部品——onchange は既存 setInstanceVariant を呼ぶため、書換え先の共有レジストリ
+// （sharedVariants）はどちらから切り替えても同期する。Task 18 項目4・6）。
+function renderVariantSelect(module, component, variantNames, current) {
+  const options = variantNames.map((v) =>
+    '<option value="' + esc(v) + '"' + (v === current ? ' selected' : '') + '>' + esc(v) + '</option>'
+  ).join('');
+  return '<select class="gate-inline-select" onchange="setInstanceVariant(' +
+    esc(JSON.stringify(module)) + ', ' + esc(JSON.stringify(component)) + ', this.value)">' + options + '</select>';
+}
+
 function renderGateInlineControls(gate) {
   const mod = gate.module ?? currentFrame().module;
   const comp = getComp(mod, gate.targetComponent);
@@ -710,12 +733,7 @@ function renderGateInlineControls(gate) {
     esc(gate.targetComponent) + '.' + esc(gate.name) + '">' + esc(badgeLabel) + '</span>';
   const variantNames = Object.keys(comp.variants);
   if (variantNames.length === 0) return badge;
-  const options = variantNames.map((v) =>
-    '<option value="' + esc(v) + '"' + (v === current ? ' selected' : '') + '>' + esc(v) + '</option>'
-  ).join('');
-  const select = '<select class="gate-inline-select" onchange="setInstanceVariant(' +
-    esc(JSON.stringify(mod)) + ', ' + esc(JSON.stringify(gate.targetComponent)) + ', this.value)">' + options + '</select>';
-  return badge + select;
+  return badge + renderVariantSelect(mod, gate.targetComponent, variantNames, current);
 }
 
 // 操作行 1 件の描画。member gate 付きの行は renderGateInlineControls のバッジ+select を添え、
@@ -1371,6 +1389,23 @@ function renderGraphTooltipBody(node) {
     elementsHtml + variantsHtml;
 }
 
+// pin tooltip に gate 試験の variant 切替を統合する（Task 18 項目6・UX round2 2-4(d)3）: gate
+// 状態は本質的に「画面外 component の見せ方（variant）」の話であり、遷移マップのノード
+// メニュー（variant で分割/統合）と概念的に隣接する——独立したドロワーとの往復を減らすため、
+// このノードの component が member gate の参照先（DATA.gateTargets）なら pin tooltip に直接
+// 切替 select を出す。select 自体は renderGateInlineControls と共通の renderVariantSelect を使う。
+function renderGraphTooltipGateControls(node) {
+  const isTarget = GATE_TARGETS.some((t) => t.module === node.module && t.name === node.component);
+  if (!isTarget) return '';
+  const comp = getComp(node.module, node.component);
+  const variantNames = comp ? Object.keys(comp.variants) : [];
+  if (variantNames.length === 0) return '';
+  const k = skey(node.module, node.component);
+  const current = sharedVariants.has(k) ? sharedVariants.get(k) : comp.initialVariant;
+  const badge = '<span class="gate-inline-badge" title="この component は member gate（対象.要素?）の判定対象です">gate 試験</span>';
+  return '<div class="graph-tooltip-gate">' + badge + renderVariantSelect(node.module, node.component, variantNames, current) + '</div>';
+}
+
 // 遷移マップの hover tooltip。render() を経由せず #graph-tooltip を直接書き換える
 // 局所 DOM 更新にする——render() は innerHTML を丸ごと再構築する設計のため、hover 状態を
 // JS グローバルに持って render() を呼ぶとちらつく（#graph-preview 時代からの理由を踏襲）。
@@ -1546,6 +1581,7 @@ function renderGraphMap() {
       : '';
     tooltipHtml = '<div id="graph-tooltip" class="graph-tooltip graph-tooltip-pinned" style="left:' + pos.x + 'px; top:' + (pos.y + pos.h + 4) + 'px;">' +
       renderGraphTooltipBody(node) +
+      renderGraphTooltipGateControls(node) +
       '<div class="graph-tooltip-actions">' + splitBtn +
         '<button class="graph-tooltip-btn" onclick="unpinGraphTooltip()">閉じる</button>' +
       '</div>' +
@@ -1681,36 +1717,40 @@ function render() {
   const canBack = stack.length > 1 && !currentFrame().wall;
   const backBtn = canBack ? '<button class="back-btn" onclick="goBack()">← 戻る</button>' : '';
 
-  // インスタンス variant 手動トグルパネル（画面外 component の姿切替。presence gate の
+  // インスタンス variant 手動トグルドロワー（画面外 component の姿切替。presence gate の
   // 効きを手動で試験するための開発者向け UI——姿を持たない対象は切替不要なので除外）。
   // 見出しは用途が伝わる表記（設計者確定事項 2026-07-19。旧「インスタンス variant（gate 観測用）」
-  // は何をするパネルか伝わらないという指摘）。機能（トグル開閉・variant 切替）は現状維持。
+  // は何をするパネルか伝わらないという指摘）。常設の第3カラムだったものをオーバーレイ
+  // ドロワーへ移した（UX round2 2-4(d)・Task 18 項目5）——トグル本体（見出し・説明）は
+  // 常時表示し続ける（旧 Task 12 の empty state 継承の前提を保つ）。ドロワー本体（対象一覧・
+  // empty state）だけが gatePanelOpen に応じて DOM へ出入りする。
   const gateTargetsWithVariants = GATE_TARGETS.filter((t) => {
     const comp = getComp(t.module, t.name);
     return comp && Object.keys(comp.variants).length > 0;
   });
-  // gate 対象がゼロでも見出し・説明は常時表示する——初見のユーザーが右ペイン全体の
-  // 白紙を「読み込み失敗」「レイアウト崩壊」と誤解しないため（UX評価3.5、Task 12）。
-  // 対象ゼロのときは開いた際に empty state（試験対象なしの明示）を出す。
   const gatePanelBodyHtml = gateTargetsWithVariants.length > 0
     ? '<div class="gate-panel-body">' + gateTargetsWithVariants.map((t) => {
         const comp = getComp(t.module, t.name);
         const k = skey(t.module, t.name);
         const current = sharedVariants.has(k) ? sharedVariants.get(k) : comp.initialVariant;
-        const options = Object.keys(comp.variants).map((v) =>
-          '<option value="' + esc(v) + '"' + (v === current ? ' selected' : '') + '>' + esc(v) + '</option>'
-        ).join('');
         return '<div class="gate-row"><span class="gate-row-label">' + esc(t.name) + '</span>' +
-          '<select onchange="setInstanceVariant(' + esc(JSON.stringify(t.module)) + ', ' + esc(JSON.stringify(t.name)) + ', this.value)">' + options + '</select></div>';
+          renderVariantSelect(t.module, t.name, Object.keys(comp.variants), current) + '</div>';
       }).join('') + '</div>'
     : '<div class="gate-panel-body"><p class="gate-panel-empty">この文書に presence gate（対象.要素?）の参照先はありません。切り替えられる試験対象なし。</p></div>';
-  const gatePanelHtml = '<div class="gate-panel">' +
-    '<button class="gate-panel-toggle" onclick="toggleGatePanel()">' +
-      (gatePanelOpen ? '▾' : '▸') + ' 画面外 component の姿切替（gate 試験用）' +
-    '</button>' +
+  const gateToggleHtml = '<div class="gate-toggle-block">' +
+    '<button class="gate-drawer-toggle" onclick="toggleGatePanel()">画面外 component の姿切替（gate 試験用）</button>' +
     '<p class="gate-panel-desc">今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。</p>' +
-    (gatePanelOpen ? gatePanelBodyHtml : '') +
   '</div>';
+  const gateDrawerHtml = gatePanelOpen
+    ? '<div class="gate-drawer-backdrop" onclick="toggleGatePanel()"></div>' +
+      '<div class="gate-drawer">' +
+        '<div class="gate-drawer-header">' +
+          '<span class="pane-title">画面外 component の姿切替（gate 試験用）</span>' +
+          '<button class="gate-drawer-close" onclick="toggleGatePanel()">閉じる</button>' +
+        '</div>' +
+        gatePanelBodyHtml +
+      '</div>'
+    : '';
 
   const mainCardHtml = renderScreenCard({
     title: frame.component,
@@ -1724,10 +1764,11 @@ function render() {
 
   const graphSectionHtml = renderGraphSection();
 
-  // 全幅 3 カラムグリッド（UX round2・設計者フィードバック 2026-07-20）: 左 = 統合ログ専用 /
-  // 中央 = 現在の画面（上）+ スタック・遷移マップ（下、1スクロール領域を共有） / 右 = gate
-  // パネルのみ（Task 10 でイベントログペインを統合ログへ吸収）。スタックを左から中央へ移し
-  // 現在の画面→スタック→遷移マップのミクロ→マクロの見え方にする（Task 14）。各ペインに
+  // 全幅 2 カラムグリッド（UX round2・設計者フィードバック 2026-07-20、右カラム廃止は
+  // Task 18 項目5）: 左 = 統合ログ専用 / 中央 = 現在の画面（上）+ スタック・遷移マップ
+  // （下、1スクロール領域を共有）。スタックを左から中央へ移し現在の画面→スタック→遷移マップの
+  // ミクロ→マクロの見え方にする（Task 14）。gate ドロワー（gateDrawerHtml）はグリッドの外に
+  // 浮くオーバーレイ（position: fixed）のため、末尾に置いてもレイアウトに影響しない。各ペインに
   // 見出し・役割説明を添え、エリアの意味が一目で伝わるようにする。説明文にはオートマトンとしての
   // 読み方を一言添える（用語は現状のまま。ADR-0022）。
   app.innerHTML =
@@ -1742,6 +1783,7 @@ function render() {
         '<div class="pane-title">現在の画面</div>' +
         '<div class="pane-desc">アクティブな frame の表示（本体）と掲示中カード</div>' +
         '<label class="action-toggle"><input type="checkbox" ' + (showActions ? 'checked' : '') + ' onchange="toggleShowActions()"> アクションを表示</label>' +
+        gateToggleHtml +
         mainCardHtml +
         externalEventsHtml +
         overlayCardsHtml +
@@ -1751,9 +1793,7 @@ function render() {
         graphSectionHtml +
       '</div>' +
     '</main>' +
-    '<aside class="pane pane-events">' +
-      gatePanelHtml +
-    '</aside>';
+    gateDrawerHtml;
 }
 
 function esc(s) {

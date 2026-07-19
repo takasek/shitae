@@ -1729,35 +1729,39 @@ describe('toSimulator', () => {
     expect(vm.runInContext('stack.length', context)).toBe(2);
   });
 
-  it('3 ペインレイアウト: 全幅グリッドで #app の max-width が廃止され、左ログ専用・中央画面+スタック+マップ・右イベント+gate の構造を持つ（Task 14 受入基準a・c）', () => {
+  it('2 カラムレイアウト: 右ペイン（gate パネル専用カラム）を廃止し #app は左ログ専用・中央画面+スタック+マップの2カラムになる（UX round2 2-4(d)、Task 18 受入基準e）', () => {
     const doc = parseOk(
       '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n# 時間選択\n本文\n',
     );
     const html = toSimulator(new Map([['main', doc]]), 'main');
     expect(html).not.toContain('max-width: 480px');
-    expect(html).toContain('grid-template-columns');
+    const gridRuleMatch = html.match(/#app\s*\{[^}]*\}/);
+    expect(gridRuleMatch).not.toBeNull();
+    const colsMatch = gridRuleMatch![0].match(/grid-template-columns:\s*([^;]+);/);
+    expect(colsMatch).not.toBeNull();
+    // 2 カラム（旧 3 カラム時代の右固定幅カラムが無くなり、空いた幅は中央（1fr）へ還元される）
+    expect(colsMatch![1]!.trim().split(/\s+/).length).toBe(2);
+
     const context = runSimulatorScript(html);
     const appHtml = vm.runInContext('app.innerHTML', context);
 
-    // 左: 統合ログ専用（スタック撤去。Task 14 受入基準c）
+    // 右ペイン（旧 pane-events）は廃止された
+    expect(appHtml).not.toContain('pane-events');
+
+    // 左: 統合ログ専用
     const traceIdx = appHtml.indexOf('pane-trace');
     expect(traceIdx).toBeGreaterThan(-1);
     // 中央: 現在の画面 + スタック + 遷移マップ
     const centerIdx = appHtml.indexOf('pane-center');
     expect(centerIdx).toBeGreaterThan(-1);
-    // 右: gate パネルのみ（Task 10 でイベントログペインを統合ログへ吸収）
-    const eventsIdx = appHtml.indexOf('pane-events');
-    expect(eventsIdx).toBeGreaterThan(-1);
-    // 左→中央→右の順で DOM に現れる
     expect(traceIdx).toBeLessThan(centerIdx);
-    expect(centerIdx).toBeLessThan(eventsIdx);
 
     const traceSection = appHtml.slice(traceIdx, centerIdx);
     expect(traceSection).toContain('統合ログ');
-    expect(traceSection).not.toContain('stack-list'); // スタックは左ペインに無い（Task 14 受入基準c）
+    expect(traceSection).not.toContain('stack-list');
 
-    // 中央: 画面 → スタック → マップ の縦順（ミクロ→マクロ。Task 14 受入基準a）
-    const centerSection = appHtml.slice(centerIdx, eventsIdx);
+    // 中央: 画面 → スタック → マップ の縦順（ミクロ→マクロ）は維持
+    const centerSection = appHtml.slice(centerIdx);
     const screenIdx = centerSection.indexOf('現在の画面');
     const stackIdx = centerSection.indexOf('スタック');
     const graphIdx = centerSection.indexOf('遷移マップ');
@@ -1766,12 +1770,48 @@ describe('toSimulator', () => {
     expect(graphIdx).toBeGreaterThan(-1);
     expect(screenIdx).toBeLessThan(stackIdx);
     expect(stackIdx).toBeLessThan(graphIdx);
+  });
 
-    const eventsSection = appHtml.slice(eventsIdx);
-    const gatePanelIdx = eventsSection.indexOf('gate-panel');
-    expect(gatePanelIdx).toBeGreaterThan(-1);
-    // 統合ログは右ペインでなく左ペインにある
-    expect(eventsSection).not.toContain('timeline-log');
+  it('gate ドロワー: トグルボタンは常時見える（見出し・説明つき）が、対象一覧の本体は開くまで DOM に出ない。開くとオーバーレイ + 背景クリック/閉じるボタンで閉じられる（UX round2 2-4(d)、Task 18 受入基準e）', () => {
+    const doc = parseOk(
+      '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n# 時間選択\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    const closedHtml = vm.runInContext('app.innerHTML', context);
+    // トグルボタン・説明は既定閉でも常時見える（Task 12 の empty state 継承の前提）
+    expect(closedHtml).toContain('画面外 component の姿切替（gate 試験用）');
+    expect(closedHtml).toContain('gate-panel-desc');
+    // 対象一覧の本体（gate-row）・ドロワーのオーバーレイ要素は閉状態では出ない
+    expect(closedHtml).not.toContain('gate-row-label');
+    expect(closedHtml).not.toContain('gate-drawer-backdrop');
+    expect(closedHtml).not.toMatch(/class="gate-drawer"/);
+
+    vm.runInContext('toggleGatePanel(); render()', context);
+    const openHtml = vm.runInContext('app.innerHTML', context);
+    expect(openHtml).toMatch(/class="gate-drawer"/);
+    expect(openHtml).toContain('gate-drawer-backdrop');
+    expect(openHtml).toContain('gate-row-label');
+    expect(openHtml).toContain('日付');
+
+    // 背景クリック・閉じるボタンのどちらも toggleGatePanel を呼ぶ（解除経路）
+    expect(openHtml).toMatch(/<div class="gate-drawer-backdrop" onclick="toggleGatePanel\(\)"><\/div>/);
+    const closeBtnMatch = openHtml.match(/<button class="gate-drawer-close" onclick="(toggleGatePanel\(\))">/);
+    expect(closeBtnMatch).not.toBeNull();
+    vm.runInContext(closeBtnMatch![1]! + '; render()', context);
+    expect(vm.runInContext('app.innerHTML', context)).not.toMatch(/class="gate-drawer"/);
+  });
+
+  it('gate ドロワー: オーバーレイは position: fixed（レイアウトに影響しない）で背景バックドロップを伴う', () => {
+    const doc = parseOk('# A\n要素\n> タップ(要素) -> back()\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const drawerRuleMatch = html.match(/\.gate-drawer\s*\{[^}]*\}/);
+    expect(drawerRuleMatch).not.toBeNull();
+    expect(drawerRuleMatch![0]).toMatch(/position:\s*fixed/);
+    const backdropRuleMatch = html.match(/\.gate-drawer-backdrop\s*\{[^}]*\}/);
+    expect(backdropRuleMatch).not.toBeNull();
+    expect(backdropRuleMatch![0]).toMatch(/position:\s*fixed/);
   });
 
   it('中央ペイン: 現在の画面が独立スクロール、スタック+マップはまとめて1つのスクロール領域に分かれる（Task 14。Task 9 の後継）', () => {
@@ -2295,6 +2335,43 @@ describe('toSimulator', () => {
     const appHtml = vm.runInContext('app.innerHTML', context);
     expect(appHtml).not.toContain('onclick="pinGraphTooltip("');
     expect(appHtml).toMatch(/onclick="pinGraphTooltip\(\d+\)"/);
+  });
+
+  it('遷移マップ tooltip: pin されたノードの component が gate 対象（member gate の参照先）なら variant 切替 select を内蔵する（gate 試験の統合。Task 18 受入基準f）', () => {
+    const doc = parseOk(
+      '# ホーム\n> タップ(日付.選択可能?) -> push(時間選択)\n\n' +
+        '# 日付\n## 選択可能\n要素\n## 満席\n要素2\n\n# 時間選択\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    // 日付 はどの画面からも push/present/goto/switch されない（member gate 参照のみ）ため
+    // 遷移エッジを持たず、既定の近傍表示（2ホップ）には現れない——「全体を見る」へ切替える
+    vm.runInContext('toggleGraphShowAll(); render()', context);
+    const names: string[] = JSON.parse(vm.runInContext('JSON.stringify(graphNodesView.map(n => n.name))', context));
+    const dateIdx = names.indexOf('日付');
+    expect(dateIdx).toBeGreaterThan(-1);
+
+    vm.runInContext('pinGraphTooltip(' + dateIdx + ')', context);
+    const pinnedHtml = vm.runInContext('app.innerHTML', context);
+    expect(pinnedHtml).toContain('graph-tooltip-gate');
+    expect(pinnedHtml).toMatch(/<select class="gate-inline-select" onchange="setInstanceVariant\(/);
+
+    // select の書換え先は既存 setInstanceVariant——直接呼んで統合の実効性を検証する
+    // （書換え先の共有レジストリは gate ドロワー・アクション行インライン select と共通）
+    vm.runInContext("setInstanceVariant('main', '日付', '満席'); render()", context);
+    const afterHtml = vm.runInContext('app.innerHTML', context);
+    expect(afterHtml).toContain('gate-off-mark'); // 他画面の gate 付き操作行にも反映される
+  });
+
+  it('遷移マップ tooltip: gate 対象でない component（variant はあっても member gate の参照先ではない）の pin には variant 切替 select を出さない', () => {
+    const doc = parseOk('# ホーム\n## 通常\n要素\n## 特殊\n要素2\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext('pinGraphTooltip(0)', context);
+    const pinnedHtml = vm.runInContext('app.innerHTML', context);
+    // variant があるので分割ボタンは出るが、gate 対象ではないので gate 試験の select は出ない
+    expect(pinnedHtml).toContain('variant で分割');
+    expect(pinnedHtml).not.toContain('graph-tooltip-gate');
   });
 
   it('設定を保存: buildSimConfigJson が現在の split 集合を確定形式で出力する（Task 11 形式確定事項）', () => {
