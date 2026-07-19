@@ -603,6 +603,29 @@ function renderActionRow(item, buildOnclick) {
     '<span class="action-choices">' + buttons + '</span></div>';
 }
 
+// 部品要素 1 件が指す component 自身の実効 interactions（表示 variant で mergeInteractions 済み。
+// DATA の commonInteractions / variants[v].interactions そのもの）を、部品自身の gate 判定込みで
+// 組み立てる（埋め込み部品の interaction 有効化。Task 13。SPEC「部品の内部要素参照・外側上書き」
+// 116-124 行・タブバー慣用句 450-461 行）。裸 gate は overlayInteractions と同じ hostCtx 方式
+// （ADR-0019）を部品自身に適用する——アクティブ画面の body ではなく部品自身の表示 variant の
+// 実効 body で判定する。document common 由来はここに含めない（アクティブ画面基準の既存経路
+// のみが扱う。brief 明記）。戻り値の childEls は再帰展開の次段要素配列。
+function computeOwnComponentContext(elRef) {
+  const comp = getComp(elRef.module, elRef.name);
+  if (!comp) return null;
+  const key = skey(elRef.module, elRef.name);
+  const v = sharedVariants.has(key) ? sharedVariants.get(key) : comp.initialVariant;
+  const hostCtx = { module: elRef.module, component: elRef.name, variant: v };
+  const ownRaw = v ? (comp.variants[v]?.interactions ?? []) : comp.commonInteractions;
+  const ownFiltered = ownRaw.filter((inter) => gateEnabled(inter, hostCtx));
+  const ownItems = [
+    ...ownFiltered.filter((inter) => inter.scope === 'variant').map((inter, idx) => ({ inter, scope: 'variant', idx })),
+    ...ownFiltered.filter((inter) => inter.scope === 'component').map((inter, idx) => ({ inter, scope: 'component', idx })),
+  ];
+  const childEls = [...(comp.commonElements ?? []), ...(v ? (comp.variants[v]?.elements ?? []) : [])];
+  return { comp, v, ownItems, childEls };
+}
+
 // 要素サブツリー 1 件。ref を持つ要素（project 内の定義済み component への参照）は参照先の
 // 中身（commonElements + 現在 variant の elements。variant は sharedVariants → initialVariant
 // のオートマトン整合の解決——displayVariant / gateEnabled の member 分岐と同じ規約）を
@@ -610,7 +633,11 @@ function renderActionRow(item, buildOnclick) {
 // visited は展開経路上の (module,name) 集合——再訪したら「（循環）」を出して打ち切る
 // （循環ガード。ガードがあるため深さは無制限でよい）。attachedHtml はトップレベル要素にのみ
 // 呼び出し側が渡す紐付け操作行で、要素名の直下（参照先の中身より前）に置く。
-function renderElementNode(el, visited, attachedHtml) {
+// cardIdx・path は部品自身の interaction 実行用（Task 13）: cardIdx は本体なら -1、掲示中
+// カードなら [...overlays.keys()] の索引。path はここまでの要素インデックス列——
+// resolveNestedItems（クリック時）がこの path を辿って同じ展開・フィルタ結果を再構築し、
+// 描画とハンドラでインデックスがずれないようにする。
+function renderElementNode(el, visited, attachedHtml, cardIdx, path) {
   const comp = el.ref ? getComp(el.ref.module, el.ref.name) : null;
   if (!comp) {
     return '<div class="element">' + esc(el.name) + '</div>' + attachedHtml;
@@ -621,11 +648,13 @@ function renderElementNode(el, visited, attachedHtml) {
   }
   const nextVisited = new Set(visited);
   nextVisited.add(key);
-  const v = sharedVariants.has(key) ? sharedVariants.get(key) : comp.initialVariant;
-  const childEls = [...(comp.commonElements ?? []), ...(v ? (comp.variants[v]?.elements ?? []) : [])];
-  const children = childEls.map((c) => renderElementNode(c, nextVisited, '')).join('');
+  const ctx = computeOwnComponentContext(el.ref);
+  const buildOwnOnclick = (scope, idx, choiceIdx) =>
+    "handleNestedInteraction(" + cardIdx + ",[" + path.join(",") + "],'" + scope + "'," + idx + "," + choiceIdx + ")";
+  const { elementsHtml: childElementsHtml, actionsHtml: ownActionsHtml } =
+    renderElementsAndActions(ctx.childEls, ctx.ownItems, buildOwnOnclick, nextVisited, cardIdx, path, false);
   return '<details open class="element-hierarchy"><summary class="element">' + esc(el.name) + '</summary>' +
-    attachedHtml + '<div class="element-children">' + children + '</div></details>';
+    attachedHtml + ownActionsHtml + '<div class="element-children">' + childElementsHtml + '</div></details>';
 }
 
 // 画面カードの要素リストと操作一覧を描画する（本体・掲示中カード共通。Task 8）。els は
@@ -633,10 +662,13 @@ function renderElementNode(el, visited, attachedHtml) {
 // action.target の参照名（targetName）がトップレベル要素の表示名に一致した操作はその要素行の
 // 直下へ紐付け、残り（不一致・対象なし）はフラットリストへ出す。同名要素が複数あるときは
 // 最初の要素にだけ紐付ける（発火する interaction は同一のため重複表示しない）。
-// hostKey は循環ガードの起点（カード自身の (module,component)）。
-function renderElementsAndActions(els, items, buildOnclick, hostKey) {
+// visitedBase は循環ガードの起点集合（カード自身の (module,component) を含む Set）。
+// cardIdx・path は Task 13 の部品 interaction 実行用（renderElementNode 参照）——
+// 再帰呼び出し（部品自身の子要素展開）では showEmptyState を false にして「アクションなし」の
+// 空状態表示を最上位カードだけに限定する（部品ノードごとに表示すると入れ子で冗長になるため）。
+function renderElementsAndActions(els, items, buildOnclick, visitedBase, cardIdx, path, showEmptyState = true) {
   const consumed = new Set();
-  const elementRows = els.map((el) => {
+  const elementRows = els.map((el, elIdx) => {
     const attached = [];
     items.forEach((item, i) => {
       if (!consumed.has(i) && item.inter.targetName != null && item.inter.targetName === el.name) {
@@ -647,12 +679,12 @@ function renderElementsAndActions(els, items, buildOnclick, hostKey) {
     const attachedHtml = attached.length > 0
       ? '<div class="action-list element-actions">' + attached.map((item) => renderActionRow(item, buildOnclick)).join('') + '</div>'
       : '';
-    return renderElementNode(el, new Set([hostKey]), attachedHtml);
+    return renderElementNode(el, visitedBase, attachedHtml, cardIdx, [...path, elIdx]);
   }).join('');
   const flat = items.filter((item, i) => !consumed.has(i));
   let actionsHtml = '';
   if (items.length === 0) {
-    actionsHtml = '<div class="no-actions">アクションなし</div>';
+    if (showEmptyState) actionsHtml = '<div class="no-actions">アクションなし</div>';
   } else if (flat.length > 0) {
     actionsHtml = '<div class="action-list action-flat">' + flat.map((item) => renderActionRow(item, buildOnclick)).join('') + '</div>';
   }
@@ -660,6 +692,88 @@ function renderElementsAndActions(els, items, buildOnclick, hostKey) {
     elementsHtml: els.length > 0 ? '<div class="elements">' + elementRows + '</div>' : '',
     actionsHtml,
   };
+}
+
+// 本体画面のトップレベル要素配列（document common + component common + 現在姿の elements）。
+// render() と resolveNestedItems（クリック時の path 解決）の両方がこれを呼ぶ——同一実装から
+// 得ることで描画とハンドラの要素インデックスがずれない（Task 13）。
+function mainTopLevelElements() {
+  const frame = currentFrame();
+  const comp = getComp(frame.module, frame.component);
+  const frameVariant = displayVariant(frame);
+  const docEls = DATA.modules[frame.module]?.docCommonElements ?? [];
+  const commonEls = comp?.commonElements ?? [];
+  const varEls = frameVariant ? (comp?.variants[frameVariant]?.elements ?? []) : [];
+  return [...docEls, ...commonEls, ...varEls];
+}
+
+// 本体画面のトップレベル操作一覧（scope 別 idx 付き）。render() と resolveNestedItems 共通。
+function mainTopLevelItems() {
+  const allInter = currentInteractions();
+  return [
+    ...allInter.filter((inter) => inter.scope === 'variant').map((inter, idx) => ({ inter, scope: 'variant', idx })),
+    ...allInter.filter((inter) => inter.scope === 'component').map((inter, idx) => ({ inter, scope: 'component', idx })),
+    ...docCommonInteractions().map((inter, idx) => ({ inter, scope: 'document', idx })),
+  ];
+}
+
+// 掲示中カード cardIdx（[...overlays.keys()] の索引）の component 名。見つからなければ null
+function overlayNameAt(cardIdx) {
+  return [...overlays.keys()][cardIdx] ?? null;
+}
+
+// 掲示中カードのトップレベル要素配列（renderOverlayCard・resolveNestedItems 共通。Task 13）
+function overlayTopLevelElements(cardIdx) {
+  const name = overlayNameAt(cardIdx);
+  if (!name) return null;
+  const entry = overlays.get(name);
+  const comp = getComp(entry.module, name);
+  const v = overlayVariant(name);
+  const commonEls = comp?.commonElements ?? [];
+  const varEls = v ? (comp?.variants[v]?.elements ?? []) : [];
+  return [...commonEls, ...varEls];
+}
+
+// 掲示中カードのトップレベル操作一覧（renderOverlayCard・resolveNestedItems 共通。Task 13）
+function overlayTopLevelItems(cardIdx) {
+  const name = overlayNameAt(cardIdx);
+  if (!name) return null;
+  const all = overlayInteractions(name);
+  return [
+    ...all.filter((inter) => inter.scope === 'variant').map((inter, idx) => ({ inter, scope: 'variant', idx })),
+    ...all.filter((inter) => inter.scope === 'component').map((inter, idx) => ({ inter, scope: 'component', idx })),
+  ];
+}
+
+// onclick に埋め込まれた (cardIdx, path) から、対象の部品ノード自身の scope 別 items を
+// 再構築する（Task 13）。render 時に renderElementNode → computeOwnComponentContext が
+// 辿ったのと同じ経路をトップレベルから辿り直す——描画とクリックハンドラが同一の展開・
+// フィルタ結果を参照するための唯一の実装（インデックスのずれを構造的に防ぐ）。
+function resolveNestedItems(cardIdx, path) {
+  if (!path || path.length === 0) return null;
+  let els = cardIdx === -1 ? mainTopLevelElements() : overlayTopLevelElements(cardIdx);
+  if (!els) return null;
+  for (let i = 0; i < path.length; i++) {
+    const el = els[path[i]];
+    if (!el || !el.ref) return null;
+    const ctx = computeOwnComponentContext(el.ref);
+    if (!ctx) return null;
+    if (i === path.length - 1) return ctx.ownItems;
+    els = ctx.childEls;
+  }
+  return null;
+}
+
+// 部品 interaction の発火（Task 13）。cardIdx・path で対象の部品ノードを、scope・idx で
+// そのノード自身の items 内の1件を特定する。実行（runChoice → applyTransition）は
+// currentFrame() を見るため、遷移の相対解決は常にアクティブフレーム基準のまま（brief 明記）。
+function handleNestedInteraction(cardIdx, path, scope, idx, choiceIdx) {
+  const items = resolveNestedItems(cardIdx, path);
+  if (!items) return;
+  const found = items.find((item) => item.scope === scope && item.idx === idx);
+  if (!found) return;
+  runChoice(found.inter, choiceIdx);
+  render();
 }
 
 // 1 枚のカード（タイトル・variant ラベル・elements・操作一覧・任意の付帯マークアップ）を描画する
@@ -684,22 +798,17 @@ function renderScreenCard(opts) {
 // （renderElementsAndActions）を通す（Task 8「本体・掲示中共通」）。
 function renderOverlayCard(name, cardIdx) {
   const entry = overlays.get(name);
-  const comp = getComp(entry.module, name);
   const v = overlayVariant(name);
-  const commonEls = comp?.commonElements ?? [];
-  const varEls = v ? (comp?.variants[v]?.elements ?? []) : [];
 
   // idx は overlayScopedInteractions(name, scope) 内の位置（handleOverlayInteraction が
-  // 同じフィルタ済みリストを引くため描画とハンドラでずれない）
-  const all = overlayInteractions(name);
-  const items = [
-    ...all.filter((inter) => inter.scope === 'variant').map((inter, idx) => ({ inter, scope: 'variant', idx })),
-    ...all.filter((inter) => inter.scope === 'component').map((inter, idx) => ({ inter, scope: 'component', idx })),
-  ];
+  // 同じフィルタ済みリストを引くため描画とハンドラでずれない）。要素・操作一覧は
+  // overlayTopLevelElements/Items を通す——resolveNestedItems（Task 13）と同一実装を共有する。
+  const els = overlayTopLevelElements(cardIdx);
+  const items = overlayTopLevelItems(cardIdx);
   const buildOnclick = (scope, idx, choiceIdx) =>
     "handleOverlayInteraction(" + cardIdx + ",'" + scope + "'," + idx + "," + choiceIdx + ")";
   const { elementsHtml, actionsHtml } = renderElementsAndActions(
-    [...commonEls, ...varEls], items, buildOnclick, skey(entry.module, name),
+    els, items, buildOnclick, new Set([skey(entry.module, name)]), cardIdx, [],
   );
 
   return renderScreenCard({
@@ -1094,26 +1203,15 @@ function render() {
   });
   const timelineHtml = timelineParts.join(' › ');
 
-  // elements（document common の要素行は全 component の表示に共通要素として乗る。SPEC「document common」）
-  const frameVariant = displayVariant(frame);
-  const docEls = DATA.modules[frame.module]?.docCommonElements ?? [];
-  const commonEls = comp?.commonElements ?? [];
-  const varEls = frameVariant ? (comp?.variants[frameVariant]?.elements ?? []) : [];
-
+  // elements（document common の要素行は全 component の表示に共通要素として乗る。SPEC「document common」）。
   // 操作一覧: scope はカテゴリ見出しでなく各行のバッジで示し、対象一致の操作は要素行の直下へ
   // 紐付ける（Task 8）。idx は scopedInteractions(scope) 内の位置——handleInteraction が同じ
-  // フィルタ済みリストを引くため描画とハンドラでずれない。currentInteractions() は姿の merged
-  // 実効 interactions（scope が 'variant' か 'component'）、docCommonInteractions() は生存
-  // document common（shadow 済み・gate フィルタ済み）を返す。
-  const allInter = currentInteractions();
-  const items = [
-    ...allInter.filter((inter) => inter.scope === 'variant').map((inter, idx) => ({ inter, scope: 'variant', idx })),
-    ...allInter.filter((inter) => inter.scope === 'component').map((inter, idx) => ({ inter, scope: 'component', idx })),
-    ...docCommonInteractions().map((inter, idx) => ({ inter, scope: 'document', idx })),
-  ];
+  // フィルタ済みリストを引くため描画とハンドラでずれない。要素配列・操作一覧は
+  // mainTopLevelElements/Items を通す——resolveNestedItems（Task 13）と同一実装を共有する。
+  const frameVariant = displayVariant(frame);
   const buildOnclick = (scope, idx, choiceIdx) => "handleInteraction('" + scope + "'," + idx + "," + choiceIdx + ")";
   const { elementsHtml: elements, actionsHtml } = renderElementsAndActions(
-    [...docEls, ...commonEls, ...varEls], items, buildOnclick, skey(frame.module, frame.component),
+    mainTopLevelElements(), mainTopLevelItems(), buildOnclick, new Set([skey(frame.module, frame.component)]), -1, [],
   );
 
   // 掲示中カード（本体と同形。表示順 = [...overlays.keys()] の添字が handleOverlayInteraction の

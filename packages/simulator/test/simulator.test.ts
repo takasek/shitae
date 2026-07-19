@@ -1573,4 +1573,109 @@ describe('toSimulator', () => {
     // 非対応ブラウザは a[download] での JSON ダウンロード fallback
     expect(html).toContain('.download = ');
   });
+
+  describe('埋め込み部品の interaction 有効化（Task 13、SPEC 116-124・450-461）', () => {
+  it('SPEC タブバー慣用句: 画面に「タブバー」要素を置くだけで部品側 switch が実行でき遷移する（受入基準a）', () => {
+    const doc = parseOk(
+      '# ホーム\nタブバー\n\n' +
+        '# タブバー\n> タップ(ホームボタン) -> switch(ホーム, @tabHome)\n> タップ(検索ボタン) -> switch(検索, @tabSearch)\n\n' +
+        '# 検索\nタブバー\n検索窓\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    // タブバー要素として置いただけの画面から、部品側の switch 操作が両方見える
+    expect(appHtml).toContain('タップ(ホームボタン)');
+    expect(appHtml).toContain('タップ(検索ボタン)');
+    const idx = appHtml.indexOf('タップ(検索ボタン)');
+    const m = appHtml.slice(idx).match(/onclick="(handleNestedInteraction\([^"]+)"/);
+    expect(m).not.toBeNull();
+    // onclick には部品名などの文字列は埋め込まれず、数値インデックス列 + scope 固定キーのみ
+    expect(m![1]).toMatch(/^handleNestedInteraction\(-1,\[\d+\],'(variant|component)',\d+,\d+\)$/);
+    vm.runInContext(m![1]!, context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('検索');
+  });
+
+  it('入れ子部品の interaction も再帰的に操作可能（2段ネスト。受入基準b）', () => {
+    const doc = parseOk(
+      '# ホーム\n外側\n\n# 外側\n内側\n\n# 内側\n本体\n> タップ(本体) -> push(次)\n\n# 次\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    const idx = appHtml.indexOf('タップ(本体)');
+    expect(idx).toBeGreaterThan(-1);
+    const m = appHtml.slice(idx).match(/onclick="(handleNestedInteraction\([^"]+)"/);
+    expect(m).not.toBeNull();
+    vm.runInContext(m![1]!, context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('次');
+  });
+
+  it('循環参照があっても部品 interaction 展開は循環点で止まり無限にも重複にもならない（受入基準b）', () => {
+    const doc = parseOk(
+      '# A\nB\n> タップ(A自身) -> back()\n\n# B\nA\n> タップ(B自身) -> back()\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('（循環）');
+    const countA = (appHtml.match(/タップ\(A自身\)/g) ?? []).length;
+    const countB = (appHtml.match(/タップ\(B自身\)/g) ?? []).length;
+    expect(countA).toBe(1);
+    expect(countB).toBe(1);
+  });
+
+  it('部品の裸 gate は部品自身の表示 variant の実効 body で判定される（overlay の hostCtx 方式を流用。受入基準c）', () => {
+    const doc = parseOk(
+      '# ホーム\nスイッチ\n\n# スイッチ\n## オン\nランプ\n> タップ(ランプ?) -> back()\n## オフ\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    // 初期姿はオン（最初に定義された姿）→ ランプが存在するため gate は有効
+    const before = vm.runInContext('app.innerHTML', context);
+    expect(before).toContain('タップ(ランプ)');
+    // 部品自身の表示 variant をオフへ切替（ホーム側の variant ではない）→ ランプ不在で gate が無効になる
+    vm.runInContext("sharedVariants.set(skey('main', 'スイッチ'), 'オフ'); render()", context);
+    const after = vm.runInContext('app.innerHTML', context);
+    expect(after).not.toContain('タップ(ランプ)');
+  });
+
+  it('cross-module: 部品 interaction の遷移先は定義ファイル基準で正準化済みのまま、実行はアクティブフレーム基準で効く（受入基準e）', () => {
+    const widgetsDoc = parseOk('# タブバー\n> タップ(検索ボタン) -> switch(検索, @tabSearch)\n\n# 検索\n検索窓\n');
+    const mainDoc = parseOk('import widgets as w\n# ホーム\nw::タブバー\n');
+    const html = toSimulator(new Map([['main', mainDoc], ['widgets', widgetsDoc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    const idx = appHtml.indexOf('タップ(検索ボタン)');
+    expect(idx).toBeGreaterThan(-1);
+    const m = appHtml.slice(idx).match(/onclick="(handleNestedInteraction\([^"]+)"/);
+    expect(m).not.toBeNull();
+    vm.runInContext(m![1]!, context);
+    expect(vm.runInContext('currentFrame().module', context)).toBe('widgets');
+    expect(vm.runInContext('currentFrame().component', context)).toBe('検索');
+  });
+
+  it('掲示中カードにも部品 interaction 展開が同じ機構（renderElementsAndActions 共通化）で乗る', () => {
+    const doc = parseOk(
+      '# ホーム\n> 出す -> show(ミニ)\n\n# ミニ\nタブバー\n\n# タブバー\n> タップ(検索ボタン) -> push(検索)\n\n# 検索\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext(
+      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
+      context,
+    );
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    const overlayIdx = appHtml.indexOf('overlay-card');
+    expect(overlayIdx).toBeGreaterThan(-1);
+    const overlaySection = appHtml.slice(overlayIdx);
+    expect(overlaySection).toContain('タップ(検索ボタン)');
+    const m = overlaySection.match(/onclick="(handleNestedInteraction\([^"]+)"/);
+    expect(m).not.toBeNull();
+    // cardIdx は 0 以上（掲示中カード自身の索引）——本体（-1）とは区別される
+    expect(m![1]).toMatch(/^handleNestedInteraction\(\d+,\[\d+\],/);
+    vm.runInContext(m![1]!, context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('検索');
+  });
+  });
 });
