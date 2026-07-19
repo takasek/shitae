@@ -1130,26 +1130,28 @@ function render() {
     const comp = getComp(t.module, t.name);
     return comp && Object.keys(comp.variants).length > 0;
   });
-  let gatePanelHtml = '';
-  if (gateTargetsWithVariants.length > 0) {
-    const rows = gateTargetsWithVariants.map((t) => {
-      const comp = getComp(t.module, t.name);
-      const k = skey(t.module, t.name);
-      const current = sharedVariants.has(k) ? sharedVariants.get(k) : comp.initialVariant;
-      const options = Object.keys(comp.variants).map((v) =>
-        '<option value="' + esc(v) + '"' + (v === current ? ' selected' : '') + '>' + esc(v) + '</option>'
-      ).join('');
-      return '<div class="gate-row"><span class="gate-row-label">' + esc(t.name) + '</span>' +
-        '<select onchange="setInstanceVariant(' + esc(JSON.stringify(t.module)) + ', ' + esc(JSON.stringify(t.name)) + ', this.value)">' + options + '</select></div>';
-    }).join('');
-    gatePanelHtml = '<div class="gate-panel">' +
-      '<button class="gate-panel-toggle" onclick="toggleGatePanel()">' +
-        (gatePanelOpen ? '▾' : '▸') + ' 画面外 component の姿切替（gate 試験用）' +
-      '</button>' +
-      '<p class="gate-panel-desc">今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。</p>' +
-      (gatePanelOpen ? '<div class="gate-panel-body">' + rows + '</div>' : '') +
-    '</div>';
-  }
+  // gate 対象がゼロでも見出し・説明は常時表示する——初見のユーザーが右ペイン全体の
+  // 白紙を「読み込み失敗」「レイアウト崩壊」と誤解しないため（UX評価3.5、Task 12）。
+  // 対象ゼロのときは開いた際に empty state（試験対象なしの明示）を出す。
+  const gatePanelBodyHtml = gateTargetsWithVariants.length > 0
+    ? '<div class="gate-panel-body">' + gateTargetsWithVariants.map((t) => {
+        const comp = getComp(t.module, t.name);
+        const k = skey(t.module, t.name);
+        const current = sharedVariants.has(k) ? sharedVariants.get(k) : comp.initialVariant;
+        const options = Object.keys(comp.variants).map((v) =>
+          '<option value="' + esc(v) + '"' + (v === current ? ' selected' : '') + '>' + esc(v) + '</option>'
+        ).join('');
+        return '<div class="gate-row"><span class="gate-row-label">' + esc(t.name) + '</span>' +
+          '<select onchange="setInstanceVariant(' + esc(JSON.stringify(t.module)) + ', ' + esc(JSON.stringify(t.name)) + ', this.value)">' + options + '</select></div>';
+      }).join('') + '</div>'
+    : '<div class="gate-panel-body"><p class="gate-panel-empty">この文書に presence gate（対象.要素?）の参照先はありません。切り替えられる試験対象なし。</p></div>';
+  const gatePanelHtml = '<div class="gate-panel">' +
+    '<button class="gate-panel-toggle" onclick="toggleGatePanel()">' +
+      (gatePanelOpen ? '▾' : '▸') + ' 画面外 component の姿切替（gate 試験用）' +
+    '</button>' +
+    '<p class="gate-panel-desc">今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。</p>' +
+    (gatePanelOpen ? gatePanelBodyHtml : '') +
+  '</div>';
 
   const mainCardHtml = renderScreenCard({
     title: frame.component,

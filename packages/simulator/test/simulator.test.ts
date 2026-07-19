@@ -253,10 +253,23 @@ describe('toSimulator', () => {
     expect(html).toContain('"type":"state"');
   });
 
-  it('presence gate 手動トグル: gate 対象が無ければパネルを出さない', () => {
+  it('presence gate 手動トグル: gate 対象が無くても見出し・説明は常時表示し、開くと empty state を出す（UX評価3.5、Task 12 受入基準d）', () => {
     const doc = parseOk('# A\n要素\n> タップ(要素) -> back()\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     expect(html).toContain('"gateTargets":[]');
+    const context = runSimulatorScript(html);
+    const beforeToggleHtml = vm.runInContext('app.innerHTML', context);
+    // 対象ゼロでも見出し・説明文は常時表示される（無言の空白をなくす。旧実装は
+    // gateTargetsWithVariants.length===0 のとき何も描画せず右ペイン全体が白紙だった）
+    expect(beforeToggleHtml).toContain('画面外 component の姿切替（gate 試験用）');
+    expect(beforeToggleHtml).toContain('gate-panel-desc');
+
+    vm.runInContext('toggleGatePanel(); render()', context);
+    const afterToggleHtml = vm.runInContext('app.innerHTML', context);
+    // 開くと「試験対象なし」の empty state が出る（読み込み失敗・レイアウト崩壊との誤解を防ぐ）
+    expect(afterToggleHtml).toContain('gate-panel-empty');
+    expect(afterToggleHtml).toContain('presence gate');
+    expect(afterToggleHtml).toContain('参照先はありません');
   });
 
   it('back(X) は wall を越えない（barrier 停止のロジックを含む）', () => {
