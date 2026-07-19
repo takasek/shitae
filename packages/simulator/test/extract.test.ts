@@ -447,11 +447,14 @@ describe('graph: 遷移グラフの抽出', () => {
     ]);
   });
 
-  it('edges: push/goto の transition かつ target.kind==="full" のものを (from,to) 重複除去で集める', () => {
+  it('edges: push/goto の transition かつ target.kind==="full" のものを (from,to) 全体キーで重複除去して集める', () => {
     const doc = parseOk('# A\n> タップ -> push(B)\n> ダブルタップ -> goto(B)\n\n# B\n本文\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
     expect(data.graph.edges).toEqual([
-      { from: { module: 'main', name: 'A' }, to: { module: 'main', name: 'B' } },
+      {
+        from: { module: 'main', component: 'A', variant: null },
+        to: { module: 'main', component: 'B', variant: null },
+      },
     ]);
   });
 
@@ -460,7 +463,10 @@ describe('graph: 遷移グラフの抽出', () => {
     const mainDoc = parseOk('import checkout-flow as co\n# ホーム\n> 進む -> push(co::支払い)\n');
     const data = extractSimData(new Map([['main', mainDoc], ['checkout-flow', subDoc]]), 'main');
     expect(data.graph.edges).toEqual([
-      { from: { module: 'main', name: 'ホーム' }, to: { module: 'checkout-flow', name: '支払い' } },
+      {
+        from: { module: 'main', component: 'ホーム', variant: null },
+        to: { module: 'checkout-flow', component: '支払い', variant: null },
+      },
     ]);
   });
 
@@ -488,13 +494,61 @@ describe('graph: 遷移グラフの抽出', () => {
     expect(data.graph.edges).toEqual([]);
   });
 
-  it('edges: variant 固有の遷移も component 単位で from に集約される', () => {
+  it('edges: variant 固有の遷移は from.variant にその姿を持つ（最細粒度。Task 11）', () => {
     const doc = parseOk(
       '# 詳細\n## 読込中\nスピナー\n## 表示\nコンテンツ\n> タップ(コンテンツ) -> push(次)\n\n# 次\n本文\n',
     );
     const data = extractSimData(new Map([['main', doc]]), 'main');
     expect(data.graph.edges).toEqual([
-      { from: { module: 'main', name: '詳細' }, to: { module: 'main', name: '次' } },
+      {
+        from: { module: 'main', component: '詳細', variant: '表示' },
+        to: { module: 'main', component: '次', variant: null },
+      },
+    ]);
+  });
+
+  it('edges: 姿を持つ component の common 由来遷移は各 variant から出る（merged 走査。from.variant null の重複は作らない）', () => {
+    const doc = parseOk(
+      '# 詳細\n> 閉じる -> push(次)\n## 読込中\nスピナー\n## 表示\nコンテンツ\n\n# 次\n本文\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.graph.edges).toEqual([
+      {
+        from: { module: 'main', component: '詳細', variant: '読込中' },
+        to: { module: 'main', component: '次', variant: null },
+      },
+      {
+        from: { module: 'main', component: '詳細', variant: '表示' },
+        to: { module: 'main', component: '次', variant: null },
+      },
+    ]);
+  });
+
+  it('edges: 明示 variant target（push(X##v)）は to.variant に保持する（初期姿への解決はブラウザ側集約が行う）', () => {
+    const doc = parseOk('# A\n> タップ -> push(B##二)\n\n# B\n## 一\n要素\n## 二\n要素\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.graph.edges).toEqual([
+      {
+        from: { module: 'main', component: 'A', variant: null },
+        to: { module: 'main', component: 'B', variant: '二' },
+      },
+    ]);
+  });
+
+  it('edges: 同一 (component, target) でも from.variant が違えば別エッジとして残る（重複除去は from/to 全体キー）', () => {
+    const doc = parseOk(
+      '# 詳細\n## 読込中\n> 中断 -> push(次)\n## 表示\n> 進む -> push(次)\n\n# 次\n本文\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.graph.edges).toEqual([
+      {
+        from: { module: 'main', component: '詳細', variant: '読込中' },
+        to: { module: 'main', component: '次', variant: null },
+      },
+      {
+        from: { module: 'main', component: '詳細', variant: '表示' },
+        to: { module: 'main', component: '次', variant: null },
+      },
     ]);
   });
 });

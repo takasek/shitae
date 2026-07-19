@@ -9,4 +9,5 @@ export type {
   SimResultBody,
   SimComponentRef,
   SimGraph,
+  SimGraphEndpoint,
 } from './extract.js';

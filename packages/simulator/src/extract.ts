@@ -130,14 +130,26 @@ export interface SimComponentRef {
 }
 
 /**
+ * 遷移グラフのエッジ端点（最細粒度 = variant 単位。Task 11）。
+ * from.variant はその interaction が属する姿——姿を持つ component では common 由来も merged interactions として各姿から出る実態があるため、その variant を from に持つ。
+ * 姿を持たない component の common 由来だけが null。to.variant は明示 variant（省略は null のまま。初期姿への解決はブラウザ側集約が行う）。
+ */
+export interface SimGraphEndpoint {
+  module: string;
+  component: string;
+  variant: string | null;
+}
+
+/**
  * 遷移グラフ（simulator の遷移マップ描画用）。ノードは全 module の全 component（定義順）。
  * エッジは push/present/goto/switch の静的 target（target.kind === 'full'、定義済み component）
- * を (from, to) で重複除去したもの。back/exit/dismiss と ##variant のみの goto はエッジにしない。
- * documentCommon 由来の遷移は発火元 component が静的に定まらないためエッジにしない。
+ * を (from, to) 全体キーで重複除去したもの（variant 粒度。Task 11）。back/exit/dismiss と
+ * ##variant のみの goto はエッジにしない。documentCommon 由来の遷移は発火元 component が
+ * 静的に定まらないためエッジにしない。各 component の variants 一覧は modules データから引ける。
  */
 export interface SimGraph {
   nodes: SimComponentRef[];
-  edges: { from: SimComponentRef; to: SimComponentRef }[];
+  edges: { from: SimGraphEndpoint; to: SimGraphEndpoint }[];
 }
 
 export interface SimulatorData {
@@ -347,14 +359,15 @@ const GRAPH_EDGE_WORDS = new Set(['push', 'present', 'goto', 'switch']);
 
 /**
  * component 1 件分の interactions（component common または姿の merged interactions）から
- * 静的な遷移エッジを集める。target.kind === 'full' かつ定義済み component のものだけを (from, to) で
- * 重複除去して out に積む。back/exit/dismiss と ##variant のみの goto は対象外。
+ * 静的な遷移エッジを集める。target.kind === 'full' かつ定義済み component のものだけを
+ * (from, to) 全体キーで重複除去して out に積む（variant 粒度。Task 11）。to.variant は
+ * 明示指定をそのまま保持し、省略は null のまま。back/exit/dismiss と ##variant のみの goto は対象外。
  */
 function collectGraphEdges(
   interactions: SimInteraction[],
-  from: SimComponentRef,
+  from: SimGraphEndpoint,
   modules: Record<string, SimModuleData>,
-  out: Map<string, { from: SimComponentRef; to: SimComponentRef }>,
+  out: Map<string, { from: SimGraphEndpoint; to: SimGraphEndpoint }>,
 ): void {
   for (const it of interactions) {
     const bodies = [...it.prelude, ...it.choices.flatMap((c) => c.results)];
@@ -363,7 +376,7 @@ function collectGraphEdges(
       const target = body.target;
       if (!target || target.kind !== 'full' || target.module == null) continue;
       if (!modules[target.module]?.components[target.component]) continue; // 未定義 component はエッジにしない
-      const to: SimComponentRef = { module: target.module, name: target.component };
+      const to: SimGraphEndpoint = { module: target.module, component: target.component, variant: target.variant };
       out.set(JSON.stringify([from, to]), { from, to });
     }
   }
@@ -442,14 +455,22 @@ export function extractSimData(
   }
 
   // 遷移グラフ: documentCommon 由来は発火元 component が静的に定まらないため対象外（brief 明記）。
-  // 各 component の common + 全 variant の merged interactions から静的遷移を集める
-  const graphEdgeMap = new Map<string, { from: SimComponentRef; to: SimComponentRef }>();
+  // 最細粒度（variant 単位。Task 11）: 姿を持つ component は各 variant の merged interactions
+  // だけを走査する——common 由来もそこに合成済みで「その variant から出る」実態があるため
+  // from はその variant とし、common を別走査すると重複するので走査しない。
+  // 姿を持たない component だけ common を from.variant = null で走査する。
+  const graphEdgeMap = new Map<string, { from: SimGraphEndpoint; to: SimGraphEndpoint }>();
   for (const [moduleName, mod] of Object.entries(modules)) {
     for (const [compName, comp] of Object.entries(mod.components)) {
-      const from: SimComponentRef = { module: moduleName, name: compName };
-      collectGraphEdges(comp.commonInteractions, from, modules, graphEdgeMap);
-      for (const v of Object.values(comp.variants)) {
-        collectGraphEdges(v.interactions, from, modules, graphEdgeMap);
+      const variantEntries = Object.entries(comp.variants);
+      if (variantEntries.length === 0) {
+        const from: SimGraphEndpoint = { module: moduleName, component: compName, variant: null };
+        collectGraphEdges(comp.commonInteractions, from, modules, graphEdgeMap);
+      } else {
+        for (const [vName, v] of variantEntries) {
+          const from: SimGraphEndpoint = { module: moduleName, component: compName, variant: vName };
+          collectGraphEdges(v.interactions, from, modules, graphEdgeMap);
+        }
       }
     }
   }
