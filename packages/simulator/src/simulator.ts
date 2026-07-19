@@ -22,22 +22,31 @@ function buildHtml(data: SimulatorData): string {
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5; color: #111; }
-/* 3 カラム全幅グリッド（開発ツールのためレスポンシブ不要。設計者フィードバック 2026-07-19）:
-   左 = スタック + 統合ログ / 中央 = 現在の画面 + 遷移マップ / 右 = gate パネルのみ（Task 10）。 */
+/* 3 カラム全幅グリッド（開発ツールのためレスポンシブ不要。UX round2・設計者フィードバック
+   2026-07-20）: 左 = 統合ログ専用 / 中央 = 現在の画面 → スタック → 遷移マップの縦3領域
+   （ミクロ→マクロ。スタック・マップは折畳み可） / 右 = gate パネルのみ（Task 10）。
+   スタックは左ペインから中央へ移し、左は統合ログ専用にしてスタックとの場所の奪い合いを
+   解消する（UX評価round2 2-4(c)）。 */
 #app { display: grid; grid-template-columns: 260px 1fr 300px; height: 100vh; }
 .pane { padding: 16px; overflow-y: auto; }
 .pane-trace { background: #fff; border-right: 1px solid #e0e0e0; }
 /* 中央ペインは自身を単一スクロール領域にしない（.pane の overflow-y: auto を上書き）——
-   画面カードと遷移マップを grid rows で独立スクロールの 2 領域に分割する（Task 9）。
-   画面カードの高さが変わっても遷移マップの表示位置（row の開始位置）は動かない。 */
+   現在の画面（可変・独立スクロール）と、スタック+マップ（まとめて1スクロール領域）の
+   grid rows 2 領域に分割する（Task 9 の後継・Task 14）。画面カードの高さが変わっても
+   下2つ（スタック・マップ）の表示位置（row の開始位置）は動かない。 */
 .pane-center { background: #f5f5f5; padding: 0; overflow: hidden; display: grid; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
 .pane-events { background: #fff; border-left: 1px solid #e0e0e0; }
 .pane-title { font-size: 13px; font-weight: 700; color: #333; margin-bottom: 2px; }
+summary.pane-title { cursor: pointer; }
 .pane-desc { font-size: 11px; color: #888; margin-bottom: 10px; }
 /* min-height: 0 は grid item の暗黙の最小高さ（auto）を打ち消し overflow-y: auto を効かせるために必須 */
 .screen-section { display: flex; flex-direction: column; overflow-y: auto; min-height: 0; padding: 16px 16px 8px; }
-.graph-section { display: flex; flex-direction: column; overflow-y: auto; min-height: 0; padding: 8px 16px 16px; border-top: 1px solid #e0e0e0; }
-.stack-list { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #333; margin-bottom: 16px; }
+/* スタック（.stack-section）と遷移マップ（.graph-section）を1つのスクロール領域にまとめる
+   （Task 14）——どちらも折畳み可能な <details> なので、開閉状態によらず縦積みで自然にスクロールする。 */
+.lower-section { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; min-height: 0; padding: 8px 16px 16px; }
+.stack-section { border-top: 1px solid #e0e0e0; padding-top: 8px; }
+.graph-section { border-top: 1px solid #e0e0e0; padding-top: 8px; }
+.stack-list { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #333; margin-top: 6px; }
 .stack-item { padding: 3px 8px; border-radius: 4px; background: #f5f5f5; }
 .stack-item-current { background: #111; color: #fff; }
 .stack-wall { color: #c0392b; margin-right: 2px; }
@@ -135,6 +144,13 @@ let sharedVariants = new Map();
 // gate 対象 component（{module, name}）の一覧（手動トグルパネル用。定義 module へ解決済み）
 const GATE_TARGETS = DATA.gateTargets || [];
 let gatePanelOpen = false;
+
+// 中央ペインのスタック・遷移マップの折畳み状態（gatePanelOpen と同じ JS グローバル方式だが、
+// ネイティブ <details> の open 属性・ontoggle で同期する——Task 5 時代の graphPanelOpen
+// パターンの再導入（Task 6 でノードクリック探索の廃止に伴い一旦撤去、UX round2 でスタックの
+// 場所と合わせて復活。設計者確定事項）。既定はスタック開・マップ開。
+let stackPanelOpen = true;
+let mapPanelOpen = true;
 
 // 対象インスタンスの variant を手動で書き換える（gate 観測用）
 function setInstanceVariant(module, name, variant) {
@@ -1179,11 +1195,14 @@ function renderGraphMap() {
   '</svg>';
 }
 
-// 遷移マップの区画（中央下ペインの主役、独立スクロール領域。設計者フィードバック 2026-07-19 で
-// <details> 折り畳みを廃止し常時表示にした——閲覧専用化でノードクリック探索という開閉維持の
-// 理由が消えたため）。#graph-preview はマップ本体（SVG）より前に置く——sticky でペイン上部に
-// 固定するには DOM 上もペイン先頭にあるのが自然で、マップが縦に伸びてスクロールしても
-// hover プレビューが画面外へフレームアウトしない（Task 9 受入基準b）。
+// 遷移マップの区画（中央ペイン最下段、スタックと1つのスクロール領域を共有する。UX round2で
+// 折畳み可能に戻した——閲覧専用化でノードクリック探索という開閉維持の理由は消えたが、
+// スタックとマップが同じスクロール領域を分け合う以上、双方を閉じられる方が長い文書で有利
+// という設計者判断による。開閉状態は mapPanelOpen に保持し、ネイティブ <details> の
+// ontoggle で同期する（Task 5 時代の graphPanelOpen と同じ方式。Task 14）。#graph-preview は
+// マップ本体（SVG）より前に置く——sticky でペイン上部に固定するには DOM 上もペイン先頭にある
+// のが自然で、マップが縦に伸びてスクロールしても hover プレビューが画面外へフレームアウトしない
+// （Task 9 受入基準b）。
 function renderGraphSection() {
   if (!DATA.graph || DATA.graph.nodes.length === 0) return '';
   // renderGraphMap が graphNodesView を更新するため、メニューはマップ描画後に組み立てる
@@ -1199,12 +1218,12 @@ function renderGraphSection() {
       '<button class="graph-menu-item" onclick="closeGraphMenu()">閉じる</button>' +
     '</div>';
   }
-  return '<section class="graph-section">' +
-    '<div class="pane-title" title="遷移マップ — 画面間の遷移関係（閲覧専用）。状態遷移図として読める">遷移マップ</div>' +
+  return '<details' + (mapPanelOpen ? ' open' : '') + ' class="graph-section" ontoggle="mapPanelOpen = this.open">' +
+    '<summary class="pane-title" title="遷移マップ — 画面間の遷移関係（閲覧専用）。状態遷移図として読める">遷移マップ</summary>' +
     '<div class="pane-desc">画面間の遷移関係（閲覧専用）。状態遷移図として読める。現在の画面.本体に対応するノードを強調表示し、hover でプレビューを表示します。variant を持つノードはクリックで粒度メニュー（variant で分割 / 統合）を開きます。</div>' +
     '<button class="graph-save-btn" onclick="saveGraphConfig()">設定を保存</button>' +
     '<div id="graph-preview" class="graph-preview"></div>' + menuHtml + mapHtml +
-  '</section>';
+  '</details>';
 }
 
 // スタック表示 1 行分（frame 1 件）。component 名/姿は displayVariant(frame) を使う
@@ -1228,11 +1247,24 @@ function renderStackList() {
   return rows.join('');
 }
 
+// スタックの区画（中央ペイン最下段の上側、遷移マップと1つのスクロール領域を共有する。
+// UX round2 で左ペインから中央へ移動——ミクロ(画面)→マクロ(スタック→マップ)の見え方に
+// するため（設計者確定事項）。折畳み可能で、開閉状態は stackPanelOpen に保持し、ネイティブ
+// <details> の ontoggle で同期する（mapPanelOpen と同じ方式。Task 14）。
+function renderStackSection() {
+  const stackHtml = renderStackList();
+  return '<details' + (stackPanelOpen ? ' open' : '') + ' class="stack-section" ontoggle="stackPanelOpen = this.open">' +
+    '<summary class="pane-title" title="スタック — 今積み重なっている画面。プッシュダウン構成として読める">スタック</summary>' +
+    '<div class="pane-desc">今積み重なっている画面。プッシュダウン構成として読める。上が現在地</div>' +
+    '<div class="stack-list">' + stackHtml + '</div>' +
+  '</details>';
+}
+
 function render() {
   const frame = currentFrame();
   const comp = getComp(frame.module, frame.component);
 
-  const stackHtml = renderStackList();
+  const stackSectionHtml = renderStackSection();
 
   // 統合ログ（cursor が指すエントリ＝現在地。タップで全状態巻き戻し・redo。
   // transition/event 両方クリック可。cursor より未来のエントリは ghost（半透明）表示。
@@ -1308,15 +1340,14 @@ function render() {
 
   const graphSectionHtml = renderGraphSection();
 
-  // 全幅 3 カラムグリッド（設計者フィードバック 2026-07-19）: 左 = スタック + 統合ログ /
-  // 中央 = 現在の画面（上）+ 遷移マップ（下） / 右 = gate パネルのみ（Task 10 でイベントログ
-  // ペインを統合ログへ吸収）。各ペインに見出し・役割説明を添え、エリアの意味が一目で伝わる
-  // ようにする。説明文にはオートマトンとしての読み方を一言添える（用語は現状のまま。ADR-0022）。
+  // 全幅 3 カラムグリッド（UX round2・設計者フィードバック 2026-07-20）: 左 = 統合ログ専用 /
+  // 中央 = 現在の画面（上）+ スタック・遷移マップ（下、1スクロール領域を共有） / 右 = gate
+  // パネルのみ（Task 10 でイベントログペインを統合ログへ吸収）。スタックを左から中央へ移し
+  // 現在の画面→スタック→遷移マップのミクロ→マクロの見え方にする（Task 14）。各ペインに
+  // 見出し・役割説明を添え、エリアの意味が一目で伝わるようにする。説明文にはオートマトンとしての
+  // 読み方を一言添える（用語は現状のまま。ADR-0022）。
   app.innerHTML =
     '<aside class="pane pane-trace">' +
-      '<div class="pane-title" title="スタック — 今積み重なっている画面。プッシュダウン構成として読める">スタック</div>' +
-      '<div class="pane-desc">今積み重なっている画面。プッシュダウン構成として読める。上が現在地</div>' +
-      '<div class="stack-list">' + stackHtml + '</div>' +
       '<div class="pane-title" title="統合ログ — 実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は ghost として残ります">統合ログ</div>' +
       '<div class="pane-desc">ナビゲーション履歴。実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は薄く（ghost）表示され、再クリックでやり直せます</div>' +
       '<label class="timeline-toggle"><input type="checkbox" ' + (showEvents ? 'checked' : '') + ' onchange="toggleShowEvents()"> イベントを表示</label>' +
@@ -1329,7 +1360,10 @@ function render() {
         mainCardHtml +
         overlayCardsHtml +
       '</section>' +
-      graphSectionHtml +
+      '<div class="lower-section">' +
+        stackSectionHtml +
+        graphSectionHtml +
+      '</div>' +
     '</main>' +
     '<aside class="pane pane-events">' +
       gatePanelHtml +

@@ -1041,21 +1041,58 @@ describe('toSimulator', () => {
     expect(afterHide).toBe('');
   });
 
-  it('遷移マップ: <details> 折り畳みを廃止し常時表示になった（設計者確定事項 2026-07-19）', () => {
+  it('遷移マップ折畳み: <details> + mapPanelOpen で開閉状態を保持する（UX round2 で復活。設計者確定事項。Task 14）', () => {
     const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
-    expect(html).not.toContain('graphPanelOpen');
-    expect(html).not.toContain('ontoggle');
+    expect(html).toContain('mapPanelOpen');
+    expect(html).toContain('ontoggle');
     const context = runSimulatorScript(html);
-    const appHtml = vm.runInContext('app.innerHTML', context);
-    // 要素階層の <details>（element-hierarchy。Task 8）は別機能として残るため graph 専用の details 廃止に絞って縛る
-    expect(appHtml).not.toMatch(/<details[^>]*class="graph-panel"/);
-    expect(appHtml).not.toContain('graph-panel-toggle');
-    // details でなくとも SVG 自体は常に描画されている
-    expect(appHtml).toContain('<svg');
+
+    // 既定は開（マップの主用途である hover 探索がすぐ使えるよう）
+    const openHtml = vm.runInContext('app.innerHTML', context);
+    expect(openHtml).toMatch(/<details open class="graph-section"/);
+    expect(openHtml).toContain('<svg');
+
+    // 閉じた状態を JS グローバルへ反映すると次の render() でも維持される
+    vm.runInContext('mapPanelOpen = false; render()', context);
+    const closedHtml = vm.runInContext('app.innerHTML', context);
+    expect(closedHtml).toMatch(/<details class="graph-section"/);
+    expect(closedHtml).not.toMatch(/<details open class="graph-section"/);
+
+    // 遷移後も折畳み状態が保持される（受入基準b）
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      context,
+    );
+    const afterTransitionHtml = vm.runInContext('app.innerHTML', context);
+    expect(afterTransitionHtml).not.toMatch(/<details open class="graph-section"/);
   });
 
-  it('3 ペインレイアウト: 全幅グリッドで #app の max-width が廃止され、左トレース・中央画面+マップ・右イベント+gate の構造を持つ（受入基準c）', () => {
+  it('スタック折畳み: <details> + stackPanelOpen で開閉状態を保持する（既定は開。gatePanelOpen と同じ JS グローバル方式。Task 14）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).toContain('stackPanelOpen');
+    const context = runSimulatorScript(html);
+
+    const openHtml = vm.runInContext('app.innerHTML', context);
+    expect(openHtml).toMatch(/<details open class="stack-section"/);
+
+    vm.runInContext('stackPanelOpen = false; render()', context);
+    const closedHtml = vm.runInContext('app.innerHTML', context);
+    expect(closedHtml).toMatch(/<details class="stack-section"/);
+    expect(closedHtml).not.toMatch(/<details open class="stack-section"/);
+
+    // 遷移後も折畳み状態が保持される（受入基準b）。データ自体（stack）は表示に関わらず健在
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      context,
+    );
+    const afterTransitionHtml = vm.runInContext('app.innerHTML', context);
+    expect(afterTransitionHtml).not.toMatch(/<details open class="stack-section"/);
+    expect(vm.runInContext('stack.length', context)).toBe(2);
+  });
+
+  it('3 ペインレイアウト: 全幅グリッドで #app の max-width が廃止され、左ログ専用・中央画面+スタック+マップ・右イベント+gate の構造を持つ（Task 14 受入基準a・c）', () => {
     const doc = parseOk(
       '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n# 時間選択\n本文\n',
     );
@@ -1065,10 +1102,10 @@ describe('toSimulator', () => {
     const context = runSimulatorScript(html);
     const appHtml = vm.runInContext('app.innerHTML', context);
 
-    // 左: スタック + 統合ログ
+    // 左: 統合ログ専用（スタック撤去。Task 14 受入基準c）
     const traceIdx = appHtml.indexOf('pane-trace');
     expect(traceIdx).toBeGreaterThan(-1);
-    // 中央: 現在の画面 + 遷移マップ
+    // 中央: 現在の画面 + スタック + 遷移マップ
     const centerIdx = appHtml.indexOf('pane-center');
     expect(centerIdx).toBeGreaterThan(-1);
     // 右: gate パネルのみ（Task 10 でイベントログペインを統合ログへ吸収）
@@ -1078,12 +1115,20 @@ describe('toSimulator', () => {
     expect(traceIdx).toBeLessThan(centerIdx);
     expect(centerIdx).toBeLessThan(eventsIdx);
 
+    const traceSection = appHtml.slice(traceIdx, centerIdx);
+    expect(traceSection).toContain('統合ログ');
+    expect(traceSection).not.toContain('stack-list'); // スタックは左ペインに無い（Task 14 受入基準c）
+
+    // 中央: 画面 → スタック → マップ の縦順（ミクロ→マクロ。Task 14 受入基準a）
     const centerSection = appHtml.slice(centerIdx, eventsIdx);
     const screenIdx = centerSection.indexOf('現在の画面');
+    const stackIdx = centerSection.indexOf('スタック');
     const graphIdx = centerSection.indexOf('遷移マップ');
     expect(screenIdx).toBeGreaterThan(-1);
+    expect(stackIdx).toBeGreaterThan(-1);
     expect(graphIdx).toBeGreaterThan(-1);
-    expect(screenIdx).toBeLessThan(graphIdx); // 中央上=画面、中央下=マップ
+    expect(screenIdx).toBeLessThan(stackIdx);
+    expect(stackIdx).toBeLessThan(graphIdx);
 
     const eventsSection = appHtml.slice(eventsIdx);
     const gatePanelIdx = eventsSection.indexOf('gate-panel');
@@ -1092,26 +1137,39 @@ describe('toSimulator', () => {
     expect(eventsSection).not.toContain('timeline-log');
   });
 
-  it('中央ペイン: 現在の画面と遷移マップが独立スクロール領域に分かれる（Task 9 受入基準a）', () => {
+  it('中央ペイン: 現在の画面が独立スクロール、スタック+マップはまとめて1つのスクロール領域に分かれる（Task 14。Task 9 の後継）', () => {
     const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     // pane-center 自身は外側スクロールを持たず（.pane の overflow-y: auto を上書き）、
-    // grid rows で 2 領域に分割する——画面カードの高さ変化が遷移マップの位置に影響しないため。
+    // grid rows で「画面」/「スタック+マップ」の2領域に分割する——画面カードの高さ変化が
+    // 下2つ（スタック・マップ）の表示位置に影響しないため。
     const centerRuleMatch = html.match(/\.pane-center\s*\{[^}]*\}/);
     expect(centerRuleMatch).not.toBeNull();
     expect(centerRuleMatch![0]).toContain('grid-template-rows');
     expect(centerRuleMatch![0]).toMatch(/overflow:\s*hidden/);
     expect(centerRuleMatch![0]).toMatch(/grid-template-rows:\s*minmax\(0,\s*1fr\)\s*minmax\(0,\s*1fr\)/);
-    // screen-section と graph-section がそれぞれ自前のスクロール領域を持つ（min-height: 0 で
-    // grid item のはみ出しを防ぎ overflow-y: auto を効かせる）
+    // screen-section と lower-section（スタック+マップの共有スクロール領域）がそれぞれ
+    // 自前のスクロール領域を持つ（min-height: 0 で grid item のはみ出しを防ぎ overflow-y: auto を効かせる）
     const screenRuleMatch = html.match(/\.screen-section\s*\{[^}]*\}/);
-    const graphRuleMatch = html.match(/\.graph-section\s*\{[^}]*\}/);
+    const lowerRuleMatch = html.match(/\.lower-section\s*\{[^}]*\}/);
     expect(screenRuleMatch).not.toBeNull();
-    expect(graphRuleMatch).not.toBeNull();
+    expect(lowerRuleMatch).not.toBeNull();
     expect(screenRuleMatch![0]).toMatch(/overflow-y:\s*auto/);
     expect(screenRuleMatch![0]).toMatch(/min-height:\s*0/);
-    expect(graphRuleMatch![0]).toMatch(/overflow-y:\s*auto/);
-    expect(graphRuleMatch![0]).toMatch(/min-height:\s*0/);
+    expect(lowerRuleMatch![0]).toMatch(/overflow-y:\s*auto/);
+    expect(lowerRuleMatch![0]).toMatch(/min-height:\s*0/);
+
+    // スタック・マップは lower-section の中に両方入っている（1つのスクロール領域を共有）
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    const lowerIdx = appHtml.indexOf('lower-section');
+    expect(lowerIdx).toBeGreaterThan(-1);
+    const lowerSection = appHtml.slice(lowerIdx);
+    const stackSectionIdx = lowerSection.indexOf('stack-section');
+    const graphSectionIdx = lowerSection.indexOf('graph-section');
+    expect(stackSectionIdx).toBeGreaterThan(-1);
+    expect(graphSectionIdx).toBeGreaterThan(-1);
+    expect(stackSectionIdx).toBeLessThan(graphSectionIdx);
   });
 
   it('遷移マップの hover プレビューはペイン内の常時見える位置（sticky）にあり画面外へフレームアウトしない（Task 9 受入基準b）', () => {
@@ -1184,7 +1242,7 @@ describe('toSimulator', () => {
     expect(appHtml).toContain('閲覧専用');
   });
 
-  it('スタック表示: 統合ログの上に見出し・役割説明付きで新設され、push/present 後に @session・壁マーカー付きで描画される（Task 7 受入基準c）', () => {
+  it('スタック表示: 中央ペインに見出し・役割説明付きで表示され、push/present 後に @session・壁マーカー付きで描画される（Task 7 受入基準c・Task 14 で中央へ移動）', () => {
     const doc = parseOk('# ホーム\n本体\n\n# ログイン\n本体\n\n# 確認\n本体\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
@@ -1193,10 +1251,10 @@ describe('toSimulator', () => {
     const beforeHtml = vm.runInContext('app.innerHTML', context);
     expect(beforeHtml).toContain('スタック');
     expect(beforeHtml).toContain('プッシュダウン');
-    // 左ペイン（pane-trace）内で「スタック」が「統合ログ」より先に現れる
-    const traceIdx = beforeHtml.indexOf('pane-trace');
-    const traceSection = beforeHtml.slice(traceIdx);
-    expect(traceSection.indexOf('スタック')).toBeLessThan(traceSection.indexOf('統合ログ'));
+    // 中央ペイン（pane-center）内で「現在の画面」の後に「スタック」が現れる（Task 14 受入基準a）
+    const centerIdx = beforeHtml.indexOf('pane-center');
+    const centerSection = beforeHtml.slice(centerIdx);
+    expect(centerSection.indexOf('現在の画面')).toBeLessThan(centerSection.indexOf('スタック'));
 
     vm.runInContext(
       "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: 'ログイン', variant: null }, session: 'login' }); render()",
