@@ -474,7 +474,17 @@ function applyTransition(result) {
     const sessionName = result.session ?? null;
     let found = false;
     for (let i = stack.length - 1; i >= 0; i--) {
-      if (stack[i].sessionName === sessionName) {
+      // named（sessionName!=null）は従来どおり sessionName の一致で探す。無名
+      // （sessionName===null）は「無名セッションを開始したフレーム」（present(X)由来、
+      // wall===true かつ sessionName===null）だけを探す——ルートフレームや push() の素の
+      // フレームも sessionName===null になるが、これらは無名セッションの開始点ではないため
+      // 区別する（SPEC「無名 dismiss() が探すのは無名セッションだけ」・UX評価3.2、Task 12）。
+      // ルートフレーム（wall===false）は決してマッチしないため、無名セッションが不在なら
+      // 必ず no-op になる。
+      const matches = sessionName != null
+        ? stack[i].sessionName === sessionName
+        : (stack[i].wall && stack[i].sessionName === null);
+      if (matches) {
         found = true;
         stack = stack.slice(0, i);
         if (stack.length === 0) {

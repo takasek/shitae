@@ -1259,6 +1259,68 @@ describe('toSimulator', () => {
     expect(warning).toContain('@a');
   });
 
+  it('dismiss() 無名: 無名 present(X) 開始フレーム以深だけを破棄する（SPEC「無名dismiss」・UX評価3.2、Task 12 受入基準a）', () => {
+    const doc = parseOk('# ホーム\n本体\n\n# A\n本体\n\n# B\n本体\n\n# C\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    // 無名 present(A) でセッション開始（present は常に wall=true、session省略で sessionName=null）
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'present', target: { module: 'main', component: 'A', variant: null }, session: null })",
+      context,
+    );
+    // 続けて無名 push(B), push(C) を数枚積む
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: 'B', variant: null }, session: null })",
+      context,
+    );
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: 'C', variant: null }, session: null })",
+      context,
+    );
+    // 無名 dismiss()
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'dismiss', target: null, session: null })",
+      context,
+    );
+    const stackComponents = JSON.parse(vm.runInContext('JSON.stringify(stack.map(f => f.component))', context));
+    // present(A) 以深（A・B・C）だけが破棄され、A 以前のホームだけが残る
+    expect(stackComponents).toEqual(['ホーム']);
+  });
+
+  it('dismiss() 無名: 無名セッション不在なら no-op + 警告でスタック不変（root へ崩壊しない。UX評価3.2の再現ケース、Task 12 受入基準b）', () => {
+    const doc = parseOk('# ホーム\n本体\n\n# A\n本体\n\n# B\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    // named session @tabHome で push(A)（wall=false・sessionNameあり）
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: 'A', variant: null }, session: 'tabHome' })",
+      context,
+    );
+    // named session @nowPlaying で present(B)（wall=true・sessionNameあり）
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'present', target: { module: 'main', component: 'B', variant: null }, session: 'nowPlaying' })",
+      context,
+    );
+    const beforeStack = JSON.parse(vm.runInContext('JSON.stringify(stack.map(f => f.component))', context));
+    expect(beforeStack).toEqual(['ホーム', 'A', 'B']);
+
+    // 無名 dismiss()（アクティブパス上に無名セッションは1つも無い）
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'dismiss', target: null, session: null })",
+      context,
+    );
+    const afterStack = JSON.parse(vm.runInContext('JSON.stringify(stack.map(f => f.component))', context));
+    expect(afterStack).toEqual(beforeStack); // no-op。起動画面まで崩壊しない
+
+    const timelineJson = JSON.parse(vm.runInContext('JSON.stringify(timeline)', context));
+    const warning = timelineJson.map((e: any) => e.label).find((l: string) => l.includes('直近の無名セッション'));
+    expect(warning).toBeDefined();
+    expect(warning).toContain('@tabHome');
+    expect(warning).toContain('@nowPlaying');
+  });
+
   it('gate パネル改名: 画面外 component の姿切替（gate 試験用）という用途が伝わる見出し・説明を持つ（設計者確定事項 2026-07-19）', () => {
     const doc = parseOk(
       '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n# 時間選択\n本文\n',
