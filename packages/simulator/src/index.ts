@@ -10,4 +10,6 @@ export type {
   SimComponentRef,
   SimGraph,
   SimGraphEndpoint,
+  SimGraphSplitEntry,
+  SimulatorConfig,
 } from './extract.js';

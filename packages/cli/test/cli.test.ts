@@ -145,6 +145,55 @@ describe('cross-file import', () => {
   });
 });
 
+describe('shitae simulate と simconfig（Task 11: 遷移マップ粒度 config）', () => {
+  const tmpDir = '/tmp/shitae_cli_simconfig_test';
+  const SRC = '# ホーム\n## 通常\n要素\n## 特殊\n要素2\n';
+
+  it('entry の兄弟 <basename>.simconfig.json があるとき split が graphConfig として埋め込まれる', async () => {
+    mkdirSync(tmpDir, { recursive: true });
+    writeFileSync(join(tmpDir, 'main.shitae'), SRC);
+    writeFileSync(
+      join(tmpDir, 'main.simconfig.json'),
+      JSON.stringify({ graph: { split: [{ module: 'main', component: 'ホーム' }] } }),
+    );
+    try {
+      const { code, stdout, stderr } = await runCli(['simulate', join(tmpDir, 'main.shitae')]);
+      expect(stderr).toBe('');
+      expect(code).toBe(0);
+      expect(stdout).toContain('"graphConfig":{"split":[{"module":"main","component":"ホーム"}]}');
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  it('simconfig が無いとき split は空', async () => {
+    mkdirSync(tmpDir, { recursive: true });
+    writeFileSync(join(tmpDir, 'main.shitae'), SRC);
+    try {
+      const { code, stdout, stderr } = await runCli(['simulate', join(tmpDir, 'main.shitae')]);
+      expect(stderr).toBe('');
+      expect(code).toBe(0);
+      expect(stdout).toContain('"graphConfig":{"split":[]}');
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  it('simconfig が不正 JSON のとき stderr に警告を出して無視する（simulate 自体は成功）', async () => {
+    mkdirSync(tmpDir, { recursive: true });
+    writeFileSync(join(tmpDir, 'main.shitae'), SRC);
+    writeFileSync(join(tmpDir, 'main.simconfig.json'), '{ broken');
+    try {
+      const { code, stdout, stderr } = await runCli(['simulate', join(tmpDir, 'main.shitae')]);
+      expect(code).toBe(0);
+      expect(stderr).toContain('simconfig');
+      expect(stdout).toContain('"graphConfig":{"split":[]}');
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+});
+
 describe('r4 A2+B2: check はプロジェクト単位（ADR-0021）', () => {
   const tmpDir = '/tmp/shitae_cli_project_check_test';
 
