@@ -1270,14 +1270,17 @@ function render() {
   // transition/event 両方クリック可。cursor より未来のエントリは ghost（半透明）表示。
   // onclick へは timeline インデックス（数値）のみを埋め込むため、showEvents による
   // event 行の除外（DOM から省く）はクリックインデックスの整合を壊さない。
+  // 描画は newest-on-top（配列末尾＝最新から先に出す）——timeline 配列自体・cursor・
+  // onclick のインデックス意味論は時系列のまま変えない。逆順に辿るのは描画順だけ（Task 14）。
   const timelineParts = [];
-  timeline.forEach((entry, i) => {
-    if (entry.kind === 'event' && !showEvents && i !== cursor) return;
+  for (let i = timeline.length - 1; i >= 0; i--) {
+    const entry = timeline[i];
+    if (entry.kind === 'event' && !showEvents && i !== cursor) continue;
     const classes = ['timeline-item', 'timeline-item-' + entry.kind];
     if (i === cursor) classes.push('current');
     if (i > cursor) classes.push('ghost');
     timelineParts.push('<span class="' + classes.join(' ') + '" onclick="jumpToTimeline(' + i + ')">' + esc(entry.label) + '</span>');
-  });
+  }
   const timelineHtml = timelineParts.join(' › ');
 
   // elements（document common の要素行は全 component の表示に共通要素として乗る。SPEC「document common」）。
@@ -1349,7 +1352,7 @@ function render() {
   app.innerHTML =
     '<aside class="pane pane-trace">' +
       '<div class="pane-title" title="統合ログ — 実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は ghost として残ります">統合ログ</div>' +
-      '<div class="pane-desc">ナビゲーション履歴。実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は薄く（ghost）表示され、再クリックでやり直せます</div>' +
+      '<div class="pane-desc">ナビゲーション履歴。実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は薄く（ghost）表示され、再クリックでやり直せます。新しいものが上</div>' +
       '<label class="timeline-toggle"><input type="checkbox" ' + (showEvents ? 'checked' : '') + ' onchange="toggleShowEvents()"> イベントを表示</label>' +
       '<div class="timeline-log">' + timelineHtml + '</div>' +
     '</aside>' +

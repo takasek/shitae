@@ -675,6 +675,76 @@ describe('toSimulator', () => {
     expect(hiddenHtml).toContain('current');
   });
 
+  it('統合ログ: newest-on-top で描画されるが timeline 配列自体・クリックインデックスは時系列のまま変わらない（Task 14 受入基準d）', () => {
+    const doc = parseOk(
+      '# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n> 結果へ -> push(結果)\n\n# 結果\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      context,
+    );
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '結果', variant: null } }); render()",
+      context,
+    );
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    const timelineIdx = appHtml.indexOf('timeline-log');
+    const timelineHtml = appHtml.slice(timelineIdx);
+
+    // 配列は時系列 [起動, push→検索, push→結果] のまま。描画は逆順 = 起動が最後(下)に現れる
+    const idxHome = timelineHtml.indexOf('起動');
+    const idxSearch = timelineHtml.indexOf('push → 検索');
+    const idxResult = timelineHtml.indexOf('push → 結果');
+    expect(idxHome).toBeGreaterThan(-1);
+    expect(idxSearch).toBeGreaterThan(-1);
+    expect(idxResult).toBeGreaterThan(-1);
+    expect(idxResult).toBeLessThan(idxSearch); // 最新（push→結果）が先(上)に出る
+    expect(idxSearch).toBeLessThan(idxHome);
+
+    // onclick="jumpToTimeline(N)" の N は配列インデックスのまま（描画順は新→旧だが値は変わらない）
+    const clickIdxs = [...timelineHtml.matchAll(/jumpToTimeline\((\d+)\)/g)].map((m) => Number(m[1]));
+    expect(clickIdxs).toEqual([2, 1, 0]);
+  });
+
+  it('統合ログ: newest-on-top でも current（cursor 位置）・ghost（未来分）のハイライトは正しいエントリに付きクリックで redo できる（Task 14 受入基準d）', () => {
+    const doc = parseOk(
+      '# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n> 結果へ -> push(結果)\n\n# 結果\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      context,
+    );
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '結果', variant: null } }); render()",
+      context,
+    );
+    // 検索まで巻き戻す。「結果」は ghost になり、cursor（現在地）は「検索」を指す
+    vm.runInContext('jumpToTimeline(1); render()', context);
+
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    const timelineIdx = appHtml.indexOf('timeline-log');
+    const timelineHtml = appHtml.slice(timelineIdx);
+
+    // 各 span を配列インデックス（onclick の引数）別に取り出して current/ghost を検証する
+    const spans = [...timelineHtml.matchAll(/<span class="([^"]*)" onclick="jumpToTimeline\((\d+)\)">/g)];
+    const classesByIdx = new Map(spans.map((m) => [Number(m[2]), m[1]!]));
+    expect(classesByIdx.get(0)).not.toMatch(/\bcurrent\b/); // 起動: 過去
+    expect(classesByIdx.get(0)).not.toMatch(/\bghost\b/);
+    expect(classesByIdx.get(1)).toMatch(/\bcurrent\b/); // push→検索: 現在地
+    expect(classesByIdx.get(2)).toMatch(/\bghost\b/); // push→結果: 未来(ghost)
+
+    // クリック（jumpToTimeline）で redo できる（描画順反転後もインデックス整合が実効することの確認）
+    vm.runInContext('jumpToTimeline(2); render()', context);
+    expect(vm.runInContext('cursor', context)).toBe(2);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('結果');
+  });
+
   it('複数ラベル操作は全ラベルを横並びボタンで提示し、ラベル指定クリックで対応 results だけが走る', () => {
     const doc = parseOk(
       '# ホーム\n> ガチャ ->\n>     [当たり] push(景品)\n>     [ハズレ] push(残念)\n\n# 景品\n本体\n\n# 残念\n本体\n',
