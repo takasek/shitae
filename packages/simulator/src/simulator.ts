@@ -1032,6 +1032,69 @@ function layoutGraph(nodes, edges, entryModule, entryComponent) {
 // 初期値は CLI が simconfig から埋め込んだ DATA.graphConfig.split。
 let graphSplit = new Set(((DATA.graphConfig && DATA.graphConfig.split) || []).map((s) => skey(s.module, s.component)));
 
+// 遷移マップの表示範囲（Task 16）: 既定は現在地からの近傍表示（false）。「全体を見る」
+// トグルで全ノード表示へ切替わり、状態は JS グローバルで保持される
+// （mapPanelOpen 等と同じパターン）。
+let graphShowAll = false;
+
+function toggleGraphShowAll() {
+  graphShowAll = !graphShowAll;
+  render();
+}
+
+// 近傍表示（Task 16 受入基準d）: currentIdx から無向 2 ホップ以内のノードだけを残す純関数。
+// fleamarket 18ノードが判読不能になった問題（UX round2）への対応——既定では現在地周辺だけを
+// 見せ、「全体を見る」トグルで従来どおり全ノードを見られるようにする。表示外ノードへ向かう
+// エッジは両端が可視集合に無いため描画から自然に落ちる（省く方針。境界表示はしない）。
+// currentIdx が見つからない（-1 等）場合は全ノード・全エッジをそのまま返す（安全側フォールバック）。
+// 粒度分割（Task 11）で同一 component から生まれた variant 兄弟ノード（n.component が一致する
+// もの）は、どれか1つが近傍に入っていれば全員可視にする——split は遷移エッジの有無とは独立な
+// 表示粒度の選択であり、同じ画面の別姿として一緒に見えるべきため（近傍モードでも粒度分割が
+// 機能する。受入基準d）。plain な {module,name} だけの fixture（component 未指定）は対象外。
+function filterGraphNeighborhood(nodes, edges, currentIdx) {
+  if (currentIdx < 0 || currentIdx >= nodes.length) return { nodes, edges };
+  const keyOf = (n) => skey(n.module, n.name);
+  const indexByKey = new Map(nodes.map((n, i) => [keyOf(n), i]));
+  const undirectedAdj = nodes.map(() => new Set());
+  for (const e of edges) {
+    const a = indexByKey.get(skey(e.from.module, e.from.name));
+    const b = indexByKey.get(skey(e.to.module, e.to.name));
+    if (a == null || b == null) continue;
+    undirectedAdj[a].add(b);
+    undirectedAdj[b].add(a);
+  }
+  const visible = new Set([currentIdx]);
+  let frontier = [currentIdx];
+  const HOPS = 2;
+  for (let hop = 0; hop < HOPS; hop++) {
+    const next = [];
+    for (const idx of frontier) {
+      for (const nb of undirectedAdj[idx]) {
+        if (!visible.has(nb)) { visible.add(nb); next.push(nb); }
+      }
+    }
+    frontier = next;
+  }
+  const compGroups = new Map();
+  nodes.forEach((n, i) => {
+    if (n.component == null) return;
+    const k = skey(n.module, n.component);
+    if (!compGroups.has(k)) compGroups.set(k, []);
+    compGroups.get(k).push(i);
+  });
+  for (const idx of [...visible]) {
+    const n = nodes[idx];
+    if (n.component == null) continue;
+    for (const sibling of compGroups.get(skey(n.module, n.component)) ?? []) visible.add(sibling);
+  }
+  const filteredNodes = nodes.filter((_, i) => visible.has(i));
+  const visibleKeys = new Set(filteredNodes.map(keyOf));
+  const filteredEdges = edges.filter(
+    (e) => visibleKeys.has(skey(e.from.module, e.from.name)) && visibleKeys.has(skey(e.to.module, e.to.name)),
+  );
+  return { nodes: filteredNodes, edges: filteredEdges };
+}
+
 // 直近の描画で表示した集約後ノード一覧（renderGraphMap が更新する）。hover プレビューと
 // ノードメニューは onclick/onmouseenter に数値インデックスだけを埋め込み、このリストで
 // 解決する（component 名文字列の属性埋め込みによる quote 衝突バグの根治方針を踏襲）。
@@ -1220,21 +1283,35 @@ function renderGraphNodeSvg(view, idx, x, y, w, h) {
   '</g>';
 }
 
-// 遷移マップ本体（Task 16: モジュール別スイムレーン）。集約後ノードを module ごとの
-// 水平レーンへ分け、レーンごとに layoutGraph（純関数）を回してレーン内で rank 横並びに
-// する（レーン単位の縦積み構成）。レーン内の「起点」は、そのレーンが実文書の entry
-// module を含むならその entry ノード、それ以外は当該レーンの先頭ノード（nodes の定義順で
-// 最初）——複数レーンそれぞれに DAG としての起点を与える素朴な拡張（単一 entry しか
-// 持たない layoutGraph のインターフェースは変えない）。単一 module のみならレーンは
+// 遷移マップ本体（Task 16: モジュール別スイムレーン + 近傍表示）。集約後ノードを module
+// ごとの水平レーンへ分け、レーンごとに layoutGraph（純関数）を回してレーン内で rank
+// 横並びにする（レーン単位の縦積み構成）。レーン内の「起点」は、そのレーンが実文書の
+// entry module を含むならその entry ノード、それ以外は当該レーンの先頭ノード（nodes の
+// 定義順で最初）——複数レーンそれぞれに DAG としての起点を与える素朴な拡張（単一 entry
+// しか持たない layoutGraph のインターフェースは変えない）。単一 module のみならレーンは
 // 1本になりレーン見出しは省略する。cross-module エッジはレーンをまたいで直線で結ぶ
 // （多少の交差は許容——ラフツール）。ノード寸法は固定（nodeWidth/nodeHeight）で
 // ノード数に依らない——マップ全体を viewBox で縮小する旧方式をやめ、はみ出た分は
-// 呼び出し側（.graph-map-scroll）のスクロールで見る。
+// 呼び出し側（.graph-map-scroll）のスクロールで見る。graphShowAll が false（既定）なら
+// 現在地から無向2ホップの近傍だけに絞る（filterGraphNeighborhood）——絞り込み後の集合が
+// レーン分割・レイアウト・graphNodesView（クリック/hover 索引）すべての入力になるため、
+// 近傍モードでも粒度分割・現在地ハイライト・ノードメニューはそのまま機能する。
 function renderGraphMap() {
   const agg = aggregateGraph(DATA.graph.nodes, DATA.graph.edges, graphSplit);
-  graphNodesView = agg.nodes;
-  const nodes = agg.nodes;
-  const edges = agg.edges;
+  let nodes = agg.nodes;
+  let edges = agg.edges;
+  if (!graphShowAll) {
+    const frame = currentFrame();
+    const frameVariant = displayVariant(frame);
+    const currentIdx = nodes.findIndex((view) =>
+      view.module === frame.module && view.component === frame.component &&
+      (view.variant == null || view.variant === frameVariant),
+    );
+    const filtered = filterGraphNeighborhood(nodes, edges, currentIdx);
+    nodes = filtered.nodes;
+    edges = filtered.edges;
+  }
+  graphNodesView = nodes;
   // entry component が split されているときは初期姿ノードを rank 0 の起点にする
   const entryName = graphSplit.has(skey(DATA.entryModule, DATA.entryComponent)) &&
     initialVariant(DATA.entryModule, DATA.entryComponent) != null
@@ -1337,8 +1414,10 @@ function renderGraphSection() {
   }
   return '<details' + (mapPanelOpen ? ' open' : '') + ' class="graph-section" ontoggle="mapPanelOpen = this.open">' +
     '<summary class="pane-title" title="遷移マップ — 画面間の遷移関係（閲覧専用）。状態遷移図として読める">遷移マップ</summary>' +
-    '<div class="pane-desc">画面間の遷移関係（閲覧専用）。状態遷移図として読める。現在の画面.本体に対応するノードを強調表示し、hover でプレビューを表示します。variant を持つノードはクリックで粒度メニュー（variant で分割 / 統合）を開きます。</div>' +
+    '<div class="pane-desc">画面間の遷移関係（閲覧専用）。状態遷移図として読める。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示し、hover でプレビューを表示します。variant を持つノードはクリックで粒度メニュー（variant で分割 / 統合）を開きます。</div>' +
     '<button class="graph-save-btn" onclick="saveGraphConfig()">設定を保存</button>' +
+    '<label class="graph-scope-toggle"><input type="checkbox" ' + (graphShowAll ? 'checked' : '') +
+      ' onchange="toggleGraphShowAll()"> 全体を見る</label>' +
     '<div id="graph-preview" class="graph-preview"></div>' + menuHtml + mapHtml +
   '</details>';
 }

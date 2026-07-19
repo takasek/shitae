@@ -1240,11 +1240,17 @@ describe('toSimulator', () => {
     };
     const smallContext = runSimulatorScript(smallHtml);
     const bigContext = runSimulatorScript(bigHtml);
+    // 既定は近傍表示（Task 16 受入基準d）のため、ノード数に依らない固定寸法を検証するには
+    // 「全体を見る」で両方とも全ノードを描画させた上で比較する
+    vm.runInContext('toggleGraphShowAll()', smallContext);
+    vm.runInContext('toggleGraphShowAll()', bigContext);
+    const bigAppHtml = vm.runInContext('app.innerHTML', bigContext);
     const smallRect = rectSizeOf(vm.runInContext('app.innerHTML', smallContext));
-    const bigRect = rectSizeOf(vm.runInContext('app.innerHTML', bigContext));
+    const bigRect = rectSizeOf(bigAppHtml);
     expect(smallRect).not.toBeNull();
     expect(bigRect).not.toBeNull();
     expect(bigRect).toEqual(smallRect); // ノード数が増えても矩形寸法は不変（固定サイズ）
+    expect((bigAppHtml.match(/<rect /g) ?? []).length).toBe(15); // 全体表示なら15ノード全部描画される
 
     // マップ全体を viewBox で縮小して収める旧方式（.graph-svg の max-width: 100%）をやめ、
     // .graph-map-scroll がマップ領域内の横縦スクロールを担う
@@ -1257,6 +1263,111 @@ describe('toSimulator', () => {
     const svgIdxAfterScroll = smallHtml.indexOf('<svg', scrollIdx);
     expect(scrollIdx).toBeGreaterThan(-1);
     expect(svgIdxAfterScroll).toBeGreaterThan(scrollIdx);
+  });
+
+  it('filterGraphNeighborhood: currentIdx から無向2ホップ以内のノードだけを残し、範囲外へのエッジは省く（受入基準d）', () => {
+    const doc = parseOk('# A\n要素\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const nodes = [
+      { module: 'main', name: 'A' },
+      { module: 'main', name: 'B' },
+      { module: 'main', name: 'C' },
+      { module: 'main', name: 'D' },
+      { module: 'main', name: 'E' },
+    ];
+    const edges = [
+      { from: { module: 'main', name: 'A' }, to: { module: 'main', name: 'B' } },
+      { from: { module: 'main', name: 'B' }, to: { module: 'main', name: 'C' } },
+      { from: { module: 'main', name: 'C' }, to: { module: 'main', name: 'D' } },
+      { from: { module: 'main', name: 'D' }, to: { module: 'main', name: 'E' } },
+    ];
+    const result = JSON.parse(
+      vm.runInContext(
+        `JSON.stringify(filterGraphNeighborhood(${JSON.stringify(nodes)}, ${JSON.stringify(edges)}, 0))`,
+        context,
+      ),
+    );
+    expect(result.nodes.map((n: any) => n.name).sort()).toEqual(['A', 'B', 'C']);
+    expect(result.edges).toEqual([
+      { from: { module: 'main', name: 'A' }, to: { module: 'main', name: 'B' } },
+      { from: { module: 'main', name: 'B' }, to: { module: 'main', name: 'C' } },
+    ]);
+  });
+
+  it('filterGraphNeighborhood: currentIdx が見つからない場合は全ノード・全エッジをそのまま返す（フォールバック）', () => {
+    const doc = parseOk('# A\n要素\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const nodes = [{ module: 'main', name: 'A' }, { module: 'main', name: 'B' }];
+    const edges = [{ from: { module: 'main', name: 'A' }, to: { module: 'main', name: 'B' } }];
+    const result = JSON.parse(
+      vm.runInContext(
+        `JSON.stringify(filterGraphNeighborhood(${JSON.stringify(nodes)}, ${JSON.stringify(edges)}, -1))`,
+        context,
+      ),
+    );
+    expect(result.nodes).toEqual(nodes);
+    expect(result.edges).toEqual(edges);
+  });
+
+  it('filterGraphNeighborhood: 粒度分割の variant 兄弟ノードはエッジが無くても近傍に含める（受入基準d、粒度分割との両立）', () => {
+    const doc = parseOk('# A\n要素\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    // X の2 variant 間にはエッジが無いが、split 済みの同一 component なので
+    // どちらかが近傍に入れば両方可視にする（粒度分割は遷移エッジの有無と独立した表示粒度のため）。
+    // Y は別 component かつエッジも無いため近傍に含まれない。
+    const nodes = [
+      { module: 'main', name: 'X ## 通常', component: 'X', variant: '通常' },
+      { module: 'main', name: 'X ## 特殊', component: 'X', variant: '特殊' },
+      { module: 'main', name: 'Y', component: 'Y', variant: null },
+    ];
+    const result = JSON.parse(
+      vm.runInContext(`JSON.stringify(filterGraphNeighborhood(${JSON.stringify(nodes)}, [], 0))`, context),
+    );
+    expect(result.nodes.map((n: any) => n.name).sort()).toEqual(['X ## 特殊', 'X ## 通常']);
+  });
+
+  it('遷移マップ: 既定は現在地から無向2ホップの近傍ノードのみ表示し、「全体を見る」トグルで全ノードへ切替わる（状態保持。受入基準d）', () => {
+    const doc = parseOk(
+      '# 起点\n> 進む -> push(隣接1)\n\n# 隣接1\n> 進む -> push(隣接2)\n\n# 隣接2\n> 進む -> push(隣接3)\n\n' +
+        '# 隣接3\n> 進む -> push(遠方)\n\n# 遠方\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).toContain('function toggleGraphShowAll(');
+    const context = runSimulatorScript(html);
+    const svgOf = () => {
+      const appHtml = vm.runInContext('app.innerHTML', context);
+      return appHtml.slice(appHtml.indexOf('<svg class="graph-svg"'));
+    };
+
+    // 既定（近傍表示）: 起点から2ホップ以内（隣接1・隣接2）のみ。現在地ハイライトも機能する
+    const beforeSvg = svgOf();
+    expect(beforeSvg).toContain('起点');
+    expect(beforeSvg).toContain('隣接1');
+    expect(beforeSvg).toContain('隣接2');
+    expect(beforeSvg).not.toContain('隣接3');
+    expect(beforeSvg).not.toContain('遠方');
+    const nodeTagsBefore = [...beforeSvg.matchAll(/<g class="([^"]*)"[^>]*>[\s\S]*?<\/g>/g)];
+    const startTag = nodeTagsBefore.find((m) => m[0].includes('起点'));
+    expect(startTag![1]).toMatch(/graph-node-current/);
+
+    // 「全体を見る」トグルで全ノードへ切替わる
+    vm.runInContext('toggleGraphShowAll()', context);
+    const afterSvg = svgOf();
+    expect(afterSvg).toContain('起点');
+    expect(afterSvg).toContain('隣接1');
+    expect(afterSvg).toContain('隣接2');
+    expect(afterSvg).toContain('隣接3');
+    expect(afterSvg).toContain('遠方');
+
+    // 状態保持: 遷移後もトグル状態は維持される
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '隣接1', variant: null } }); render()",
+      context,
+    );
+    expect(vm.runInContext('graphShowAll', context)).toBe(true);
   });
 
   it('遷移マップ: ノードの hover 属性は component 名でなく配列インデックスで参照する（quote 衝突を避ける）', () => {
