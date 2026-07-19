@@ -1039,7 +1039,7 @@ describe('toSimulator', () => {
     expect(vm.runInContext('app.innerHTML', context)).not.toContain('back-btn');
   });
 
-  it('layoutGraph: entry component を rank 0 とし、エッジに沿って BFS で rank を割り当てる', () => {
+  it('layoutGraph: entry component を rank 0 とし、エッジに沿って longest-path で rank を割り当てる（直線チェーンは横並び。受入基準a）', () => {
     const doc = parseOk('# A\n要素\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
@@ -1113,6 +1113,64 @@ describe('toSimulator', () => {
     );
     const orderOf = (name: string) => layout.find((n: any) => n.name === name).order;
     expect(orderOf('Q')).toBeLessThan(orderOf('P'));
+  });
+
+  it('layoutGraph: 合流ノードは longest-path で最長側の rank を得る（近道エッジがあっても短絡しない。受入基準a）', () => {
+    const doc = parseOk('# A\n要素\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    // A->B->C->D の長い経路と A->D の近道が両方存在する。BFS なら D は近道経由の rank1 に
+    // 短絡するが、longest-path では長い経路側の rank（3）を採る。
+    const nodes = [
+      { module: 'main', name: 'A' },
+      { module: 'main', name: 'B' },
+      { module: 'main', name: 'C' },
+      { module: 'main', name: 'D' },
+    ];
+    const edges = [
+      { from: { module: 'main', name: 'A' }, to: { module: 'main', name: 'B' } },
+      { from: { module: 'main', name: 'B' }, to: { module: 'main', name: 'C' } },
+      { from: { module: 'main', name: 'C' }, to: { module: 'main', name: 'D' } },
+      { from: { module: 'main', name: 'A' }, to: { module: 'main', name: 'D' } },
+    ];
+    const layout = JSON.parse(
+      vm.runInContext(
+        `JSON.stringify(layoutGraph(${JSON.stringify(nodes)}, ${JSON.stringify(edges)}, 'main', 'A'))`,
+        context,
+      ),
+    );
+    const rankOf = (name: string) => layout.find((n: any) => n.name === name).rank;
+    expect(rankOf('A')).toBe(0);
+    expect(rankOf('B')).toBe(1);
+    expect(rankOf('C')).toBe(2);
+    expect(rankOf('D')).toBe(3);
+  });
+
+  it('layoutGraph: サイクルがあっても後退辺を無視して無限ループせず rank を割り当てる', () => {
+    const doc = parseOk('# A\n要素\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    // A->B->A の後退辺（サイクル）を含む。B->C は前進辺として通常どおり rank2 になる。
+    const nodes = [
+      { module: 'main', name: 'A' },
+      { module: 'main', name: 'B' },
+      { module: 'main', name: 'C' },
+    ];
+    const edges = [
+      { from: { module: 'main', name: 'A' }, to: { module: 'main', name: 'B' } },
+      { from: { module: 'main', name: 'B' }, to: { module: 'main', name: 'A' } },
+      { from: { module: 'main', name: 'B' }, to: { module: 'main', name: 'C' } },
+    ];
+    const layout = JSON.parse(
+      vm.runInContext(
+        `JSON.stringify(layoutGraph(${JSON.stringify(nodes)}, ${JSON.stringify(edges)}, 'main', 'A'))`,
+        context,
+      ),
+    );
+    const rankOf = (name: string) => layout.find((n: any) => n.name === name).rank;
+    expect(rankOf('A')).toBe(0);
+    expect(rankOf('B')).toBe(1);
+    expect(rankOf('C')).toBe(2);
   });
 
   it('遷移マップ: DATA.graph を dot 風レイヤード SVG として描画する（rect + component 名テキスト）', () => {

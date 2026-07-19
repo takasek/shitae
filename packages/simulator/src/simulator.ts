@@ -913,12 +913,21 @@ function renderOverlayCard(name, cardIdx) {
   });
 }
 
-// 遷移マップ（Task 5）: DATA.graph を GraphViz dot 風の簡易レイヤードで配置する純関数。
-// rank 割当: entryModule/entryComponent を rank 0 とし、エッジに沿って BFS する
-// （エッジは静的な push/present/goto/switch のみ。SimGraph の定義参照）。エッジで
+// 遷移マップ（Task 5、rank 割当は Task 16 で longest-path へ刷新）: DATA.graph を
+// GraphViz dot 風の簡易レイヤードで配置する純関数。
+// rank 割当: entryModule/entryComponent を rank 0 とし、各ノードの rank は
+// entry からの全先行パスの最長（longest-path。エッジは静的な push/present/goto/switch
+// のみ。SimGraph の定義参照）——遷移チェーンが横に並ぶことを基本にする。entry から
+// DFS で到達可能なノードを辿り、後退辺（現在探索中のノードへ戻るエッジ＝サイクル）は
+// 無視して前進辺・交差辺だけを予測グラフ（forwardPreds）として残す。これにより
+// サイクルがあっても無限ループせず、DAG とみなした longest-path が求まる（合流ノードは
+// 複数の先行ノードのうち rank が最大のものを採り、最長側の rank になる）。エッジで
 // 到達しないノードは最終 rank の次に隔離してまとめる。rank 内順序は前 rank の
 // 隣接ノードの平均位置（barycenter）で 1 パス整列する——前 rank に隣接がなければ
-// 末尾へ、barycenter が同着なら nodes の定義順を保つ（安定ソート）。
+// 末尾へ、barycenter が同着なら nodes の定義順を保つ（安定ソート）。longest-path でも
+// 各ノードの rank は「ある前進辺の先行ノードの rank + 1」として定義されるため、
+// rank r（>0）のノードには必ず rank r-1 の先行ノードが存在し、rank 値は 0 から
+// maxRank まで連番で埋まる（前 rank 参照が常に有効な根拠）。
 // 戻り値は { module, name, rank, order }[]（座標変換は呼び出し側が rank/order から行う）。
 function layoutGraph(nodes, edges, entryModule, entryComponent) {
   const keyOf = (n) => skey(n.module, n.name);
@@ -936,16 +945,39 @@ function layoutGraph(nodes, edges, entryModule, entryComponent) {
   const rank = new Array(nodes.length).fill(-1);
   const entryIdx = indexByKey.get(skey(entryModule, entryComponent));
   if (entryIdx != null) {
-    rank[entryIdx] = 0;
-    const queue = [entryIdx];
-    while (queue.length > 0) {
-      const cur = queue.shift();
-      for (const next of adj[cur]) {
-        if (rank[next] === -1) {
-          rank[next] = rank[cur] + 1;
-          queue.push(next);
+    // entry を根に反復 DFS（post-order）を行い、後退辺（探索中＝スタック上のノードへの
+    // エッジ）を検出して無視する。post-order を逆順にしたものが、後退辺を除いた
+    // 前進・交差辺だけのグラフ上でのトポロジカル順序になる——longest-path は
+    // このトポロジカル順に rank[v] = max(前進辺で入る先行ノードの rank) + 1 で求まる。
+    const forwardPreds = nodes.map(() => []);
+    const NOT_VISITED = 0, ON_STACK = 1, DONE = 2;
+    const state = new Array(nodes.length).fill(NOT_VISITED);
+    const postorder = [];
+    const dfsStack = [{ idx: entryIdx, iter: 0 }];
+    state[entryIdx] = ON_STACK;
+    while (dfsStack.length > 0) {
+      const top = dfsStack[dfsStack.length - 1];
+      if (top.iter < adj[top.idx].length) {
+        const next = adj[top.idx][top.iter];
+        top.iter++;
+        if (state[next] === ON_STACK) continue; // 後退辺（サイクル）は無視する
+        forwardPreds[next].push(top.idx); // 前進辺・交差辺は longest-path の候補として残す
+        if (state[next] === NOT_VISITED) {
+          state[next] = ON_STACK;
+          dfsStack.push({ idx: next, iter: 0 });
         }
+      } else {
+        state[top.idx] = DONE;
+        postorder.push(top.idx);
+        dfsStack.pop();
       }
+    }
+    const topoOrder = postorder.reverse();
+    rank[entryIdx] = 0;
+    for (const idx of topoOrder) {
+      if (idx === entryIdx) continue; // entry は常に rank 0（後退辺は無視済みのため上書きされない）
+      const preds = forwardPreds[idx];
+      rank[idx] = preds.length === 0 ? 0 : Math.max(...preds.map((p) => rank[p] + 1));
     }
   }
   const reachedRanks = rank.filter((r) => r >= 0);
