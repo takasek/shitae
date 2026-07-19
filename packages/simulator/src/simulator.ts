@@ -94,8 +94,10 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
    ——空(1行)から内容表示(4行)へ高さが変わるとレイアウトが下方向へシフトし、直下の
    ノードがカーソル位置から逃げて mouseenter/mouseleave が無限ループするフリッカを
    起こしていた（UX評価3.3、Task 12）。固定高にすることで内容の出入りに関わらず
-   レイアウトが不動になり、sticky 配置とも両立する。 */
-.graph-preview { position: sticky; top: 0; z-index: 1; margin-bottom: 6px; padding: 6px 8px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; font-size: 11px; color: #555; min-height: 4.4em; }
+   レイアウトが不動になり、sticky 配置とも両立する。予約量は決定的に導出する:
+   line-height 1.4 を明示 → 4行 = 5.6em、上下 padding 12px（border-box、font-size 11px
+   基準で約1.1em）を含め 6.8em を確保する。 */
+.graph-preview { position: sticky; top: 0; z-index: 1; margin-bottom: 6px; padding: 6px 8px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; font-size: 11px; line-height: 1.4; color: #555; min-height: 6.8em; }
 .graph-preview-title { font-weight: 700; color: #333; }
 .graph-node { cursor: pointer; }
 .graph-menu { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; padding: 6px 8px; background: #fff; border: 1px solid #ccc; border-radius: 6px; font-size: 12px; }

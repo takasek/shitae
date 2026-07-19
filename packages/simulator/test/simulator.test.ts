@@ -1145,8 +1145,13 @@ describe('toSimulator', () => {
     // variant）に変わっても高さが変わらないよう、最大内容分の高さをあらかじめ予約する
     // （固定 min-height 方式。旧 min-height: 1em は空状態の1行分しか予約せず、内容表示時に
     // レイアウトが下方向へシフトしてノードがカーソル直下から逃げていた——UX評価3.3の根因）。
+    // 予約量を決定的にするため line-height を明示し、min-height は 4行 × line-height 1.4 =
+    // 5.6em + 上下 padding 12px（border-box、font-size 11px 基準で約1.1em）≥ 6.7em を要求する。
     expect(previewRuleMatch![0]).not.toMatch(/min-height:\s*1em\b/);
-    expect(previewRuleMatch![0]).toMatch(/min-height:\s*4(\.\d+)?em\b/);
+    expect(previewRuleMatch![0]).toMatch(/line-height:\s*1\.4\b/);
+    const minHeightMatch = previewRuleMatch![0].match(/min-height:\s*([\d.]+)em\b/);
+    expect(minHeightMatch).not.toBeNull();
+    expect(parseFloat(minHeightMatch![1]!)).toBeGreaterThanOrEqual(6.7);
     expect(previewRuleMatch![0]).toMatch(/position:\s*sticky/);
   });
 
