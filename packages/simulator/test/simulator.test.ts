@@ -1617,6 +1617,23 @@ describe('toSimulator', () => {
     expect(result.nodes.map((n: any) => n.name).sort()).toEqual(['X ## 特殊', 'X ## 通常']);
   });
 
+  it('遷移マップ: 遷移エッジを持たない gate 対象ノードも近傍表示へ常に含める（N-3、マップ tooltip からの gate 試験入口を確保）', () => {
+    const doc = parseOk(
+      '# 予約\n*日付\n> タップ(日付.選択可能?) -> back()\n\n' +
+        '# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n' +
+        '# 遠い画面\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    // 既定は近傍表示（graphShowAll=false）。予約 は他画面への遷移エッジを持たないため、
+    // 無向隣接だけでは 日付（gate 対象・遷移エッジなし）も 遠い画面 も近傍から漏れるはずだが、
+    // gate 対象である 日付 だけは常に可視集合へ含まれる。
+    const svgHtml = appHtml.slice(appHtml.indexOf('<svg class="graph-svg"'));
+    expect(svgHtml).toContain('>日付<');
+    expect(svgHtml).not.toContain('>遠い画面<');
+  });
+
   it('遷移マップ: 既定は現在地から無向2ホップの近傍ノードのみ表示し、「全体を見る」トグルで全ノードへ切替わる（状態保持。受入基準d）', () => {
     const doc = parseOk(
       '# 起点\n> 進む -> push(隣接1)\n\n# 隣接1\n> 進む -> push(隣接2)\n\n# 隣接2\n> 進む -> push(隣接3)\n\n' +

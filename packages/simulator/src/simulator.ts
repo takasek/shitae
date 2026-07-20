@@ -1195,6 +1195,12 @@ function toggleGraphShowAll() {
 // もの）は、どれか1つが近傍に入っていれば全員可視にする——split は遷移エッジの有無とは独立な
 // 表示粒度の選択であり、同じ画面の別姿として一緒に見えるべきため（近傍モードでも粒度分割が
 // 機能する。受入基準d）。plain な {module,name} だけの fixture（component 未指定）は対象外。
+// gate 試験対象（DATA.gateTargets、member gate の参照先）は遷移エッジを持たないことが多く
+// （部品として画面内に置かれるだけで push/present 等の対象にはならない）、無向隣接だけでは
+// 近傍表示に決して現れない（N-3）。マップ tooltip 経由の gate 試験（Task 18 項目6）の入口を
+// 必ず確保するため、近傍表示でも gate 対象ノードは常に可視集合へ含める——DATA を参照する
+// ため他の近傍表示ロジックと異なり厳密には純関数でないが、対象一覧はグローバルな文書メタ
+// データであり呼び出し引数化するほどの可変性はない（設計判断）。
 function filterGraphNeighborhood(nodes, edges, currentIdx) {
   if (currentIdx < 0 || currentIdx >= nodes.length) return { nodes, edges };
   const keyOf = (n) => skey(n.module, n.name);
@@ -1219,6 +1225,14 @@ function filterGraphNeighborhood(nodes, edges, currentIdx) {
     }
     frontier = next;
   }
+  // gate 試験対象ノードは無向隣接に依らず常に可視集合へ含める（N-3）。sibling 展開より
+  // 前に行うことで、gate 対象が split 済み component なら variant 兄弟も下のループで拾われる。
+  const gateTargets = DATA.gateTargets || [];
+  nodes.forEach((n, i) => {
+    if (n.component != null && gateTargets.some((t) => t.module === n.module && t.name === n.component)) {
+      visible.add(i);
+    }
+  });
   const compGroups = new Map();
   nodes.forEach((n, i) => {
     if (n.component == null) return;
