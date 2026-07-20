@@ -1321,6 +1321,38 @@ describe('toSimulator', () => {
     expect(rankOf('D')).toBe(2); // maxRank(=1) の次にまとめる
   });
 
+  it('layoutGraph: 入次数ゼロで出エッジを持つノード（ハブ部品）は隔離せず rank 0 の起点として扱う（N-1）', () => {
+    const doc = parseOk('# A\n要素\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    // H は entry(A) から到達しない（A->B のみ）が、C・D への出エッジを持つ入次数ゼロの
+    // ハブ（タブバー相当）。Z は出エッジも入エッジも持たない孤立ノード。
+    const nodes = [
+      { module: 'main', name: 'A' },
+      { module: 'main', name: 'B' },
+      { module: 'main', name: 'H' },
+      { module: 'main', name: 'C' },
+      { module: 'main', name: 'D' },
+      { module: 'main', name: 'Z' },
+    ];
+    const edges = [
+      { from: { module: 'main', name: 'A' }, to: { module: 'main', name: 'B' } },
+      { from: { module: 'main', name: 'H' }, to: { module: 'main', name: 'C' } },
+      { from: { module: 'main', name: 'H' }, to: { module: 'main', name: 'D' } },
+    ];
+    const layout = JSON.parse(
+      vm.runInContext(
+        `JSON.stringify(layoutGraph(${JSON.stringify(nodes)}, ${JSON.stringify(edges)}, 'main', 'A'))`,
+        context,
+      ),
+    );
+    const rankOf = (name: string) => layout.find((n: any) => n.name === name).rank;
+    expect(rankOf('H')).toBe(0); // 隔離 rank でなく起点として rank 0
+    expect(rankOf('C')).toBe(1);
+    expect(rankOf('D')).toBe(1);
+    expect(rankOf('Z')).toBe(2); // 出エッジ無しの孤立ノードだけが従来どおり隔離rank（maxRank+1）
+  });
+
   it('layoutGraph: rank 内順序を前 rank の隣接ノードの平均位置（barycenter）で 1 パス整列する', () => {
     const doc = parseOk('# A\n要素\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');

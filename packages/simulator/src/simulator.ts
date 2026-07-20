@@ -1049,12 +1049,21 @@ function renderOverlayCard(name, cardIdx) {
 // 無視して前進辺・交差辺だけを予測グラフ（forwardPreds）として残す。これにより
 // サイクルがあっても無限ループせず、DAG とみなした longest-path が求まる（合流ノードは
 // 複数の先行ノードのうち rank が最大のものを採り、最長側の rank になる）。エッジで
-// 到達しないノードは最終 rank の次に隔離してまとめる。rank 内順序は前 rank の
+// 到達しないノードのうち出エッジを持たない孤立ノードだけを最終 rank の次に隔離してまとめる
+// （下記追加起点の説明を参照）。rank 内順序は前 rank の
 // 隣接ノードの平均位置（barycenter）で 1 パス整列する——前 rank に隣接がなければ
 // 末尾へ、barycenter が同着なら nodes の定義順を保つ（安定ソート）。longest-path でも
 // 各ノードの rank は「ある前進辺の先行ノードの rank + 1」として定義されるため、
 // rank r（>0）のノードには必ず rank r-1 の先行ノードが存在し、rank 値は 0 から
 // maxRank まで連番で埋まる（前 rank 参照が常に有効な根拠）。
+// entry から到達しないノードのうち出エッジを持つものは、独立した起点として同じ
+// longest-path 計算へ加える（N-1）——入次数ゼロのハブ部品（タブバー等、出エッジ多数・
+// 入エッジなし）が旧規則（隔離 rank = maxRank+1）でレーン最右端へ押し出され、そこから
+// 実際の後続ノードへ逆向きの長い交差エッジが走る問題への対応。出エッジを持たない
+// 孤立ノードだけが従来どおり隔離 rank へ回る。DFS 森の postorder を逆順にしたものが
+// 森全体（後退辺を除いた前進・交差辺だけのグラフ）のトポロジカル順序になる、という
+// 標準的な性質は複数の起点で呼んでも成り立つため、entry の DFS と追加起点の DFS を
+// 同じ postorder/forwardPreds へ積み上げるだけでよい。
 // 戻り値は { module, name, rank, order }[]（座標変換は呼び出し側が rank/order から行う）。
 function layoutGraph(nodes, edges, entryModule, entryComponent) {
   const keyOf = (n) => skey(n.module, n.name);
@@ -1070,18 +1079,19 @@ function layoutGraph(nodes, edges, entryModule, entryComponent) {
   }
 
   const rank = new Array(nodes.length).fill(-1);
-  const entryIdx = indexByKey.get(skey(entryModule, entryComponent));
-  if (entryIdx != null) {
-    // entry を根に反復 DFS（post-order）を行い、後退辺（探索中＝スタック上のノードへの
-    // エッジ）を検出して無視する。post-order を逆順にしたものが、後退辺を除いた
-    // 前進・交差辺だけのグラフ上でのトポロジカル順序になる——longest-path は
-    // このトポロジカル順に rank[v] = max(前進辺で入る先行ノードの rank) + 1 で求まる。
-    const forwardPreds = nodes.map(() => []);
-    const NOT_VISITED = 0, ON_STACK = 1, DONE = 2;
-    const state = new Array(nodes.length).fill(NOT_VISITED);
-    const postorder = [];
-    const dfsStack = [{ idx: entryIdx, iter: 0 }];
-    state[entryIdx] = ON_STACK;
+  const forwardPreds = nodes.map(() => []);
+  const NOT_VISITED = 0, ON_STACK = 1, DONE = 2;
+  const state = new Array(nodes.length).fill(NOT_VISITED);
+  const postorder = [];
+
+  // 1 つの根から反復 DFS（post-order）を行い、後退辺（探索中＝スタック上のノードへの
+  // エッジ）を検出して forwardPreds から除外する（サイクル無視）。post-order を逆順に
+  // したものが、後退辺を除いた前進・交差辺だけのグラフ上でのトポロジカル順序になる——
+  // longest-path はこのトポロジカル順に rank[v] = max(前進辺で入る先行ノードの rank) + 1
+  // で求まる。複数回呼んでも postorder・forwardPreds は共通の配列へ積み上がり続ける。
+  function dfsFrom(rootIdx) {
+    const dfsStack = [{ idx: rootIdx, iter: 0 }];
+    state[rootIdx] = ON_STACK;
     while (dfsStack.length > 0) {
       const top = dfsStack[dfsStack.length - 1];
       if (top.iter < adj[top.idx].length) {
@@ -1099,14 +1109,26 @@ function layoutGraph(nodes, edges, entryModule, entryComponent) {
         dfsStack.pop();
       }
     }
-    const topoOrder = postorder.reverse();
-    rank[entryIdx] = 0;
-    for (const idx of topoOrder) {
-      if (idx === entryIdx) continue; // entry は常に rank 0（後退辺は無視済みのため上書きされない）
-      const preds = forwardPreds[idx];
-      rank[idx] = preds.length === 0 ? 0 : Math.max(...preds.map((p) => rank[p] + 1));
-    }
   }
+
+  const entryIdx = indexByKey.get(skey(entryModule, entryComponent));
+  if (entryIdx != null) dfsFrom(entryIdx);
+  // entry から到達しない残りのノードのうち、出エッジを持つものを追加の起点として
+  // DFS する（定義順で走査。既に他の追加起点から訪問済みならスキップ）。
+  for (let i = 0; i < nodes.length; i++) {
+    if (state[i] === NOT_VISITED && adj[i].length > 0) dfsFrom(i);
+  }
+
+  if (entryIdx != null) rank[entryIdx] = 0; // entry は常に rank 0（後退辺は無視済みのため上書きされない）
+  const topoOrder = postorder.slice().reverse();
+  for (const idx of topoOrder) {
+    if (idx === entryIdx) continue;
+    const preds = forwardPreds[idx];
+    rank[idx] = preds.length === 0 ? 0 : Math.max(...preds.map((p) => rank[p] + 1));
+  }
+
+  // 出エッジを持たない孤立ノード（上のループでも一度も訪問されない）だけが最終的に
+  // rank === -1 のまま残る。従来どおり隔離 rank（maxRank + 1）へまとめる。
   const reachedRanks = rank.filter((r) => r >= 0);
   const maxRank = reachedRanks.length > 0 ? Math.max(...reachedRanks) : -1;
   const unreachedRank = maxRank + 1;
