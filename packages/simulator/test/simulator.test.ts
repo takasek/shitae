@@ -741,8 +741,10 @@ describe('toSimulator', () => {
       context,
     );
     const afterPushHtml = vm.runInContext('app.innerHTML', context);
-    // 遷移エントリは遷移後の画面（検索）を併記する
-    expect(afterPushHtml).toMatch(/<span class="timeline-item-screen">\[検索\]<\/span> push → 検索/);
+    // 遷移エントリは画面名ラベルを併記しない（N-2）——ラベル自体（push → 検索）が遷移後の
+    // 画面を表すため、併記すると全文重複する。screen フィールド自体は下の JSON 検証で確認する。
+    expect(afterPushHtml).not.toMatch(/<span class="timeline-item-screen">\[検索\]<\/span> push → 検索/);
+    expect(afterPushHtml).toContain('push → 検索');
 
     // 表示だけでなくエントリ構造自体にも screen フィールドとして残る
     const timelineJson = JSON.parse(vm.runInContext('JSON.stringify(timeline)', context));
@@ -750,14 +752,33 @@ describe('toSimulator', () => {
     expect(timelineJson[2].screen).toBe('検索'); // push → 検索
   });
 
-  it('統合ログ: 画面名ラベルは姿(variant)を伴うとき "component / variant" 形式になる（Task 18 受入基準a）', () => {
+  it('統合ログ: transition行は画面名ラベルを併記しない（遷移先ラベル自体が現在地を表すため重複。N-2）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      context,
+    );
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    const transitionSpanMatch = appHtml.match(
+      /<span class="timeline-item timeline-item-transition current" onclick="jumpToTimeline\(1\)">([^<]*)<\/span>/,
+    );
+    expect(transitionSpanMatch).not.toBeNull();
+    expect(transitionSpanMatch![1]).toBe('push → 検索'); // 画面名バッジ [検索] を併記しない
+  });
+
+  it('統合ログ: 画面名ラベルは姿(variant)を伴うとき "component / variant" 形式になる（event行併記。Task 18 受入基準a、N-2でtransition行は併記対象外）', () => {
     const doc = parseOk('# 詳細\n## 読込中\nスピナー\n> 完了 -> goto(##表示)\n## 表示\nコンテンツ\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'goto', target: { kind: 'variant', variant: '表示' } }); render()",
+      "applyTransition({ type: 'transition', word: 'goto', target: { kind: 'variant', variant: '表示' } })",
       context,
     );
+    // transition 行は画面名ラベルを併記しない（N-2）ため、姿つきラベルの形式検証は
+    // event 行（effect）で行う——遷移後の「表示」姿で effect を起こす。
+    vm.runInContext("applyTransition({ type: 'effect', text: '読み込み完了' }); render()", context);
     const appHtml = vm.runInContext('app.innerHTML', context);
     expect(appHtml).toContain('[詳細 / 表示]');
   });

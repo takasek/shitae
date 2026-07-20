@@ -1715,7 +1715,13 @@ function render() {
     if (i > cursor) classes.push('ghost');
     // 記録時のアクティブ画面（component/variant）を薄いラベルで併記する（Task 18 受入基準a）——
     // 「effect: 盤面が更新される」のような1行が前後の遷移行を見なくても自己完結して読める。
-    const screenBadge = '<span class="timeline-item-screen">[' + esc(entry.screen) + ']</span> ';
+    // transition 行では併記しない（N-2）——ラベル自体が遷移後の画面（=記録時のアクティブ画面と
+    // 常に同一）を指すため、画面名を添えると「[ホーム] present → ホーム」のように全文重複し、
+    // 「[X] は遷移元では」という誤読を招く（UX round3 実機評価）。event 行は遷移先を示さない
+    // （例: effect の本文は画面名を含まない）ため引き続き併記して自己完結性を保つ。
+    const screenBadge = entry.kind === 'event'
+      ? '<span class="timeline-item-screen">[' + esc(entry.screen) + ']</span> '
+      : '';
     timelineParts.push('<span class="' + classes.join(' ') + '" onclick="jumpToTimeline(' + i + ')">' + screenBadge + esc(entry.label) + '</span>');
   }
   const timelineHtml = timelineParts.join(' › ');
