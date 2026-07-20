@@ -1697,12 +1697,17 @@ function renderStackSection() {
 // scope==='document' の操作だけをここへ集め、既定閉の <details> にまとめる。実行機構は
 // 変わらない（handleInteraction('document', idx, ...) が docCommonInteractions() を直接引く）。
 // 対象ゼロならセクション自体を出さない（無言の空 details を避ける）。
+// セクションが screen-section スクロール領域の下端にあるため、summary クリックで開いても
+// 行が fold の下に隠れ何も起きていないように見えていた（N-4）。開いたとき（this.open）だけ
+// 自身へ scrollIntoView する——block: 'nearest' は既にビューポート内なら動かさない控えめな
+// 挙動で、閉じたときや初期描画（既定閉）では呼ばない。
 function renderExternalEventsSection() {
   const items = documentEventItems();
   if (items.length === 0) return '';
   const buildOnclick = (scope, idx, choiceIdx) => "handleInteraction('" + scope + "'," + idx + "," + choiceIdx + ")";
   const rowsHtml = items.map((item) => renderActionRow(item, buildOnclick)).join('');
-  return '<details' + (docEventsPanelOpen ? ' open' : '') + ' class="doc-events-section" ontoggle="docEventsPanelOpen = this.open">' +
+  const ontoggle = "docEventsPanelOpen = this.open; if (this.open) this.scrollIntoView({ block: 'nearest' })";
+  return '<details' + (docEventsPanelOpen ? ' open' : '') + ' class="doc-events-section" ontoggle="' + ontoggle + '">' +
     '<summary class="pane-title" title="外部イベントを発生させる — この文書のどの画面でも常に有効な操作（document common）。プッシュ通知やセッション切れなど、稀に起こる外的要因を模す">外部イベントを発生させる</summary>' +
     '<div class="action-list">' + rowsHtml + '</div>' +
   '</details>';

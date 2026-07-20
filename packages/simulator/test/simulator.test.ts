@@ -1116,6 +1116,21 @@ describe('toSimulator', () => {
     expect(openHtml).toMatch(/<details open class="doc-events-section"/);
   });
 
+  it('外部イベントセクション: 開いたときに自身へ scrollIntoView する（画面外に隠れ無反応に見える問題への対応。N-4）', () => {
+    const doc = parseOk('> 通知 -> push(受信箱)\n\n# ホーム\n本体\n\n# 受信箱\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    // ontoggle は開いたとき（this.open）だけ this.scrollIntoView(...) を呼ぶ——
+    // 閉じたときや初期描画では呼ばず、控えめな挙動（{ block: 'nearest' } 等）に留める。
+    const sectionMatch = appHtml.match(/<details[^>]*class="doc-events-section"[^>]*ontoggle="([^"]*)"/);
+    expect(sectionMatch).not.toBeNull();
+    const ontoggleAttr = sectionMatch![1]!;
+    expect(ontoggleAttr).toContain('docEventsPanelOpen = this.open');
+    expect(ontoggleAttr).toContain('this.open');
+    expect(ontoggleAttr).toContain('.scrollIntoView(');
+  });
+
   it('掲示中カードは従来どおり外部イベントセクションを持たない（document common はアクティブ画面基準。ADR-0015）', () => {
     const doc = parseOk(
       '> 通知 -> push(受信箱)\n\n' +
