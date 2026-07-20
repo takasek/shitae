@@ -1899,6 +1899,14 @@ describe('toSimulator', () => {
     expect(backdropRuleMatch![0]).toMatch(/position:\s*fixed/);
   });
 
+  it('gate ドロワー: 「閉じる」ボタンが2行に折り返さない（N-5）', () => {
+    const doc = parseOk('# A\n要素\n> タップ(要素) -> back()\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const closeRuleMatch = html.match(/\.gate-drawer-close\s*\{[^}]*\}/);
+    expect(closeRuleMatch).not.toBeNull();
+    expect(closeRuleMatch![0]).toMatch(/white-space:\s*nowrap/);
+  });
+
   it('中央ペイン: 現在の画面が独立スクロール、スタック+マップはまとめて1つのスクロール領域に分かれる（Task 14。Task 9 の後継）', () => {
     const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');

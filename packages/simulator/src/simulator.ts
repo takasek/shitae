@@ -116,7 +116,7 @@ summary.pane-title { cursor: pointer; }
 .gate-drawer-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.15); z-index: 20; }
 .gate-drawer { position: fixed; top: 0; right: 0; height: 100vh; width: 320px; max-width: 90vw; background: #fff; z-index: 21; padding: 16px; overflow-y: auto; box-shadow: -2px 0 8px rgba(0,0,0,.2); font-size: 12px; }
 .gate-drawer-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
-.gate-drawer-close { background: none; border: 1px solid #ccc; border-radius: 6px; padding: 4px 10px; cursor: pointer; color: #555; font-size: 11px; }
+.gate-drawer-close { background: none; border: 1px solid #ccc; border-radius: 6px; padding: 4px 10px; cursor: pointer; color: #555; font-size: 11px; white-space: nowrap; }
 .gate-panel-body { margin-top: 6px; padding: 8px 10px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; display: flex; flex-direction: column; gap: 6px; }
 .gate-row { display: flex; align-items: center; gap: 8px; }
 .gate-row-label { color: #555; min-width: 80px; }
