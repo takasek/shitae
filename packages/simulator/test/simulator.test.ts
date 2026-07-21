@@ -1820,6 +1820,33 @@ describe('toSimulator', () => {
     expect(afterTransitionHtml).not.toMatch(/<details open class="graph-section"/);
   });
 
+  it('遷移マップ高さのツマミ調整: .graph-map-scroll はネイティブ resize（縦方向）を持ち、リサイズ後の高さは graphMapHeight に保持され render() をまたいで維持される（UX round4 §3-1 nice-to-have。マップが大きい画面で現在の画面の取り分が圧迫される問題をユーザー自身が緩和できるようにする）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const mapRuleMatch = html.match(/\.graph-map-scroll\s*\{[^}]*\}/);
+    expect(mapRuleMatch).not.toBeNull();
+    expect(mapRuleMatch![0]).toMatch(/resize:\s*vertical/);
+    expect(mapRuleMatch![0]).toMatch(/max-height:\s*480px/);
+
+    const context = runSimulatorScript(html);
+    // 未調整（既定）なら高さ指定なし（max-height 480px のみに従う）
+    const defaultHtml = vm.runInContext('app.innerHTML', context);
+    expect(defaultHtml).not.toMatch(/class="graph-map-scroll"\s+style=/);
+
+    // ユーザーがリサイズすると graphMapHeight に高さが記録され、以降の render() へ反映される
+    vm.runInContext('graphMapHeight = 200; render()', context);
+    const resizedHtml = vm.runInContext('app.innerHTML', context);
+    expect(resizedHtml).toMatch(/class="graph-map-scroll" style="height: 200px"/);
+
+    // 画面遷移後も直近のリサイズ高さが保持される（render のたびに戻らない）
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      context,
+    );
+    const afterTransitionHtml = vm.runInContext('app.innerHTML', context);
+    expect(afterTransitionHtml).toMatch(/class="graph-map-scroll" style="height: 200px"/);
+  });
+
   it('スタック折畳み: <details> + stackPanelOpen で開閉状態を保持する（既定は開。gatePanelOpen と同じ JS グローバル方式。Task 14）', () => {
     const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');

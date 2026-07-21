@@ -131,7 +131,12 @@ summary.pane-title { cursor: pointer; }
    ノードと tooltip を同じ座標系（このスクロール領域内のローカル座標）に置くことで、マップを
    スクロールしても tooltip がノードから相対的にズレない。z-index は外クリックで pin を
    解除するバックドロップ（.graph-tooltip-backdrop、z-index 1）より上に出すため。 */
-.graph-map-scroll { position: relative; z-index: 2; overflow: auto; max-height: 480px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; }
+/* resize: vertical はマップ高さのツマミ調整（UX round4 §3-1 nice-to-have）——マップの
+   ノード数が多い画面では下段（スタック+マップ）が伸び、現在の画面の取り分（1fr）を圧迫する。
+   ユーザーが右下ハンドルで縦方向に縮められるようにし、直近のリサイズ高さは graphMapHeight
+   （render() をまたいで保持するグローバル変数）へ反映する。max-height 480px は設計者確定の
+   既存 cap のまま変更しない。 */
+.graph-map-scroll { position: relative; z-index: 2; overflow: auto; max-height: 480px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; resize: vertical; }
 .graph-svg { display: block; }
 .graph-svg rect { fill: #fff; stroke: #ccc; }
 .graph-node:hover rect { stroke: #111; fill: #f0f0f0; }
@@ -204,6 +209,24 @@ let gatePanelOpen = false;
 // 場所と合わせて復活。設計者確定事項）。既定はスタック開・マップ開。
 let stackPanelOpen = true;
 let mapPanelOpen = true;
+
+// 遷移マップ（.graph-map-scroll）の高さのツマミ調整（UX round4 §3-1 nice-to-have）。
+// null は「ユーザーがまだリサイズしていない」を表し、この間は CSS の max-height 480px の
+// みに従う。ユーザーがネイティブ resize ハンドルで縦方向に縮めると、その高さを render()
+// をまたいで保持する——保持しないと画面遷移のたびに元へ戻りツマミの意味がなくなる。
+let graphMapHeight = null;
+
+// ResizeObserver は node:vm のテスト環境には存在しない（ブラウザ専用 API）。実行環境に
+// 無ければ何もしない——マップ高さの手動保持は nice-to-have であり必須機能ではないため。
+function attachGraphMapResizeObserver(el) {
+  if (typeof ResizeObserver === 'undefined') return;
+  const ro = new ResizeObserver((entries) => {
+    for (const entry of entries) {
+      graphMapHeight = Math.round(entry.contentRect.height);
+    }
+  });
+  ro.observe(el);
+}
 
 // 「外部イベントを発生させる」（document common 由来の操作。scope==='document'）セクションの
 // 折畳み状態。主操作と違い頻繁に触るものではないため既定は閉——画面を開いた瞬間に主操作より
@@ -1665,7 +1688,8 @@ function renderGraphMap() {
   // viewBox で縮小して収める旧方式はここで廃止した。tooltip は .graph-map-scroll の中に
   // 置く（.graph-map-scroll が position: relative の基準になり、ノードと同じローカル座標系で
   // 絶対配置できる——マップをスクロールしてもノードから相対的にズレない）。
-  return backdropHtml + '<div class="graph-map-scroll">' + svg + tooltipHtml + '</div>';
+  const mapHeightStyle = graphMapHeight != null ? ' style="height: ' + graphMapHeight + 'px"' : '';
+  return backdropHtml + '<div class="graph-map-scroll"' + mapHeightStyle + '>' + svg + tooltipHtml + '</div>';
 }
 
 // 遷移マップの区画（中央ペイン最下段、スタックと1つのスクロール領域を共有する。UX round2で
@@ -1884,6 +1908,14 @@ function render() {
       '</div>' +
     '</main>' +
     gateDrawerHtml;
+
+  // マップ高さのツマミ調整（ResizeObserver）は innerHTML 差し替えのたびに要素が作り直される
+  // ため、render() のたびに新しい要素へ張り直す。document.querySelector が無いテスト環境
+  // （node:vm モック document）では何もしない。
+  if (typeof document.querySelector === 'function') {
+    const mapScrollEl = document.querySelector('.graph-map-scroll');
+    if (mapScrollEl) attachGraphMapResizeObserver(mapScrollEl);
+  }
 }
 
 function esc(s) {
