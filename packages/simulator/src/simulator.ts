@@ -123,6 +123,7 @@ summary.pane-title { cursor: pointer; }
 .gate-panel-body { margin-top: 6px; padding: 8px 10px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; display: flex; flex-direction: column; gap: 6px; }
 .gate-row { display: flex; align-items: center; gap: 8px; }
 .gate-row-label { color: #555; min-width: 80px; }
+.gate-host-info { color: #888; }
 /* マップ全体を viewBox で縮小して収めていた旧方式（Task 5〜15）を廃止し（UX round2・fleamarket
    18ノードで12px級まで縮小し判読不能と実測）、ノード矩形は固定寸法のまま、はみ出た分は
    このスクロール領域内の横縦スクロールで見る（Task 16 受入基準c）。position: relative は
@@ -425,6 +426,32 @@ function gateEnabled(inter, hostCtx) {
 // computeOwnComponentContext の4経路すべてがこの1関数を通ることで挙動を一貫させる（brief 明記）。
 function filterHostGate(list, hostCtx) {
   return list.filter((inter) => !inter.gate || inter.gate.kind !== 'host' || gateEnabled(inter, hostCtx));
+}
+
+// 現在画面（component common + variant固有 + document common）が持つ host gate（裸参照）の
+// 判定対象要素名一覧。gate ドロワーの empty state が「presence gate の参照先はありません」と
+// 断定し、host gate を持つ画面（langlearn の「続きから(レッスン開始ボタン?)」等）でも
+// gate が無いと誤読させていた（UX round4 §3-2）。host gate は member gate と違い判定対象を
+// 手動で切り替える余地がない（発火元 component 自身の現在 variant で決まる）ため、ドロワーの
+// 手動切替対象（GATE_TARGETS）には加えず、参照情報として名前だけ併記する。
+function currentHostGateNames() {
+  const frame = currentFrame();
+  const comp = getComp(frame.module, frame.component);
+  if (!comp) return [];
+  const variant = displayVariant(frame);
+  const ownList = variant ? (comp.variants[variant]?.interactions ?? []) : (comp.commonInteractions ?? []);
+  const docList = variant
+    ? (comp.variants[variant]?.docCommonInteractions ?? DATA.documentCommon ?? [])
+    : (comp.docCommonInteractions ?? DATA.documentCommon ?? []);
+  const seen = new Set();
+  const names = [];
+  for (const inter of [...ownList, ...docList]) {
+    if (inter.gate && inter.gate.kind === 'host' && !seen.has(inter.gate.name)) {
+      seen.add(inter.gate.name);
+      names.push(inter.gate.name);
+    }
+  }
+  return names;
 }
 
 function currentInteractions() {
@@ -1778,15 +1805,22 @@ function render() {
     const comp = getComp(t.module, t.name);
     return comp && Object.keys(comp.variants).length > 0;
   });
-  const gatePanelBodyHtml = gateTargetsWithVariants.length > 0
-    ? '<div class="gate-panel-body">' + gateTargetsWithVariants.map((t) => {
-        const comp = getComp(t.module, t.name);
-        const k = skey(t.module, t.name);
-        const current = sharedVariants.has(k) ? sharedVariants.get(k) : comp.initialVariant;
-        return '<div class="gate-row"><span class="gate-row-label">' + esc(t.name) + '</span>' +
-          renderVariantSelect(t.module, t.name, Object.keys(comp.variants), current) + '</div>';
-      }).join('') + '</div>'
-    : '<div class="gate-panel-body"><p class="gate-panel-empty">この文書に presence gate（対象.要素?）の参照先はありません。切り替えられる試験対象なし。</p></div>';
+  // host gate（裸参照）は手動切替対象ではないため参照情報として別枠で併記する（UX round4 §3-2）。
+  const hostGateNames = currentHostGateNames();
+  const memberGateRowsHtml = gateTargetsWithVariants.map((t) => {
+    const comp = getComp(t.module, t.name);
+    const k = skey(t.module, t.name);
+    const current = sharedVariants.has(k) ? sharedVariants.get(k) : comp.initialVariant;
+    return '<div class="gate-row"><span class="gate-row-label">' + esc(t.name) + '</span>' +
+      renderVariantSelect(t.module, t.name, Object.keys(comp.variants), current) + '</div>';
+  }).join('');
+  const hostGateInfoHtml = hostGateNames.length > 0
+    ? '<p class="gate-host-info">この画面の host gate（裸参照。対象.要素? でなく要素? 単体）は画面の要素で自動判定されます: ' +
+      hostGateNames.map(esc).join(', ') + '。手動で切り替えられる対象ではありません。</p>'
+    : '';
+  const gatePanelBodyHtml = (gateTargetsWithVariants.length > 0 || hostGateNames.length > 0)
+    ? '<div class="gate-panel-body">' + memberGateRowsHtml + hostGateInfoHtml + '</div>'
+    : '<div class="gate-panel-body"><p class="gate-panel-empty">この画面で切り替えられる presence gate（対象.要素?）の参照先はありません。切り替えられる試験対象なし。</p></div>';
   const gateToggleHtml = '<div class="gate-toggle-block">' +
     '<button class="gate-drawer-toggle" onclick="toggleGatePanel()">画面外 component の姿切替（gate 試験用）</button>' +
     '<p class="gate-panel-desc">今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。</p>' +

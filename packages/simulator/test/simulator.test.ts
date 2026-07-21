@@ -379,6 +379,20 @@ describe('toSimulator', () => {
     expect(afterToggleHtml).toContain('参照先はありません');
   });
 
+  it('gate ドロワー: host gate（裸参照）を持つ画面では「参照先はありません」と断定せず、host gate 名を参照情報として併記する（UX round4 §3-2: langlearn で host gate があるのに空状態が誤誘導した問題）', () => {
+    const doc = parseOk(
+      '> 続きから(ボタン?) -> push(次)\n\n# A\nボタン\n\n# 次\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    // member gate 参照先（GATE_TARGETS、手動切替対象）はゼロのまま
+    expect(html).toContain('"gateTargets":[]');
+    const context = runSimulatorScript(html);
+    vm.runInContext('toggleGatePanel(); render()', context);
+    const afterToggleHtml = vm.runInContext('app.innerHTML', context);
+    expect(afterToggleHtml).not.toContain('参照先はありません');
+    expect(afterToggleHtml).toContain('ボタン');
+  });
+
   it('back(X) は wall を越えない（barrier 停止のロジックを含む）', () => {
     const doc = parseOk('# A\n要素\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
