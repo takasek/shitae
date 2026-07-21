@@ -34,9 +34,12 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
 .pane-trace { background: #fff; border-right: 1px solid #e0e0e0; }
 /* 中央ペインは自身を単一スクロール領域にしない（.pane の overflow-y: auto を上書き）——
    現在の画面（可変・独立スクロール）と、スタック+マップ（まとめて1スクロール領域）の
-   grid rows 2 領域に分割する（Task 9 の後継・Task 14）。画面カードの高さが変わっても
-   下2つ（スタック・マップ）の表示位置（row の開始位置）は動かない。 */
-.pane-center { background: #f5f5f5; padding: 0; overflow: hidden; display: grid; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
+   grid rows 2 領域に分割する（Task 9 の後継・Task 14）。上下 1fr/1fr の均等割りは
+   固定高500px相当となり、薄い画面で死んだ空白・濃い画面で掲示中カードの見切れを生んだ
+   （UX round4 §3-1）。下段（スタック・マップ）を content 分の高さ（auto、マップ自身の
+   max-height cap は維持）に縮め、上段（現在の画面）が残り高さを占める可変領域（1fr）に
+   することで両方を解消する（設計者確定 2026-07-21）。 */
+.pane-center { background: #f5f5f5; padding: 0; overflow: hidden; display: grid; grid-template-rows: minmax(0, 1fr) auto; }
 .pane-title { font-size: 13px; font-weight: 700; color: #333; margin-bottom: 2px; }
 summary.pane-title { cursor: pointer; }
 .pane-desc { font-size: 11px; color: #888; margin-bottom: 10px; }

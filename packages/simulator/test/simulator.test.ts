@@ -1907,17 +1907,20 @@ describe('toSimulator', () => {
     expect(closeRuleMatch![0]).toMatch(/white-space:\s*nowrap/);
   });
 
-  it('中央ペイン: 現在の画面が独立スクロール、スタック+マップはまとめて1つのスクロール領域に分かれる（Task 14。Task 9 の後継）', () => {
+  it('中央ペイン: 現在の画面が独立スクロール、スタック+マップはまとめて1つのスクロール領域に分かれる（Task 14。Task 9 の後継。UX round4 §3-1 で上下 1fr/1fr 均等割りを auto へ変更）', () => {
     const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     // pane-center 自身は外側スクロールを持たず（.pane の overflow-y: auto を上書き）、
     // grid rows で「画面」/「スタック+マップ」の2領域に分割する——画面カードの高さ変化が
-    // 下2つ（スタック・マップ）の表示位置に影響しないため。
+    // 下2つ（スタック・マップ）の表示位置に影響しないため。上下は 1fr/1fr の均等割り
+    // だったが、これが固定高500px相当となり薄い画面の死空白・濃い画面の掲示中カード
+    // 見切れを生んだ（UX round4 §3-1）。下段（スタック・マップ）を content 分の高さ
+    // （auto）に、上段（現在の画面）を残り高さの可変領域（1fr）に変更する。
     const centerRuleMatch = html.match(/\.pane-center\s*\{[^}]*\}/);
     expect(centerRuleMatch).not.toBeNull();
     expect(centerRuleMatch![0]).toContain('grid-template-rows');
     expect(centerRuleMatch![0]).toMatch(/overflow:\s*hidden/);
-    expect(centerRuleMatch![0]).toMatch(/grid-template-rows:\s*minmax\(0,\s*1fr\)\s*minmax\(0,\s*1fr\)/);
+    expect(centerRuleMatch![0]).toMatch(/grid-template-rows:\s*minmax\(0,\s*1fr\)\s*auto/);
     // screen-section と lower-section（スタック+マップの共有スクロール領域）がそれぞれ
     // 自前のスクロール領域を持つ（min-height: 0 で grid item のはみ出しを防ぎ overflow-y: auto を効かせる）
     const screenRuleMatch = html.match(/\.screen-section\s*\{[^}]*\}/);
