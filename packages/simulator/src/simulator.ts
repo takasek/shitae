@@ -209,7 +209,12 @@ let mapPanelOpen = true;
 // 折畳み状態。主操作と違い頻繁に触るものではないため既定は閉——画面を開いた瞬間に主操作より
 // 前へ割り込まないようにする（UX round2 2-1・2-3、Task 18 項目2）。開閉状態は stackPanelOpen 等
 // と同じ JS グローバル + ネイティブ <details> の ontoggle 同期方式。
-let docEventsPanelOpen = false;
+// null は「ユーザーがまだ手動で開閉していない」を表す——この間は showActions に連動する
+// （showActions オンならこのセクションはノイズにならないため既定で開く。music の主動線
+// 「ミニプレイヤーをタップ」が既定閉のこのセクションに埋没していた問題への対応。UX round4
+// §3-4）。ユーザーが一度でも手動開閉すると true/false の具体値になり、以降 showActions の
+// 値に関わらずその状態を保つ（手動操作を上書きしない）。
+let docEventsPanelOpen = null;
 
 // 対象インスタンスの variant を手動で書き換える（gate 観測用）
 function setInstanceVariant(module, name, variant) {
@@ -1736,8 +1741,9 @@ function renderExternalEventsSection() {
   if (items.length === 0) return '';
   const buildOnclick = (scope, idx, choiceIdx) => "handleInteraction('" + scope + "'," + idx + "," + choiceIdx + ")";
   const rowsHtml = items.map((item) => renderActionRow(item, buildOnclick)).join('');
+  const isOpen = docEventsPanelOpen !== null ? docEventsPanelOpen : showActions;
   const ontoggle = "docEventsPanelOpen = this.open; if (this.open) this.scrollIntoView({ block: 'nearest' })";
-  return '<details' + (docEventsPanelOpen ? ' open' : '') + ' class="doc-events-section" ontoggle="' + ontoggle + '">' +
+  return '<details' + (isOpen ? ' open' : '') + ' class="doc-events-section" ontoggle="' + ontoggle + '">' +
     '<summary class="pane-title" title="外部イベントを発生させる — この文書のどの画面でも常に有効な操作（document common）。プッシュ通知やセッション切れなど、稀に起こる外的要因を模す">外部イベントを発生させる</summary>' +
     '<div class="action-list">' + rowsHtml + '</div>' +
   '</details>';

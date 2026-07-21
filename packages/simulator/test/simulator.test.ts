@@ -1080,7 +1080,7 @@ describe('toSimulator', () => {
     expect(titles.size).toBe(3);
   });
 
-  it('外部イベントセクション: scope==="document" の操作は主操作リストから除外され、既定閉の「外部イベントを発生させる」<details> にまとまる（Task 18 受入基準b）', () => {
+  it('外部イベントセクション: scope==="document" の操作は主操作リストから除外され、「外部イベントを発生させる」<details> にまとまる（Task 18 受入基準b。開閉既定は別テストで検証）', () => {
     const doc = parseOk(
       '> 通知 -> push(受信箱)\n\n' +
         '# ホーム\n> 共通操作 -> push(共通先)\n\n' +
@@ -1093,8 +1093,6 @@ describe('toSimulator', () => {
     const sectionMatch = appHtml.match(/<details[^>]*class="doc-events-section"[^>]*>[\s\S]*?<\/details>/);
     expect(sectionMatch).not.toBeNull();
     expect(sectionMatch![0]).toContain('外部イベントを発生させる');
-    // 既定は閉（open 属性なし）
-    expect(sectionMatch![0]).not.toMatch(/^<details open/);
     expect(sectionMatch![0]).toContain('通知');
 
     // 主操作リスト（外部イベントセクションより前の画面カード部分）には document common が出ない
@@ -1109,6 +1107,23 @@ describe('toSimulator', () => {
     expect(vm.runInContext('currentFrame().component', context)).toBe('受信箱');
   });
 
+  it('外部イベントセクション: 「アクションを表示」がオン（既定）なら既定で開く（UX round4 §3-4: music の主動線が既定閉のセクションに埋没する問題）', () => {
+    const doc = parseOk('> 通知 -> push(受信箱)\n\n# ホーム\n本体\n\n# 受信箱\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toMatch(/<details open class="doc-events-section"/);
+  });
+
+  it('外部イベントセクション: 「アクションを表示」をオフにすると既定閉に戻る（従来どおり）', () => {
+    const doc = parseOk('> 通知 -> push(受信箱)\n\n# ホーム\n本体\n\n# 受信箱\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext('toggleShowActions(); render()', context);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).not.toMatch(/<details open class="doc-events-section"/);
+  });
+
   it('外部イベントセクション: document common 操作が無ければセクション自体を出さない', () => {
     const doc = parseOk('# ホーム\n> 押す -> push(次)\n\n# 次\n本体\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
@@ -1118,10 +1133,11 @@ describe('toSimulator', () => {
     expect(appHtml).not.toContain('外部イベントを発生させる');
   });
 
-  it('外部イベントセクション: 開閉状態は JS グローバルで保持され render() をまたいで維持される（stackPanelOpen と同じ方式）', () => {
+  it('外部イベントセクション: 手動で開閉した状態は JS グローバルで保持され render() をまたいで維持される（stackPanelOpen と同じ方式。showActions 連動より手動操作を優先）', () => {
     const doc = parseOk('> 通知 -> push(受信箱)\n\n# ホーム\n本体\n\n# 受信箱\n本体\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
+    vm.runInContext('docEventsPanelOpen = false; render()', context);
     const closedHtml = vm.runInContext('app.innerHTML', context);
     expect(closedHtml).not.toMatch(/<details open class="doc-events-section"/);
 
