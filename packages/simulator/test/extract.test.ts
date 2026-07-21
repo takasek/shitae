@@ -16,7 +16,7 @@ describe('extractSimData', () => {
     expect(data.entryModule).toBe('main');
     expect(data.entryComponent).toBe('ホーム');
     const comp = data.modules['main']!.components['ホーム']!;
-    expect(comp.commonElements).toContain('ロゴ');
+    expect(comp.commonElements.map((e) => e.name)).toContain('ロゴ');
     expect(comp.commonInteractions).toHaveLength(1);
     expect(comp.commonInteractions[0]!.actionText).toContain('タップ');
     expect(comp.variants).toEqual({});
@@ -27,8 +27,8 @@ describe('extractSimData', () => {
     const data = extractSimData(new Map([['main', doc]]), 'main');
     const comp = data.modules['main']!.components['詳細']!;
     expect(Object.keys(comp.variants)).toEqual(['読込中', '表示']);
-    expect(comp.variants['読込中']!.elements).toContain('スピナー');
-    expect(comp.variants['表示']!.elements).toContain('コンテンツ');
+    expect(comp.variants['読込中']!.elements.map((e) => e.name)).toContain('スピナー');
+    expect(comp.variants['表示']!.elements.map((e) => e.name)).toContain('コンテンツ');
     expect(comp.variants['表示']!.interactions).toHaveLength(1);
   });
 
@@ -36,9 +36,9 @@ describe('extractSimData', () => {
     const doc = parseOk('# プロフィール\nヘッダ\n> タップ(ヘッダ) -> back()\n## 未フォロー\nフォローボタン\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
     const comp = data.modules['main']!.components['プロフィール']!;
-    expect(comp.commonElements).toContain('ヘッダ');
+    expect(comp.commonElements.map((e) => e.name)).toContain('ヘッダ');
     expect(comp.commonInteractions).toHaveLength(1);
-    expect(comp.variants['未フォロー']!.elements).toContain('フォローボタン');
+    expect(comp.variants['未フォロー']!.elements.map((e) => e.name)).toContain('フォローボタン');
   });
 
   it('interaction with multiple labeled results → 1 ラベル 1 choice', () => {
@@ -239,7 +239,7 @@ describe('extractSimData', () => {
   it('document common の要素行は docCommonElements として module に載る（SPEC「document common」）', () => {
     const doc = parseOk('共通バッジ\n> 通知 -> push(詳細)\n\n# ホーム\n要素\n\n# 詳細\n本文\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
-    expect(data.modules['main']!.docCommonElements).toEqual(['共通バッジ']);
+    expect(data.modules['main']!.docCommonElements).toEqual([{ name: '共通バッジ', ref: null }]);
   });
 
   it('presence gate: `?` の無い行動は gate が null（always-on）', () => {
@@ -385,5 +385,297 @@ describe('ADR-0018: 無修飾 component 参照の module 解決はレキシカ�
     );
     const data = extractSimData(new Map([['main', doc]]), 'main');
     expect(data.documentCommon[0]!.gate).toEqual({ name: '選択可能', kind: 'member', targetComponent: '日付', module: 'main' });
+  });
+});
+
+describe('scope: interaction の有効範囲注釈', () => {
+  it('documentCommon 由来の interaction は scope が "document"', () => {
+    const doc = parseOk('> 通知 -> push(詳細)\n\n# ホーム\n要素\n\n# 詳細\n本文\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.documentCommon[0]!.scope).toBe('document');
+  });
+
+  it('component common 由来の interaction は scope が "component"', () => {
+    const doc = parseOk('# A\n要素\n> タップ(要素) -> back()\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.modules['main']!.components['A']!.commonInteractions[0]!.scope).toBe('component');
+  });
+
+  it('shadow 合成: variant固有の interaction は "variant"、生き残った共通由来は "component"', () => {
+    const doc = parseOk(
+      '# プロフィール\n戻る\n> タップ(戻る) -> back()\n> 長押し -> メニューを出す\n## 特殊\n> タップ(戻る) -> goto(別画面)\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const merged = data.modules['main']!.components['プロフィール']!.variants['特殊']!.interactions;
+    expect(merged[0]!.actionText).toBe('長押し');
+    expect(merged[0]!.scope).toBe('component');
+    expect(merged[1]!.actionText).toBe('タップ(戻る)');
+    expect(merged[1]!.scope).toBe('variant');
+  });
+
+  it('3階層shadow: 生き残った docCommonInteractions（component 側）も scope は "document"', () => {
+    const doc = parseOk(
+      '> タップ(戻る) -> exit(@x)\n> プッシュ通知 -> push(詳細)\n\n# A\n戻る\n> タップ(戻る) -> back()\n\n# 詳細\n本文\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const comp = data.modules['main']!.components['A']!;
+    const survivor = comp.docCommonInteractions.find((i) => i.actionText === 'プッシュ通知');
+    expect(survivor!.scope).toBe('document');
+  });
+
+  it('3階層shadow: variant 側の docCommonInteractions で生き残ったものも scope は "document"', () => {
+    const doc = parseOk(
+      '> タップ(戻る) -> exit(@x)\n> プッシュ通知 -> push(詳細)\n\n# A\n戻る\n## 姿1\n> タップ(戻る) -> back()\n\n# 詳細\n本文\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const variant = data.modules['main']!.components['A']!.variants['姿1']!;
+    const survivor = variant.docCommonInteractions.find((i) => i.actionText === 'プッシュ通知');
+    expect(survivor!.scope).toBe('document');
+  });
+});
+
+describe('graph: 遷移グラフの抽出', () => {
+  it('nodes: 全 module の全 component を定義順で列挙する', () => {
+    const subDoc = parseOk('# サブ1\n本文\n\n# サブ2\n本文\n');
+    const mainDoc = parseOk('import sub as sub\n# A\n要素\n\n# B\n要素\n');
+    const data = extractSimData(new Map([['main', mainDoc], ['sub', subDoc]]), 'main');
+    expect(data.graph.nodes).toEqual([
+      { module: 'main', name: 'A' },
+      { module: 'main', name: 'B' },
+      { module: 'sub', name: 'サブ1' },
+      { module: 'sub', name: 'サブ2' },
+    ]);
+  });
+
+  it('edges: push/goto の transition かつ target.kind==="full" のものを (from,to) 全体キーで重複除去して集める', () => {
+    const doc = parseOk('# A\n> タップ -> push(B)\n> ダブルタップ -> goto(B)\n\n# B\n本文\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.graph.edges).toEqual([
+      {
+        from: { module: 'main', component: 'A', variant: null },
+        to: { module: 'main', component: 'B', variant: null },
+      },
+    ]);
+  });
+
+  it('edges: cross-module 遷移は正準モジュール名（alias ではなくファイル名）で解決される（ADR-0017）', () => {
+    const subDoc = parseOk('# 支払い\n本文\n');
+    const mainDoc = parseOk('import checkout-flow as co\n# ホーム\n> 進む -> push(co::支払い)\n');
+    const data = extractSimData(new Map([['main', mainDoc], ['checkout-flow', subDoc]]), 'main');
+    expect(data.graph.edges).toEqual([
+      {
+        from: { module: 'main', component: 'ホーム', variant: null },
+        to: { module: 'checkout-flow', component: '支払い', variant: null },
+      },
+    ]);
+  });
+
+  it('edges: target.kind==="variant"（##v のみの goto）はエッジにしない', () => {
+    const doc = parseOk('#! クーポン\n## 未受取\n> タップ -> goto(##受取済)\n## 受取済\n適用ボタン\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.graph.edges).toEqual([]);
+  });
+
+  it('edges: back/exit はエッジにしない', () => {
+    const doc = parseOk('# A\n要素\n> タップ(要素) -> back()\n> 長押し(要素) -> exit(@x)\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.graph.edges).toEqual([]);
+  });
+
+  it('edges: 未定義 component への遷移はエッジにしない', () => {
+    const doc = parseOk('# A\n> 進む -> push(存在しない)\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.graph.edges).toEqual([]);
+  });
+
+  it('edges: documentCommon 由来の遷移は発火元 component が定まらないためエッジにしない', () => {
+    const doc = parseOk('> 通知 -> push(詳細)\n\n# ホーム\n要素\n\n# 詳細\n本文\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.graph.edges).toEqual([]);
+  });
+
+  it('edges: variant 固有の遷移は from.variant にその姿を持つ（最細粒度。Task 11）', () => {
+    const doc = parseOk(
+      '# 詳細\n## 読込中\nスピナー\n## 表示\nコンテンツ\n> タップ(コンテンツ) -> push(次)\n\n# 次\n本文\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.graph.edges).toEqual([
+      {
+        from: { module: 'main', component: '詳細', variant: '表示' },
+        to: { module: 'main', component: '次', variant: null },
+      },
+    ]);
+  });
+
+  it('edges: 姿を持つ component の common 由来遷移は各 variant から出る（merged 走査。from.variant null の重複は作らない）', () => {
+    const doc = parseOk(
+      '# 詳細\n> 閉じる -> push(次)\n## 読込中\nスピナー\n## 表示\nコンテンツ\n\n# 次\n本文\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.graph.edges).toEqual([
+      {
+        from: { module: 'main', component: '詳細', variant: '読込中' },
+        to: { module: 'main', component: '次', variant: null },
+      },
+      {
+        from: { module: 'main', component: '詳細', variant: '表示' },
+        to: { module: 'main', component: '次', variant: null },
+      },
+    ]);
+  });
+
+  it('edges: 明示 variant target（push(X##v)）は to.variant に保持する（初期姿への解決はブラウザ側集約が行う）', () => {
+    const doc = parseOk('# A\n> タップ -> push(B##二)\n\n# B\n## 一\n要素\n## 二\n要素\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.graph.edges).toEqual([
+      {
+        from: { module: 'main', component: 'A', variant: null },
+        to: { module: 'main', component: 'B', variant: '二' },
+      },
+    ]);
+  });
+
+  it('edges: 同一 (component, target) でも from.variant が違えば別エッジとして残る（重複除去は from/to 全体キー）', () => {
+    const doc = parseOk(
+      '# 詳細\n## 読込中\n> 中断 -> push(次)\n## 表示\n> 進む -> push(次)\n\n# 次\n本文\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.graph.edges).toEqual([
+      {
+        from: { module: 'main', component: '詳細', variant: '読込中' },
+        to: { module: 'main', component: '次', variant: null },
+      },
+      {
+        from: { module: 'main', component: '詳細', variant: '表示' },
+        to: { module: 'main', component: '次', variant: null },
+      },
+    ]);
+  });
+});
+
+describe('graphConfig: 遷移マップ粒度 config の埋め込み（Task 11）', () => {
+  it('config.graph.split が graphConfig.split に反映される', () => {
+    const doc = parseOk('# ホーム\n## 通常\n要素\n## 特殊\n要素2\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main', {
+      graph: { split: [{ module: 'main', component: 'ホーム' }] },
+    });
+    expect(data.graphConfig).toEqual({ split: [{ module: 'main', component: 'ホーム' }] });
+  });
+
+  it('config 省略時は空の split（後方互換）', () => {
+    const doc = parseOk('# ホーム\n要素\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.graphConfig).toEqual({ split: [] });
+  });
+
+  it('不正な split 要素（module/component が文字列でない）と未知キーは無視される', () => {
+    const doc = parseOk('# ホーム\n要素\n');
+    const config = {
+      graph: { split: [{ module: 'main' }, 42, { module: 'main', component: 'ホーム', extra: true }] },
+      unknownKey: 'x',
+    } as any;
+    const data = extractSimData(new Map([['main', doc]]), 'main', config);
+    expect(data.graphConfig).toEqual({ split: [{ module: 'main', component: 'ホーム' }] });
+  });
+});
+
+describe('elements: 階層表示用の ref 解決（Task 8）', () => {
+  it('定義済み component への参照は ref に module・name を保持する（module はレキシカル解決・正準名）', () => {
+    const doc = parseOk('# ホーム\nログインフォーム\n\n# ログインフォーム\nID入力\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const el = data.modules['main']!.components['ホーム']!.commonElements[0]!;
+    expect(el.name).toBe('ログインフォーム');
+    expect(el.ref).toEqual({ module: 'main', name: 'ログインフォーム' });
+  });
+
+  it('project 内に定義のない参照は ref が null', () => {
+    const doc = parseOk('# ホーム\n存在しない部品\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const el = data.modules['main']!.components['ホーム']!.commonElements[0]!;
+    expect(el.name).toBe('存在しない部品');
+    expect(el.ref).toBeNull();
+  });
+
+  it('collection（{...}）要素は ref が null（参照先は単一 component ではないため）', () => {
+    const doc = parseOk('# ホーム\n一覧: { タイトル }\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const el = data.modules['main']!.components['ホーム']!.commonElements[0]!;
+    expect(el.name).toBe('一覧');
+    expect(el.ref).toBeNull();
+  });
+
+  it('cross-module 参照は alias でなく正準モジュール名（定義ファイル名）で ref.module に解決される（ADR-0017/0018）', () => {
+    const subDoc = parseOk('# 部品\n本体\n');
+    const mainDoc = parseOk('import widgets as w\n# ホーム\nw::部品\n');
+    const data = extractSimData(new Map([['main', mainDoc], ['widgets', subDoc]]), 'main');
+    const el = data.modules['main']!.components['ホーム']!.commonElements[0]!;
+    expect(el.ref).toEqual({ module: 'widgets', name: '部品' });
+  });
+
+  it('alias 付きでも定義済み component に解決すれば ref を持つ（表示名は alias、ref は参照先）', () => {
+    const doc = parseOk('# ホーム\nx: ログインフォーム\n\n# ログインフォーム\nID入力\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const el = data.modules['main']!.components['ホーム']!.commonElements[0]!;
+    expect(el.name).toBe('x');
+    expect(el.ref).toEqual({ module: 'main', name: 'ログインフォーム' });
+  });
+
+  it('未定義 component への他モジュール参照も ref が null（定義が無ければ解決しない）', () => {
+    const doc = parseOk('import widgets as w\n# ホーム\nw::存在しない\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const el = data.modules['main']!.components['ホーム']!.commonElements[0]!;
+    expect(el.ref).toBeNull();
+  });
+});
+
+describe('interaction: 操作の対象紐付け用 targetName（Task 8）', () => {
+  it('action.target を持つ interaction は targetName に対象名を保持する', () => {
+    const doc = parseOk('# ホーム\nロゴ\n> タップ(ロゴ) -> push(設定)\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const inter = data.modules['main']!.components['ホーム']!.commonInteractions[0]!;
+    expect(inter.targetName).toBe('ロゴ');
+  });
+
+  it('対象なしの行動は targetName が null', () => {
+    const doc = parseOk('# ホーム\n> タップ -> push(設定)\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const inter = data.modules['main']!.components['ホーム']!.commonInteractions[0]!;
+    expect(inter.targetName).toBeNull();
+  });
+
+  it('member 参照（対象.member）は targetMember を保持し actionText を 行動(対象.member) の形に復元する（Task 13）', () => {
+    const doc = parseOk(
+      '# ホーム\nプロフィールカード\n> タップ(プロフィールカード.本体) -> push(編集)\n\n# プロフィールカード\n本体\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const inter = data.modules['main']!.components['ホーム']!.commonInteractions[0]!;
+    expect(inter.targetName).toBe('プロフィールカード');
+    expect(inter.targetMember).toBe('本体');
+    expect(inter.actionText).toBe('タップ(プロフィールカード.本体)');
+  });
+
+  it('member 無しの対象は targetMember が null のまま（既存 actionText 挙動を変えない。Task 13）', () => {
+    const doc = parseOk('# ホーム\nロゴ\n> タップ(ロゴ) -> push(設定)\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const inter = data.modules['main']!.components['ホーム']!.commonInteractions[0]!;
+    expect(inter.targetMember).toBeNull();
+    expect(inter.actionText).toBe('タップ(ロゴ)');
+  });
+
+  it('member gate（対象.要素?）も actionText に member を復元する（Task 13）', () => {
+    const doc = parseOk(
+      '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n\n# 時間選択\n本文\n',
+    );
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const inter = data.modules['main']!.components['予約']!.commonInteractions[0]!;
+    expect(inter.targetMember).toBe('選択可能');
+    expect(inter.actionText).toBe('タップ(日付.選択可能)');
+  });
+
+  it('対象なしの行動は targetMember も null（Task 13）', () => {
+    const doc = parseOk('# ホーム\n> タップ -> push(設定)\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const inter = data.modules['main']!.components['ホーム']!.commonInteractions[0]!;
+    expect(inter.targetMember).toBeNull();
   });
 });

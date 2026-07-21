@@ -6,6 +6,7 @@ import { resolveProject } from '@shitae/resolver';
 import { check } from '@shitae/checker';
 import { toMermaid } from '@shitae/transpiler-mermaid';
 import { toSimulator } from '@shitae/simulator';
+import type { SimulatorConfig } from '@shitae/simulator';
 import type { Document, Diagnostic } from '@shitae/ast';
 
 const [, , command, filePath] = process.argv;
@@ -106,7 +107,24 @@ if (command === 'check') {
     printDiags(errors.map(d => ({ diag: d, path: entryPath })));
     process.exit(1);
   }
-  process.stdout.write(toSimulator(documents, entryModule) + '\n');
+  // entry の兄弟 `<basename>.simconfig.json` があれば読み、遷移マップ粒度の初期値として埋め込む
+  // （Task 11）。不正 JSON は警告して無視する（未知キー・不正エントリの無視は extract 側の検証が担う）。
+  const configPath = resolvePath(dirname(entryPath), basename(entryPath, '.shitae') + '.simconfig.json');
+  let configRaw: string | undefined;
+  try {
+    configRaw = readFileSync(configPath, 'utf8');
+  } catch {
+    // simconfig なし——split 空のまま
+  }
+  let simConfig: SimulatorConfig | undefined;
+  if (configRaw !== undefined) {
+    try {
+      simConfig = JSON.parse(configRaw) as SimulatorConfig;
+    } catch {
+      process.stderr.write(`Warning: '${configPath}' は不正な JSON のため simconfig を無視します\n`);
+    }
+  }
+  process.stdout.write(toSimulator(documents, entryModule, simConfig) + '\n');
   process.exit(0);
 } else {
   process.stderr.write(`Error: unknown command '${command}'. Use 'check', 'mermaid', or 'simulate'.\n`);

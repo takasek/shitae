@@ -52,12 +52,15 @@ describe('toSimulator', () => {
     expect(html).not.toMatch(/href="https?:/);
   });
 
-  it('document common を data に含め、常時アクションとして描画する', () => {
+  it('document common を data に含め、操作一覧の document common カテゴリへ統合して描画する', () => {
     const doc = parseOk('> 通知をタップ -> push(詳細)\n\n# ホーム\nロゴ\n\n# 詳細\n本文\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     expect(html).toContain('"documentCommon"');
     expect(html).toContain('通知をタップ');
-    expect(html).toContain('handleDocCommon');
+    expect(html).toContain('document common');
+    const context = runSimulatorScript(html);
+    vm.runInContext("handleInteraction('document', 0, 0)", context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('詳細');
   });
 
   it('switch を transition として扱う（effect 落ちしない）分岐が生成物に含まれる', () => {
@@ -67,12 +70,13 @@ describe('toSimulator', () => {
     expect(html).toContain('"word":"switch"');
   });
 
-  it('overlay（show/hide）を overlay result body として埋め込み、掲示帯を持つ', () => {
+  it('overlay（show/hide）を overlay result body として埋め込み、掲示中カードとして描画できる', () => {
     const doc = parseOk('# P\n> 再生 -> show(ミニプレイヤー)\n> 停止 -> hide(ミニプレイヤー)\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     expect(html).toContain('"type":"overlay"');
     expect(html).toContain('"op":"show"');
-    expect(html).toContain('overlay-bar');
+    expect(html).toContain('overlay-card');
+    expect(html).not.toContain('overlay-bar');
   });
 
   it('overlay: 掲示中 component の表示 variant を overlays に保持し帯に描画する', () => {
@@ -92,7 +96,107 @@ describe('toSimulator', () => {
     const html = toSimulator(new Map([['main', doc]]), 'main');
     expect(html).toContain('function handleOverlayInteraction(');
     expect(html).toContain('function overlayInteractions(');
-    expect(html).toContain('onclick="handleOverlayInteraction(');
+    const context = runSimulatorScript(html);
+    vm.runInContext(
+      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニプレイヤー', module: 'main', variant: '再生中' }); render()",
+      context,
+    );
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('onclick="handleOverlayInteraction(');
+    vm.runInContext("handleOverlayInteraction(0, 'variant', 0, 0)", context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('プレイヤー');
+  });
+
+  it('掲示中カード: 本体と同形（タイトル・variant表示・elements・操作一覧カテゴリ）で描画され、document common カテゴリは持たない', () => {
+    const doc = parseOk(
+      '> 通知 -> push(受信箱)\n\n' +
+        '# ホーム\nロゴ\n> 出す -> show(ミニ)\n\n' +
+        '# ミニ\n共通要素\n> 共通操作 -> push(共通先)\n\n' +
+        '# 共通先\n本体\n\n# 受信箱\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext(
+      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
+      context,
+    );
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('掲示中');
+    expect(appHtml).toContain('ミニ');
+    expect(appHtml).toContain('共通要素');
+    expect(appHtml).toContain('共通操作');
+    // document common は本体（ホーム、外部イベントセクション内）にのみ現れ、掲示中カードには
+    // 複製されない（document common の発火判定はアクティブ画面基準 — ADR-0015 — であり掲示中
+    // カードの所属ではない。Task 18 で外部イベントセクションへ分離後も dedup は不変）
+    const overlayIdx = appHtml.indexOf('overlay-card');
+    expect(appHtml.slice(0, overlayIdx)).toContain('document common');
+    expect(appHtml.slice(overlayIdx)).not.toContain('document common');
+  });
+
+  it('掲示中カード: 複数ラベル操作もラベル横並びで選んだ choice だけが実行される（overlay 側の暫定・先頭固定を解消）', () => {
+    const doc = parseOk(
+      '# ホーム\nロゴ\n> 出す -> show(ミニ)\n\n' +
+        '# ミニ\n曲名\n> ガチャ ->\n>     [当たり] push(景品)\n>     [ハズレ] push(残念)\n\n' +
+        '# 景品\n本体\n\n# 残念\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext(
+      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
+      context,
+    );
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('[当たり]');
+    expect(appHtml).toContain('[ハズレ]');
+
+    vm.runInContext("handleOverlayInteraction(0, 'component', 0, 1)", context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('残念');
+    const stackComponents = JSON.parse(
+      vm.runInContext('JSON.stringify(stack.map(f => f.component))', context),
+    );
+    expect(stackComponents).not.toContain('景品');
+  });
+
+  it('掲示中カード: interaction 実行の遷移相対解決はアクティブフレーム基準のまま（overlay 自身を現在地にしない）', () => {
+    const doc = parseOk(
+      '# ホーム\nロゴ\n> 出す -> show(ミニ##再生)\n\n' +
+        '# ミニ\n## 再生\n曲名\n> タップ(曲名) -> push(プレイヤー)\n\n' +
+        '# プレイヤー\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext(
+      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: '再生' }); render()",
+      context,
+    );
+    vm.runInContext("handleOverlayInteraction(0, 'variant', 0, 0)", context);
+    const stackComponents = JSON.parse(
+      vm.runInContext('JSON.stringify(stack.map(f => f.component))', context),
+    );
+    // アクティブフレーム（ホーム）基準で push されるため、ミニ自身はスタックに積まれない
+    expect(stackComponents).toEqual(['ホーム', 'プレイヤー']);
+  });
+
+  it('掲示中カードの onclick は component 名を直接埋め込まず表示順インデックスで参照する（名前が \' や " を含んでも onclick 属性を壊さない。旧 handleOverlayInteraction の quote 衝突バグを根治）', () => {
+    const doc = parseOk(
+      '# ホーム\nロゴ\n> 出す -> show(名"前)\n\n' +
+        '# 名"前\n曲名\n> タップ(曲名) -> push(プレイヤー)\n\n' +
+        '# プレイヤー\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext(
+      "applyTransition({ type: 'overlay', op: 'show', component: '名\\\"前', module: 'main', variant: null }); render()",
+      context,
+    );
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    // 旧バグ: JSON.stringify(name) が二重引用符区切り文字列を吐き onclick="..." の
+    // 属性値が途中終端する（onclick="handleOverlayInteraction(" で切れる）
+    expect(appHtml).not.toContain('onclick="handleOverlayInteraction("');
+    // 新実装: component 名でなく表示順インデックス（数値）で参照するため属性は壊れない
+    expect(appHtml).toMatch(/onclick="handleOverlayInteraction\(0,'(variant|component)',\d+,\d+\)"/);
+    vm.runInContext("handleOverlayInteraction(0, 'component', 0, 0)", context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('プレイヤー');
   });
 
   it('singleton: 共有 variant レジストリを持ち、initial variant 解決とは別軸で参照する（ADR-0011）', () => {
@@ -121,15 +225,17 @@ describe('toSimulator', () => {
     expect(html).toContain('comp.variants[variant]?.docCommonInteractions');
   });
 
-  it('presence gate: gate 付き interaction を構造的 presence でフィルタする', () => {
-    const doc = parseOk(
-      '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n# 時間選択\n本文\n',
-    );
+  it('presence gate: host gate（裸参照）付き interaction は構造的 presence が満たされないと行ごと除外される', () => {
+    // 「押す(非表示要素?)」は host gate（裸参照）——ホームの実効 body に「非表示要素」が
+    // 無いため gate off。member gate と異なり host gate は対象切替の余地がないため、
+    // Task 18 以降も従来どおり行ごと除外する（brief 項目4は member gate のみが対象）。
+    const doc = parseOk('# ホーム\nロゴ\n> 押す(非表示要素?) -> push(A)\n\n# A\n本体\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     expect(html).toContain('function gateEnabled(');
-    // ADR-0019: gateEnabled が hostCtx を受けるようになったため、Array#filter の
-    // (item, index, array) 引数漏れを避けて単項呼び出しに包む（simulator.ts 参照）。
-    expect(html).toContain('list.filter((inter) => gateEnabled(inter))');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).not.toContain('押す');
+    expect(appHtml).not.toContain('gate-off-mark');
   });
 
   it('presence gate 手動トグル: member gate 対象の variant を選ぶ UI を持つ（ADR-0002 Consequence）', () => {
@@ -143,6 +249,108 @@ describe('toSimulator', () => {
     expect(html).toContain('sharedVariants.set(skey(module, name), variant)');
   });
 
+  it('gate インライン化: member gate 付きアクション行は判定対象の現在 variant を示すバッジと切替 select を添えて描画される（Task 18 受入基準d）', () => {
+    const doc = parseOk(
+      '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n# 時間選択\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    // 初期姿（選択可能）が対象の初期 variant のため gate on——行は押せる（onclick 付き）
+    const rowMatch = appHtml.match(/<div class="action-row[^"]*" onclick="(handleInteraction\('component'[^"]+)">[\s\S]*?<\/div>/);
+    expect(rowMatch).not.toBeNull();
+    const row = rowMatch![0];
+    expect(row).toContain('タップ(日付.選択可能)');
+    expect(row).toMatch(/<span class="gate-inline-badge"[^>]*>日付 \/ 選択可能<\/span>/);
+    const selectMatch = row.match(/<select class="gate-inline-select" onchange="([^"]+)">([\s\S]*?)<\/select>/);
+    expect(selectMatch).not.toBeNull();
+    expect(selectMatch![2]).toContain('選択可能');
+    expect(selectMatch![2]).toContain('満席');
+
+    // クリックで発火する（gate on のため無効化されていない）
+    vm.runInContext(rowMatch![1]!, context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('時間選択');
+  });
+
+  it('gate インライン化: member gate off の行は消えず「無効」表示で残り、押せない。select から現地で有効化できる（Task 18 受入基準d）', () => {
+    const doc = parseOk(
+      '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n# 時間選択\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext("setInstanceVariant('main', '日付', '満席'); render()", context);
+    const offHtml = vm.runInContext('app.innerHTML', context);
+
+    // 行自体は消えない（brief: off だと存在に気づけない現状の解消）
+    expect(offHtml).toContain('タップ(日付.選択可能)');
+    expect(offHtml).toContain('gate-off-mark');
+    expect(offHtml).toContain('action-row-disabled');
+    // 対象 variant バッジは現在値（満席）へ追随する
+    expect(offHtml).toMatch(/<span class="gate-inline-badge"[^>]*>日付 \/ 満席<\/span>/);
+    // solo 行に onclick が付かない（押せない）
+    expect(offHtml).not.toMatch(/<div class="action-row[^"]*action-row-disabled[^"]*" onclick=/);
+
+    // 直接ハンドラを呼んでも無効な間は発火しない（ボタンが disabled でもコード上の防御）
+    const beforeComponent = vm.runInContext('currentFrame().component', context);
+    vm.runInContext("handleInteraction('component', 0, 0); render()", context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe(beforeComponent);
+
+    // 同じ行の select から現地で対象 variant を有効な方へ切り替えると、次の render で押せるようになる
+    vm.runInContext("setInstanceVariant('main', '日付', '選択可能'); render()", context);
+    const onHtml = vm.runInContext('app.innerHTML', context);
+    expect(onHtml).not.toContain('gate-off-mark');
+    const m = onHtml.match(/<div class="action-row[^"]*" onclick="(handleInteraction\('component'[^"]+)">/);
+    expect(m).not.toBeNull();
+    vm.runInContext(m![1]!, context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('時間選択');
+  });
+
+  it('gate インライン化: 部品（埋め込み要素）自身の interaction にある member gate も同じ機構で無効表示される（経路一貫性。Task 18 受入基準d）', () => {
+    const doc = parseOk(
+      '# ホーム\n部品A\n\n# 部品A\n> タップ(日付.選択可能?) -> push(時間選択)\n\n' +
+        '# 日付\n## 選択可能\n要素\n## 満席\n要素2\n\n# 時間選択\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext("setInstanceVariant('main', '日付', '満席'); render()", context);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('タップ(日付.選択可能)');
+    expect(appHtml).toContain('gate-off-mark');
+  });
+
+  it('gate インライン化: 掲示中カード自身の member gate も同じ機構で無効表示される（経路一貫性。Task 18 受入基準d）', () => {
+    const doc = parseOk(
+      '# ホーム\n> 出す -> show(ミニ)\n\n# ミニ\n> タップ(日付.選択可能?) -> push(時間選択)\n\n' +
+        '# 日付\n## 選択可能\n要素\n## 満席\n要素2\n\n# 時間選択\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext(
+      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); " +
+        "setInstanceVariant('main', '日付', '満席'); render()",
+      context,
+    );
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    const overlayIdx = appHtml.indexOf('overlay-card');
+    expect(overlayIdx).toBeGreaterThan(-1);
+    const overlaySection = appHtml.slice(overlayIdx);
+    expect(overlaySection).toContain('タップ(日付.選択可能)');
+    expect(overlaySection).toContain('gate-off-mark');
+  });
+
+  it('gate インライン化: 外部イベント（document common）の member gate も同じ機構で無効表示される（経路一貫性。Task 18 受入基準d）', () => {
+    const doc = parseOk(
+      '> タップ(日付.選択可能?) -> push(時間選択)\n\n# ホーム\n本体\n\n' +
+        '# 日付\n## 選択可能\n要素\n## 満席\n要素2\n\n# 時間選択\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext("setInstanceVariant('main', '日付', '満席'); docEventsPanelOpen = true; render()", context);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('タップ(日付.選択可能)');
+    expect(appHtml).toContain('gate-off-mark');
+  });
+
   it('set: state result を singleton の共有レジストリ書き換えとして適用する（ADR-0014）', () => {
     const doc = parseOk(
       '#! 学習\n## 通常\nボタン\n## ハート切れ\n表示\n\n# 問題\n> 使い切る -> set(学習##ハート切れ)\n',
@@ -152,10 +360,37 @@ describe('toSimulator', () => {
     expect(html).toContain('"type":"state"');
   });
 
-  it('presence gate 手動トグル: gate 対象が無ければパネルを出さない', () => {
+  it('presence gate 手動トグル: gate 対象が無くても見出し・説明は常時表示し、開くと empty state を出す（UX評価3.5、Task 12 受入基準d）', () => {
     const doc = parseOk('# A\n要素\n> タップ(要素) -> back()\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     expect(html).toContain('"gateTargets":[]');
+    const context = runSimulatorScript(html);
+    const beforeToggleHtml = vm.runInContext('app.innerHTML', context);
+    // 対象ゼロでも見出し・説明文は常時表示される（無言の空白をなくす。旧実装は
+    // gateTargetsWithVariants.length===0 のとき何も描画せず右ペイン全体が白紙だった）
+    expect(beforeToggleHtml).toContain('画面外 component の姿切替（gate 試験用）');
+    expect(beforeToggleHtml).toContain('gate-panel-desc');
+
+    vm.runInContext('toggleGatePanel(); render()', context);
+    const afterToggleHtml = vm.runInContext('app.innerHTML', context);
+    // 開くと「試験対象なし」の empty state が出る（読み込み失敗・レイアウト崩壊との誤解を防ぐ）
+    expect(afterToggleHtml).toContain('gate-panel-empty');
+    expect(afterToggleHtml).toContain('presence gate');
+    expect(afterToggleHtml).toContain('参照先はありません');
+  });
+
+  it('gate ドロワー: host gate（裸参照）を持つ画面では「参照先はありません」と断定せず、host gate 名を参照情報として併記する（UX round4 §3-2: langlearn で host gate があるのに空状態が誤誘導した問題）', () => {
+    const doc = parseOk(
+      '> 続きから(ボタン?) -> push(次)\n\n# A\nボタン\n\n# 次\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    // member gate 参照先（GATE_TARGETS、手動切替対象）はゼロのまま
+    expect(html).toContain('"gateTargets":[]');
+    const context = runSimulatorScript(html);
+    vm.runInContext('toggleGatePanel(); render()', context);
+    const afterToggleHtml = vm.runInContext('app.innerHTML', context);
+    expect(afterToggleHtml).not.toContain('参照先はありません');
+    expect(afterToggleHtml).toContain('ボタン');
   });
 
   it('back(X) は wall を越えない（barrier 停止のロジックを含む）', () => {
@@ -174,12 +409,23 @@ describe('toSimulator', () => {
   // 埋め込み JS ランタイムを node:vm で実際に評価し、実行時の関数呼び出しで振る舞いを検証する。
   // 戻り値の context は同一 realm を共有するので、後続の vm.runInContext(code, context) で
   // トップレベルの let/function（overlays・overlayInteractions 等）へアクセスできる。
+  // getElementById は id ごとにダミー要素をキャッシュする（同じ id への複数回の呼び出しが
+  // 同一オブジェクトを返す——hover tooltip のような render() を経由しない局所 DOM 更新を
+  // vm テストから観測できるようにするため）。style はノード近傍への絶対配置 tooltip
+  // （Task 16）が left/top を直接代入するためのプレーンオブジェクト——実 CSSStyleDeclaration
+  // ではないが、代入した値がそのまま読み戻せれば位置決めロジックの検証には十分。
   function runSimulatorScript(html: string): vm.Context {
     const m = html.match(/<script>\n([\s\S]*)\n<\/script>/);
     if (!m) throw new Error('embedded script not found');
+    const elements = new Map<string, { innerHTML: string; textContent: string; style: Record<string, string>; classList: { add(): void; remove(): void } }>();
     const context = vm.createContext({
       document: {
-        getElementById: () => ({ innerHTML: '', textContent: '', classList: { add() {}, remove() {} } }),
+        getElementById: (id: string) => {
+          if (!elements.has(id)) {
+            elements.set(id, { innerHTML: '', textContent: '', style: {}, classList: { add() {}, remove() {} } });
+          }
+          return elements.get(id);
+        },
       },
       setTimeout: () => 0,
       clearTimeout: () => {},
@@ -249,5 +495,2239 @@ describe('toSimulator', () => {
     );
     const listTexts = JSON.parse(vm.runInContext('JSON.stringify(docCommonInteractions().map(i => i.actionText))', context));
     expect(listTexts).toContain('通知タップ(記事リンク)');
+  });
+
+  it('統合ログ: 起動時に初期エントリが1件積まれ、kindがtransitionでsnapshotが現在状態を持つ（toast は全廃）', () => {
+    const doc = parseOk('# ホーム\nロゴ\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).not.toContain('showToast');
+    expect(html).not.toContain('class="toast"');
+    const context = runSimulatorScript(html);
+    expect(vm.runInContext('timeline.length', context)).toBe(1);
+    expect(vm.runInContext('timeline[0].kind', context)).toBe('transition');
+    const stackLen = vm.runInContext('timeline[0].snapshot.stack.length', context);
+    expect(stackLen).toBe(1);
+  });
+
+  it('統合ログ: push 2回で起動+2件、timeline[1]タップで全状態(stack・sharedVariants・overlays)が巻き戻る（受入基準b: 未来分は ghost として残り truncate されない）', () => {
+    const doc = parseOk(
+      '# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n> 結果へ -> push(結果)\n\n# 結果\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
+      context,
+    );
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '結果', variant: null } })",
+      context,
+    );
+    expect(vm.runInContext('timeline.length', context)).toBe(3);
+    expect(vm.runInContext('cursor', context)).toBe(2);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('結果');
+
+    vm.runInContext('jumpToTimeline(1)', context);
+    // ghost 巻き戻し: 未来分（結果）は削除されず timeline に残る。現在地は cursor が示す
+    expect(vm.runInContext('timeline.length', context)).toBe(3);
+    expect(vm.runInContext('cursor', context)).toBe(1);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('検索');
+    expect(vm.runInContext('stack.length', context)).toBe(2);
+  });
+
+  it('ゴースト巻き戻し: 過去へ巻き戻した後、ghost だったエントリをクリックすると redo できる（受入基準c）', () => {
+    const doc = parseOk(
+      '# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n> 結果へ -> push(結果)\n\n# 結果\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
+      context,
+    );
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '結果', variant: null } })",
+      context,
+    );
+
+    vm.runInContext('jumpToTimeline(1)', context); // 検索まで戻る。「結果」は ghost
+    expect(vm.runInContext('currentFrame().component', context)).toBe('検索');
+
+    vm.runInContext('jumpToTimeline(2)', context); // ghost をクリックして redo
+    expect(vm.runInContext('cursor', context)).toBe(2);
+    expect(vm.runInContext('timeline.length', context)).toBe(3);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('結果');
+    expect(vm.runInContext('stack.length', context)).toBe(3);
+  });
+
+  it('ゴースト巻き戻し: ghost 保持中に新しい操作を行うと ghost が消え新エントリが積まれる（受入基準d）', () => {
+    const doc = parseOk(
+      '# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n> 結果へ -> push(結果)\n\n# 結果\n本体\n\n# 設定\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
+      context,
+    );
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '結果', variant: null } })",
+      context,
+    );
+    expect(vm.runInContext('timeline.length', context)).toBe(3);
+
+    vm.runInContext('jumpToTimeline(1)', context); // 検索まで戻る。「結果」は ghost として残る
+    expect(vm.runInContext('timeline.length', context)).toBe(3);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '設定', variant: null } })",
+      context,
+    );
+    // ghost だった「結果」は消え、新エントリ「設定」に置き換わる（総数は変わらず3のまま）
+    expect(vm.runInContext('timeline.length', context)).toBe(3);
+    expect(vm.runInContext('cursor', context)).toBe(2);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('設定');
+    const labels = JSON.parse(vm.runInContext('JSON.stringify(timeline.map(e => e.label))', context));
+    expect(labels).not.toContain('push → 結果');
+    expect(labels[2]).toBe('push → 設定');
+  });
+
+  it('統合ログ: effect はkind: event種別で1件追加され、遷移エントリと同じ配列に時系列で並ぶ', () => {
+    const doc = parseOk('# ホーム\n> 押す -> いいねしました\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    const lenBefore = vm.runInContext('timeline.length', context);
+    vm.runInContext("applyTransition({ type: 'effect', text: 'いいねしました' })", context);
+
+    expect(vm.runInContext('timeline.length', context)).toBe(lenBefore + 1);
+    expect(vm.runInContext('timeline[timeline.length - 1].kind', context)).toBe('event');
+    const timelineJson = JSON.parse(vm.runInContext('JSON.stringify(timeline)', context));
+    expect(timelineJson.some((e: any) => e.label.includes('いいねしました'))).toBe(true);
+  });
+
+  it('戻るボタン相当の関数(goBack): wall で失敗しevent種別の警告エントリが追記、成功時にtransition種別の遷移エントリが追記される（back のtimeline追記化。旧pop仕様は全廃 — Task 7）', () => {
+    const doc = parseOk('# ホーム\n> モーダル -> present(モーダル)\n\n# モーダル\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'present', target: { module: 'main', component: 'モーダル', variant: null } })",
+      context,
+    );
+    expect(vm.runInContext('timeline.length', context)).toBe(2);
+
+    // モーダルは present（wall）で積まれたため goBack() は阻まれるが、警告は event エントリとして統合ログへ追記される
+    vm.runInContext('goBack()', context);
+    expect(vm.runInContext('timeline.length', context)).toBe(3);
+    expect(vm.runInContext('timeline[timeline.length - 1].kind', context)).toBe('event');
+    const warnLabel = vm.runInContext('timeline[timeline.length - 1].label', context);
+    expect(warnLabel).toContain('壁');
+
+    // push（非 wall）した場合は goBack() 成功、統合ログ末尾に back の transition エントリが追記される（pop しない）
+    const doc2 = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html2 = toSimulator(new Map([['main', doc2]]), 'main');
+    const context2 = runSimulatorScript(html2);
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
+      context2,
+    );
+    expect(vm.runInContext('timeline.length', context2)).toBe(2);
+    vm.runInContext('goBack()', context2);
+    expect(vm.runInContext('timeline.length', context2)).toBe(3);
+    expect(vm.runInContext('currentFrame().component', context2)).toBe('ホーム');
+    const lastEntry = JSON.parse(vm.runInContext('JSON.stringify(timeline[timeline.length - 1])', context2));
+    expect(lastEntry.kind).toBe('transition');
+    expect(lastEntry.label).toBe('back → ホーム');
+  });
+
+  it('画面内 back() 成功で統合ログに transition エントリが1件追加される（末尾除去 traceLog.pop() は全廃 — Task 7 受入基準a）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
+      context,
+    );
+    expect(vm.runInContext('timeline.length', context)).toBe(2);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'back', target: null, session: null })",
+      context,
+    );
+    expect(vm.runInContext('timeline.length', context)).toBe(3);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('ホーム');
+  });
+
+  it('back(X) の多段巻き戻しも1エントリ追記に一本化され「末尾＝現在地」不変条件が保たれる（Task 7 旧 M1 根治）', () => {
+    const doc = parseOk(
+      '# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n> 詳細へ -> push(詳細)\n\n# 詳細\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
+      context,
+    );
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '詳細', variant: null } })",
+      context,
+    );
+    expect(vm.runInContext('timeline.length', context)).toBe(3);
+
+    // ホームまで2段巻き戻す back(X) は、timeline を2件 pop するのでなく1件だけ追記する
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'back', target: { module: 'main', component: 'ホーム', variant: null }, session: null })",
+      context,
+    );
+    expect(vm.runInContext('timeline.length', context)).toBe(4);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('ホーム');
+    expect(vm.runInContext('stack.length', context)).toBe(1);
+    const lastEntry = JSON.parse(vm.runInContext('JSON.stringify(timeline[timeline.length - 1])', context));
+    // 末尾＝現在地: 追記された snapshot の stack もホーム1件に一致する
+    expect(lastEntry.kind).toBe('transition');
+    expect(lastEntry.snapshot.stack.length).toBe(1);
+    expect(lastEntry.snapshot.stack[0].component).toBe('ホーム');
+  });
+
+  it('統合ログ: singleton の set による event エントリへ巻き戻すと sharedVariants が復元される（ADR-0014・受入基準e）', () => {
+    const doc = parseOk(
+      '#! 学習\n## 通常\nボタン\n## ハート切れ\n表示\n\n# 問題\n> 使い切る -> set(学習##ハート切れ)\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'state', component: '学習', module: 'main', variant: 'ハート切れ' })",
+      context,
+    );
+    expect(vm.runInContext('timeline.length', context)).toBe(2);
+    expect(vm.runInContext('timeline[1].kind', context)).toBe('event');
+    expect(vm.runInContext("sharedVariants.get(skey('main', '学習'))", context)).toBe('ハート切れ');
+
+    // 起動時点（set 前）へ巻き戻すと共有レジストリから消える
+    vm.runInContext('jumpToTimeline(0)', context);
+    expect(vm.runInContext("sharedVariants.has(skey('main', '学習'))", context)).toBe(false);
+  });
+
+  it('統合ログ: show/hide による event エントリへ巻き戻すと overlays が復元される（受入基準e）', () => {
+    const doc = parseOk('# P\n> 再生 -> show(ミニプレイヤー)\n> 停止 -> hide(ミニプレイヤー)\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニプレイヤー', module: 'main', variant: null })",
+      context,
+    );
+    expect(vm.runInContext('overlays.size', context)).toBe(1);
+    vm.runInContext(
+      "applyTransition({ type: 'overlay', op: 'hide', component: 'ミニプレイヤー' })",
+      context,
+    );
+    expect(vm.runInContext('overlays.size', context)).toBe(0);
+    expect(vm.runInContext('timeline.length', context)).toBe(3);
+    expect(vm.runInContext('timeline[1].kind', context)).toBe('event');
+    expect(vm.runInContext('timeline[2].kind', context)).toBe('event');
+
+    vm.runInContext('jumpToTimeline(1)', context); // show 時点へ戻る
+    expect(vm.runInContext('overlays.size', context)).toBe(1);
+  });
+
+  it('統合ログ: 各エントリに記録時のアクティブ画面（component/variant）を薄いラベルで併記する。遷移エントリは遷移後の画面（Task 18 受入基準a）', () => {
+    const doc = parseOk(
+      '# ホーム\n> 押す -> いいねしました\n> 検索へ -> push(検索)\n\n# 検索\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext("applyTransition({ type: 'effect', text: 'いいねしました' }); render()", context);
+    const afterEffectHtml = vm.runInContext('app.innerHTML', context);
+    // event エントリは記録時点のアクティブ画面（ホーム）を併記する
+    expect(afterEffectHtml).toMatch(/<span class="timeline-item-screen">\[ホーム\]<\/span> effect: いいねしました/);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      context,
+    );
+    const afterPushHtml = vm.runInContext('app.innerHTML', context);
+    // 遷移エントリは画面名ラベルを併記しない（N-2）——ラベル自体（push → 検索）が遷移後の
+    // 画面を表すため、併記すると全文重複する。screen フィールド自体は下の JSON 検証で確認する。
+    expect(afterPushHtml).not.toMatch(/<span class="timeline-item-screen">\[検索\]<\/span> push → 検索/);
+    expect(afterPushHtml).toContain('push → 検索');
+
+    // 表示だけでなくエントリ構造自体にも screen フィールドとして残る
+    const timelineJson = JSON.parse(vm.runInContext('JSON.stringify(timeline)', context));
+    expect(timelineJson[0].screen).toBe('ホーム'); // 起動
+    expect(timelineJson[2].screen).toBe('検索'); // push → 検索
+  });
+
+  it('統合ログ: transition行は画面名ラベルを併記しない（遷移先ラベル自体が現在地を表すため重複。N-2）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      context,
+    );
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    const transitionSpanMatch = appHtml.match(
+      /<span class="timeline-item timeline-item-transition current" onclick="jumpToTimeline\(1\)">([^<]*)<\/span>/,
+    );
+    expect(transitionSpanMatch).not.toBeNull();
+    expect(transitionSpanMatch![1]).toBe('push → 検索'); // 画面名バッジ [検索] を併記しない
+  });
+
+  it('統合ログ: 画面名ラベルは姿(variant)を伴うとき "component / variant" 形式になる（event行併記。Task 18 受入基準a、N-2でtransition行は併記対象外）', () => {
+    const doc = parseOk('# 詳細\n## 読込中\nスピナー\n> 完了 -> goto(##表示)\n## 表示\nコンテンツ\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'goto', target: { kind: 'variant', variant: '表示' } })",
+      context,
+    );
+    // transition 行は画面名ラベルを併記しない（N-2）ため、姿つきラベルの形式検証は
+    // event 行（effect）で行う——遷移後の「表示」姿で effect を起こす。
+    vm.runInContext("applyTransition({ type: 'effect', text: '読み込み完了' }); render()", context);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('[詳細 / 表示]');
+  });
+
+  it('イベントトグル: 「イベントを表示」チェックボックスを持ち、既定でON（event行を表示）（受入基準f）', () => {
+    const doc = parseOk('# ホーム\n> 押す -> いいねしました\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).toContain('イベントを表示');
+    expect(html).toContain('type="checkbox"');
+    expect(html).toContain('function toggleShowEvents(');
+    const context = runSimulatorScript(html);
+    expect(vm.runInContext('showEvents', context)).toBe(true);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('checked');
+  });
+
+  it('イベントトグル: OFF にすると event 行は非表示になるが transition 行は常時表示、データは保持される（受入基準f）', () => {
+    const doc = parseOk(
+      '# ホーム\n> 押す -> いいねしました\n> 検索へ -> push(検索)\n\n# 検索\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext("applyTransition({ type: 'effect', text: 'いいねしました' })", context);
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      context,
+    );
+
+    const shownHtml = vm.runInContext('app.innerHTML', context);
+    expect(shownHtml).toContain('effect: いいねしました');
+    expect(shownHtml).toContain('push → 検索');
+
+    vm.runInContext('toggleShowEvents(); render()', context);
+    expect(vm.runInContext('showEvents', context)).toBe(false);
+    const hiddenHtml = vm.runInContext('app.innerHTML', context);
+    expect(hiddenHtml).not.toContain('effect: いいねしました'); // event 行は非表示
+    expect(hiddenHtml).toContain('push → 検索'); // transition 行は常時表示
+
+    // データ自体は保持されている（トグルは表示のみ）
+    const kinds = JSON.parse(vm.runInContext('JSON.stringify(timeline.map(e => e.kind))', context));
+    expect(kinds).toContain('event');
+    expect(vm.runInContext('timeline.length', context)).toBe(3);
+  });
+
+  it('イベントトグル: cursor が event エントリを指すときは showEvents OFF でも .current は描画される（現在位置表示を失わない）', () => {
+    const doc = parseOk('# ホーム\n> 押す -> いいねしました\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext("applyTransition({ type: 'effect', text: 'いいねしました' }); render()", context);
+
+    expect(vm.runInContext('showEvents', context)).toBe(true);
+    const shownHtml = vm.runInContext('app.innerHTML', context);
+    expect(shownHtml).toContain('timeline-item-event');
+    expect(shownHtml).toContain('current');
+
+    vm.runInContext('toggleShowEvents(); render()', context);
+    expect(vm.runInContext('showEvents', context)).toBe(false);
+    const hiddenHtml = vm.runInContext('app.innerHTML', context);
+    expect(hiddenHtml).toContain('timeline-item-event');
+    expect(hiddenHtml).toContain('current');
+  });
+
+  it('統合ログ: newest-on-top で描画されるが timeline 配列自体・クリックインデックスは時系列のまま変わらない（Task 14 受入基準d）', () => {
+    const doc = parseOk(
+      '# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n> 結果へ -> push(結果)\n\n# 結果\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      context,
+    );
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '結果', variant: null } }); render()",
+      context,
+    );
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    const timelineIdx = appHtml.indexOf('timeline-log');
+    const timelineHtml = appHtml.slice(timelineIdx);
+
+    // 配列は時系列 [起動, push→検索, push→結果] のまま。描画は逆順 = 起動が最後(下)に現れる
+    const idxHome = timelineHtml.indexOf('起動');
+    const idxSearch = timelineHtml.indexOf('push → 検索');
+    const idxResult = timelineHtml.indexOf('push → 結果');
+    expect(idxHome).toBeGreaterThan(-1);
+    expect(idxSearch).toBeGreaterThan(-1);
+    expect(idxResult).toBeGreaterThan(-1);
+    expect(idxResult).toBeLessThan(idxSearch); // 最新（push→結果）が先(上)に出る
+    expect(idxSearch).toBeLessThan(idxHome);
+
+    // onclick="jumpToTimeline(N)" の N は配列インデックスのまま（描画順は新→旧だが値は変わらない）
+    const clickIdxs = [...timelineHtml.matchAll(/jumpToTimeline\((\d+)\)/g)].map((m) => Number(m[1]));
+    expect(clickIdxs).toEqual([2, 1, 0]);
+  });
+
+  it('統合ログ: newest-on-top でも current（cursor 位置）・ghost（未来分）のハイライトは正しいエントリに付きクリックで redo できる（Task 14 受入基準d）', () => {
+    const doc = parseOk(
+      '# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n> 結果へ -> push(結果)\n\n# 結果\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      context,
+    );
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '結果', variant: null } }); render()",
+      context,
+    );
+    // 検索まで巻き戻す。「結果」は ghost になり、cursor（現在地）は「検索」を指す
+    vm.runInContext('jumpToTimeline(1); render()', context);
+
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    const timelineIdx = appHtml.indexOf('timeline-log');
+    const timelineHtml = appHtml.slice(timelineIdx);
+
+    // 各 span を配列インデックス（onclick の引数）別に取り出して current/ghost を検証する
+    const spans = [...timelineHtml.matchAll(/<span class="([^"]*)" onclick="jumpToTimeline\((\d+)\)">/g)];
+    const classesByIdx = new Map(spans.map((m) => [Number(m[2]), m[1]!]));
+    expect(classesByIdx.get(0)).not.toMatch(/\bcurrent\b/); // 起動: 過去
+    expect(classesByIdx.get(0)).not.toMatch(/\bghost\b/);
+    expect(classesByIdx.get(1)).toMatch(/\bcurrent\b/); // push→検索: 現在地
+    expect(classesByIdx.get(2)).toMatch(/\bghost\b/); // push→結果: 未来(ghost)
+
+    // クリック（jumpToTimeline）で redo できる（描画順反転後もインデックス整合が実効することの確認）
+    vm.runInContext('jumpToTimeline(2); render()', context);
+    expect(vm.runInContext('cursor', context)).toBe(2);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('結果');
+  });
+
+  it('複数ラベル操作は全ラベルを横並びボタンで提示し、ラベル指定クリックで対応 results だけが走る', () => {
+    const doc = parseOk(
+      '# ホーム\n> ガチャ ->\n>     [当たり] push(景品)\n>     [ハズレ] push(残念)\n\n# 景品\n本体\n\n# 残念\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('[当たり]');
+    expect(appHtml).toContain('[ハズレ]');
+
+    vm.runInContext("handleInteraction('component', 0, 1)", context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('残念');
+    // regression guard: 全 choice が走ってしまう退行では最後の push（残念）が勝ち上の
+    // アサートは素通りする。選んだ choice「だけ」が走ったことを timeline 件数と
+    // stack の中身（[当たり] 側の 景品 frame が積まれていないこと）で縛る。
+    expect(vm.runInContext('timeline.length', context)).toBe(2);
+    const stackComponents = JSON.parse(
+      vm.runInContext('JSON.stringify(stack.map(f => f.component))', context),
+    );
+    expect(stackComponents).not.toContain('景品');
+  });
+
+  it('ラベル無し操作（choices 空）は行全体がボタンになり prelude のみ実行する（UX round2: [TRUE] 表記は「押せるのか内部フラグ表示か紛らわしい」ため廃し行自体を押せる見た目にする。Task 15）', () => {
+    const doc = parseOk('# ホーム\n> タップ -> push(次)\n\n# 次\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('action-row-solo');
+    expect(appHtml).not.toContain('[TRUE]');
+    const m = appHtml.match(/<div class="action-row action-row-solo" onclick="(handleInteraction\([^"]+)">/);
+    expect(m).not.toBeNull();
+    vm.runInContext(m![1]!, context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('次');
+  });
+
+  it('アクション行はボタン風の枠・背景を持ち、要素行（静的表示）と視覚的に区別される（Task 15 受入基準a）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const styleMatch = html.match(/<style>([\s\S]*)<\/style>/);
+    expect(styleMatch).not.toBeNull();
+    const style = styleMatch![1]!;
+    const actionRowRule = style.match(/\.action-row\s*\{([^}]*)\}/);
+    expect(actionRowRule).not.toBeNull();
+    // ボタン風の枠・背景（.element の border-bottom だけの静的行と区別する）
+    expect(actionRowRule![1]).toMatch(/border:\s*1px/);
+    expect(actionRowRule![1]).toMatch(/background:\s*#/);
+    const soloRule = style.match(/\.action-row-solo\s*\{([^}]*)\}/);
+    expect(soloRule).not.toBeNull();
+    expect(soloRule![1]).toMatch(/cursor:\s*pointer/);
+  });
+
+  it('アクション表示トグル: 「現在の画面」ペインに「アクションを表示」チェックボックスを持ち既定でON（Task 15 受入基準b）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).toContain('アクションを表示');
+    expect(html).toContain('function toggleShowActions(');
+    const context = runSimulatorScript(html);
+    expect(vm.runInContext('showActions', context)).toBe(true);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('action-toggle');
+    expect(appHtml).toContain('checked');
+  });
+
+  it('アクション表示トグル: OFF で紐付け・フラット・部品由来・掲示中カードのアクション行が全て消え要素階層は残り、ON で復帰しクリックも正しく効く（Task 15 受入基準b・c）', () => {
+    const doc = parseOk(
+      '# ホーム\nロゴ\n部品A\n> タップ(ロゴ) -> push(設定)\n> 検索へ -> push(検索)\n> 出す -> show(ミニ)\n\n' +
+        '# 部品A\n内側要素\n> 内側操作 -> push(詳細)\n\n' +
+        '# ミニ\nミニ内側\n> ミニ操作 -> push(詳細)\n\n' +
+        '# 設定\n本体\n\n# 検索\n本体\n\n# 詳細\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext(
+      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
+      context,
+    );
+
+    const onHtml = vm.runInContext('app.innerHTML', context);
+    expect(onHtml).toContain('タップ(ロゴ)'); // 紐付け
+    expect(onHtml).toContain('検索へ'); // フラット
+    expect(onHtml).toContain('内側操作'); // 部品由来
+    expect(onHtml).toContain('ミニ操作'); // 掲示中カード
+    expect(onHtml).toContain('action-row');
+
+    vm.runInContext('toggleShowActions(); render()', context);
+    expect(vm.runInContext('showActions', context)).toBe(false);
+    const offHtml = vm.runInContext('app.innerHTML', context);
+    expect(offHtml).not.toContain('action-row');
+    expect(offHtml).not.toContain('タップ(ロゴ)');
+    expect(offHtml).not.toContain('検索へ');
+    expect(offHtml).not.toContain('内側操作');
+    expect(offHtml).not.toContain('ミニ操作');
+    // 要素階層は残る
+    expect(offHtml).toContain('ロゴ');
+    expect(offHtml).toContain('部品A');
+    expect(offHtml).toContain('内側要素');
+    expect(offHtml).toContain('ミニ内側');
+    expect(offHtml).toContain('overlay-card');
+
+    vm.runInContext('toggleShowActions(); render()', context);
+    expect(vm.runInContext('showActions', context)).toBe(true);
+    const restoredHtml = vm.runInContext('app.innerHTML', context);
+    expect(restoredHtml).toContain('タップ(ロゴ)');
+    expect(restoredHtml).toContain('検索へ');
+    expect(restoredHtml).toContain('内側操作');
+    expect(restoredHtml).toContain('ミニ操作');
+
+    // クリックも復帰後に正しく効く（フラット操作: 検索へ → 検索）
+    const m = restoredHtml.match(/onclick="(handleInteraction\([^"]+)"><span class="action-text">検索へ<\/span>/);
+    expect(m).not.toBeNull();
+    vm.runInContext(m![1]!, context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('検索');
+  });
+
+  it('操作一覧: scope はカテゴリ見出しでなく各操作行のバッジで示す（variant固有/component common/document common の3種。Task 8 受入基準d）', () => {
+    const doc = parseOk(
+      '> 通知 -> push(受信箱)\n\n' +
+        '# ホーム\n> 共通操作 -> push(共通先)\n## 通常\n姿要素\n> 姿操作 -> push(詳細)\n\n' +
+        '# 詳細\n本体\n\n# 共通先\n本体\n\n# 受信箱\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    // カテゴリ <details> ではなく行ごとのバッジ表示
+    expect(appHtml).not.toContain('action-category');
+    expect(appHtml).toContain('scope-badge');
+    expect(appHtml).toContain('variant固有');
+    expect(appHtml).toContain('component common');
+    expect(appHtml).toContain('document common');
+    expect(appHtml).toContain('姿操作');
+    expect(appHtml).toContain('共通操作');
+    expect(appHtml).toContain('通知');
+  });
+
+  it('scope バッジ: 3種のバッジがそれぞれ意味を説明する title 属性を持つ（Task 18 受入基準c）', () => {
+    const doc = parseOk(
+      '> 通知 -> push(受信箱)\n\n' +
+        '# ホーム\n> 共通操作 -> push(共通先)\n## 通常\n姿要素\n> 姿操作 -> push(詳細)\n\n' +
+        '# 詳細\n本体\n\n# 共通先\n本体\n\n# 受信箱\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    const badgeMatches = [...appHtml.matchAll(/<span class="scope-badge" title="([^"]+)">([^<]+)<\/span>/g)];
+    const titleByLabel = new Map(badgeMatches.map((m) => [m[2], m[1]]));
+    expect(titleByLabel.get('variant固有')).toBeTruthy();
+    expect(titleByLabel.get('component common')).toBeTruthy();
+    expect(titleByLabel.get('document common')).toBeTruthy();
+    // 3種とも異なる説明文を持つ（同じ文言の使い回しではない）
+    const titles = new Set(titleByLabel.values());
+    expect(titles.size).toBe(3);
+  });
+
+  it('外部イベントセクション: scope==="document" の操作は主操作リストから除外され、「外部イベントを発生させる」<details> にまとまる（Task 18 受入基準b。開閉既定は別テストで検証）', () => {
+    const doc = parseOk(
+      '> 通知 -> push(受信箱)\n\n' +
+        '# ホーム\n> 共通操作 -> push(共通先)\n\n' +
+        '# 共通先\n本体\n\n# 受信箱\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+
+    const sectionMatch = appHtml.match(/<details[^>]*class="doc-events-section"[^>]*>[\s\S]*?<\/details>/);
+    expect(sectionMatch).not.toBeNull();
+    expect(sectionMatch![0]).toContain('外部イベントを発生させる');
+    expect(sectionMatch![0]).toContain('通知');
+
+    // 主操作リスト（外部イベントセクションより前の画面カード部分）には document common が出ない
+    const mainCardHtml = appHtml.slice(0, appHtml.indexOf('doc-events-section'));
+    expect(mainCardHtml).not.toContain('通知');
+    expect(mainCardHtml).toContain('共通操作'); // component scope は従来どおり主リストに残る
+
+    // 実行機構は不変（handleInteraction('document', idx, ...) で引き続き発火する）
+    const m = sectionMatch![0].match(/onclick="(handleInteraction\('document'[^"]+)"/);
+    expect(m).not.toBeNull();
+    vm.runInContext(m![1]!, context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('受信箱');
+  });
+
+  it('外部イベントセクション: 「アクションを表示」がオン（既定）なら既定で開く（UX round4 §3-4: music の主動線が既定閉のセクションに埋没する問題）', () => {
+    const doc = parseOk('> 通知 -> push(受信箱)\n\n# ホーム\n本体\n\n# 受信箱\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toMatch(/<details open class="doc-events-section"/);
+  });
+
+  it('外部イベントセクション: 「アクションを表示」をオフにすると既定閉に戻る（従来どおり）', () => {
+    const doc = parseOk('> 通知 -> push(受信箱)\n\n# ホーム\n本体\n\n# 受信箱\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext('toggleShowActions(); render()', context);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).not.toMatch(/<details open class="doc-events-section"/);
+  });
+
+  it('外部イベントセクション: document common 操作が無ければセクション自体を出さない', () => {
+    const doc = parseOk('# ホーム\n> 押す -> push(次)\n\n# 次\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).not.toContain('doc-events-section');
+    expect(appHtml).not.toContain('外部イベントを発生させる');
+  });
+
+  it('外部イベントセクション: 手動で開閉した状態は JS グローバルで保持され render() をまたいで維持される（stackPanelOpen と同じ方式。showActions 連動より手動操作を優先）', () => {
+    const doc = parseOk('> 通知 -> push(受信箱)\n\n# ホーム\n本体\n\n# 受信箱\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext('docEventsPanelOpen = false; render()', context);
+    const closedHtml = vm.runInContext('app.innerHTML', context);
+    expect(closedHtml).not.toMatch(/<details open class="doc-events-section"/);
+
+    vm.runInContext('docEventsPanelOpen = true; render()', context);
+    const openHtml = vm.runInContext('app.innerHTML', context);
+    expect(openHtml).toMatch(/<details open class="doc-events-section"/);
+  });
+
+  it('外部イベントセクション: 開いたときに自身へ scrollIntoView する（画面外に隠れ無反応に見える問題への対応。N-4）', () => {
+    const doc = parseOk('> 通知 -> push(受信箱)\n\n# ホーム\n本体\n\n# 受信箱\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    // ontoggle は開いたとき（this.open）だけ this.scrollIntoView(...) を呼ぶ——
+    // 閉じたときや初期描画では呼ばず、控えめな挙動（{ block: 'nearest' } 等）に留める。
+    const sectionMatch = appHtml.match(/<details[^>]*class="doc-events-section"[^>]*ontoggle="([^"]*)"/);
+    expect(sectionMatch).not.toBeNull();
+    const ontoggleAttr = sectionMatch![1]!;
+    expect(ontoggleAttr).toContain('docEventsPanelOpen = this.open');
+    expect(ontoggleAttr).toContain('this.open');
+    expect(ontoggleAttr).toContain('.scrollIntoView(');
+  });
+
+  it('掲示中カードは従来どおり外部イベントセクションを持たない（document common はアクティブ画面基準。ADR-0015）', () => {
+    const doc = parseOk(
+      '> 通知 -> push(受信箱)\n\n' +
+        '# ホーム\nロゴ\n> 出す -> show(ミニ)\n\n' +
+        '# ミニ\n共通要素\n\n# 受信箱\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext(
+      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
+      context,
+    );
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    const overlayIdx = appHtml.indexOf('overlay-card');
+    expect(overlayIdx).toBeGreaterThan(-1);
+    const overlaySection = appHtml.slice(overlayIdx);
+    expect(overlaySection).not.toContain('doc-events-section');
+  });
+
+  it('要素の階層表示: ref を持つ要素は参照先 component の中身（commonElements + 現在 variant）を <details open> で入れ子展開する（Task 8 受入基準a）', () => {
+    const doc = parseOk('# ホーム\nログインフォーム\n\n# ログインフォーム\nID入力\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('ログインフォーム');
+    expect(appHtml).toMatch(/<details open class="element-hierarchy">/);
+    expect(appHtml).toContain('ID入力');
+  });
+
+  it('要素の階層表示: variant を持つ参照先は sharedVariants → initialVariant の順で解決した variant の elements を展開する（Task 8）', () => {
+    const doc = parseOk(
+      '# ホーム\n詳細\n\n# 詳細\n## 読込中\nスピナー\n## 表示\nコンテンツ\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    // sharedVariants 未設定 → initialVariant（読込中）の中身が展開される
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('スピナー');
+    expect(appHtml).not.toContain('コンテンツ');
+
+    // sharedVariants に「表示」を設定すると、展開はそちらへ追随する
+    vm.runInContext("sharedVariants.set(skey('main', '詳細'), '表示'); render()", context);
+    const afterHtml = vm.runInContext('app.innerHTML', context);
+    expect(afterHtml).toContain('コンテンツ');
+  });
+
+  it('要素の階層表示: 循環参照は展開経路上の (module,name) 再訪で打ち切り「（循環）」を示す（無限展開しない。Task 8 受入基準b）', () => {
+    const doc = parseOk('# A\nB\n\n# B\nA\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    // 循環があっても render() が有限時間で完了し、循環を示す表記が出ること自体がガードの証跡
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('（循環）');
+  });
+
+  it('操作の対象紐付け: action.target がトップレベル要素の表示名に一致する操作はその要素行の直下に、不一致・対象なしはフラットリストに出る（Task 8 受入基準c）', () => {
+    const doc = parseOk(
+      '# ホーム\nロゴ\n他要素\n> タップ(ロゴ) -> push(設定)\n> 押す -> push(次)\n\n' +
+        '# 設定\n本体\n\n# 次\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+
+    const logoIdx = appHtml.indexOf('>ロゴ<');
+    const attachedIdx = appHtml.indexOf('タップ(ロゴ)');
+    const otherElIdx = appHtml.indexOf('>他要素<');
+    const flatIdx = appHtml.indexOf('押す');
+    // 対象一致（タップ(ロゴ)）は ロゴ 要素行の直下（次の要素行より前）に紐付けて出る
+    expect(logoIdx).toBeGreaterThan(-1);
+    expect(attachedIdx).toBeGreaterThan(logoIdx);
+    expect(attachedIdx).toBeLessThan(otherElIdx);
+    // 対象なし（押す）は要素より後のフラットリストに出る
+    expect(flatIdx).toBeGreaterThan(otherElIdx);
+
+    vm.runInContext("handleInteraction('component', 0, 0)", context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('設定');
+  });
+
+  it('操作の対象紐付け: onclick は scope 固定キー + gate フィルタ済みリスト内インデックスを参照し、描画とハンドラでずれない（Task 8）', () => {
+    const doc = parseOk(
+      '# ホーム\nロゴ\n> 押す(非表示要素?) -> push(A)\n> タップ(ロゴ) -> push(設定)\n\n' +
+        '# 設定\n本体\n\n# A\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    // 押す(非表示要素?) は gate off（ホームの実効 body に非表示要素が無い）でフィルタされ、
+    // フィルタ済み component リストは [タップ(ロゴ)] のみ——描画された onclick の idx は 0
+    expect(appHtml).not.toContain('押す');
+    const m = appHtml.match(/onclick="(handleInteraction\('component',\d+,\d+\))"/);
+    expect(m).not.toBeNull();
+    // 描画された onclick をそのまま実行すると、紐付け表示された タップ(ロゴ) が発火して 設定 へ遷移する
+    vm.runInContext(m![1]!, context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('設定');
+  });
+
+  it('掲示中カード: 要素の階層展開・対象紐付け・scope バッジが本体と同じ描画経路で効く（Task 8 本体・掲示中共通）', () => {
+    const doc = parseOk(
+      '# ホーム\nロゴ\n> 出す -> show(ミニ)\n\n' +
+        '# ミニ\n曲名\n中身\n> タップ(曲名) -> push(プレイヤー)\n\n' +
+        '# 中身\n詳細行\n\n# プレイヤー\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext(
+      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
+      context,
+    );
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    const overlayIdx = appHtml.indexOf('overlay-card');
+    expect(overlayIdx).toBeGreaterThan(-1);
+    const overlaySection = appHtml.slice(overlayIdx);
+    // 中身（定義済み component への参照）は掲示中カード内でも入れ子展開される
+    expect(overlaySection).toContain('element-hierarchy');
+    expect(overlaySection).toContain('詳細行');
+    // タップ(曲名) は 曲名 要素行の直下に紐付き、scope バッジを持つ
+    const nameIdx = overlaySection.indexOf('>曲名<');
+    const attachedIdx = overlaySection.indexOf('タップ(曲名)');
+    expect(nameIdx).toBeGreaterThan(-1);
+    expect(attachedIdx).toBeGreaterThan(nameIdx);
+    expect(overlaySection).toContain('scope-badge');
+    // 紐付け表示された操作もクリックで実行できる（アクティブフレーム基準の遷移は不変）
+    vm.runInContext("handleOverlayInteraction(0, 'component', 0, 0)", context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('プレイヤー');
+  });
+
+  it('choice-chip の onclick は scope を単一引用符の JS 文字列リテラルとして埋め込み onclick 属性を壊さない', () => {
+    const doc = parseOk(
+      '> 通知 -> push(受信箱)\n\n' +
+        '# ホーム\n> 共通操作 -> push(共通先)\n## 通常\n姿要素\n> 姿操作 -> push(詳細)\n\n' +
+        '# 詳細\n本体\n\n# 共通先\n本体\n\n# 受信箱\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    // JSON.stringify(scope) は "variant" のような二重引用符区切り文字列を吐く。
+    // onclick="..." は二重引用符区切り属性のため、途中の " で属性値が切れて壊れる。
+    expect(appHtml).not.toContain('onclick="handleInteraction("');
+    expect(appHtml).toContain("onclick=\"handleInteraction('variant'");
+    expect(appHtml).toContain("onclick=\"handleInteraction('component'");
+    expect(appHtml).toContain("onclick=\"handleInteraction('document'");
+  });
+
+  it('存在しない scope のバッジ表記は出ない（component 操作だけなら variant固有・document common の文字は現れない）', () => {
+    const doc = parseOk('# ホーム\n> 押す -> push(次)\n\n# 次\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).not.toContain('variant固有');
+    expect(appHtml).not.toContain('document common');
+  });
+
+  it('pendingChoice / choice-panel / handleChoice 機構を廃止した', () => {
+    const doc = parseOk('# ホーム\n> 押す -> push(次)\n\n# 次\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).not.toContain('pendingChoice');
+    expect(html).not.toContain('choice-panel');
+    expect(html).not.toContain('function handleChoice(');
+  });
+
+  it('戻れない判定: stack長1またはwallのとき戻るボタンをDOMから消す(disabledでなく非描画)', () => {
+    const doc = parseOk('# ホーム\n> モーダル -> present(モーダル)\n\n# モーダル\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).not.toContain('back-btn:disabled');
+    const context = runSimulatorScript(html);
+
+    // stack 長 1 の初期状態では戻るボタンが描画されない
+    expect(vm.runInContext('app.innerHTML', context)).not.toContain('back-btn');
+
+    // present で wall フレームを積んでも、wall のため戻るボタンは描画されない
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'present', target: { module: 'main', component: 'モーダル', variant: null } }); render()",
+      context,
+    );
+    expect(vm.runInContext('stack.length', context)).toBe(2);
+    expect(vm.runInContext('app.innerHTML', context)).not.toContain('back-btn');
+  });
+
+  it('layoutGraph: entry component を rank 0 とし、エッジに沿って longest-path で rank を割り当てる（直線チェーンは横並び。受入基準a）', () => {
+    const doc = parseOk('# A\n要素\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const nodes = [
+      { module: 'main', name: 'A' },
+      { module: 'main', name: 'B' },
+      { module: 'main', name: 'C' },
+    ];
+    const edges = [
+      { from: { module: 'main', name: 'A' }, to: { module: 'main', name: 'B' } },
+      { from: { module: 'main', name: 'B' }, to: { module: 'main', name: 'C' } },
+    ];
+    const layout = JSON.parse(
+      vm.runInContext(
+        `JSON.stringify(layoutGraph(${JSON.stringify(nodes)}, ${JSON.stringify(edges)}, 'main', 'A'))`,
+        context,
+      ),
+    );
+    const rankOf = (name: string) => layout.find((n: any) => n.name === name).rank;
+    expect(rankOf('A')).toBe(0);
+    expect(rankOf('B')).toBe(1);
+    expect(rankOf('C')).toBe(2);
+  });
+
+  it('layoutGraph: エッジで到達しないノードは最終 rank の次にまとめる', () => {
+    const doc = parseOk('# A\n要素\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const nodes = [
+      { module: 'main', name: 'A' },
+      { module: 'main', name: 'B' },
+      { module: 'main', name: 'D' }, // 孤立ノード（エッジで到達しない）
+    ];
+    const edges = [{ from: { module: 'main', name: 'A' }, to: { module: 'main', name: 'B' } }];
+    const layout = JSON.parse(
+      vm.runInContext(
+        `JSON.stringify(layoutGraph(${JSON.stringify(nodes)}, ${JSON.stringify(edges)}, 'main', 'A'))`,
+        context,
+      ),
+    );
+    const rankOf = (name: string) => layout.find((n: any) => n.name === name).rank;
+    expect(rankOf('A')).toBe(0);
+    expect(rankOf('B')).toBe(1);
+    expect(rankOf('D')).toBe(2); // maxRank(=1) の次にまとめる
+  });
+
+  it('layoutGraph: 入次数ゼロで出エッジを持つノード（ハブ部品）は隔離せず rank 0 の起点として扱う（N-1）', () => {
+    const doc = parseOk('# A\n要素\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    // H は entry(A) から到達しない（A->B のみ）が、C・D への出エッジを持つ入次数ゼロの
+    // ハブ（タブバー相当）。Z は出エッジも入エッジも持たない孤立ノード。
+    const nodes = [
+      { module: 'main', name: 'A' },
+      { module: 'main', name: 'B' },
+      { module: 'main', name: 'H' },
+      { module: 'main', name: 'C' },
+      { module: 'main', name: 'D' },
+      { module: 'main', name: 'Z' },
+    ];
+    const edges = [
+      { from: { module: 'main', name: 'A' }, to: { module: 'main', name: 'B' } },
+      { from: { module: 'main', name: 'H' }, to: { module: 'main', name: 'C' } },
+      { from: { module: 'main', name: 'H' }, to: { module: 'main', name: 'D' } },
+    ];
+    const layout = JSON.parse(
+      vm.runInContext(
+        `JSON.stringify(layoutGraph(${JSON.stringify(nodes)}, ${JSON.stringify(edges)}, 'main', 'A'))`,
+        context,
+      ),
+    );
+    const rankOf = (name: string) => layout.find((n: any) => n.name === name).rank;
+    expect(rankOf('H')).toBe(0); // 隔離 rank でなく起点として rank 0
+    expect(rankOf('C')).toBe(1);
+    expect(rankOf('D')).toBe(1);
+    expect(rankOf('Z')).toBe(2); // 出エッジ無しの孤立ノードだけが従来どおり隔離rank（maxRank+1）
+  });
+
+  it('layoutGraph: rank 内順序を前 rank の隣接ノードの平均位置（barycenter）で 1 パス整列する', () => {
+    const doc = parseOk('# A\n要素\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    // 定義順は P が Q より先。X(order0)→Q、Y(order1)→P という隣接関係により
+    // barycenter 整列後は Q（親 X の位置0）が P（親 Y の位置1）より先に来るはず。
+    const nodes = [
+      { module: 'main', name: 'A' },
+      { module: 'main', name: 'X' },
+      { module: 'main', name: 'Y' },
+      { module: 'main', name: 'P' },
+      { module: 'main', name: 'Q' },
+    ];
+    const edges = [
+      { from: { module: 'main', name: 'A' }, to: { module: 'main', name: 'X' } },
+      { from: { module: 'main', name: 'A' }, to: { module: 'main', name: 'Y' } },
+      { from: { module: 'main', name: 'Y' }, to: { module: 'main', name: 'P' } },
+      { from: { module: 'main', name: 'X' }, to: { module: 'main', name: 'Q' } },
+    ];
+    const layout = JSON.parse(
+      vm.runInContext(
+        `JSON.stringify(layoutGraph(${JSON.stringify(nodes)}, ${JSON.stringify(edges)}, 'main', 'A'))`,
+        context,
+      ),
+    );
+    const orderOf = (name: string) => layout.find((n: any) => n.name === name).order;
+    expect(orderOf('Q')).toBeLessThan(orderOf('P'));
+  });
+
+  it('layoutGraph: 合流ノードは longest-path で最長側の rank を得る（近道エッジがあっても短絡しない。受入基準a）', () => {
+    const doc = parseOk('# A\n要素\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    // A->B->C->D の長い経路と A->D の近道が両方存在する。BFS なら D は近道経由の rank1 に
+    // 短絡するが、longest-path では長い経路側の rank（3）を採る。
+    const nodes = [
+      { module: 'main', name: 'A' },
+      { module: 'main', name: 'B' },
+      { module: 'main', name: 'C' },
+      { module: 'main', name: 'D' },
+    ];
+    const edges = [
+      { from: { module: 'main', name: 'A' }, to: { module: 'main', name: 'B' } },
+      { from: { module: 'main', name: 'B' }, to: { module: 'main', name: 'C' } },
+      { from: { module: 'main', name: 'C' }, to: { module: 'main', name: 'D' } },
+      { from: { module: 'main', name: 'A' }, to: { module: 'main', name: 'D' } },
+    ];
+    const layout = JSON.parse(
+      vm.runInContext(
+        `JSON.stringify(layoutGraph(${JSON.stringify(nodes)}, ${JSON.stringify(edges)}, 'main', 'A'))`,
+        context,
+      ),
+    );
+    const rankOf = (name: string) => layout.find((n: any) => n.name === name).rank;
+    expect(rankOf('A')).toBe(0);
+    expect(rankOf('B')).toBe(1);
+    expect(rankOf('C')).toBe(2);
+    expect(rankOf('D')).toBe(3);
+  });
+
+  it('layoutGraph: サイクルがあっても後退辺を無視して無限ループせず rank を割り当てる', () => {
+    const doc = parseOk('# A\n要素\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    // A->B->A の後退辺（サイクル）を含む。B->C は前進辺として通常どおり rank2 になる。
+    const nodes = [
+      { module: 'main', name: 'A' },
+      { module: 'main', name: 'B' },
+      { module: 'main', name: 'C' },
+    ];
+    const edges = [
+      { from: { module: 'main', name: 'A' }, to: { module: 'main', name: 'B' } },
+      { from: { module: 'main', name: 'B' }, to: { module: 'main', name: 'A' } },
+      { from: { module: 'main', name: 'B' }, to: { module: 'main', name: 'C' } },
+    ];
+    const layout = JSON.parse(
+      vm.runInContext(
+        `JSON.stringify(layoutGraph(${JSON.stringify(nodes)}, ${JSON.stringify(edges)}, 'main', 'A'))`,
+        context,
+      ),
+    );
+    const rankOf = (name: string) => layout.find((n: any) => n.name === name).rank;
+    expect(rankOf('A')).toBe(0);
+    expect(rankOf('B')).toBe(1);
+    expect(rankOf('C')).toBe(2);
+  });
+
+  it('遷移マップ: DATA.graph を dot 風レイヤード SVG として描画する（rect + component 名テキスト）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).toContain('<svg');
+    expect(html).toContain('<rect');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('<svg');
+    expect(appHtml).toContain('ホーム');
+    expect(appHtml).toContain('検索');
+  });
+
+  it('遷移マップ: module 別スイムレーンに分けて描画し、レーンごとに座標範囲が分離する（受入基準b）', () => {
+    const widgetsDoc = parseOk('# 詳細\n本文\n');
+    const mainDoc = parseOk('import widgets as w\n# ホーム\n> 進む -> push(w::詳細)\n');
+    const html = toSimulator(new Map([['main', mainDoc], ['widgets', widgetsDoc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    // レーン見出しとして両モジュール名が現れる（複数レーン時は省略しない）
+    expect(appHtml).toContain('graph-lane-title');
+    expect(appHtml).toContain('main');
+    expect(appHtml).toContain('widgets');
+
+    // 各ノードの rect y 座標を取り出し、main レーンのノード（ホーム）と
+    // widgets レーンのノード（詳細）が重ならない y 範囲に分離していることを確認する
+    // （SVG 領域だけに絞る——「ホーム」「詳細」は screen-title/stack-item にも同名で
+    // 現れるため、探索範囲を graph-svg 以降に限定する必要がある）
+    const svgHtml = appHtml.slice(appHtml.indexOf('<svg class="graph-svg"'));
+    const yOf = (name: string) => {
+      const idx = svgHtml.indexOf('>' + name + '<');
+      const rectRegex = /<rect[^>]*\by="(\d+)"/g;
+      let match: RegExpExecArray | null;
+      let lastY: number | null = null;
+      while ((match = rectRegex.exec(svgHtml)) !== null) {
+        if (match.index > idx) break;
+        lastY = Number(match[1]);
+      }
+      return lastY;
+    };
+    const homeY = yOf('ホーム');
+    const detailY = yOf('詳細');
+    expect(homeY).not.toBeNull();
+    expect(detailY).not.toBeNull();
+    expect(homeY).not.toBe(detailY);
+  });
+
+  it('遷移マップ: 単一 module のみなら レーン見出しは省略される（受入基準b）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).not.toContain('graph-lane-title');
+  });
+
+  it('遷移マップ: ノード矩形は固定寸法でノード数に依らず、はみ出た分は viewBox 縮小でなくマップ領域内スクロールで見る（受入基準c）', () => {
+    const smallDoc = parseOk('# A\n要素\n\n# B\n要素\n');
+    const smallHtml = toSimulator(new Map([['main', smallDoc]]), 'main');
+    const manyScreens = Array.from({ length: 15 }, (_, i) => `# 画面${i}\n要素\n`).join('\n');
+    const bigDoc = parseOk(manyScreens);
+    const bigHtml = toSimulator(new Map([['main', bigDoc]]), 'main');
+
+    const rectSizeOf = (html: string) => {
+      const m = html.match(/<rect[^>]*width="(\d+)"[^>]*height="(\d+)"/);
+      return m ? { width: m[1], height: m[2] } : null;
+    };
+    const smallContext = runSimulatorScript(smallHtml);
+    const bigContext = runSimulatorScript(bigHtml);
+    // 既定は近傍表示（Task 16 受入基準d）のため、ノード数に依らない固定寸法を検証するには
+    // 「全体を見る」で両方とも全ノードを描画させた上で比較する
+    vm.runInContext('toggleGraphShowAll()', smallContext);
+    vm.runInContext('toggleGraphShowAll()', bigContext);
+    const bigAppHtml = vm.runInContext('app.innerHTML', bigContext);
+    const smallRect = rectSizeOf(vm.runInContext('app.innerHTML', smallContext));
+    const bigRect = rectSizeOf(bigAppHtml);
+    expect(smallRect).not.toBeNull();
+    expect(bigRect).not.toBeNull();
+    expect(bigRect).toEqual(smallRect); // ノード数が増えても矩形寸法は不変（固定サイズ）
+    expect((bigAppHtml.match(/<rect /g) ?? []).length).toBe(15); // 全体表示なら15ノード全部描画される
+
+    // マップ全体を viewBox で縮小して収める旧方式（.graph-svg の max-width: 100%）をやめ、
+    // .graph-map-scroll がマップ領域内の横縦スクロールを担う
+    expect(smallHtml).not.toMatch(/\.graph-svg\s*\{[^}]*max-width/);
+    const scrollRuleMatch = smallHtml.match(/\.graph-map-scroll\s*\{[^}]*\}/);
+    expect(scrollRuleMatch).not.toBeNull();
+    expect(scrollRuleMatch![0]).toMatch(/overflow:\s*auto/);
+    // マップ本体の svg は .graph-map-scroll の中にある
+    const scrollIdx = smallHtml.indexOf('graph-map-scroll');
+    const svgIdxAfterScroll = smallHtml.indexOf('<svg', scrollIdx);
+    expect(scrollIdx).toBeGreaterThan(-1);
+    expect(svgIdxAfterScroll).toBeGreaterThan(scrollIdx);
+  });
+
+  it('filterGraphNeighborhood: currentIdx から無向2ホップ以内のノードだけを残し、範囲外へのエッジは省く（受入基準d）', () => {
+    const doc = parseOk('# A\n要素\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const nodes = [
+      { module: 'main', name: 'A' },
+      { module: 'main', name: 'B' },
+      { module: 'main', name: 'C' },
+      { module: 'main', name: 'D' },
+      { module: 'main', name: 'E' },
+    ];
+    const edges = [
+      { from: { module: 'main', name: 'A' }, to: { module: 'main', name: 'B' } },
+      { from: { module: 'main', name: 'B' }, to: { module: 'main', name: 'C' } },
+      { from: { module: 'main', name: 'C' }, to: { module: 'main', name: 'D' } },
+      { from: { module: 'main', name: 'D' }, to: { module: 'main', name: 'E' } },
+    ];
+    const result = JSON.parse(
+      vm.runInContext(
+        `JSON.stringify(filterGraphNeighborhood(${JSON.stringify(nodes)}, ${JSON.stringify(edges)}, 0))`,
+        context,
+      ),
+    );
+    expect(result.nodes.map((n: any) => n.name).sort()).toEqual(['A', 'B', 'C']);
+    expect(result.edges).toEqual([
+      { from: { module: 'main', name: 'A' }, to: { module: 'main', name: 'B' } },
+      { from: { module: 'main', name: 'B' }, to: { module: 'main', name: 'C' } },
+    ]);
+  });
+
+  it('filterGraphNeighborhood: currentIdx が見つからない場合は全ノード・全エッジをそのまま返す（フォールバック）', () => {
+    const doc = parseOk('# A\n要素\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const nodes = [{ module: 'main', name: 'A' }, { module: 'main', name: 'B' }];
+    const edges = [{ from: { module: 'main', name: 'A' }, to: { module: 'main', name: 'B' } }];
+    const result = JSON.parse(
+      vm.runInContext(
+        `JSON.stringify(filterGraphNeighborhood(${JSON.stringify(nodes)}, ${JSON.stringify(edges)}, -1))`,
+        context,
+      ),
+    );
+    expect(result.nodes).toEqual(nodes);
+    expect(result.edges).toEqual(edges);
+  });
+
+  it('filterGraphNeighborhood: 粒度分割の variant 兄弟ノードはエッジが無くても近傍に含める（受入基準d、粒度分割との両立）', () => {
+    const doc = parseOk('# A\n要素\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    // X の2 variant 間にはエッジが無いが、split 済みの同一 component なので
+    // どちらかが近傍に入れば両方可視にする（粒度分割は遷移エッジの有無と独立した表示粒度のため）。
+    // Y は別 component かつエッジも無いため近傍に含まれない。
+    const nodes = [
+      { module: 'main', name: 'X ## 通常', component: 'X', variant: '通常' },
+      { module: 'main', name: 'X ## 特殊', component: 'X', variant: '特殊' },
+      { module: 'main', name: 'Y', component: 'Y', variant: null },
+    ];
+    const result = JSON.parse(
+      vm.runInContext(`JSON.stringify(filterGraphNeighborhood(${JSON.stringify(nodes)}, [], 0))`, context),
+    );
+    expect(result.nodes.map((n: any) => n.name).sort()).toEqual(['X ## 特殊', 'X ## 通常']);
+  });
+
+  it('遷移マップ: 遷移エッジを持たない gate 対象ノードも近傍表示へ常に含める（N-3、マップ tooltip からの gate 試験入口を確保）', () => {
+    const doc = parseOk(
+      '# 予約\n*日付\n> タップ(日付.選択可能?) -> back()\n\n' +
+        '# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n' +
+        '# 遠い画面\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    // 既定は近傍表示（graphShowAll=false）。予約 は他画面への遷移エッジを持たないため、
+    // 無向隣接だけでは 日付（gate 対象・遷移エッジなし）も 遠い画面 も近傍から漏れるはずだが、
+    // gate 対象である 日付 だけは常に可視集合へ含まれる。
+    const svgHtml = appHtml.slice(appHtml.indexOf('<svg class="graph-svg"'));
+    expect(svgHtml).toContain('>日付<');
+    expect(svgHtml).not.toContain('>遠い画面<');
+  });
+
+  it('遷移マップ: 既定は現在地から無向2ホップの近傍ノードのみ表示し、「全体を見る」トグルで全ノードへ切替わる（状態保持。受入基準d）', () => {
+    const doc = parseOk(
+      '# 起点\n> 進む -> push(隣接1)\n\n# 隣接1\n> 進む -> push(隣接2)\n\n# 隣接2\n> 進む -> push(隣接3)\n\n' +
+        '# 隣接3\n> 進む -> push(遠方)\n\n# 遠方\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).toContain('function toggleGraphShowAll(');
+    const context = runSimulatorScript(html);
+    const svgOf = () => {
+      const appHtml = vm.runInContext('app.innerHTML', context);
+      return appHtml.slice(appHtml.indexOf('<svg class="graph-svg"'));
+    };
+
+    // 既定（近傍表示）: 起点から2ホップ以内（隣接1・隣接2）のみ。現在地ハイライトも機能する
+    const beforeSvg = svgOf();
+    expect(beforeSvg).toContain('起点');
+    expect(beforeSvg).toContain('隣接1');
+    expect(beforeSvg).toContain('隣接2');
+    expect(beforeSvg).not.toContain('隣接3');
+    expect(beforeSvg).not.toContain('遠方');
+    const nodeTagsBefore = [...beforeSvg.matchAll(/<g class="([^"]*)"[^>]*>[\s\S]*?<\/g>/g)];
+    const startTag = nodeTagsBefore.find((m) => m[0].includes('起点'));
+    expect(startTag![1]).toMatch(/graph-node-current/);
+
+    // 「全体を見る」トグルで全ノードへ切替わる
+    vm.runInContext('toggleGraphShowAll()', context);
+    const afterSvg = svgOf();
+    expect(afterSvg).toContain('起点');
+    expect(afterSvg).toContain('隣接1');
+    expect(afterSvg).toContain('隣接2');
+    expect(afterSvg).toContain('隣接3');
+    expect(afterSvg).toContain('遠方');
+
+    // 状態保持: 遷移後もトグル状態は維持される
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '隣接1', variant: null } }); render()",
+      context,
+    );
+    expect(vm.runInContext('graphShowAll', context)).toBe(true);
+  });
+
+  it('遷移マップ: ノードの hover 属性は component 名でなく配列インデックス + 数値座標で参照する（quote 衝突を避ける）', () => {
+    const doc = parseOk('# 名"前\n要素\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    // 旧 handleOverlayInteraction 系と同型の壊れ方（属性値が component 名の途中で終端）が起きていないことを保証する
+    expect(appHtml).not.toContain('onmouseenter="showNodeTooltip("');
+    // idx, x, y の3引数とも数値のみ（tooltip 位置はノード描画時に決定済みの固定値を渡す）
+    expect(appHtml).toMatch(/onmouseenter="showNodeTooltip\(\d+,\s*-?\d+,\s*-?\d+\)"/);
+    expect(appHtml).toContain('onmouseleave="hideNodeTooltip()"');
+  });
+
+  it('遷移マップ: 閲覧専用化のため gotoNode 関数は存在せず、ノードクリックは遷移せず tooltip の pin のみ行う（設計者確定事項 2026-07-19、Task 16 受入基準e）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).not.toContain('function gotoNode(');
+    expect(html).not.toContain('onclick="gotoNode');
+    const context = runSimulatorScript(html);
+    expect(vm.runInContext("typeof gotoNode", context)).toBe('undefined');
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    // クリックは遷移でなく tooltip の pin（数値インデックスのみ埋め込む。全ノードで有効——
+    // 情報表示に variant の有無は関係ないため）
+    expect(appHtml).toMatch(/<g class="graph-node[^"]*" onmouseenter="[^"]*" onmouseleave="[^"]*" onclick="pinGraphTooltip\(\d+\)">/);
+  });
+
+  it('遷移マップ: 現在の画面.本体に対応するノードがハイライトされ、遷移後に追随する', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    // 起動直後は entry component（ホーム）のノードがハイライトされる
+    const beforeHtml = vm.runInContext('app.innerHTML', context);
+    const nodeTags = [...beforeHtml.matchAll(/<g class="([^"]*)"[^>]*>[\s\S]*?<\/g>/g)];
+    const homeTag = nodeTags.find((m) => beforeHtml.slice(m.index, m.index! + m[0].length).includes('ホーム'));
+    const searchTag = nodeTags.find((m) => beforeHtml.slice(m.index, m.index! + m[0].length).includes('検索'));
+    expect(homeTag![1]).toMatch(/graph-node-current/);
+    expect(searchTag![1]).not.toMatch(/graph-node-current/);
+
+    // push(検索) で遷移すると、ハイライトは検索ノードへ追随する
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      context,
+    );
+    const afterHtml = vm.runInContext('app.innerHTML', context);
+    const afterTags = [...afterHtml.matchAll(/<g class="([^"]*)"[^>]*>[\s\S]*?<\/g>/g)];
+    const homeTagAfter = afterTags.find((m) => afterHtml.slice(m.index, m.index! + m[0].length).includes('ホーム'));
+    const searchTagAfter = afterTags.find((m) => afterHtml.slice(m.index, m.index! + m[0].length).includes('検索'));
+    expect(homeTagAfter![1]).not.toMatch(/graph-node-current/);
+    expect(searchTagAfter![1]).toMatch(/graph-node-current/);
+  });
+
+  it('遷移マップ: ノード hover で tooltip に module・elements・variant 一覧をノード近傍の座標に表示し、外れたら消える（Task 16 受入基準e）', () => {
+    const doc = parseOk('# ホーム\n共通要素\n## 通常\n専用A\n## 特殊\n専用B\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext('showNodeTooltip(0, 42, 77)', context);
+    const tooltipEl = "document.getElementById('graph-tooltip')";
+    const previewHtml = vm.runInContext(tooltipEl + '.innerHTML', context);
+    expect(previewHtml).toContain('ホーム');
+    expect(previewHtml).toContain('main');
+    expect(previewHtml).toContain('共通要素');
+    expect(previewHtml).toContain('通常');
+    expect(previewHtml).toContain('特殊');
+    // 渡された数値座標がそのまま tooltip の絶対配置へ反映される
+    expect(vm.runInContext(tooltipEl + '.style.left', context)).toBe('42px');
+    expect(vm.runInContext(tooltipEl + '.style.top', context)).toBe('77px');
+
+    vm.runInContext('hideNodeTooltip()', context);
+    const afterHide = vm.runInContext(tooltipEl + '.innerHTML', context);
+    expect(afterHide).toBe('');
+  });
+
+  it('遷移マップ折畳み: <details> + mapPanelOpen で開閉状態を保持する（UX round2 で復活。設計者確定事項。Task 14）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).toContain('mapPanelOpen');
+    expect(html).toContain('ontoggle');
+    const context = runSimulatorScript(html);
+
+    // 既定は開（マップの主用途である hover 探索がすぐ使えるよう）
+    const openHtml = vm.runInContext('app.innerHTML', context);
+    expect(openHtml).toMatch(/<details open class="graph-section"/);
+    expect(openHtml).toContain('<svg');
+
+    // 閉じた状態を JS グローバルへ反映すると次の render() でも維持される
+    vm.runInContext('mapPanelOpen = false; render()', context);
+    const closedHtml = vm.runInContext('app.innerHTML', context);
+    expect(closedHtml).toMatch(/<details class="graph-section"/);
+    expect(closedHtml).not.toMatch(/<details open class="graph-section"/);
+
+    // 遷移後も折畳み状態が保持される（受入基準b）
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      context,
+    );
+    const afterTransitionHtml = vm.runInContext('app.innerHTML', context);
+    expect(afterTransitionHtml).not.toMatch(/<details open class="graph-section"/);
+  });
+
+  it('遷移マップ高さのツマミ調整: .graph-map-scroll はネイティブ resize（縦方向）を持ち、リサイズ後の高さは graphMapHeight に保持され render() をまたいで維持される（UX round4 §3-1 nice-to-have。マップが大きい画面で現在の画面の取り分が圧迫される問題をユーザー自身が緩和できるようにする）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const mapRuleMatch = html.match(/\.graph-map-scroll\s*\{[^}]*\}/);
+    expect(mapRuleMatch).not.toBeNull();
+    expect(mapRuleMatch![0]).toMatch(/resize:\s*vertical/);
+    expect(mapRuleMatch![0]).toMatch(/max-height:\s*480px/);
+
+    const context = runSimulatorScript(html);
+    // 未調整（既定）なら高さ指定なし（max-height 480px のみに従う）
+    const defaultHtml = vm.runInContext('app.innerHTML', context);
+    expect(defaultHtml).not.toMatch(/class="graph-map-scroll"\s+style=/);
+
+    // ユーザーがリサイズすると graphMapHeight に高さが記録され、以降の render() へ反映される
+    vm.runInContext('graphMapHeight = 200; render()', context);
+    const resizedHtml = vm.runInContext('app.innerHTML', context);
+    expect(resizedHtml).toMatch(/class="graph-map-scroll" style="height: 200px"/);
+
+    // 画面遷移後も直近のリサイズ高さが保持される（render のたびに戻らない）
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      context,
+    );
+    const afterTransitionHtml = vm.runInContext('app.innerHTML', context);
+    expect(afterTransitionHtml).toMatch(/class="graph-map-scroll" style="height: 200px"/);
+  });
+
+  it('スタック折畳み: <details> + stackPanelOpen で開閉状態を保持する（既定は開。gatePanelOpen と同じ JS グローバル方式。Task 14）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).toContain('stackPanelOpen');
+    const context = runSimulatorScript(html);
+
+    const openHtml = vm.runInContext('app.innerHTML', context);
+    expect(openHtml).toMatch(/<details open class="stack-section"/);
+
+    vm.runInContext('stackPanelOpen = false; render()', context);
+    const closedHtml = vm.runInContext('app.innerHTML', context);
+    expect(closedHtml).toMatch(/<details class="stack-section"/);
+    expect(closedHtml).not.toMatch(/<details open class="stack-section"/);
+
+    // 遷移後も折畳み状態が保持される（受入基準b）。データ自体（stack）は表示に関わらず健在
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      context,
+    );
+    const afterTransitionHtml = vm.runInContext('app.innerHTML', context);
+    expect(afterTransitionHtml).not.toMatch(/<details open class="stack-section"/);
+    expect(vm.runInContext('stack.length', context)).toBe(2);
+  });
+
+  it('2 カラムレイアウト: 右ペイン（gate パネル専用カラム）を廃止し #app は左ログ専用・中央画面+スタック+マップの2カラムになる（UX round2 2-4(d)、Task 18 受入基準e）', () => {
+    const doc = parseOk(
+      '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n# 時間選択\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    expect(html).not.toContain('max-width: 480px');
+    const gridRuleMatch = html.match(/#app\s*\{[^}]*\}/);
+    expect(gridRuleMatch).not.toBeNull();
+    const colsMatch = gridRuleMatch![0].match(/grid-template-columns:\s*([^;]+);/);
+    expect(colsMatch).not.toBeNull();
+    // 2 カラム（旧 3 カラム時代の右固定幅カラムが無くなり、空いた幅は中央（1fr）へ還元される）
+    expect(colsMatch![1]!.trim().split(/\s+/).length).toBe(2);
+
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+
+    // 右ペイン（旧 pane-events）は廃止された
+    expect(appHtml).not.toContain('pane-events');
+
+    // 左: 統合ログ専用
+    const traceIdx = appHtml.indexOf('pane-trace');
+    expect(traceIdx).toBeGreaterThan(-1);
+    // 中央: 現在の画面 + スタック + 遷移マップ
+    const centerIdx = appHtml.indexOf('pane-center');
+    expect(centerIdx).toBeGreaterThan(-1);
+    expect(traceIdx).toBeLessThan(centerIdx);
+
+    const traceSection = appHtml.slice(traceIdx, centerIdx);
+    expect(traceSection).toContain('統合ログ');
+    expect(traceSection).not.toContain('stack-list');
+
+    // 中央: 画面 → スタック → マップ の縦順（ミクロ→マクロ）は維持
+    const centerSection = appHtml.slice(centerIdx);
+    const screenIdx = centerSection.indexOf('現在の画面');
+    const stackIdx = centerSection.indexOf('スタック');
+    const graphIdx = centerSection.indexOf('遷移マップ');
+    expect(screenIdx).toBeGreaterThan(-1);
+    expect(stackIdx).toBeGreaterThan(-1);
+    expect(graphIdx).toBeGreaterThan(-1);
+    expect(screenIdx).toBeLessThan(stackIdx);
+    expect(stackIdx).toBeLessThan(graphIdx);
+  });
+
+  it('gate ドロワー: トグルボタンは常時見える（見出し・説明つき）が、対象一覧の本体は開くまで DOM に出ない。開くとオーバーレイ + 背景クリック/閉じるボタンで閉じられる（UX round2 2-4(d)、Task 18 受入基準e）', () => {
+    const doc = parseOk(
+      '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n# 時間選択\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    const closedHtml = vm.runInContext('app.innerHTML', context);
+    // トグルボタン・説明は既定閉でも常時見える（Task 12 の empty state 継承の前提）
+    expect(closedHtml).toContain('画面外 component の姿切替（gate 試験用）');
+    expect(closedHtml).toContain('gate-panel-desc');
+    // 対象一覧の本体（gate-row）・ドロワーのオーバーレイ要素は閉状態では出ない
+    expect(closedHtml).not.toContain('gate-row-label');
+    expect(closedHtml).not.toContain('gate-drawer-backdrop');
+    expect(closedHtml).not.toMatch(/class="gate-drawer"/);
+
+    vm.runInContext('toggleGatePanel(); render()', context);
+    const openHtml = vm.runInContext('app.innerHTML', context);
+    expect(openHtml).toMatch(/class="gate-drawer"/);
+    expect(openHtml).toContain('gate-drawer-backdrop');
+    expect(openHtml).toContain('gate-row-label');
+    expect(openHtml).toContain('日付');
+
+    // 背景クリック・閉じるボタンのどちらも toggleGatePanel を呼ぶ（解除経路）
+    expect(openHtml).toMatch(/<div class="gate-drawer-backdrop" onclick="toggleGatePanel\(\)"><\/div>/);
+    const closeBtnMatch = openHtml.match(/<button class="gate-drawer-close" onclick="(toggleGatePanel\(\))">/);
+    expect(closeBtnMatch).not.toBeNull();
+    vm.runInContext(closeBtnMatch![1]! + '; render()', context);
+    expect(vm.runInContext('app.innerHTML', context)).not.toMatch(/class="gate-drawer"/);
+  });
+
+  it('gate ドロワー: オーバーレイは position: fixed（レイアウトに影響しない）で背景バックドロップを伴う', () => {
+    const doc = parseOk('# A\n要素\n> タップ(要素) -> back()\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const drawerRuleMatch = html.match(/\.gate-drawer\s*\{[^}]*\}/);
+    expect(drawerRuleMatch).not.toBeNull();
+    expect(drawerRuleMatch![0]).toMatch(/position:\s*fixed/);
+    const backdropRuleMatch = html.match(/\.gate-drawer-backdrop\s*\{[^}]*\}/);
+    expect(backdropRuleMatch).not.toBeNull();
+    expect(backdropRuleMatch![0]).toMatch(/position:\s*fixed/);
+  });
+
+  it('gate ドロワー: 「閉じる」ボタンが2行に折り返さない（N-5）', () => {
+    const doc = parseOk('# A\n要素\n> タップ(要素) -> back()\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const closeRuleMatch = html.match(/\.gate-drawer-close\s*\{[^}]*\}/);
+    expect(closeRuleMatch).not.toBeNull();
+    expect(closeRuleMatch![0]).toMatch(/white-space:\s*nowrap/);
+  });
+
+  it('中央ペイン: 現在の画面が独立スクロール、スタック+マップはまとめて1つのスクロール領域に分かれる（Task 14。Task 9 の後継。UX round4 §3-1 で上下 1fr/1fr 均等割りを auto へ変更）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    // pane-center 自身は外側スクロールを持たず（.pane の overflow-y: auto を上書き）、
+    // grid rows で「画面」/「スタック+マップ」の2領域に分割する——画面カードの高さ変化が
+    // 下2つ（スタック・マップ）の表示位置に影響しないため。上下は 1fr/1fr の均等割り
+    // だったが、これが固定高500px相当となり薄い画面の死空白・濃い画面の掲示中カード
+    // 見切れを生んだ（UX round4 §3-1）。下段（スタック・マップ）を content 分の高さ
+    // （auto）に、上段（現在の画面）を残り高さの可変領域（1fr）に変更する。
+    const centerRuleMatch = html.match(/\.pane-center\s*\{[^}]*\}/);
+    expect(centerRuleMatch).not.toBeNull();
+    expect(centerRuleMatch![0]).toContain('grid-template-rows');
+    expect(centerRuleMatch![0]).toMatch(/overflow:\s*hidden/);
+    expect(centerRuleMatch![0]).toMatch(/grid-template-rows:\s*minmax\(0,\s*1fr\)\s*auto/);
+    // screen-section と lower-section（スタック+マップの共有スクロール領域）がそれぞれ
+    // 自前のスクロール領域を持つ（min-height: 0 で grid item のはみ出しを防ぎ overflow-y: auto を効かせる）
+    const screenRuleMatch = html.match(/\.screen-section\s*\{[^}]*\}/);
+    const lowerRuleMatch = html.match(/\.lower-section\s*\{[^}]*\}/);
+    expect(screenRuleMatch).not.toBeNull();
+    expect(lowerRuleMatch).not.toBeNull();
+    expect(screenRuleMatch![0]).toMatch(/overflow-y:\s*auto/);
+    expect(screenRuleMatch![0]).toMatch(/min-height:\s*0/);
+    expect(lowerRuleMatch![0]).toMatch(/overflow-y:\s*auto/);
+    expect(lowerRuleMatch![0]).toMatch(/min-height:\s*0/);
+
+    // スタック・マップは lower-section の中に両方入っている（1つのスクロール領域を共有）
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    const lowerIdx = appHtml.indexOf('lower-section');
+    expect(lowerIdx).toBeGreaterThan(-1);
+    const lowerSection = appHtml.slice(lowerIdx);
+    const stackSectionIdx = lowerSection.indexOf('stack-section');
+    const graphSectionIdx = lowerSection.indexOf('graph-section');
+    expect(stackSectionIdx).toBeGreaterThan(-1);
+    expect(graphSectionIdx).toBeGreaterThan(-1);
+    expect(stackSectionIdx).toBeLessThan(graphSectionIdx);
+  });
+
+  it('遷移マップの hover tooltip は絶対配置でドキュメントフローに影響しない（#graph-preview のペイン上部固定領域を廃止。Task 9 の後継・Task 16 受入基準e）', () => {
+    const doc = parseOk('# ホーム\n共通要素\n## 通常\n専用A\n## 特殊\n専用B\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    // 旧 #graph-preview（ペイン上部固定領域）は廃止済み
+    expect(html).not.toMatch(/\.graph-preview\s*\{/);
+    expect(html).not.toContain('id="graph-preview"');
+    // 新 .graph-tooltip は position: absolute（レイアウト上の場所を取らない。他要素の並びに影響しない）
+    const tooltipRuleMatch = html.match(/\.graph-tooltip\s*\{[^}]*\}/);
+    expect(tooltipRuleMatch).not.toBeNull();
+    expect(tooltipRuleMatch![0]).toMatch(/position:\s*absolute/);
+    // マップのスクロール領域（.graph-map-scroll）を基準に配置する——マップがスクロールしても
+    // ノードと同じ座標系のまま追随させるため。ペイン全体基準にすると要素サイズが変わっても
+    // 元のスクロール領域の overflow 計算に影響しない点も含め、レイアウト非干渉の根拠になる。
+    const scrollRuleMatch = html.match(/\.graph-map-scroll\s*\{[^}]*\}/);
+    expect(scrollRuleMatch).not.toBeNull();
+    expect(scrollRuleMatch![0]).toMatch(/position:\s*relative/);
+    // hover tooltip の局所 DOM 更新方式（render() 非経由。ちらつき防止は Task 9/12 から継続）は維持される
+    expect(html).toContain("document.getElementById('graph-tooltip')");
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('id="graph-tooltip"');
+  });
+
+  it('遷移マップの hover tooltip はノードと重ならない位置（ノード直下）に出て、pointer-events: none で他ノードの hover を奪わない（mouseenter/mouseleave 連鎖フリッカの再発防止。UX評価3.3・Task 12 の後継・Task 16 受入基準e）', () => {
+    const doc = parseOk('# ホーム\n共通要素\n## 通常\n専用A\n## 特殊\n専用B\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    // pin されていない間は pointer-events: none——tooltip がノード矩形に重なっても
+    // マウスイベントは tooltip を素通りして下のノードへ届く（旧フリッカの原因になった
+    // 「tooltip 自身がノードを覆って mouseleave/mouseenter を連鎖させる」経路を構造的に断つ）
+    const tooltipRuleMatch = html.match(/\.graph-tooltip\s*\{[^}]*\}/);
+    expect(tooltipRuleMatch).not.toBeNull();
+    expect(tooltipRuleMatch![0]).toMatch(/pointer-events:\s*none/);
+    // pin 中（.graph-tooltip-pinned）は分割/統合・閉じるボタンを押せるよう pointer-events を戻す
+    const pinnedRuleMatch = html.match(/\.graph-tooltip-pinned\s*\{[^}]*\}/);
+    expect(pinnedRuleMatch).not.toBeNull();
+    expect(pinnedRuleMatch![0]).toMatch(/pointer-events:\s*auto/);
+
+    // 実際の座標: onmouseenter に渡す y はノード自身の rect の y + height より真に大きい
+    // （ノードの直下に置き、ノード自身の矩形とは重ならない）
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    const nodeMatch = appHtml.match(/<rect x="(-?[\d.]+)" y="(-?[\d.]+)" width="[\d.]+" height="([\d.]+)"[^>]*>/);
+    const hoverMatch = appHtml.match(/onmouseenter="showNodeTooltip\((\d+),\s*(-?[\d.]+),\s*(-?[\d.]+)\)"/);
+    expect(nodeMatch).not.toBeNull();
+    expect(hoverMatch).not.toBeNull();
+    const nodeBottom = parseFloat(nodeMatch![2]!) + parseFloat(nodeMatch![3]!);
+    const tooltipY = parseFloat(hoverMatch![3]!);
+    expect(tooltipY).toBeGreaterThan(nodeBottom);
+  });
+
+  it('各ペインの説明文にオートマトンとしての読み方の注記を持つ（Task 9・ADR-0022）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    // スタック: プッシュダウン構成として読める（Task 7 で既出。継続確認）
+    expect(appHtml).toContain('プッシュダウン構成として読める');
+    // トレースログ: 実行された遷移の列
+    expect(appHtml).toContain('実行された遷移の列');
+    // 遷移マップ: 状態遷移図として読める
+    expect(appHtml).toContain('状態遷移図として読める');
+  });
+
+  it('各ペインに見出しと役割説明を持つ（受入基準c・設計者フィードバック「エリアが何を示しているか分からない」への対応）', () => {
+    // 右ペインは gate パネルのみ（Task 10）なので、gate 対象を持つ fixture で検証する
+    const doc = parseOk(
+      '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n# 時間選択\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('統合ログ');
+    expect(appHtml).toContain('ナビゲーション履歴');
+    expect(appHtml).toContain('画面外 component の姿切替');
+    expect(appHtml).toContain('gate 試験用');
+    expect(appHtml).toContain('遷移マップ');
+    expect(appHtml).toContain('閲覧専用');
+  });
+
+  it('スタック表示: 中央ペインに見出し・役割説明付きで表示され、push/present 後に @session・壁マーカー付きで描画される（Task 7 受入基準c・Task 14 で中央へ移動）', () => {
+    const doc = parseOk('# ホーム\n本体\n\n# ログイン\n本体\n\n# 確認\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    // 見出し・役割説明（プッシュダウン構成としての読み方を一言）を持つ
+    const beforeHtml = vm.runInContext('app.innerHTML', context);
+    expect(beforeHtml).toContain('スタック');
+    expect(beforeHtml).toContain('プッシュダウン');
+    // 中央ペイン（pane-center）内で「現在の画面」の後に「スタック」が現れる（Task 14 受入基準a）
+    const centerIdx = beforeHtml.indexOf('pane-center');
+    const centerSection = beforeHtml.slice(centerIdx);
+    expect(centerSection.indexOf('現在の画面')).toBeLessThan(centerSection.indexOf('スタック'));
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: 'ログイン', variant: null }, session: 'login' }); render()",
+      context,
+    );
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'present', target: { module: 'main', component: '確認', variant: null } }); render()",
+      context,
+    );
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('@login');
+    expect(appHtml).toContain('▌'); // 壁 frame の記号
+    expect((appHtml.match(/class="stack-item[^"]*"/g) ?? []).length).toBe(3);
+  });
+
+  it('スタック表示: back 後に縮む（遷移のたび追随。Task 7 受入基準c）', () => {
+    const doc = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      context,
+    );
+    const beforeHtml = vm.runInContext('app.innerHTML', context);
+    expect((beforeHtml.match(/class="stack-item[^"]*"/g) ?? []).length).toBe(2);
+
+    vm.runInContext('goBack(); render()', context);
+    const afterHtml = vm.runInContext('app.innerHTML', context);
+    expect((afterHtml.match(/class="stack-item[^"]*"/g) ?? []).length).toBe(1);
+  });
+
+  it('exit 警告改善: 対象セッション不在時に現在のセッション一覧（重複除去・積み順）を含む（Task 7 受入基準d）', () => {
+    const doc = parseOk('# ホーム\n本体\n\n# A\n本体\n\n# B\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: 'A', variant: null }, session: 'a' })",
+      context,
+    );
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: 'B', variant: null }, session: 'b' })",
+      context,
+    );
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'exit', target: null, session: 'missing' })",
+      context,
+    );
+    const timelineJson = JSON.parse(vm.runInContext('JSON.stringify(timeline)', context));
+    const warningEntry = timelineJson.find((e: any) => e.label.includes('missing'));
+    expect(warningEntry).toBeDefined();
+    expect(warningEntry.kind).toBe('event');
+    const warning = warningEntry.label;
+    expect(warning).toContain('exit(@missing)');
+    expect(warning).toContain('@a');
+    expect(warning).toContain('@b');
+    // 積み順（a が先に push された）を保つ
+    expect(warning.indexOf('@a')).toBeLessThan(warning.indexOf('@b'));
+  });
+
+  it('exit 警告改善: 現在のセッションがゼロ件なら「なし」と表示する（Task 7 受入基準d）', () => {
+    const doc = parseOk('# ホーム\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'exit', target: null, session: 'missing' })",
+      context,
+    );
+    const timelineJson = JSON.parse(vm.runInContext('JSON.stringify(timeline)', context));
+    const warning = timelineJson.map((e: any) => e.label).find((l: string) => l.includes('missing'));
+    expect(warning).toContain('なし');
+  });
+
+  it('dismiss 警告改善: 対象セッション不在時も exit と同じ形式で現在のセッション一覧を含む（Task 7 受入基準d）', () => {
+    const doc = parseOk('# ホーム\n本体\n\n# A\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: 'A', variant: null }, session: 'a' })",
+      context,
+    );
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'dismiss', target: null, session: 'missing' })",
+      context,
+    );
+    const timelineJson = JSON.parse(vm.runInContext('JSON.stringify(timeline)', context));
+    const warning = timelineJson.map((e: any) => e.label).find((l: string) => l.includes('missing'));
+    expect(warning).toContain('dismiss(@missing)');
+    expect(warning).toContain('@a');
+  });
+
+  it('dismiss() 無名: 無名 present(X) 開始フレーム以深だけを破棄する（SPEC「無名dismiss」・UX評価3.2、Task 12 受入基準a）', () => {
+    const doc = parseOk('# ホーム\n本体\n\n# A\n本体\n\n# B\n本体\n\n# C\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    // 無名 present(A) でセッション開始（present は常に wall=true、session省略で sessionName=null）
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'present', target: { module: 'main', component: 'A', variant: null }, session: null })",
+      context,
+    );
+    // 続けて無名 push(B), push(C) を数枚積む
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: 'B', variant: null }, session: null })",
+      context,
+    );
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: 'C', variant: null }, session: null })",
+      context,
+    );
+    // 無名 dismiss()
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'dismiss', target: null, session: null })",
+      context,
+    );
+    const stackComponents = JSON.parse(vm.runInContext('JSON.stringify(stack.map(f => f.component))', context));
+    // present(A) 以深（A・B・C）だけが破棄され、A 以前のホームだけが残る
+    expect(stackComponents).toEqual(['ホーム']);
+  });
+
+  it('dismiss() 無名: 無名セッション不在なら no-op + 警告でスタック不変（root へ崩壊しない。UX評価3.2の再現ケース、Task 12 受入基準b）', () => {
+    const doc = parseOk('# ホーム\n本体\n\n# A\n本体\n\n# B\n本体\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    // named session @tabHome で push(A)（wall=false・sessionNameあり）
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: 'A', variant: null }, session: 'tabHome' })",
+      context,
+    );
+    // named session @nowPlaying で present(B)（wall=true・sessionNameあり）
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'present', target: { module: 'main', component: 'B', variant: null }, session: 'nowPlaying' })",
+      context,
+    );
+    const beforeStack = JSON.parse(vm.runInContext('JSON.stringify(stack.map(f => f.component))', context));
+    expect(beforeStack).toEqual(['ホーム', 'A', 'B']);
+
+    // 無名 dismiss()（アクティブパス上に無名セッションは1つも無い）
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'dismiss', target: null, session: null })",
+      context,
+    );
+    const afterStack = JSON.parse(vm.runInContext('JSON.stringify(stack.map(f => f.component))', context));
+    expect(afterStack).toEqual(beforeStack); // no-op。起動画面まで崩壊しない
+
+    const timelineJson = JSON.parse(vm.runInContext('JSON.stringify(timeline)', context));
+    const warning = timelineJson.map((e: any) => e.label).find((l: string) => l.includes('直近の無名セッション'));
+    expect(warning).toBeDefined();
+    expect(warning).toContain('@tabHome');
+    expect(warning).toContain('@nowPlaying');
+  });
+
+  it('gate パネル改名: 画面外 component の姿切替（gate 試験用）という用途が伝わる見出し・説明を持つ（設計者確定事項 2026-07-19）', () => {
+    const doc = parseOk(
+      '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n# 時間選択\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('画面外 component の姿切替');
+    expect(appHtml).toContain('gate 試験用');
+    // 機能（トグル・variant 切替）は現状維持
+    expect(html).toContain('function setInstanceVariant(');
+    expect(html).toContain('function toggleGatePanel(');
+  });
+
+  it('aggregateGraph: split 集合に応じてノード集合が component 1 個 ↔ variant 群に変わり、エッジは粒度に合わせて dedupe される（Task 11 受入基準a）', () => {
+    const doc = parseOk(
+      '# 詳細\n> 閉じる -> push(次)\n## 読込中\nスピナー\n## 表示\nコンテンツ\n\n# 次\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const unified = JSON.parse(
+      vm.runInContext('JSON.stringify(aggregateGraph(DATA.graph.nodes, DATA.graph.edges, new Set()))', context),
+    );
+    expect(unified.nodes.map((n: any) => n.name)).toEqual(['詳細', '次']);
+    // 2 variant 由来の細粒度エッジが統合ノードでは 1 本に dedupe される
+    expect(unified.edges).toEqual([
+      { from: { module: 'main', name: '詳細' }, to: { module: 'main', name: '次' } },
+    ]);
+    const split = JSON.parse(
+      vm.runInContext(
+        "JSON.stringify(aggregateGraph(DATA.graph.nodes, DATA.graph.edges, new Set([skey('main', '詳細')])))",
+        context,
+      ),
+    );
+    expect(split.nodes.map((n: any) => n.name)).toEqual(['詳細 ## 読込中', '詳細 ## 表示', '次']);
+    expect(split.edges).toEqual([
+      { from: { module: 'main', name: '詳細 ## 読込中' }, to: { module: 'main', name: '次' } },
+      { from: { module: 'main', name: '詳細 ## 表示' }, to: { module: 'main', name: '次' } },
+    ]);
+  });
+
+  it('aggregateGraph: to.variant null の split 先は初期姿ノードへ、明示 variant はそのノードへ集約される（Task 11 受入基準b）', () => {
+    const doc = parseOk(
+      '# ホーム\n> 進む -> push(詳細)\n> 直行 -> push(詳細##表示)\n\n# 詳細\n## 読込中\nスピナー\n## 表示\nコンテンツ\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const split = JSON.parse(
+      vm.runInContext(
+        "JSON.stringify(aggregateGraph(DATA.graph.nodes, DATA.graph.edges, new Set([skey('main', '詳細')])))",
+        context,
+      ),
+    );
+    expect(split.edges).toEqual([
+      { from: { module: 'main', name: 'ホーム' }, to: { module: 'main', name: '詳細 ## 読込中' } },
+      { from: { module: 'main', name: 'ホーム' }, to: { module: 'main', name: '詳細 ## 表示' } },
+    ]);
+  });
+
+  it('aggregateGraph: from.variant null（component common 由来）の split 元は全 variant ノードから出る（Task 11）', () => {
+    const doc = parseOk('# ホーム\n本体\n\n# 詳細\n## 読込中\nスピナー\n## 表示\nコンテンツ\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const result = JSON.parse(
+      vm.runInContext(
+        "JSON.stringify(aggregateGraph(DATA.graph.nodes, [{ from: { module: 'main', component: '詳細', variant: null }, to: { module: 'main', component: 'ホーム', variant: null } }], new Set([skey('main', '詳細')])))",
+        context,
+      ),
+    );
+    expect(result.edges).toEqual([
+      { from: { module: 'main', name: '詳細 ## 読込中' }, to: { module: 'main', name: 'ホーム' } },
+      { from: { module: 'main', name: '詳細 ## 表示' }, to: { module: 'main', name: 'ホーム' } },
+    ]);
+  });
+
+  it('遷移マップ: split 時の現在地ハイライトは現在 variant のノードへ付き、姿替えに追随する（Task 11 受入基準c）', () => {
+    const doc = parseOk('# ホーム\n## 通常\n要素\n> 切替 -> goto(##特殊)\n## 特殊\n要素2\n');
+    const html = toSimulator(
+      new Map([['main', doc]]),
+      'main',
+      { graph: { split: [{ module: 'main', component: 'ホーム' }] } },
+    );
+    const context = runSimulatorScript(html);
+    const beforeHtml = vm.runInContext('app.innerHTML', context);
+    const tagsOf = (s: string) => [...s.matchAll(/<g class="([^"]*)"[^>]*>[\s\S]*?<\/g>/g)];
+    const before = tagsOf(beforeHtml);
+    const normalBefore = before.find((m) => m[0].includes('ホーム ## 通常'));
+    const specialBefore = before.find((m) => m[0].includes('ホーム ## 特殊'));
+    expect(normalBefore![1]).toMatch(/graph-node-current/);
+    expect(specialBefore![1]).not.toMatch(/graph-node-current/);
+
+    vm.runInContext(
+      "applyTransition({ type: 'transition', word: 'goto', target: { kind: 'variant', variant: '特殊' } }); render()",
+      context,
+    );
+    const afterHtml = vm.runInContext('app.innerHTML', context);
+    const after = tagsOf(afterHtml);
+    const normalAfter = after.find((m) => m[0].includes('ホーム ## 通常'));
+    const specialAfter = after.find((m) => m[0].includes('ホーム ## 特殊'));
+    expect(normalAfter![1]).not.toMatch(/graph-node-current/);
+    expect(specialAfter![1]).toMatch(/graph-node-current/);
+  });
+
+  it('初期 config 埋め込み: toSimulator の第 3 引数 graph.split が DATA.graphConfig として埋め込まれ初回描画から split される（Task 11 受入基準d）', () => {
+    const doc = parseOk('# ホーム\n## 通常\n要素\n## 特殊\n要素2\n');
+    const html = toSimulator(
+      new Map([['main', doc]]),
+      'main',
+      { graph: { split: [{ module: 'main', component: 'ホーム' }] } },
+    );
+    expect(html).toContain('"graphConfig"');
+    const context = runSimulatorScript(html);
+    expect(vm.runInContext("graphSplit.has(skey('main', 'ホーム'))", context)).toBe(true);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('ホーム ## 通常');
+    expect(appHtml).toContain('ホーム ## 特殊');
+  });
+
+  it('初期 config 埋め込み: config 省略時は split 空で従来どおり component 粒度（後方互換）', () => {
+    const doc = parseOk('# ホーム\n## 通常\n要素\n## 特殊\n要素2\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    expect(vm.runInContext('graphSplit.size', context)).toBe(0);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).not.toContain('ホーム ## 通常');
+  });
+
+  it('遷移マップ tooltip: variant を持つノードのクリックで tooltip が pin され、内蔵の分割/統合ボタンで粒度を切り替えられる（Task 11 の後継、粒度メニューを tooltip へ統合。Task 16 受入基準e）', () => {
+    const doc = parseOk('# ホーム\n## 通常\n要素\n## 特殊\n要素2\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toMatch(/onclick="pinGraphTooltip\(\d+\)"/);
+
+    vm.runInContext('pinGraphTooltip(0)', context);
+    const pinnedHtml = vm.runInContext('app.innerHTML', context);
+    expect(pinnedHtml).toContain('graph-tooltip-pinned');
+    expect(pinnedHtml).toContain('variant で分割');
+    expect(pinnedHtml).toContain('閉じる');
+
+    vm.runInContext('toggleGraphSplit(0)', context);
+    const splitHtml = vm.runInContext('app.innerHTML', context);
+    expect(splitHtml).toContain('ホーム ## 通常');
+    expect(splitHtml).toContain('ホーム ## 特殊');
+    // 切替後は pin が外れる（集約後インデックスが変わるため開いたままにしない。従来の graphMenu と同じ方針）
+    expect(vm.runInContext('graphPinnedKey', context)).toBeNull();
+
+    // split 済みノードの tooltip は「統合」になり、実行で component 粒度へ戻る
+    vm.runInContext('pinGraphTooltip(0)', context);
+    expect(vm.runInContext('app.innerHTML', context)).toContain('統合');
+    vm.runInContext('toggleGraphSplit(0)', context);
+    const unifiedHtml = vm.runInContext('app.innerHTML', context);
+    expect(unifiedHtml).not.toContain('ホーム ## 通常');
+  });
+
+  it('遷移マップ tooltip: variant を持たない component のノードも pin できるが、分割/統合ボタンは出さない（情報表示のみ。Task 11 の後継）', () => {
+    const doc = parseOk('# ホーム\n要素\n\n# 詳細\n本文\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    // クリックは全ノードで有効（tooltip の pin はノード情報表示のためで variant の有無を問わない）
+    expect(appHtml).toMatch(/onclick="pinGraphTooltip\(\d+\)"/);
+
+    vm.runInContext('pinGraphTooltip(0)', context);
+    const pinnedHtml = vm.runInContext('app.innerHTML', context);
+    expect(pinnedHtml).toContain('graph-tooltip-pinned');
+    expect(pinnedHtml).toContain('ホーム'); // ノード情報自体は表示される
+    // tooltip 内の操作行だけを見る（appHtml 全体だと「統合ログ」のような無関係な語に
+    // 「統合」が部分一致してしまうため、graph-tooltip-actions 部分だけ切り出して検証する）
+    const actionsMatch = pinnedHtml.match(/<div class="graph-tooltip-actions">([\s\S]*?)<\/div>/);
+    expect(actionsMatch).not.toBeNull();
+    const actionsHtml = actionsMatch![1]!;
+    expect(actionsHtml).not.toContain('variant で分割');
+    expect(actionsHtml).not.toContain('統合');
+    expect(actionsHtml).toContain('閉じる'); // 閉じるボタンは分割メニューの有無に関わらず常に出る
+  });
+
+  it('遷移マップ tooltip: 閉じるボタンで pin が解除される（Task 11 の後継）', () => {
+    const doc = parseOk('# ホーム\n## 通常\n要素\n## 特殊\n要素2\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext('pinGraphTooltip(0)', context);
+    expect(vm.runInContext('app.innerHTML', context)).toContain('graph-tooltip-pinned');
+    vm.runInContext('unpinGraphTooltip()', context);
+    expect(vm.runInContext('graphPinnedKey', context)).toBeNull();
+    expect(vm.runInContext('app.innerHTML', context)).not.toContain('graph-tooltip-pinned');
+  });
+
+  it('遷移マップ tooltip: pin 中だけ外クリック用のバックドロップが出て、クリックで pin が解除される（「外クリックか閉じるで解除」。Task 16 受入基準e）', () => {
+    const doc = parseOk('# ホーム\n## 通常\n要素\n## 特殊\n要素2\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const beforeHtml = vm.runInContext('app.innerHTML', context);
+    expect(beforeHtml).not.toContain('graph-tooltip-backdrop');
+
+    vm.runInContext('pinGraphTooltip(0)', context);
+    const pinnedHtml = vm.runInContext('app.innerHTML', context);
+    expect(pinnedHtml).toMatch(/<div class="graph-tooltip-backdrop" onclick="unpinGraphTooltip\(\)"><\/div>/);
+
+    vm.runInContext('unpinGraphTooltip()', context);
+    const afterHtml = vm.runInContext('app.innerHTML', context);
+    expect(afterHtml).not.toContain('graph-tooltip-backdrop');
+  });
+
+  it('遷移マップ tooltip: pin 中のノードが遷移で近傍表示から外れると自動的に pin が解除される（生の配列インデックスでなく (module,component,variant) で同定するインデックス崩れ対策。Task 16 受入基準d・e）', () => {
+    const doc = parseOk(
+      '# 起点\n> 進む -> push(n1)\n\n# n1\n> 進む -> push(n2)\n\n# n2\n> 進む -> push(n3)\n\n' +
+        '# n3\n> 進む -> push(n4)\n\n# n4\n> 進む -> push(n5)\n\n# n5\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+
+    // 起点にいる間、n1 は近傍（1ホップ）に見えるので pin できる
+    const nodesBefore: string[] = vm.runInContext('graphNodesView.map(n => n.name)', context);
+    const n1Idx = nodesBefore.indexOf('n1');
+    expect(n1Idx).toBeGreaterThan(-1);
+    vm.runInContext('pinGraphTooltip(' + n1Idx + ')', context);
+    expect(vm.runInContext('graphPinnedKey', context)).not.toBeNull();
+
+    // n4 まで遷移すると n1 は近傍（2ホップ）から外れる
+    for (const target of ['n1', 'n2', 'n3', 'n4']) {
+      vm.runInContext(
+        `applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '${target}', variant: null } }); render()`,
+        context,
+      );
+    }
+    const namesAfter: string[] = vm.runInContext('graphNodesView.map(n => n.name)', context);
+    expect(namesAfter).not.toContain('n1');
+    expect(vm.runInContext('graphPinnedKey', context)).toBeNull();
+  });
+
+  it('遷移マップ tooltip: pin の onclick へは数値インデックスのみを埋め込む（quote を含む component 名でも属性が壊れない）', () => {
+    const doc = parseOk('# 名"前\n## a\n要素\n## b\n要素\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).not.toContain('onclick="pinGraphTooltip("');
+    expect(appHtml).toMatch(/onclick="pinGraphTooltip\(\d+\)"/);
+  });
+
+  it('遷移マップ tooltip: pin されたノードの component が gate 対象（member gate の参照先）なら variant 切替 select を内蔵する（gate 試験の統合。Task 18 受入基準f）', () => {
+    const doc = parseOk(
+      '# ホーム\n> タップ(日付.選択可能?) -> push(時間選択)\n\n' +
+        '# 日付\n## 選択可能\n要素\n## 満席\n要素2\n\n# 時間選択\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    // 日付 はどの画面からも push/present/goto/switch されない（member gate 参照のみ）ため
+    // 遷移エッジを持たず、既定の近傍表示（2ホップ）には現れない——「全体を見る」へ切替える
+    vm.runInContext('toggleGraphShowAll(); render()', context);
+    const names: string[] = JSON.parse(vm.runInContext('JSON.stringify(graphNodesView.map(n => n.name))', context));
+    const dateIdx = names.indexOf('日付');
+    expect(dateIdx).toBeGreaterThan(-1);
+
+    vm.runInContext('pinGraphTooltip(' + dateIdx + ')', context);
+    const pinnedHtml = vm.runInContext('app.innerHTML', context);
+    expect(pinnedHtml).toContain('graph-tooltip-gate');
+    expect(pinnedHtml).toMatch(/<select class="gate-inline-select" onchange="setInstanceVariant\(/);
+
+    // select の書換え先は既存 setInstanceVariant——直接呼んで統合の実効性を検証する
+    // （書換え先の共有レジストリは gate ドロワー・アクション行インライン select と共通）
+    vm.runInContext("setInstanceVariant('main', '日付', '満席'); render()", context);
+    const afterHtml = vm.runInContext('app.innerHTML', context);
+    expect(afterHtml).toContain('gate-off-mark'); // 他画面の gate 付き操作行にも反映される
+  });
+
+  it('遷移マップ tooltip: gate 対象でない component（variant はあっても member gate の参照先ではない）の pin には variant 切替 select を出さない', () => {
+    const doc = parseOk('# ホーム\n## 通常\n要素\n## 特殊\n要素2\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext('pinGraphTooltip(0)', context);
+    const pinnedHtml = vm.runInContext('app.innerHTML', context);
+    // variant があるので分割ボタンは出るが、gate 対象ではないので gate 試験の select は出ない
+    expect(pinnedHtml).toContain('variant で分割');
+    expect(pinnedHtml).not.toContain('graph-tooltip-gate');
+  });
+
+  it('設定を保存: buildSimConfigJson が現在の split 集合を確定形式で出力する（Task 11 形式確定事項）', () => {
+    const doc = parseOk('# ホーム\n## 通常\n要素\n## 特殊\n要素2\n\n# 詳細\n本文\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    expect(JSON.parse(vm.runInContext('buildSimConfigJson()', context))).toEqual({ graph: { split: [] } });
+    vm.runInContext("graphSplit.add(skey('main', 'ホーム'))", context);
+    expect(JSON.parse(vm.runInContext('buildSimConfigJson()', context))).toEqual({
+      graph: { split: [{ module: 'main', component: 'ホーム' }] },
+    });
+  });
+
+  it('設定を保存: 埋め込み config と保存内容がラウンドトリップする（読み込んだ split をそのまま書き出せる）', () => {
+    const doc = parseOk('# ホーム\n## 通常\n要素\n## 特殊\n要素2\n');
+    const config = { graph: { split: [{ module: 'main', component: 'ホーム' }] } };
+    const html = toSimulator(new Map([['main', doc]]), 'main', config);
+    const context = runSimulatorScript(html);
+    expect(JSON.parse(vm.runInContext('buildSimConfigJson()', context))).toEqual(config);
+  });
+
+  it('設定を保存: ボタンが遷移マップ区画にあり、FS Access API（suggestedName・ハンドル保持）とダウンロード fallback を持つ', () => {
+    const doc = parseOk('# ホーム\n## 通常\n要素\n## 特殊\n要素2\n');
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('設定を保存');
+    expect(appHtml).toContain('onclick="saveGraphConfig()"');
+    // FS Access API の実呼び出しは vm では検証できない（Cannot-verify）——構成要素の存在を縛る。
+    // ハンドルは初回取得後 JS 変数に保持し、以後は同じファイルへ上書きする
+    expect(html).toContain('window.showSaveFilePicker');
+    expect(html).toContain('suggestedName');
+    expect(html).toContain(".simconfig.json");
+    expect(html).toContain('let saveFileHandle');
+    // 非対応ブラウザは a[download] での JSON ダウンロード fallback
+    expect(html).toContain('.download = ');
+  });
+
+  describe('埋め込み部品の interaction 有効化（Task 13、SPEC 116-124・450-461）', () => {
+  it('SPEC タブバー慣用句: 画面に「タブバー」要素を置くだけで部品側 switch が実行でき遷移する（受入基準a）', () => {
+    const doc = parseOk(
+      '# ホーム\nタブバー\n\n' +
+        '# タブバー\n> タップ(ホームボタン) -> switch(ホーム, @tabHome)\n> タップ(検索ボタン) -> switch(検索, @tabSearch)\n\n' +
+        '# 検索\nタブバー\n検索窓\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    // タブバー要素として置いただけの画面から、部品側の switch 操作が両方見える
+    expect(appHtml).toContain('タップ(ホームボタン)');
+    expect(appHtml).toContain('タップ(検索ボタン)');
+    // ラベル無し操作（Task 15）は行全体がボタンになり onclick は action-text より前（囲む div 側）に
+    // 出るため、同じ action-row 内で結びつくことを1つの正規表現で縛る（テキスト以降だけを見る
+    // slice では onclick を取りこぼす）。
+    const m = appHtml.match(/onclick="(handleNestedInteraction\([^"]+)"><span class="action-text">タップ\(検索ボタン\)<\/span>/);
+    expect(m).not.toBeNull();
+    // onclick には部品名などの文字列は埋め込まれず、数値インデックス列 + scope 固定キーのみ
+    expect(m![1]).toMatch(/^handleNestedInteraction\(-1,\[\d+\],'(variant|component)',\d+,\d+\)$/);
+    vm.runInContext(m![1]!, context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('検索');
+  });
+
+  it('入れ子部品の interaction も再帰的に操作可能（2段ネスト。受入基準b）', () => {
+    const doc = parseOk(
+      '# ホーム\n外側\n\n# 外側\n内側\n\n# 内側\n本体\n> タップ(本体) -> push(次)\n\n# 次\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('タップ(本体)');
+    // ラベル無し操作（Task 15）は行全体がボタンになり onclick は action-text より前に出るため、
+    // 同じ action-row 内で結びつくことを1つの正規表現で縛る。
+    const m = appHtml.match(/onclick="(handleNestedInteraction\([^"]+)"><span class="action-text">タップ\(本体\)<\/span>/);
+    expect(m).not.toBeNull();
+    vm.runInContext(m![1]!, context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('次');
+  });
+
+  it('循環参照があっても部品 interaction 展開は循環点で止まり無限にも重複にもならない（受入基準b）', () => {
+    const doc = parseOk(
+      '# A\nB\n> タップ(A自身) -> back()\n\n# B\nA\n> タップ(B自身) -> back()\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('（循環）');
+    const countA = (appHtml.match(/タップ\(A自身\)/g) ?? []).length;
+    const countB = (appHtml.match(/タップ\(B自身\)/g) ?? []).length;
+    expect(countA).toBe(1);
+    expect(countB).toBe(1);
+  });
+
+  it('部品の裸 gate は部品自身の表示 variant の実効 body で判定される（overlay の hostCtx 方式を流用。受入基準c）', () => {
+    const doc = parseOk(
+      '# ホーム\nスイッチ\n\n# スイッチ\n## オン\nランプ\n> タップ(ランプ?) -> back()\n## オフ\n本体\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    // 初期姿はオン（最初に定義された姿）→ ランプが存在するため gate は有効
+    const before = vm.runInContext('app.innerHTML', context);
+    expect(before).toContain('タップ(ランプ)');
+    // 部品自身の表示 variant をオフへ切替（ホーム側の variant ではない）→ ランプ不在で gate が無効になる
+    vm.runInContext("sharedVariants.set(skey('main', 'スイッチ'), 'オフ'); render()", context);
+    const after = vm.runInContext('app.innerHTML', context);
+    expect(after).not.toContain('タップ(ランプ)');
+  });
+
+  it('cross-module: 部品 interaction の遷移先は定義ファイル基準で正準化済みのまま、実行はアクティブフレーム基準で効く（受入基準e）', () => {
+    const widgetsDoc = parseOk('# タブバー\n> タップ(検索ボタン) -> switch(検索, @tabSearch)\n\n# 検索\n検索窓\n');
+    const mainDoc = parseOk('import widgets as w\n# ホーム\nw::タブバー\n');
+    const html = toSimulator(new Map([['main', mainDoc], ['widgets', widgetsDoc]]), 'main');
+    const context = runSimulatorScript(html);
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    expect(appHtml).toContain('タップ(検索ボタン)');
+    // ラベル無し操作（Task 15）は行全体がボタンになり onclick は action-text より前に出るため、
+    // 同じ action-row 内で結びつくことを1つの正規表現で縛る。
+    const m = appHtml.match(/onclick="(handleNestedInteraction\([^"]+)"><span class="action-text">タップ\(検索ボタン\)<\/span>/);
+    expect(m).not.toBeNull();
+    vm.runInContext(m![1]!, context);
+    expect(vm.runInContext('currentFrame().module', context)).toBe('widgets');
+    expect(vm.runInContext('currentFrame().component', context)).toBe('検索');
+  });
+
+  it('掲示中カードにも部品 interaction 展開が同じ機構（renderElementsAndActions 共通化）で乗る', () => {
+    const doc = parseOk(
+      '# ホーム\n> 出す -> show(ミニ)\n\n# ミニ\nタブバー\n\n# タブバー\n> タップ(検索ボタン) -> push(検索)\n\n# 検索\n本文\n',
+    );
+    const html = toSimulator(new Map([['main', doc]]), 'main');
+    const context = runSimulatorScript(html);
+    vm.runInContext(
+      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
+      context,
+    );
+    const appHtml = vm.runInContext('app.innerHTML', context);
+    const overlayIdx = appHtml.indexOf('overlay-card');
+    expect(overlayIdx).toBeGreaterThan(-1);
+    const overlaySection = appHtml.slice(overlayIdx);
+    expect(overlaySection).toContain('タップ(検索ボタン)');
+    const m = overlaySection.match(/onclick="(handleNestedInteraction\([^"]+)"/);
+    expect(m).not.toBeNull();
+    // cardIdx は 0 以上（掲示中カード自身の索引）——本体（-1）とは区別される
+    expect(m![1]).toMatch(/^handleNestedInteraction\(\d+,\[\d+\],/);
+    vm.runInContext(m![1]!, context);
+    expect(vm.runInContext('currentFrame().component', context)).toBe('検索');
+  });
+
+  describe('外側上書き（SPEC 116-124「対象の指す要素」・受入基準d）', () => {
+    it('親の 行動(部品要素.member) が行動一致・member一致なら部品側 interaction を隠す（親が勝つ）', () => {
+      const doc = parseOk(
+        '# ホーム\nプロフィールカード\n> タップ(プロフィールカード.本体) -> push(編集)\n\n' +
+          '# プロフィールカード\n本体\n> タップ(本体) -> push(詳細)\n\n' +
+          '# 編集\n本文\n\n# 詳細\n本文\n',
+      );
+      const html = toSimulator(new Map([['main', doc]]), 'main');
+      const context = runSimulatorScript(html);
+      const appHtml = vm.runInContext('app.innerHTML', context);
+      // 親の上書き（member 復元済みラベル）は表示される
+      expect(appHtml).toContain('タップ(プロフィールカード.本体)');
+      // 部品側の同一 (行動, 対象) は隠れる——重複表示されない
+      expect((appHtml.match(/タップ\(本体\)/g) ?? []).length).toBe(0);
+      // クリックすると親の上書き先（編集）へ遷移する（部品側の詳細ではなく）
+      const m = appHtml.match(/onclick="(handleInteraction\([^"]+)"/);
+      expect(m).not.toBeNull();
+      vm.runInContext(m![1]!, context);
+      expect(vm.runInContext('currentFrame().component', context)).toBe('編集');
+    });
+
+    it('行動文字列が違えば部品側と親側の両方が残る', () => {
+      const doc = parseOk(
+        '# ホーム\nプロフィールカード\n> 長押し(プロフィールカード.本体) -> push(編集)\n\n' +
+          '# プロフィールカード\n本体\n> タップ(本体) -> push(詳細)\n\n' +
+          '# 編集\n本文\n\n# 詳細\n本文\n',
+      );
+      const html = toSimulator(new Map([['main', doc]]), 'main');
+      const context = runSimulatorScript(html);
+      const appHtml = vm.runInContext('app.innerHTML', context);
+      expect(appHtml).toContain('長押し(プロフィールカード.本体)');
+      expect(appHtml).toContain('タップ(本体)');
+    });
+
+    it('外側上書きは掲示中カードでも同じ機構で効く', () => {
+      const doc = parseOk(
+        '# ホーム\n> 出す -> show(ミニ)\n\n' +
+          '# ミニ\nプロフィールカード\n> タップ(プロフィールカード.本体) -> push(編集)\n\n' +
+          '# プロフィールカード\n本体\n> タップ(本体) -> push(詳細)\n\n' +
+          '# 編集\n本文\n\n# 詳細\n本文\n',
+      );
+      const html = toSimulator(new Map([['main', doc]]), 'main');
+      const context = runSimulatorScript(html);
+      vm.runInContext(
+        "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
+        context,
+      );
+      const appHtml = vm.runInContext('app.innerHTML', context);
+      const overlayIdx = appHtml.indexOf('overlay-card');
+      const overlaySection = appHtml.slice(overlayIdx);
+      expect(overlaySection).toContain('タップ(プロフィールカード.本体)');
+      expect((overlaySection.match(/タップ\(本体\)/g) ?? []).length).toBe(0);
+      const m = overlaySection.match(/onclick="(handleOverlayInteraction\([^"]+)"/);
+      expect(m).not.toBeNull();
+      vm.runInContext(m![1]!, context);
+      expect(vm.runInContext('currentFrame().component', context)).toBe('編集');
+    });
+  });
   });
 });
