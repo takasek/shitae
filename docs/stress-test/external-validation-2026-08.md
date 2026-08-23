@@ -22,4 +22,4 @@ The FrontRow Mermaid output included `チケット購入_購入済み --タッ�
 
 ## Overall conclusion
 
-The four probes show that shitae represents app-local states and navigation compactly. Cross-app effects, OS-wide locale propagation, visibility and test-ID assertions, and production network timing are evaluation-layer facts rather than missing core syntax. `check` and `simulate` validate syntax and generate HTML only; they do not replay the observed real service. No core syntax addition is proposed.
+The four probes show that shitae represents app-local states and navigation compactly. Cross-app effects, OS-wide locale propagation, visibility and test-ID assertions, and production network timing are evaluation-layer facts rather than missing core syntax. `check`, `simulate`, and `mermaid` perform static validation or artifact generation only; they do not replay the observed real service. No core syntax addition is proposed.

@@ -2,7 +2,7 @@
 
 ## Source
 
-出典は [GUIOdyssey 公式リポジトリ](https://github.com/OpenGVLab/GUI-Odyssey) と [GUIOdyssey データセット](https://huggingface.co/datasets/hflqf88888/GUIOdyssey) で、ライセンスは CC BY 4.0 である。
+出典は [GUIOdyssey 公式リポジトリ](https://github.com/OpenGVLab/GUI-Odyssey) と [GUIOdyssey データセット](https://huggingface.co/datasets/hflqf88888/GUIOdyssey) で、データセットのライセンスは CC BY 4.0 である。
 
 ## Preconditions
 
