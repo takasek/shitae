@@ -175,3 +175,47 @@ describe('shadow 合成（姿固有が共通に勝つ）', () => {
     expect(out).not.toMatch(/^ {2}M -->/m);
   });
 });
+
+describe('document common 合成', () => {
+  it('targetful transition は全 component/variant ノードから出る', () => {
+    const src = [
+      '> セッション切れ -> goto(ログイン)',
+      '# ホーム',
+      'ロゴ',
+      '# マッチング',
+      '## 検索中',
+      '案内',
+      '## 失敗',
+      'エラー',
+      '# ログイン',
+      'フォーム',
+    ].join('\n');
+    const out = toMermaid(parse(src).document);
+    expect(out).toContain('ホーム -->|"セッション切れ"| ログイン');
+    expect(out).toContain('マッチング_検索中 -->|"セッション切れ"| ログイン');
+    expect(out).toContain('マッチング_失敗 -->|"セッション切れ"| ログイン');
+  });
+
+  it('同じ action+target は component common と variant 固有が document common を shadow する', () => {
+    const src = [
+      '> タップ(戻る) -> goto(A)',
+      '# M',
+      '> タップ(戻る) -> goto(B)',
+      '## 検索中',
+      '> タップ(戻る) -> goto(C)',
+      '## 失敗',
+      '案内',
+      '# A',
+      'a',
+      '# B',
+      'b',
+      '# C',
+      'c',
+    ].join('\n');
+    const out = toMermaid(parse(src).document);
+    expect(out).toContain('M_検索中 -->|"タップ(戻る)"| C');
+    expect(out).not.toContain('M_検索中 -->|"タップ(戻る)"| A');
+    expect(out).toContain('M_失敗 -->|"タップ(戻る)"| B');
+    expect(out).not.toContain('M_失敗 -->|"タップ(戻る)"| A');
+  });
+});

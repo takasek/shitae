@@ -25,11 +25,12 @@ export function toMermaid(document: Document): string {
   // エッジ定義。姿を持つ component は、共通と姿固有を shadow 合成した
   // interaction 群を各姿ノードから出す（共通だけのベースノードは存在しない）
   for (const comp of document.components) {
+    const mergedCommon = mergeInteractions(document.common.interactions, comp.common.interactions);
     if (comp.variants.length === 0) {
-      emitEdges(comp.common.interactions, comp.name, null, comp.name, document, idMap, lines);
+      emitEdges(mergedCommon, comp.name, null, comp.name, document, idMap, lines);
     } else {
       for (const v of comp.variants) {
-        const merged = mergeInteractions(comp.common.interactions, v.body.interactions);
+        const merged = mergeInteractions(mergedCommon, v.body.interactions);
         emitEdges(merged, comp.name, v.name, comp.name, document, idMap, lines);
       }
     }
