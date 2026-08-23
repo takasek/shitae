@@ -1,0 +1,30 @@
+// Deterministic OSS control from FrontRow's official ticket-buying flow.
+
+> タップ(イベントタブ) -> switch(イベント一覧, @tabEvents)
+> タップ(マイチケットタブ) -> switch(マイチケット一覧, @tabMyTickets)
+
+# E2Eセットアップ
+> デモユーザーでセットアップする -> present(イベント一覧, @tabEvents)
+
+# イベント一覧
+イベントタブ
+*イベントカード
+> タップ(イベントカード) -> push(イベント詳細)
+
+# イベント詳細
+イベント情報
+evt_001
+購入ボタン
+> タップ(購入ボタン) -> push(チケット購入)
+
+# チケット購入
+## 購入前
+支払いボタン
+> タップ(支払いボタン) -> 購入を確定する ; goto(##購入済み)
+
+## 購入済み
+Ticket purchased
+
+# マイチケット一覧
+My Tickets
+*購入済みチケット
