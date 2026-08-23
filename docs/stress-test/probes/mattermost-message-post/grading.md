@@ -17,4 +17,4 @@ CLI の `check`、`simulate`、`mermaid` は、それぞれ DSL の静的検査�
 
 ## CLI verification (2026-08-24)
 
-`check` は exit 0 で診断なし、`simulate` は exit 0 で HTML stdout 27,137 bytes、`mermaid` は exit 0 で Mermaid stdout 595 bytes だった。stdout は一意な `/tmp` ファイルへ保存して `wc -c` で測定し、生成物はリポジトリに保存していない。
+`check` は exit 0 で診断なし、`simulate` は exit 0 で HTML stdout 27,089 bytes、`mermaid` は exit 0 で Mermaid stdout 595 bytes だった。stdout は一意な `/tmp` ファイルへ保存して `wc -c` で測定し、生成物はリポジトリに保存していない。

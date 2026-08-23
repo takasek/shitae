@@ -18,7 +18,7 @@ Sources: [GUIOdyssey repository](https://github.com/OpenGVLab/GUI-Odyssey), [GUI
 | GUIOdyssey language-setting | exit 0; no diagnostics | exit 0; HTML stdout 30,033 bytes | exit 0; Mermaid stdout 1,098 bytes | Not stored in repo |
 | FrontRow ticket purchase | exit 0; no diagnostics | exit 0; HTML stdout 31,677 bytes | exit 0; Mermaid stdout 1,802 bytes | Not stored in repo |
 | Nextcloud share retry | exit 0; no diagnostics | exit 0; HTML stdout 32,721 bytes | exit 0; Mermaid stdout 1,177 bytes | Not stored in repo |
-| Mattermost message post | exit 0; no diagnostics | exit 0; HTML stdout 27,137 bytes | exit 0; Mermaid stdout 595 bytes | Not stored in repo |
+| Mattermost message post | exit 0; no diagnostics | exit 0; HTML stdout 27,089 bytes | exit 0; Mermaid stdout 595 bytes | Not stored in repo |
 
 The FrontRow Mermaid output included `チケット購入_購入済み --タップ(マイチケットタブ)--> マイチケット一覧`, confirming the document-common tab mapping.
 
