@@ -205,6 +205,8 @@ describe('document common 合成', () => {
       '> タップ(戻る) -> goto(C)',
       '## 失敗',
       '案内',
+      '# N',
+      '> タップ(戻る) -> goto(B)',
       '# A',
       'a',
       '# B',
@@ -217,5 +219,7 @@ describe('document common 合成', () => {
     expect(out).not.toContain('M_検索中 -->|"タップ(戻る)"| A');
     expect(out).toContain('M_失敗 -->|"タップ(戻る)"| B');
     expect(out).not.toContain('M_失敗 -->|"タップ(戻る)"| A');
+    expect(out).toContain('N -->|"タップ(戻る)"| B');
+    expect(out).not.toContain('N -->|"タップ(戻る)"| A');
   });
 });
