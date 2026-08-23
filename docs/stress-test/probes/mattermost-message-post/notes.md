@@ -2,9 +2,9 @@
 
 ## Source and license
 
-一次資料は `/tmp/mattermost-mobile-e2e.kJzFzl/repo` の読み取り専用 Mattermost Mobile snapshot であり、commit [`ebc1f1382bb0334c0f679467bb6cc97fa6b8c0ae`](https://github.com/mattermost/mattermost-mobile/tree/ebc1f1382bb0334c0f679467bb6cc97fa6b8c0ae) に固定した。
+一次資料は Mattermost Mobile 公式 GitHub リポジトリの commit [`ebc1f1382bb0334c0f679467bb6cc97fa6b8c0ae`](https://github.com/mattermost/mattermost-mobile/tree/ebc1f1382bb0334c0f679467bb6cc97fa6b8c0ae) に固定した。
 対象ファイルは [`detox/e2e/test/products/channels/messaging/message_post.e2e.ts`](https://github.com/mattermost/mattermost-mobile/blob/ebc1f1382bb0334c0f679467bb6cc97fa6b8c0ae/detox/e2e/test/products/channels/messaging/message_post.e2e.ts) で、対象テストは `MM-T4782_1 - should be able to post a message when send button is tapped`（[lines 55-82](https://github.com/mattermost/mattermost-mobile/blob/ebc1f1382bb0334c0f679467bb6cc97fa6b8c0ae/detox/e2e/test/products/channels/messaging/message_post.e2e.ts#L55-L82)）である。
-snapshot の [`LICENSE.txt`](https://github.com/mattermost/mattermost-mobile/blob/ebc1f1382bb0334c0f679467bb6cc97fa6b8c0ae/LICENSE.txt#L1-L5) は Apache-2.0 を示す。
+同じ固定 commit の [`LICENSE.txt`](https://github.com/mattermost/mattermost-mobile/blob/ebc1f1382bb0334c0f679467bb6cc97fa6b8c0ae/LICENSE.txt#L1-L5) は Apache-2.0 を示す。
 
 ## Setup and expected trace
 
