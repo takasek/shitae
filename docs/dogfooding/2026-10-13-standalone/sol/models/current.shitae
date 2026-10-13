@@ -1,0 +1,107 @@
+// Target: pfdsl 83701fb0 (updated from 266cbb3 on user request). Bounded abstraction, not pixels or a full document state machine.
+// Tab A/B retain source, undo and diagram instances in implementation. No data values are simulated here.
+# Workspace
+commands: DocumentCommands
+navigation: Navigation
+message: GlobalMessage
+> OpenFailure -> set(GlobalMessage##Error)
+> SwitchDocumentB -> The active editor and diagram become B; the global message is unchanged
+> CloseLastDocument -> hide(NormalizedEdges); hide(NodePanel); goto(##NoDocument)
+> NewDocument -> set(DiagramView##Ready); goto(##Editing)
+## Editing
+tabs: DocumentTabs
+source: SourceEditor
+diagram: DiagramView
+> Normalize -> show(NormalizedEdges)
+## NoDocument
+// Actual toolbar remains available. Save and format handlers have no active document and do nothing.
+> Save -> No active document so nothing happens
+> FormatFlows -> No active document so nothing happens
+
+# DocumentCommands
+files: { New; OpenFile; OpenFolder; Save; SaveAs }
+transform: { FormatFlows; FormatFlat; NormalizedEdges }
+
+# Navigation
+recent: RecentTargets
+folder: FolderFiles
+
+# DocumentTabs
+// A collection is represented by one specimen. Its size, path identity and ordering are not computed.
+*DocumentTab
+
+# DocumentTab
+name: FileName
+close: Close
+
+# SourceEditor
+buffer: SourceText
+markers: Diagnostics
+
+#! DiagramView
+// A singleton stands for this bounded specimen's one diagram, not every real document's diagram.
+controls: { ZoomOut; ZoomLevel; ZoomIn; Fit; ActualSize; NodeActions; Help }
+> ParseError -> set(DiagramView##Error)
+## Ready
+graph: Graph
+> NodeDoubleClick -> Move source cursor to node definition and focus source editor
+> CursorMove -> Focus matching graph node if the snapshot matches source
+> NodeActions -> show(NodePanel)
+## Error
+// The real view replaces the graph with diagnostic text and disables graph controls.
+error: Diagnostics
+> ValidInput -> set(DiagramView##Ready)
+
+# RecoveryPanel
+// Optional in real UI. Included here for inventory; scenario-specific visibility is modeled in recovery.shitae.
+observed: DiskText
+choices: { ReviewAndSaveHere; SaveAs; UseCurrentDiskVersion }
+
+#! GlobalMessage
+## Instruction
+instruction: SaveExplicitly
+## Error
+error: ErrorMessage
+
+# NormalizedEdges
+text: EdgeText
+close: Close
+> Close -> hide(NormalizedEdges)
+
+# NodePanel
+title: SelectedNode
+definition: CreateDefinition
+connection: AddConnection
+close: Close
+> Close -> hide(NodePanel)
+
+# RecentTargets
+# FolderFiles
+# New
+# OpenFile
+# OpenFolder
+# Save
+# SaveAs
+# FormatFlows
+# FormatFlat
+# FileName
+# Close
+# SourceText
+# Diagnostics
+# ZoomOut
+# ZoomLevel
+# ZoomIn
+# Fit
+# ActualSize
+# NodeActions
+# Help
+# Graph
+# DiskText
+# ReviewAndSaveHere
+# UseCurrentDiskVersion
+# SaveExplicitly
+# ErrorMessage
+# EdgeText
+# SelectedNode
+# CreateDefinition
+# AddConnection

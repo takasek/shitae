@@ -1,0 +1,102 @@
+[
+  {
+    "file": "astra/models/current.shitae",
+    "sha256": "05c29e9748933be7d8dd14f912a4a6c630b195bcec65fedc69d93778949baf7f",
+    "provenance": "final local evaluator artifact; byte-identical"
+  },
+  {
+    "file": "astra/models/current.mmd",
+    "sha256": "03fb2a8981d2e4fcdf049916ab64e4864f0a6a8ef1c4efe510bf5962df553b4a",
+    "provenance": "final local evaluator artifact; byte-identical"
+  },
+  {
+    "file": "astra/models/proposed.shitae",
+    "sha256": "4df483ee831379ef3a52988950985072717e3cdba5a7e86181fad62568b8810a",
+    "provenance": "final local evaluator artifact; byte-identical"
+  },
+  {
+    "file": "astra/models/proposed.mmd",
+    "sha256": "ec63556f79042521f28db32678a9b88f9edd4d674d08cabbbc5bec3d9a60b8a9",
+    "provenance": "final local evaluator artifact; byte-identical"
+  },
+  {
+    "file": "astra/models/inline-repro.shitae",
+    "sha256": "b92d43daee3f9fe4ff5654e4061262cb64c58a1c9063b69bfa12c26bb4e354ab",
+    "provenance": "final local evaluator artifact; byte-identical"
+  },
+  {
+    "file": "astra/models/inline-repro.mmd",
+    "sha256": "9207e8f0a7909bf62bbf8bfb2d7cdb87438c65cd5e362ca08f423f7b93edffbf",
+    "provenance": "final local evaluator artifact; byte-identical"
+  },
+  {
+    "file": "sol/models/current.shitae",
+    "sha256": "4e0ae2bbac9557df599a2282b421beaac65dce4d33c36ef3c37f50e5c1a943da",
+    "provenance": "final local evaluator artifact; byte-identical"
+  },
+  {
+    "file": "sol/models/current.mmd",
+    "sha256": "e629cac8742473a19d5470eb2c9ced4f728779ee9c32887dc924fae0cf1e774e",
+    "provenance": "final local evaluator artifact; byte-identical"
+  },
+  {
+    "file": "sol/models/proposed.shitae",
+    "sha256": "acc1cd09372ee07d350ae9cdb0283fd7080fa7f53263dc53cb1bf5cc166edc3b",
+    "provenance": "final local evaluator artifact; byte-identical"
+  },
+  {
+    "file": "sol/models/proposed.mmd",
+    "sha256": "eab0eecaeafd19912ac46d8c42f737b2afb2a55f5dc673431d55730d9302a677",
+    "provenance": "final local evaluator artifact; byte-identical"
+  },
+  {
+    "file": "sol/models/recovery.shitae",
+    "sha256": "8357da6b4d9241e44d9e028668f100ec82485e61b25f545852ea0c9bb5a92ae4",
+    "provenance": "final local evaluator artifact; byte-identical"
+  },
+  {
+    "file": "sol/models/recovery.mmd",
+    "sha256": "c395ba43afb4f92f4816d1e4b0c6d656ac4a6271c24a71b72726e41aa9b225b7",
+    "provenance": "final local evaluator artifact; byte-identical"
+  },
+  {
+    "file": "astra/evidence/15-proposed-status-B.png",
+    "sha256": "0a92ada8b81791ed17e911d3ca73e11591717bd3c2d95ea6e01145240d689505",
+    "provenance": "original simulator observation; not a new browser run"
+  },
+  {
+    "file": "astra/evidence/20-proposed-reveal-source-final.png",
+    "sha256": "bcedcbf43123d74c6f2fb9e43005e39aaf44c61aba3c9e59d1bdc48a624732d2",
+    "provenance": "original simulator observation; not a new browser run"
+  },
+  {
+    "file": "astra/evidence/21-proposed-cancel-final.txt",
+    "sha256": "600d72e53a7551e0ca2ce2514ae05d3ab81fff98f4f0957015d984b44f7b4cb4",
+    "provenance": "original simulator observation; not a new browser run"
+  },
+  {
+    "file": "sol/evidence/sim-review-before-correction.png",
+    "sha256": "7b808c2453db1623ef420c7ac8adefa73234554dffad2b9984a3eb8f5ece3d84",
+    "provenance": "original simulator observation; not a new browser run"
+  },
+  {
+    "file": "sol/evidence/sim-review-after-correction.png",
+    "sha256": "5ddb795311d1d53d7e27b9855031a32328ec63923555c4d2be32697120593284",
+    "provenance": "original simulator observation; not a new browser run"
+  },
+  {
+    "file": "sol/evidence/sim-proposed-error-gate.png",
+    "sha256": "34e93a0cf5f151e1f1ca036246b21b97b9874ab4d00c7301be69573bc80ba4e8",
+    "provenance": "original simulator observation; not a new browser run"
+  },
+  {
+    "file": "sol/evidence/sim-view-roundtrip.png",
+    "sha256": "ca67dce33b447ee27fe3d26d32165e02b461c3a2b7612539f9eadbb193628e1d",
+    "provenance": "original simulator observation; not a new browser run"
+  },
+  {
+    "file": "sol/evidence/sim-empty.png",
+    "sha256": "8f7f54c6a2a55ffbad67254d1fe400a4e2282485bcea4fbcb3e0248dc8fd222b",
+    "provenance": "original simulator observation; not a new browser run"
+  }
+]

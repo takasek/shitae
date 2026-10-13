@@ -73,6 +73,7 @@ make simulate FILE=<file.shitae>                          # ブラウザで歩�
 - [docs/GLOSSARY.md](docs/GLOSSARY.md) — 概念語の用語集
 - [docs/PRIOR_ART.md](docs/PRIOR_ART.md) — 先行技術と位置づけ
 - [docs/examples/](docs/examples/) — 検証済みサンプル（parser 統合テストのフィクスチャを兼ねる）
+- [docs/dogfooding/2026-10-13-standalone/](docs/dogfooding/2026-10-13-standalone/) — PFDSLを題材にした実使用の効果・負担・改善候補
 
 ## 名前
 

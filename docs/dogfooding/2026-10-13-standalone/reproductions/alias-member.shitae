@@ -1,0 +1,12 @@
+// Same-body alias, component-name and undefined-reference controls.
+# Workspace
+diagram: DiagramView
+> Alias(diagram.graph?) -> Observe alias
+> Named(DiagramView.graph?) -> Observe component
+> Undefined(Missing.graph?) -> Observe rough undefined target
+
+#! DiagramView
+## Ready
+graph: Graph
+## Error
+problem: Diagnostics
