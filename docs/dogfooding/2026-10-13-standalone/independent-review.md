@@ -6,6 +6,6 @@
 
 全7モデルのcheck、計70件のW103、保存6本のMermaid一致、通常ファイルHTML終端・UTF-8を独立に再検証した。pipe切断をPython subprocessで3/3回、inline欠落とalias gate差を限定VMで再現した。画像7枚を目視し、公開テキストの私的絶対パス・不要な個人情報・HIG本文の複製を検出せず、相対リンク欠落0件。
 
-既存機能、新機能案、作者のモデル誤り、未確定の因果を区別していることを確認した。PFDSLの4固定commit URLと6issue案のPFDSL保存索引参照は、指定commit・パスの完全一致を独立に再照合した。追加記録で検証方法が曖昧だった1文を上記のとおり修正した。issue本文のshitaeレポート固定commit URLはcommit/push後に再照合する。
+既存機能、新機能案、作者のモデル誤り、未確定の因果を区別していることを確認した。PFDSLの4固定commit URLと6issue案のPFDSL保存索引参照は、指定commit・パスの完全一致を独立に再照合した。追加記録で検証方法が曖昧だった1文を上記のとおり修正した。commit/push後、全6issue本文へshitae保存commit `6f212d056f9c7dbf72b1c255a7542b8107d26d64` の固定URLが1回ずつ入り、placeholderが0個であることを独立に再照合した。参照先READMEはGitHubから読戻せ、指定版と保存版の区別、PFDSL参照も確認した。追加のfindingsなし。
 
 レビューは新しいブラウザ操作、native受入、他OS、製品修正による因果確認、全件testを含まない。保存版の一次資料整合を確認した結果であり、製品の品質受入ではない。

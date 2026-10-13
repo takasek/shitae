@@ -1,0 +1,49 @@
+{
+  "reportCommit": "6f212d056f9c7dbf72b1c255a7542b8107d26d64",
+  "pfdslArchiveCommit": "74c5183c59cf989fe9052ca953dced0324410ae9",
+  "publicationDate": "2026-10-13",
+  "issues": [
+    {
+      "number": 8,
+      "title": "CLI: simulateのpipe出力を完了前に終了しない",
+      "url": "https://github.com/takasek/shitae/issues/8",
+      "state": "OPEN",
+      "exactTitleAndBodyMatch": true
+    },
+    {
+      "number": 9,
+      "title": "simulator: inline componentの子要素を表示する",
+      "url": "https://github.com/takasek/shitae/issues/9",
+      "state": "OPEN",
+      "exactTitleAndBodyMatch": true
+    },
+    {
+      "number": 10,
+      "title": "simulator: same-body aliasのmember gateを定義済みcomponentへ解決する",
+      "url": "https://github.com/takasek/shitae/issues/10",
+      "state": "OPEN",
+      "exactTitleAndBodyMatch": true
+    },
+    {
+      "number": 11,
+      "title": "simulator: モデル版を付けた操作・分岐シナリオの保存と再生を検討する",
+      "url": "https://github.com/takasek/shitae/issues/11",
+      "state": "OPEN",
+      "exactTitleAndBodyMatch": true
+    },
+    {
+      "number": 12,
+      "title": "simulator: 操作のreceiverと入れ子部品の現在状態を任意表示する",
+      "url": "https://github.com/takasek/shitae/issues/12",
+      "state": "OPEN",
+      "exactTitleAndBodyMatch": true
+    },
+    {
+      "number": 13,
+      "title": "docs: AI_GUIDEにsingletonとsetの短い入口を追加する",
+      "url": "https://github.com/takasek/shitae/issues/13",
+      "state": "OPEN",
+      "exactTitleAndBodyMatch": true
+    }
+  ]
+}

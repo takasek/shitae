@@ -10,7 +10,7 @@
 | shitae評価対象 | [`a3ebaedbd5d452c99093a949bbaf94508da43ab4`](https://github.com/takasek/shitae/commit/a3ebaedbd5d452c99093a949bbaf94508da43ab4) |
 | 保存作業の起点HEAD / 取得したorigin/main | `a3ebaedbd5d452c99093a949bbaf94508da43ab4` |
 | 保存branch | `codex/dogfooding-reports-20261013` |
-| レポート保存commit | このファイルを含むcommitをGitHubの履歴から参照。評価対象版とは別の版 |
+| レポート保存commit | [`6f212d056f9c7dbf72b1c255a7542b8107d26d64`](https://github.com/takasek/shitae/commit/6f212d056f9c7dbf72b1c255a7542b8107d26d64)（本文・モデル・証拠。起票対応表は後続commitで追記） |
 
 PFDSLの一次分析・native/webの観察根拠・UI改善提案は、PFDSL側の保存commit `74c5183c59cf989fe9052ca953dced0324410ae9` に保存した[保存索引](https://github.com/takasek/pfdsl/blob/74c5183c59cf989fe9052ca953dced0324410ae9/docs/reviews/standalone/2026-10-13/README.md)・[Astra一次分析](https://github.com/takasek/pfdsl/blob/74c5183c59cf989fe9052ca953dced0324410ae9/docs/reviews/standalone/2026-10-13/astra/review.html)・[Sol一次分析](https://github.com/takasek/pfdsl/blob/74c5183c59cf989fe9052ca953dced0324410ae9/docs/reviews/standalone/2026-10-13/sol/review.md)・[親の比較](https://github.com/takasek/pfdsl/blob/74c5183c59cf989fe9052ca953dced0324410ae9/docs/reviews/standalone/2026-10-13/comparison.html)。同分析をここへ重複コピーしない。
 

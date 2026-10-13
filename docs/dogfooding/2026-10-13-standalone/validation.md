@@ -27,6 +27,8 @@
 
 VMはrepoのテストと同じ最小DOMスタブ方式で、生成JSの特定関数を実行した。描画・gateの限定観察であり、イベント到達性、アクセシビリティ、OSやブラウザの品質を保証しない。因果を確定する製品修正・TDDは今回行わない。
 
-installではesbuildのbuild script無視の通知があったが、全package buildとモデル生成は成功した。[保存内容の独立レビュー](independent-review.md)では修正必須の不整合なし。固定URLの置換は公開前/公開後に別途照合する。
+installではesbuildのbuild script無視の通知があったが、全package buildとモデル生成は成功した。[保存内容の独立レビュー](independent-review.md)では修正必須の不整合なし。固定URLも公開前/公開後に独立に再照合した。
 
 公開前に文書リンク・JSON/補助スクリプト構文・出典SHA256を確認した。通常の差分空白検査は、原生成物のastra/models/inline-repro.mmd末尾空行1件だけを検出する。元成果物とCLI再生成のバイト同一性を優先して保持し、同ファイル以外の差分空白検査は通過した。PFDSLの4固定commit URLはGitHub contents APIで読戻し確認した。
+
+レポート保存commit `6f212d056f9c7dbf72b1c255a7542b8107d26d64` は通常push後、GitHub tree APIの全33ファイルのblob hashがローカルと一致した。起票後は6件のタイトル・本文を保存済みデータから読戻し、独立レビュー済み本文と完全一致した。対応は[候補表](candidates.md)と[読戻し記録](evidence/issue-readback.json)へ保存した。
