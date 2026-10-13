@@ -10,16 +10,17 @@
 - **ラフであることが機能**。未定・穴は専用記法を使わず**自然文**で書く。
 - 構造は明示的な記号で表し、**インデントに意味はない**。
 - 実行の起点：**エントリポイントはファイル先頭の component**。variant を複数持つ component の**initial variant は最初に定義された `##`**。
-- 同じ component を複数箇所に置いたとき、各インスタンスの**variant は独立**（同期は実装の領分。設計上重要なら自然文で注記）。
+- 通常の component（`#`）を複数箇所に置いたとき、各インスタンスの**variant は独立**（インスタンス間の同期は実装の領分。設計上重要なら自然文で注記）。**singleton（`#!`）** は単一インスタンスとして全所在で variant を共有する。共有の単位は定義ファイルで、別モジュールの同名 component とは無関係（[SPEC: singleton component](SPEC.md#singleton-component)）。
 
 ## 記号と予約語
 
-記号：`#`（component）`##`（variant）`>`（インタラクション行）`:`（alias）`*`（collection・前置）`{}`（inline）`.`（要素参照）`->`（行動と結果の境界）`;`（結果の区切り）`[]`（condition label）`?`（presence gate）`"..."`（クオート名）`@`（セッション）`::`（モジュール）`//`（コメント）
+記号：`#`（component）`#!`（singleton component）`##`（variant）`>`（インタラクション行）`:`（alias）`*`（collection・前置）`{}`（inline）`.`（要素参照）`->`（行動と結果の境界）`;`（結果の区切り）`[]`（condition label）`?`（presence gate）`"..."`（クオート名）`@`（セッション）`::`（モジュール）`//`（コメント）
 
 予約語：
 - transition verb（コア）：`push` `back` `goto` `exit`
 - transition verb（複合）：`present`（barrier ありセッションの開始）`dismiss`（直近の無名セッションの破棄）`switch`（フレームの中断と復帰。タブ等）。糖衣ではなく、コア 4 語に「barrier」「中断・復帰」を組み合わせた compound verb。
 - overlay verb：`show(X)` / `hide(X)`（フレーム木を操作しない別カテゴリ）。ミニプレイヤー・PiP・バナー等、アクティブ画面と独立に常時表示する component の掲示・掲示解除。`hide` するまで残る（`back`/`exit` では消えない）。
+- state verb：`set(X##v)`（singleton の共有 variant の書き換え）。遷移も掲示もせず、フレーム木を操作しない。詳細は [SPEC: singleton component](SPEC.md#singleton-component)。
 - 構造：`import` `as`
 
 これ以外のキーワードを発明しない。表現できないものは自然文で書く。
@@ -45,6 +46,8 @@
 > ... -> push(確認, @checkout)    ← セッション開始（push/present の第2引数）
 > ... -> exit(@checkout)          ← 名前付きセッションを破棄（begin 地点へ）
 > ... -> switch(検索, @tabSearch)  ← 中断と復帰（タブ）。@S 生存なら復帰、無ければ検索で新規開始
+> ... -> set(通知##既読)          ← singleton の共有 variant だけを書き換える。遷移も掲示もしない
+#! 通知                         ← singleton 定義（定義ファイル単位で variant を共有）
 （最初の # より前の行）           ← document common＝全 component に共通（deep link・通知・強制ログアウト等）
 import auth as auth             ← モジュール（ファイル）読み込み
 > ... -> push(auth::ログイン)      ← 別モジュールの component を :: で参照
@@ -55,13 +58,46 @@ import auth as auth             ← モジュール（ファイル）読み込�
 
 - **`push(X)`** … X へ進む（積む。`back` で 1 つずつ戻れる）。
 - **`back()` / `back(X)`** … 直前へ／component X まで戻る。**引数は常に component**。
-- **`goto(X)`** … 現在を X に置き換える（積まない、戻れない）。同一 component の variant change `goto(##variant)` にも、別 component への置換 `goto(ホーム)` にも使う。
+- **`goto(X)`** … 現在を X に置き換える（積まない、戻れない）。実行時にアクティブな component の variant change `goto(##variant)` にも、別 component への置換 `goto(ホーム)` にも使う。
 - **`exit(@S)`** … セッション @S を破棄して begin 地点へ戻る。**引数は常にセッション**。
 - **`present(X)` / `present(X, @S)`** … モードに入る（モーダル、ログイン後フロー等）。barrier ありセッションを一語で表す compound verb（`push` 単体では barrier を表せない）。
 - **`dismiss()` / `dismiss(@S)`** … 直近のモードを閉じる／@S を破棄。
 - **`switch(X, @S)`** … フレームの**中断と復帰**（タブ等の並行文脈）。@S が生きていれば中断位置へ復帰（X は無視）、無ければ X で新規開始（resume-or-create）。**@S 必須**。barrier あり。
 
 `back`（画面方向）と `exit`（セッション方向）は予約語で役割が決まる（`@` で見分けるのではない）。`dismiss`（無名・引数なし）と `exit`（名前付き・@S 必須）は別物。
+
+裸の `goto(##variant)` の receiver（作用先）は、**実行時にアクティブな component（アクティブフレームの最上段）**。包含部品や overlay の定義内に書いても、その部品自身の variant を変える指定にはならない。singleton を指定して状態だけ変えるなら `set(部品名##variant)` を使う（[SPEC: variant の参照は必ず `##`](SPEC.md#variant-の参照は必ず-)）。
+
+### singleton と `set` の短い例
+
+`set` の対象は singleton のみ。定義済みの通常 component への `set` は **E030**（未定義 component は判定不能として素通りする）。引数は `component##variant` の形で、`set(##variant)` は使えない。共有するのは variant だけで、値やカウンタは持たない。詳細・制約は [SPEC: singleton component](SPEC.md#singleton-component) を正とする。
+
+次は、固定の代表文書 A・B のうち A の更新通知だけを反映する例。
+
+```shitae
+# 文書一覧
+A: 代表文書A
+B: 代表文書B
+> Aの更新通知 -> set(代表文書A##更新あり)
+> 開く(A) -> push(代表文書A)
+> 開く(B) -> push(代表文書B)
+
+#! 代表文書A
+> 戻る -> back()
+## 未更新
+更新前の内容
+## 更新あり
+更新された内容
+
+#! 代表文書B
+> 戻る -> back()
+## 未更新
+更新前の内容
+## 更新あり
+更新された内容
+```
+
+「Aの更新通知」を実行しても文書一覧に留まり、overlay も掲示されない。A は `更新あり`、B は `未更新` のまま。A を開いて戻り、再び開いても `更新あり` が残る。この例は固定の 2 文書をそれぞれ singleton にしたモデルであり、任意個の文書の共有状態や、文書 ID に応じた状態管理を表すものではない。独立した文書インスタンスが必要なら通常の `#` を使い、実装で同期する関係は自然文で注記する。
 
 ### セッションと「back barrier」
 
@@ -75,7 +111,7 @@ import auth as auth             ← モジュール（ファイル）読み込�
 
 ### フレーム木と戻り先
 
-処理系は**フレーム木**を持つ。フレーム＝ (component, variant) の組を積むスタック 1 本。`push(X, @S)`/`present(X, @S)` は子フレームを作り、`switch` は中断・復帰（生存フレームへ移る／新規作成。新規作成時、現在フレームが switch 製なら兄弟、でなければ子）。`exit(@S)`/`dismiss(@S)` は @S を**子孫ごと**破棄して begin 地点へ（ログアウトでタブ全滅）。中断中の @S への exit も可（画面は動かない）。`back`/`dismiss()`（無名）の走査はアクティブパス（現在フレーム→祖先）のみ。`exit(@S)`/`dismiss(@S)` はアクティブパスに @S が無ければ木全体から探して遠隔破棄する。戻り先はその組が積まれた時点の variant。`goto(##variant)` は積まず、現在フレーム最上段の variant を書き換えるだけ。
+処理系は**フレーム木**を持つ。フレーム＝ (component, variant) の組を積むスタック 1 本。`push(X, @S)`/`present(X, @S)` は子フレームを作り、`switch` は中断・復帰（生存フレームへ移る／新規作成。新規作成時、現在フレームが switch 製なら兄弟、でなければ子）。`exit(@S)`/`dismiss(@S)` は @S を**子孫ごと**破棄して begin 地点へ（ログアウトでタブ全滅）。中断中の @S への exit も可（画面は動かない）。`back`/`dismiss()`（無名）の走査はアクティブパス（現在フレーム→祖先）のみ。`exit(@S)`/`dismiss(@S)` はアクティブパスに @S が無ければ木全体から探して遠隔破棄する。通常 component の戻り先はその組が積まれた時点の variant、singleton は現在の共有 variant。`goto(##variant)` は積まず、現在フレーム最上段の variant を書き換える（singleton なら共有状態にも反映）。
 
 タブは「ログイン成功で `present(ホーム, @tabHome)`（anchor frame）、各タブへ `switch(X, @tabX)`、ホームタブへ戻るのも `switch(ホーム, @tabHome)`」が慣用句。
 
@@ -96,6 +132,9 @@ document common（最初の `#` より前＝全 component 共通）・component 
 ## チェックリスト（書いたあと確認する）
 
 - [ ] **variant 参照は必ず `##`** か。`goto(表示)` は「表示という component へ」になり variant change にならない。variant change は `goto(##表示)`。
+- [ ] **通常 component の独立と singleton の共有を区別した**か。`#!` の共有は定義ファイル単位。固定の代表文書の例を、任意個の文書の状態管理へ一般化していないか（[SPEC](SPEC.md#singleton-component)）。
+- [ ] **`set` は singleton を `component##variant` で指定した**か。定義済み通常 component は E030。`set` は遷移も掲示もしない（[SPEC](SPEC.md#singleton-component)）。
+- [ ] **裸の `goto(##variant)` の作用先はアクティブ画面でよい**か。包含部品自身への変更と取り違えていないか（[SPEC](SPEC.md#variant-の参照は必ず-)）。
 - [ ] **遷移には transition verb**を書いたか。`-> 完了`（transition verb なし）は副作用（「完了する」）と解釈され、`完了` 画面への遷移にならない。遷移なら `push(完了)`。
 - [ ] **要素参照は alias 名**か。種別名や生の要素名では引けない。参照する要素には alias を付ける。
 - [ ] **`present` したものは `dismiss`/`exit` で閉じる**か。モーダル内から `goto(別画面)` すると、そのモーダルが下に残ったまま中身だけ置き換わる。閉じてから遷移するか、variant（`##`）にする。
