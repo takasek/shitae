@@ -125,7 +125,7 @@ if (command === 'check') {
     }
   }
   process.stdout.write(toSimulator(documents, entryModule, simConfig) + '\n');
-  process.exit(0);
+  // pipe の非同期 write が完了するまで、イベントループの自然終了に任せる。
 } else {
   process.stderr.write(`Error: unknown command '${command}'. Use 'check', 'mermaid', or 'simulate'.\n`);
   process.exit(1);
