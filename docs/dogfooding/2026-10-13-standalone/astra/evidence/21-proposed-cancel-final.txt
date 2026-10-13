@@ -1,0 +1,96 @@
+Browser tab: 4, Title: "shitae simulator", URL: "http://127.0.0.1:18763/proposed.html".
+1 AXWebArea shitae simulator, URL: 127.0.0.1:18763/proposed.html
+	2 container app
+		3 container
+			4 text 統合ログ
+			5 text ナビゲーション履歴。実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は薄く（ghost）表示され、再クリックでやり直せます。新しいものが上
+			6 checkbox (settable, integer) Description: イベントを表示, Value: 1
+			7 text dismiss → 文書A › present → 比較 › [文書A]  set(状態A##外部変更) › [文書A]  effect: 該当行へ移動しエディタへフォーカス › [文書A]  set(作業面A##並列) › [文書A]  set(作業面A##図中心) › present → 文書A › 起動
+		8 container
+			9 text 現在の画面
+			10 text アクティブな frame の表示（本体）と掲示中カード
+			11 checkbox (settable, integer) Description: アクションを表示, Value: 1
+			12 button 画面外 component の姿切替（gate 試験用）
+			13 text 今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。
+			14 text 文書A
+			15 container
+				16 button (expanded) 文書操作, Secondary Actions: Collapse
+					17 text 文書操作
+				18 text Open Save 文書名と親フォルダ
+			19 container
+				20 button (expanded) 表示操作, Secondary Actions: Collapse
+					21 text 表示操作
+				22 text Source Split Diagram Sidebar
+			23 container
+				24 button (expanded) 文書メニュー, Secondary Actions: Collapse
+					25 text 文書メニュー
+				26 text FormatDocument FormatSelection InspectNormalizedEdges
+			27 container
+				28 button (expanded) 作業面, Secondary Actions: Collapse
+					29 text 作業面
+				30 text ソース 図
+			31 container
+				32 button (expanded) 診断, Secondary Actions: Collapse
+					33 text 診断
+				34 text 最新の図
+			35 container
+				36 button (expanded) 保存状態, Secondary Actions: Collapse
+					37 text 保存状態
+				38 text A.pfdsl — Changed on disk Review SaveCopy
+			39 button (expanded) 検査結果, Secondary Actions: Collapse
+				40 text 検査結果
+			41 container
+				42 button (expanded) タブ, Secondary Actions: Collapse
+					43 text タブ
+				44 text A B
+			45 container
+				46 text 切替(B)
+				47 text component common
+			48 container
+				49 text 編集
+				50 text component common
+			51 container
+				52 text 図のみ
+				53 text component common
+			54 container
+				55 text 並列
+				56 text component common
+			57 container
+				58 text ソースのみ
+				59 text component common
+			60 text 正規化
+			61 text component common
+			62 button [有効な入力]
+			63 button [入力エラー]
+			64 text 保存
+			65 text component common
+			66 button [成功]
+			67 button [外部変更]
+			68 container
+				69 text 入力エラー発生
+				70 text component common
+			71 container
+				72 text 入力修正
+				73 text component common
+			74 container
+				75 text 外部変更確認
+				76 text component common
+			77 button (expanded) スタック, Help: スタック — 今積み重なっている画面。プッシュダウン構成として読める, Secondary Actions: Collapse
+				78 text スタック
+			79 text 今積み重なっている画面。プッシュダウン構成として読める。上が現在地
+			80 container
+				81 text ▌
+				82 text 文書A @a
+			83 text 開始
+			84 button (expanded) 遷移マップ, Help: 遷移マップ — 画面間の遷移関係（表示のみ。状態遷移図として読める）, Secondary Actions: Collapse
+				85 text 遷移マップ
+			86 text 画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。
+			87 button 設定を保存
+			88 checkbox (settable, integer) Description: 全体を見る, Value: 0
+			89 image
+				90 text 開始
+				91 text 文書A
+				92 text 文書B
+				93 text 比較
+
+The focused UI element is 1 AXWebArea shitae simulator, URL: 127.0.0.1:18763/proposed.html
