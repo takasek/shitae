@@ -1,6 +1,6 @@
 // Execution, gates, effective operations and snapshots belong to the bundled Session.
 const SESSION = new Shitae.Session(new Map(MODEL.documents), MODEL.entryModule, new Map(MODEL.files), MODEL.metadata);
-let view, stack, overlays, sharedVariants, GATE_TARGETS, timeline, cursor;
+let view, stack, overlays, sharedVariants, GATE_TARGETS, timeline, cursor, componentNameCounts;
 let showEvents = true, showActions = true, showStates = false, sessionError = '';
 function skey(module, component) { return JSON.stringify([module, component]); }
 function componentValue(module, component) { return view.data.state.componentValues.find(c => c.module === module && c.component === component); }
@@ -15,6 +15,8 @@ function syncView() {
   // Rendering uses gate/target/source annotations; the wire inventory stays compact.
   view.data.actions.items = view.data.actions.items.map(item => SESSION.query({ select: ['action'], handle: item.handle }).data.action);
   const s = view.data.state;
+  componentNameCounts = new Map();
+  for (const c of s.componentValues) componentNameCounts.set(c.component, (componentNameCounts.get(c.component) ?? 0) + 1);
   stack = s.activePath.flatMap(id => {
     const f = s.frames.find(f => f.id === id);
     return f.stack.map((loc, i) => ({ ...loc, frameId: id, wall: i === 0 && f.barrier,
@@ -102,7 +104,10 @@ function renderedClick(item, choiceIdx, buildOnclick) {
 function stateLabel(node) {
   if (!showStates || !node.value) return '';
   const v = node.value;
-  return '<span class="component-state-value"> → ' + esc(node.reference.component) + ' · ' +
+  const ref = node.reference, qualified = componentNameCounts.get(ref.component) > 1;
+  const identity = node.name === ref.component ? (qualified ? ' · ' + esc(ref.module) : '')
+    : ' → ' + esc((qualified ? ref.module + '::' : '') + ref.component);
+  return '<span class="component-state-value">' + identity + ' · ' +
     esc(v.variant === null ? 'variantなし' : '##' + v.variant) + ' · ' + valueDescription(v) + '</span>';
 }
 function valueDescription(v) {

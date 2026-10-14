@@ -4,9 +4,14 @@ import { webcrypto } from 'node:crypto';
 import { parse } from '@shitae/parser';
 import { toSimulator } from '../src/simulator.js';
 
-function gui(source: string) {
+function gui(source: string, extras: Record<string, string> = {}) {
   const p = parse(source); expect(p.diagnostics.filter((d) => d.severity === 'error')).toEqual([]);
-  const html = toSimulator(new Map([['main', p.document]]), 'main');
+  const docs = new Map([['main', p.document]]);
+  for (const [module, text] of Object.entries(extras)) {
+    const parsed = parse(text); expect(parsed.diagnostics.filter(d => d.severity === 'error')).toEqual([]);
+    docs.set(module, parsed.document);
+  }
+  const html = toSimulator(docs, 'main');
   const app = { innerHTML: '' };
   const ctx = vm.createContext({ crypto: webcrypto, structuredClone, document: { getElementById: () => app }, console, setTimeout: () => 0 });
   vm.runInContext(html.match(/<script>\n([\s\S]*)\n<\/script>/)![1]!, ctx);
@@ -14,6 +19,21 @@ function gui(source: string) {
   return { html, app, run, view: () => JSON.parse(run('JSON.stringify(SESSION.query({select:["state","actions","history"]}))')) };
 }
 describe('GUI consumes the common Session', () => {
+  it('qualifies ambiguous component modules and does not repeat equal element/component names', () => {
+    const g = gui('import left as l\nimport right as r\n# Home\none: l::Card\ntwo: r::Card\nCard\nPlain\n# Card\n## Local\nbody\n# Plain\nbody\n', {
+      left: '# Card\n## Left\nbody\n', right: '# Card\n## Right\nbody\n',
+    });
+    expect(g.app.innerHTML).not.toContain('component-state-value');
+    const before = g.view(); g.run('toggleShowStates()');
+    expect(g.app.innerHTML).toContain(' → left::Card · ##Left');
+    expect(g.app.innerHTML).toContain(' → right::Card · ##Right');
+    expect(g.app.innerHTML).toContain(' · main · ##Local');
+    expect(g.app.innerHTML).not.toContain(' → Card');
+    expect(g.app.innerHTML).not.toContain(' → Plain');
+    expect(g.app.innerHTML).toContain(' · variantなし');
+    expect(g.view()).toEqual(before);
+  });
+
   it('resumes saved switch frames and renders their active path without a GUI reducer', () => {
     const g = gui('# Home\n> A -> switch(A, @a)\n# A\n> Detail -> push(D)\n# D\n> B -> switch(B, @b)\n# B\n> A -> switch(A, @a)\n');
     g.run("handleInteraction('component',0,0)"); g.run("handleInteraction('component',0,0)"); g.run("handleInteraction('component',0,0)"); g.run("handleInteraction('component',0,0)");

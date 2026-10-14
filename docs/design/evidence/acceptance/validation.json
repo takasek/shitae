@@ -1,0 +1,41 @@
+{
+  "reviewBase": "e985f4ee58ab76339df5b0f59144e1f1a5da91c8",
+  "checkedHeadBeforeUiFix": "b8f8660",
+  "fullSuite": {
+    "parser": 246,
+    "resolver": 37,
+    "runtime": 97,
+    "checker": 29,
+    "transpiler-xstate": 35,
+    "transpiler-mermaid": 20,
+    "session": 22,
+    "simulator": 223,
+    "cli": 25
+  },
+  "fullSuiteTotal": 734,
+  "uiFix": {
+    "tddRed": {
+      "failed": 1,
+      "passed": 223,
+      "reason": "ambiguous module omitted and identical name repeated"
+    },
+    "greenSimulator": 224,
+    "typecheck": "passed",
+    "build": "simulator pretest including dependencies passed",
+    "browser": "browser.json"
+  },
+  "finalAllPackageAggregate": 735,
+  "note": "Full suite 734 passed before final GUI-only annotation fix. Changed simulator rechecked 224 after fix; final all-package total735 is an aggregate, not a second full rerun.",
+  "independentReview": {
+    "model": "gpt-6-astra",
+    "session": 22,
+    "runtime": 97,
+    "cliSession": 6,
+    "guiConnectionAndPresentation": 6,
+    "browserEvidenceReviewOnly": true,
+    "uiFindingFixed": true,
+    "finalDocumentReview": "passed",
+    "unresolvedAcceptanceBlockers": 0
+  },
+  "additionalPublicCliProbe": "model-probe.json"
+}
