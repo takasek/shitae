@@ -68,3 +68,15 @@ P2の証跡不足が1件。状態表示の on/off と fold 維持を追える前
 実ブラウザ評価から遷移履歴の variant 欠落を修正した。Astra は reduce 後の実効現在地を使う label と variant付きgoto/push・variantなしpushの回帰テストを読取り、Session全19テストを独立実行して成功。Red実行自体は reviewer が再現したとは扱わない。修正前 `cd7fb9c` の4モデル評価と、修正後 `7cb02aa` の [ブラウザ確認](browser/post-label-browser.json)／[回帰](browser/post-label-regression.json) を分離した。再レビューで未解消の actionable finding はない。レビュー agent は編集/commit/push を行っていない。
 
 最終文書も原記録と独立照合し、114要求の種類別 byte 集計、修正後回帰の54手順／70観測点、版の分離と残件記述の整合を確認した。誤集計・根拠超過・版の混同に関する actionable finding はない。実装差分が増えていないため、通過済みの19テストはこの文書レビューで再実行していない。実装側でも JSON/JSONL 構文、全114要求・応答の byte 数、表示切替の前後不変値、文書リンクと fence、diff check が成功した。
+
+## 操作一覧の縮小と一操作詳細のレビュー
+
+ユーザーの追加依頼により、base `f6887ec` から一覧を選択用の7フィールドと組込み back の handle/enabled へ縮小し、handle 指定の `action` query を追加した。実装会話を渡さない Astra が Session/CLI/GUI、変更テスト、契約と実入出力を確認した。
+
+production の P2 が1件。GUIが各操作の詳細を読むたびに全候補を再構築し、操作数に対して二乗の同期負荷になっていた。再走査回数の失敗テスト（1 failed/21 passed、期待1回に対し11回）を追加後、現在 revision/context の inventory 再利用と handle Map 参照へ修正した。Astra は cacheを消した再計算との公開 API 操作列比較で、通常／共有試験値、dispatch、全履歴 observation、seek往復、ghost保持／破棄、reset の一致を確認。Node単独probeの全詳細取得は2,000操作で586→13ms、5,000操作で3,881→30msだった。この値は1回の性能観察で、利用者の操作時間や全環境の応答時間保証ではない。
+
+legacy rendering fixture は private モデル／試験値を直接変更していたため、テスト内のその変更時だけ cache を失効させた。Astra の最終独立実行は11ファイル／270テスト（Session22、CLI25、simulator223）がすべて成功。詳細改変の隔離、無変更、無効操作の説明、unknown/foreign/stale handle の扱いにも追加指摘なし。契約の select 表に残った旧 gate/source の記述は compact actions と action 詳細へ修正し、読戻しで一致を確認した。
+
+以前の4モデルと新しい [全114要求](compact-actions/cli-runs.json) の summary/receipt/state が一致し、35 dispatchの34成功＋意図した拒否1件、一覧40回の290,500→81,311 bytes、全応答382,379→173,190 bytes、[実演](compact-actions/roundtrip.json) の各応答 bytes、[回帰](compact-actions/regression.json) の54手順／70観測点を独立照合した。新しい詳細 query を挟まず一覧だけで選択できている。ブラウザは8ケースの保存記録と空の warning/error log を確認したが、reviewer 自身が実ブラウザを再操作したとは扱わない。最終確認で未解消の actionable finding はない。reviewer は編集/commit/push を行っていない。
+
+追加の validation.json と本節も Astra が読み戻し、関連270件と依存464件の合算734を最終一括実行と混同していないこと、応答削減率72.01%／54.71%、engineVersionと参照、画像とDOM、停止出力の転記が整合することを確認した。実装 commit は `7e08011`。Red/build/typecheck/依存テスト/サーバー停止そのものを reviewer の独立実行と扱っていない。未解消の指摘なし。

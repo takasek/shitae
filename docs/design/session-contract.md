@@ -6,7 +6,7 @@ Status: approved / 段階実装中。2026-10-14 にユーザーが本契約で�
 
 1. 初版 CLI は `shitae session <file>` の stdin/stdout JSON Lines とする。同じ process 内で query → dispatch → query を継続し、EOF で終了する。既存 `simulate` の入口を維持し、GUI の配布形は後述の方針で選ぶ。
 2. singleton の手動試験変更は共有値そのものへの書込みにする。別の override 層を置かず、後続の DSL 書込みが勝つ。通常 component の試験値は component 単位の模擬値として分離し、包含表示と member gate だけへ適用する。frame/overlay の実状態は変えない。
-3. 操作・部品・配置・result の定義 module と source span を初版の必須情報にする。モデルへ戻る負担に直結するため。CLI は実ファイルパスも返し、直接 `toSimulator(documents, ...)` を呼ぶ場合はファイルパス未提供を `null` で表す。
+3. 操作・部品・配置・result の定義 module と source span を詳細照会で取得できる必須情報にする。モデルへ戻る負担に直結するため。CLI は詳細に実ファイルパスも返し、直接 `toSimulator(documents, ...)` を呼ぶ場合はファイルパス未提供を `null` で表す。
 
 2026-10-14 の通常応答に関する指定を反映し、command の応答と query の既定値は小さな要約とする。全状態、操作一覧、model manifest、履歴、結果途中の詳細は必要な項目を指定して照会する。JSON Lines であることを理由に毎回全データを返さない。
 
@@ -48,7 +48,8 @@ query の `select` に項目を列挙すると、指定した値だけを `data`
 | select 項目 | data に返す値 |
 | --- | --- |
 | `state` | 現在の全 frame 木、アクティブ経路、overlay、singleton 共有値、通常 component 試験値と由来、現在表示する包含木 |
-| `actions` | 現在の実効操作と branch/有効性/gate/source、現在 revision の操作 handle、組込み controls |
+| `actions` | 現在の操作 handle、表示名、scope/host/配置、enabled、branch ID/ラベル、組込み back の handle/可否。結果・定義・source・gate 詳細は含まない |
+| `action` | handle で指定した現在の一操作の定義 AST、source、gate、prelude/branch の結果参照。組込み back は kind:"control"・source:null・可否/理由 |
 | `metadata` | 処理系版、modelId、entry module、全参照 module の manifest |
 | `history` | 指定ページの観測点の概要（ID、operation ID、result の順番/source、kind、label、記録時の現在地、ghost）、次ページ用 ID。snapshot/view は含まない |
 | `observation` | 指定した観測点一件の概要と、snapshot から投影した詳細 view。現在の状態を変更しない |
@@ -90,13 +91,17 @@ Session command `setTestVariant({module, component, variant})` を GUI の gate 
 
 resolver の shadow 規則を使い、アクティブ画面、アクティブ module の document common、掲示中 overlay、表示中の包含部品から操作を列挙する。包含部品自身に document common を重複登録しない。外側上書きは SPEC の行動と対象の一致規則に従い、collection の有無・module・member を失わない構造情報で照合する。`actionText` の表示文字列を分解して操作の同一性を決めない。
 
-`actions` を選んだ query の操作項目は `handle`、行動と対象の構造、説明用 text、scope、定義 source、配置 path、host、gate の判定/対象/値の scope/origin、選択可能な branch、prelude/result の source を持つ。source component と作用する runtime 現在地は別の概念。receiver の事前説明 UI は追加しない。
+`actions` を選んだ query は選択に必要な情報だけを返す。各項目は `handle`、`actionText`、`scope`、`placement:{root,path}`、`host:{module,component,variant}`、`enabled`、`branches:[{id,label}]`。同じ表示名でも所属と配置で区別し、返された handle をそのまま dispatch へ渡す。結果列、AST、定義／配置 source、gate の詳細、prelude/result の参照は一覧に含めない。receiver の事前説明 UI は追加しない。
 
-包含・overlay の裸 gate はその表示 component の実効 body、document common の裸 gate はアクティブ画面の実効 bodyで判定する。member gate は定義 module と上表の値を読む。判定不能なモデル参照は SPEC の方針に従い有効とし、未解決であることを query に示す。host gate の無効操作も query には `enabled:false` と理由付きで含める。GUI は既存どおり host gate の無効行を隠し、member gate の無効行は表示して disabled にする。GUI には判定結果だけを渡す。
+詳細は `query({select:["action"],handle})` で現在の一操作だけを照会する。DSL 操作では一覧情報に加え、行動と対象の構造、定義／配置 source、gate の判定/対象/値の scope/origin、prelude と branch の resultIndex/source、元の interaction AST `definition`（action、全 results、span）を返す。元の module 修飾や結果の順序・ラベルを維持し、`source.module` が字句解決の基準になる。source component と作用する runtime 現在地は別の概念。条件の評価や実行は行わない。詳細は detached で、照会は state/revision/cursor/history/operation counter を変えない。
+
+`action` 選択には文字列 handle が必須で、他の選択だけのときに handle を指定したら `INVALID_REQUEST`。不明・別 Session の handle は `UNKNOWN_HANDLE`、失効した handle は `STALE_HANDLE`。無効操作も現在の handle で詳細を読める。dispatch と同じ寿命であり、過去 observation の説明を現在の実行 handle に変換しない。
+
+包含・overlay の裸 gate はその表示 component の実効 body、document common の裸 gate はアクティブ画面の実効 bodyで判定する。member gate は定義 module と上表の値を読む。判定不能なモデル参照は SPEC の方針に従い有効とし、未解決であることを詳細 query に示す。host gate の無効操作も一覧には `enabled:false` として含め、理由は詳細で読む。GUI は既存どおり host gate の無効行を隠し、member gate の無効行は表示して disabled にする。GUI は必要な gate/対象/source 表示を詳細 query で読み、判定を独自に再計算しない。
 
 `handle` は Session 固有識別子 + revision + 現在の配置/操作を指す不透明値。別 Session の handle は拒否する。説明文字列や source line を dispatch key にしない。同じ query を繰り返した場合は同じ revision の handle を返す。
 
-モデルに `back()` interaction がなくても既存 GUI の「← 戻る」を維持するため、`data.actions.controls.back` に組込み back 操作の handle、enabled、無効理由を別枠で返す。Session が判定し、GUI は enabled のときだけボタンを表示する。アクティブ frame の stack が二段以上、または最下段で barrier がなく親へ抜けられるときに enabled とする。組込みは `kind:control`、定義/配置 source は `null` で、モデルの DSL 操作を捏造しない。
+モデルに `back()` interaction がなくても既存 GUI の「← 戻る」を維持するため、`data.actions.controls.back` に組込み back 操作の `handle` と `enabled` を別枠で返す。無効理由はその handle の詳細 query で読む。Session が判定し、GUI は enabled のときだけボタンを表示する。アクティブ frame の stack が二段以上、または最下段で barrier がなく親へ抜けられるときに enabled とする。組込み詳細は `{handle,kind:"control",source:null,enabled,reason}` で、モデルの DSL 操作や definition AST を捏造しない。
 
 組込み handle も同じ dispatch へ渡す。branch は許可しない。enabled なら Session 内で runtime の引数なし back を実行し、通常 dispatch と同じ revision/operation ID/観測/ghost 処理を通す。無効なら `DISABLED_ACTION` として無変更で拒否する。モデルに定義された back interaction はこれと別であり、barrier 上で呼べば受理され runtime の no-op/診断を返す。GUI に任意 result/reducer を直接実行する入口を残さない。CLI からも query で得た組込み handle を dispatch でき、専用 back command は追加しない。
 
@@ -117,7 +122,7 @@ resolver の shadow 規則を使い、アクティブ画面、アクティブ mo
 
 履歴は既存の統合 timeline（ADR-0023）と同じ観測点の列である。各観測点は operation ID、result の順番/source、kind、label、適用後の現在地、snapshot を持つ。operation ID が同じ複数の観測点を一操作として読める。公開履歴は明示的な history query でページごとに取得し、snapshot や詳細 view は含まない。
 
-結果途中の詳細は `query({select:["observation"], observationId})` で必要な一件だけ読む。Session はその適用直後の snapshot から detached な `view` を作る。view は全 frame 木/現在地、overlay、共有値/通常試験値と由来、包含木、操作の説明・branch・enabled・gate、controls の enabled/理由を含む。model manifest と履歴は含まない。過去 view の操作と controls には dispatch handle を付けない。過去の状態説明と現在の操作可能性を混同させず、CLI の公開 seek なしで各 result の状態と有効操作を検証できるようにする。現在状態の `actions` query だけが現在 revision の実行 handle を返す。
+結果途中の詳細は `query({select:["observation"], observationId})` で必要な一件だけ読む。Session はその適用直後の snapshot から detached な `view` を作る。view は全 frame 木/現在地、overlay、共有値/通常試験値と由来、包含木、操作の説明・branch・enabled・gate、controls の enabled/理由を含む。model manifest と履歴は含まない。過去 view の操作と controls には dispatch handle を付けない。過去の状態説明と現在の操作可能性を混同させず、CLI の公開 seek なしで各 result の状態と有効操作を検証できるようにする。現在状態の `actions` と `action` query は現在 revision の実行 handle を返す。
 
 - 起動/reset: 初期観測点一件。reset は過去/ghost を捨て、初期観測点を作り直す。
 - runtime 構成または値の由来が変わる transition: 一件の transition 観測点。遠隔 exit は現在地が同じでも木が変わるため記録する。singleton 書込みだけの switch-resume、同じ値への DSL 書込みで手動由来が変わる場合も記録する。
@@ -139,6 +144,7 @@ snapshot は全 frame 木、active/nextFrame ID、overlay、singleton 共有値�
 ```json
 {"id":"q1","command":"query"}
 {"id":"a1","command":"query","select":["actions"]}
+{"id":"x1","command":"query","select":["action"],"handle":"<一覧で選んだ handle>"}
 {"id":"d1","command":"dispatch","handle":"<query が返した handle>","branch":"<query が返した branch ID>"}
 {"id":"q2","command":"query"}
 {"id":"s1","command":"query","select":["state"]}
@@ -153,7 +159,7 @@ request ID は文字列または数値。successful response は `{id, ok:true, 
 
 dispatch/setTestVariant は今回の操作の `receipt` を返す。形は `{operationId, changed, observations:{count,firstId,lastId}, effects, diagnostics}`。changed は前後で変わった領域の名前だけ（`frames`、`overlays`、`sharedVariants`、`testVariants`、`origins`）で、全値や patch は返さない。effects/diagnostics は今回の実行で発生した出力だけを result の順番/source 付きで返し、過去のものを再送しない。観測点 ID の全列挙や各 view は返さない。今回の観測点を読むときは operationId で history query を絞り、その ID で observation query を行う。reset は小さな summary を返し、初期観測点の ID から詳細を照会できる。
 
-通常応答の大きさは summary と今回の操作の出力に依存し、保持履歴数・全 frame 数・包含木・全 module 数には比例させない。effect 自由文や多数の診断を生む一操作の出力までは一定 byte 数と保証せず、省略や黙った切捨てはしない。state/actions/metadata/observation の明示照会は対象モデルや状態に応じて大きくなり得る。history は limit で件数を制限する。
+通常応答の大きさは summary と今回の操作の出力に依存し、保持履歴数・全 frame 数・包含木・全 module 数には比例させない。effect 自由文や多数の診断を生む一操作の出力までは一定 byte 数と保証せず、省略や黙った切捨てはしない。actions は選択候補数・表示名・配置・branch ラベルに応じて大きくなり得るが、結果本文／source の長さや結果数には比例させない。action/state/metadata/observation の明示照会は対象モデルや状態に応じて大きくなり得る。history は limit で件数を制限する。
 
 拒否 response は `{id, ok:false, protocolVersion:1, error:{code,message}, revision}`。不正 JSON など ID を読めない場合は `id:null`。command 後は revision が更新されるため、次の操作には `select:["actions"]` で新しい handle を取得する。通常応答の changed を状態の完全な差分や新しい handle の代用にはしない。
 
@@ -219,7 +225,8 @@ SPEC の「switch（中断と復帰）」と ADR-0008 は、最も近い switch 
 | C03 | import の source だけ変更、モデル移動、engine 変更 | 前二者はそれぞれ ID 変更/維持、engine 変更は ID 変更。全 manifest を照合 |
 | C04 | 同じ短い操作の前に履歴/中断 frame/包含/module を増やす | 通常 command response と既定 query に全状態/履歴/manifest/操作/view が混入しない。response schema と実 byte 数を確認。今回の effect/診断と ID の桁数による増加は区別 |
 | C05 | history の複数ページ/operation 絞込み、途中 observation 照会 | 全観測点を重複・欠落なく読める。query で state/revision/cursor/ghost/effect を変えない。破棄済み ID は無変更拒否、無観測 no-op は空ページ |
-| G01 | S01–S14 の CLI 公開操作と branch を CLI/GUI で照合 | 観測ありの受理操作は receipt.operationId で history query を絞り、全ページの各 ID を observation query で読む。reset は summary の初期観測点 ID を observation query で読む。拒否と無観測 no-op は明示 state/actions query で前後を比較する。各 view は GUI が同じ観測点へ seek した state/actions query と照合し、state/操作説明・branch・enabled/包含/gate/controls が一致。Session 固有 handle、revision、履歴 cursor は値比較から外し、拒否/no-op 等の revision 規則は S09/S10 で別に確認する。双方に同じ誤りがある場合を S 系 oracle が検出 |
+| C06 | 小さい操作一覧と handle 指定の任意詳細 | 一覧は選択用フィールドだけで結果本文／source に比例しない。詳細なしで分岐を選んで実行できる。詳細は全定義／結果／gate を無変更で返し、改変隔離と stale/unknown/foreign handle 拒否を確認。GUI は同 revision の詳細ごとに全候補を再走査しない |
+| G01 | S01–S14 の CLI 公開操作と branch を CLI/GUI で照合 | 観測ありの受理操作は receipt.operationId で history query を絞り、全ページの各 ID を observation query で読む。reset は summary の初期観測点 ID を observation query で読む。拒否と無観測 no-op は明示 state/actions query で前後を比較する。各 view は GUI が同じ観測点へ seek した state と、一覧の各 handle の action query（組込み back も含む）から得た詳細と照合し、state/操作説明・branch・enabled/包含/gate/controls が一致。歴史表示に含まれない definition AST と Session 固有 handle、revision、履歴 cursor は値比較から外し、拒否/no-op 等の revision 規則は S09/S10 で別に確認する。双方に同じ誤りがある場合を S 系 oracle が検出 |
 | G02 | 選んだ配布形式を外部ネットワークなしで実ブラウザ表示 | HTML 一枚または静的ファイル群の開き方を確認。ローカルサーバーが必要なら起動/終了も確認。main/overlay/包含、timeline、gate drawer、map、操作、focus/fold を検証。一枚化自体は必須としない |
 | G03 | #12 表示 checkbox と keyboard 操作 | 値は query と一致。切替で state/history/操作/gate は変わらず focus/fold 維持 |
 | D01 | 保存済み Sol/Astra の current/proposed モデル | 旧 GUI と同じであるべき経路、SPEC 修正による差、作者修正による差を別記録 |

@@ -2,6 +2,8 @@
 
 2026-10-14。ユーザーの指定で生成 HTML を一時的なローカル HTTP サーバーから Codex の in-app browser で開き、G02/G03 と D02 を実施した。生成物は自己完結 HTML 一枚のまま。ブラウザツールの `file:` 拒否は解消したと扱わず、今回確認した開き方は loopback HTTP とする。
 
+本記録の一覧形式と通信量は `cd7fb9c` の評価時点。その後、ユーザーの追加依頼で [操作一覧を縮小](session-compact-actions.md) し、同じ操作列の出力削減と結果の一致を別記録にした。
+
 ## ブラウザ確認
 
 `127.0.0.1` の動的 port に bind し、生成した8 HTMLだけを配信した。main/overlay/包含、分岐実行、gate drawer、stack/frame 木、map の variant 分割、結果途中への seek/redo、ghost からの新規実行、reset、組込み戻ると barrier を実際の画面で確認した。

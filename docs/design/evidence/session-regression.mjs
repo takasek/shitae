@@ -13,7 +13,7 @@ const root = resolve(import.meta.dirname, '../../..');
 const cli = resolve(root, 'packages/cli/dist/index.js');
 const legacy = process.argv[2] ? await import(new URL('file:' + resolve(process.argv[2]))) : null;
 const result = { environment:'Node VM of generated GUI and public persistent CLI; not a real browser', legacyBaseline:legacy?'0d0d814':null,
-  comparisons:[], savedModels:[], legacyComparisons:[], compactBytes:[], proofLimits:['No disk/network/focus effect is executed','Real browser blocked by file URL policy','No timing/usability benefit measured'] };
+  comparisons:[], savedModels:[], legacyComparisons:[], compactBytes:[], proofLimits:['No disk/network/focus effect is executed','This script uses VM; real browser evidence is recorded separately','No timing/usability benefit measured'] };
 function normalize(v) {
   if (Array.isArray(v)) return v.map(normalize);
   if (v && typeof v === 'object') return Object.fromEntries(Object.entries(v).filter(([k])=>k!=='handle').map(([k,v])=>[k,normalize(v)]));
@@ -59,9 +59,10 @@ async function compare(file,steps,label) {
       g.run(`setInstanceVariant(${JSON.stringify(step.trial.module)},${JSON.stringify(step.trial.component)},${JSON.stringify(step.trial.variant)})`);
     } else {
       const listed=await request({command:'query',select:['actions']});
-      const matches=listed.data.actions.items.filter(a=>a.action.text===step.name && (!step.target || a.action.target?.name===step.target));
+      const matches=listed.data.actions.items.filter(a=>(a.actionText===step.name || a.actionText.startsWith(step.name+'(')) &&
+        (!step.target || a.actionText.startsWith(step.name+'('+step.target+')') || a.actionText.startsWith(step.name+'('+step.target+'.')));
       assert.equal(matches.length,1,`${label}: ambiguous/missing ${step.name}`);
-      const a=matches[0], ga=g.read('SESSION.query({select:["actions"]}).data.actions.items').find(o=>o.source.module===a.source.module&&o.source.span.offset===a.source.span.offset&&JSON.stringify(o.placement)===JSON.stringify(a.placement));
+      const a=matches[0], ga=g.read('SESSION.query({select:["actions"]}).data.actions.items').find(o=>o.actionText===a.actionText&&o.scope===a.scope&&JSON.stringify(o.host)===JSON.stringify(a.host)&&JSON.stringify(o.placement)===JSON.stringify(a.placement));
       assert.ok(ga);
       const branch=step.branch === undefined ? undefined : a.branches.find(b=>b.label===step.branch)?.id;
       const gb=step.branch === undefined ? undefined : ga.branches.find(b=>b.label===step.branch)?.id;
@@ -100,7 +101,10 @@ async function compare(file,steps,label) {
       const index=g.run(`timeline.findIndex(i=>i.id===${id})`);assert.ok(index>=0);
       g.run(`jumpToTimeline(${index})`);
       assert.deepEqual(normalize(saved.data.observation.view.state),normalize(current().state));
-      assert.deepEqual(normalize(saved.data.observation.view.actions),normalize(current().actions));observations++;
+      const detailed=g.read(`(()=>{const a=SESSION.query({select:['actions']}).data.actions;return {
+        items:a.items.map(i=>{const {definition,...detail}=SESSION.query({select:['action'],handle:i.handle}).data.action;return detail;}),
+        controls:{back:SESSION.query({select:['action'],handle:a.controls.back.handle}).data.action}};})()`);
+      assert.deepEqual(normalize(saved.data.observation.view.actions),normalize(detailed));observations++;
     }
     const live=await request({command:'query',select:['state','actions']});
     assert.deepEqual(normalize(live.data),normalize(current()));
@@ -141,12 +145,12 @@ try {
     const names=large?[...Array.from({length:100},(_,i)=>'layer'+i),'resume','step']:['step'];
     for(const name of names) {
       const listed=(await p.request({command:'query',select:['actions']})).response;
-      receipt=await p.request({command:'dispatch',handle:listed.data.actions.items.find(a=>a.action.text===name).handle});
+      receipt=await p.request({command:'dispatch',handle:listed.data.actions.items.find(a=>a.actionText===name).handle});
     }
     const summary=await p.request({command:'query'});const detail=(await p.request({command:'query',select:['state','history']})).response;
     result.compactBytes.push({inclusions:detail.data.state.inclusion.main.children.length,modules:new Set(detail.data.state.componentValues.map(c=>c.module)).size,frames:detail.data.state.frames.length,activePathDepth:detail.data.state.activePath.length,dormantFrames:detail.data.state.frames.length-detail.data.state.activePath.length,totalStackEntries:detail.data.state.frames.reduce((n,f)=>n+f.stack.length,0),history:summary.response.summary.observationCount,dispatchUtf8Bytes:receipt.bytes,summaryUtf8Bytes:summary.bytes,defaultKeys:Object.keys(summary.response)});
     await p.finish();
   }
 } finally {rmSync(dir,{recursive:true,force:true});}
-writeFileSync(resolve(import.meta.dirname,'session-regression.json'),JSON.stringify(result,null,2)+'\n');
+writeFileSync(process.argv[3] ? resolve(process.argv[3]) : resolve(import.meta.dirname,'session-regression.json'),JSON.stringify(result,null,2)+'\n');
 console.log(JSON.stringify(result,null,2));

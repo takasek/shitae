@@ -1,0 +1,103 @@
+{
+  "browser": "Codex in-app browser on macOS",
+  "transport": "loopback HTTP",
+  "serverStoppedBeforeFinalProof": true,
+  "cases": [
+    {
+      "case": "state-toggle",
+      "before": {
+        "folds": [
+          false,
+          true,
+          true,
+          true,
+          true
+        ],
+        "handles": [
+          "handleInteraction('component',0,0, '1b1164e6-16ab-49a3-b8d7-de742d26e720:0:0', 'b0')",
+          "handleInteraction('component',3,0, '1b1164e6-16ab-49a3-b8d7-de742d26e720:0:3')",
+          "handleInteraction('component',4,0, '1b1164e6-16ab-49a3-b8d7-de742d26e720:0:4')"
+        ],
+        "history": [
+          "起動"
+        ]
+      },
+      "after": {
+        "focus": "toggleShowStates()",
+        "folds": [
+          false,
+          true,
+          true,
+          true,
+          true
+        ],
+        "handles": [
+          "handleInteraction('component',0,0, '1b1164e6-16ab-49a3-b8d7-de742d26e720:0:0', 'b0')",
+          "handleInteraction('component',3,0, '1b1164e6-16ab-49a3-b8d7-de742d26e720:0:3')",
+          "handleInteraction('component',4,0, '1b1164e6-16ab-49a3-b8d7-de742d26e720:0:4')"
+        ],
+        "history": [
+          "起動"
+        ]
+      }
+    },
+    {
+      "case": "branch",
+      "at": "2026-10-14T08:05:07.169Z",
+      "dom": "- complementary:\n  - generic \"統合ログ — 実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は ghost として残ります\": 統合ログ\n  - generic: ナビゲーション履歴。実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は薄く（ghost）表示され、再クリックでやり直せます。新しいものが上\n  - checkbox \"イベントを表示\" [checked]\n  - text: イベントを表示\n  - generic: goto → Screen / Changed\n  - text: ›\n  - generic: \"[Screen / Start] show(Badge)\"\n  - text: ›\n  - generic: \"[Screen / Start] set(Badge)\"\n  - text: ›\n  - generic: \"[Screen / Start] effect: pre-effect\"\n  - text: ›\n  - generic: 起動\n- main:\n  - generic: 現在の画面\n  - button \"初期状態へ\"\n  - generic: アクティブな frame の表示（本体）と掲示中カード\n  - checkbox \"アクションを表示\" [checked]\n  - text: アクションを表示\n  - checkbox \"部品の状態を表示\" [checked]\n  - text: 部品の状態を表示\n  - button \"画面外 component の姿切替（gate 試験用）\"\n  - paragraph: 今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。\n  - generic: Screen\n  - generic: \"## Changed\"\n  - generic: 画面の値 · DSL\n  - 'generic \"a → Card · ##Idle · 包含の初期値 · 初期\"':\n    - text: a\n    - generic: \"→ Card · ##Idle · 包含の初期値 · 初期\"\n  - option \"Idle\" [selected]\n  - option \"Ready\"\n  - 'generic \"b → Card · ##Idle · 包含の初期値 · 初期\"':\n    - text: b\n    - generic: \"→ Card · ##Idle · 包含の初期値 · 初期\"\n  - generic: label\n  - 'generic \"badge → Badge · ##On · 共有 (singleton) · DSL\"':\n    - text: badge\n    - generic: \"→ Badge · ##On · 共有 (singleton) · DSL\"\n  - button \"gate(badge.signal) Badge / On On component common\":\n    - generic: gate(badge.signal)\n    - 'generic \"member gate 判定対象: Badge.signal\"': Badge / On\n    - combobox:\n      - option \"Off\"\n      - option \"On\" [selected]\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - generic: signal\n  - generic: choose\n  - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - button \"[yes]\" [active]\n  - button \"open-card component common\":\n    - generic: open-card\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - button \"show-card component common\":\n    - generic: show-card\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - generic: 掲示中\n  - generic: Badge\n  - generic: \"## On\"\n  - generic: 共有 (singleton) · DSL\n  - generic: signal\n  - generic: アクションなし\n  - generic \"スタック\"\n  - generic: 今積み重なっている画面。プッシュダウン構成として読める。上が現在地\n  - generic: Screen / Changed\n  - generic \"遷移マップ\"\n  - generic: 画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。\n  - button \"設定を保存\"\n  - checkbox \"全体を見る\"\n  - text: 全体を見る"
+    },
+    {
+      "case": "seek-result",
+      "at": "2026-10-14T08:05:07.449Z",
+      "dom": "- complementary:\n  - generic \"統合ログ — 実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は ghost として残ります\": 統合ログ\n  - generic: ナビゲーション履歴。実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は薄く（ghost）表示され、再クリックでやり直せます。新しいものが上\n  - checkbox \"イベントを表示\" [checked]\n  - text: イベントを表示\n  - generic: goto → Screen / Changed\n  - text: ›\n  - generic: \"[Screen / Start] show(Badge)\"\n  - text: ›\n  - generic: \"[Screen / Start] set(Badge)\"\n  - text: ›\n  - generic: \"[Screen / Start] effect: pre-effect\"\n  - text: ›\n  - generic: 起動\n- main:\n  - generic: 現在の画面\n  - button \"初期状態へ\"\n  - generic: アクティブな frame の表示（本体）と掲示中カード\n  - checkbox \"アクションを表示\" [checked]\n  - text: アクションを表示\n  - checkbox \"部品の状態を表示\" [checked]\n  - text: 部品の状態を表示\n  - button \"画面外 component の姿切替（gate 試験用）\"\n  - paragraph: 今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。\n  - generic: Screen\n  - generic: \"## Start\"\n  - generic: 画面の値 · 初期\n  - 'generic \"a → Card · ##Idle · 包含の初期値 · 初期\"':\n    - text: a\n    - generic: \"→ Card · ##Idle · 包含の初期値 · 初期\"\n  - option \"Idle\" [selected]\n  - option \"Ready\"\n  - 'generic \"b → Card · ##Idle · 包含の初期値 · 初期\"':\n    - text: b\n    - generic: \"→ Card · ##Idle · 包含の初期値 · 初期\"\n  - generic: label\n  - 'generic \"badge → Badge · ##On · 共有 (singleton) · DSL\"':\n    - text: badge\n    - generic: \"→ Badge · ##On · 共有 (singleton) · DSL\"\n  - button \"gate(badge.signal) Badge / On On component common\":\n    - generic: gate(badge.signal)\n    - 'generic \"member gate 判定対象: Badge.signal\"': Badge / On\n    - combobox:\n      - option \"Off\"\n      - option \"On\" [selected]\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - generic: signal\n  - generic: choose\n  - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - button \"[yes]\"\n  - button \"open-card component common\":\n    - generic: open-card\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - button \"show-card component common\":\n    - generic: show-card\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - generic \"スタック\"\n  - generic: 今積み重なっている画面。プッシュダウン構成として読める。上が現在地\n  - generic: Screen / Start\n  - generic \"遷移マップ\"\n  - generic: 画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。\n  - button \"設定を保存\"\n  - checkbox \"全体を見る\"\n  - text: 全体を見る"
+    },
+    {
+      "case": "keyboard-trial",
+      "at": "2026-10-14T08:05:37.299Z",
+      "dom": "- complementary:\n  - generic \"統合ログ — 実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は ghost として残ります\": 統合ログ\n  - generic: ナビゲーション履歴。実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は薄く（ghost）表示され、再クリックでやり直せます。新しいものが上\n  - checkbox \"イベントを表示\" [checked]\n  - text: イベントを表示\n  - generic: \"[Screen / Changed] manual-test(Card##Ready)\"\n  - text: ›\n  - generic: \"[Screen / Changed] show(Card)\"\n  - text: ›\n  - generic: goto → Screen / Changed\n  - text: ›\n  - generic: \"[Screen / Start] show(Badge)\"\n  - text: ›\n  - generic: \"[Screen / Start] set(Badge)\"\n  - text: ›\n  - generic: \"[Screen / Start] effect: pre-effect\"\n  - text: ›\n  - generic: 起動\n- main:\n  - generic: 現在の画面\n  - button \"初期状態へ\"\n  - generic: アクティブな frame の表示（本体）と掲示中カード\n  - checkbox \"アクションを表示\" [checked]\n  - text: アクションを表示\n  - checkbox \"部品の状態を表示\" [checked]\n  - text: 部品の状態を表示\n  - button \"画面外 component の姿切替（gate 試験用）\"\n  - paragraph: 今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。\n  - generic: Screen\n  - generic: \"## Changed\"\n  - generic: 画面の値 · DSL\n  - 'generic \"a → Card · ##Ready · 部品の試験値 · 手動試験\"':\n    - text: a\n    - generic: \"→ Card · ##Ready · 部品の試験値 · 手動試験\"\n  - button \"gate(a.signal) Card / Ready Ready component common\":\n    - generic: gate(a.signal)\n    - 'generic \"member gate 判定対象: Card.signal\"': Card / Ready\n    - combobox [active]:\n      - option \"Idle\"\n      - option \"Ready\" [selected]\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - generic: signal\n  - 'generic \"b → Card · ##Ready · 部品の試験値 · 手動試験\"':\n    - text: b\n    - generic: \"→ Card · ##Ready · 部品の試験値 · 手動試験\"\n  - generic: signal\n  - 'generic \"badge → Badge · ##On · 共有 (singleton) · DSL\"':\n    - text: badge\n    - generic: \"→ Badge · ##On · 共有 (singleton) · DSL\"\n  - button \"gate(badge.signal) Badge / On On component common\":\n    - generic: gate(badge.signal)\n    - 'generic \"member gate 判定対象: Badge.signal\"': Badge / On\n    - combobox:\n      - option \"Off\"\n      - option \"On\" [selected]\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - generic: signal\n  - generic: choose\n  - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - button \"[yes]\"\n  - button \"open-card component common\":\n    - generic: open-card\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - button \"show-card component common\":\n    - generic: show-card\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - generic: 掲示中\n  - generic: Badge\n  - generic: \"## On\"\n  - generic: 共有 (singleton) · DSL\n  - generic: signal\n  - generic: アクションなし\n  - generic: 掲示中\n  - generic: Card\n  - generic: \"## Ready\"\n  - generic: 掲示の値 · DSL\n  - generic: signal\n  - generic: アクションなし\n  - generic \"スタック\"\n  - generic: 今積み重なっている画面。プッシュダウン構成として読める。上が現在地\n  - generic: Screen / Changed\n  - generic \"遷移マップ\"\n  - generic: 画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。\n  - button \"設定を保存\"\n  - checkbox \"全体を見る\"\n  - text: 全体を見る",
+      "focus": "main::trial-values:158:gate"
+    },
+    {
+      "case": "trial-overlay-separate",
+      "at": "2026-10-14T08:05:37.317Z",
+      "dom": "- complementary:\n  - generic \"統合ログ — 実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は ghost として残ります\": 統合ログ\n  - generic: ナビゲーション履歴。実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は薄く（ghost）表示され、再クリックでやり直せます。新しいものが上\n  - checkbox \"イベントを表示\" [checked]\n  - text: イベントを表示\n  - generic: \"[Screen / Changed] manual-test(Card##Idle)\"\n  - text: ›\n  - generic: \"[Screen / Changed] manual-test(Card##Ready)\"\n  - text: ›\n  - generic: \"[Screen / Changed] show(Card)\"\n  - text: ›\n  - generic: goto → Screen / Changed\n  - text: ›\n  - generic: \"[Screen / Start] show(Badge)\"\n  - text: ›\n  - generic: \"[Screen / Start] set(Badge)\"\n  - text: ›\n  - generic: \"[Screen / Start] effect: pre-effect\"\n  - text: ›\n  - generic: 起動\n- main:\n  - generic: 現在の画面\n  - button \"初期状態へ\"\n  - generic: アクティブな frame の表示（本体）と掲示中カード\n  - checkbox \"アクションを表示\" [checked]\n  - text: アクションを表示\n  - checkbox \"部品の状態を表示\" [checked]\n  - text: 部品の状態を表示\n  - button \"画面外 component の姿切替（gate 試験用）\"\n  - paragraph: 今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。\n  - generic: Screen\n  - generic: \"## Changed\"\n  - generic: 画面の値 · DSL\n  - 'generic \"a → Card · ##Idle · 部品の試験値 · 手動試験\"':\n    - text: a\n    - generic: \"→ Card · ##Idle · 部品の試験値 · 手動試験\"\n  - generic: gate(a.signal)\n  - 'generic \"member gate 判定対象: Card.signal\"': Card / Idle\n  - combobox [active]:\n    - option \"Idle\" [selected]\n    - option \"Ready\"\n  - generic: gate off で無効\n  - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - generic: label\n  - 'generic \"b → Card · ##Idle · 部品の試験値 · 手動試験\"':\n    - text: b\n    - generic: \"→ Card · ##Idle · 部品の試験値 · 手動試験\"\n  - generic: label\n  - 'generic \"badge → Badge · ##On · 共有 (singleton) · DSL\"':\n    - text: badge\n    - generic: \"→ Badge · ##On · 共有 (singleton) · DSL\"\n  - button \"gate(badge.signal) Badge / On On component common\":\n    - generic: gate(badge.signal)\n    - 'generic \"member gate 判定対象: Badge.signal\"': Badge / On\n    - combobox:\n      - option \"Off\"\n      - option \"On\" [selected]\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - generic: signal\n  - generic: choose\n  - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - button \"[yes]\"\n  - button \"open-card component common\":\n    - generic: open-card\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - button \"show-card component common\":\n    - generic: show-card\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - generic: 掲示中\n  - generic: Badge\n  - generic: \"## On\"\n  - generic: 共有 (singleton) · DSL\n  - generic: signal\n  - generic: アクションなし\n  - generic: 掲示中\n  - generic: Card\n  - generic: \"## Ready\"\n  - generic: 掲示の値 · DSL\n  - generic: signal\n  - generic: アクションなし\n  - generic \"スタック\"\n  - generic: 今積み重なっている画面。プッシュダウン構成として読める。上が現在地\n  - generic: Screen / Changed\n  - generic \"遷移マップ\"\n  - generic: 画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。\n  - button \"設定を保存\"\n  - checkbox \"全体を見る\"\n  - text: 全体を見る"
+    },
+    {
+      "case": "member-gate-disabled",
+      "at": "2026-10-14T08:05:37.352Z",
+      "dom": "- complementary:\n  - generic \"統合ログ — 実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は ghost として残ります\": 統合ログ\n  - generic: ナビゲーション履歴。実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は薄く（ghost）表示され、再クリックでやり直せます。新しいものが上\n  - checkbox \"イベントを表示\" [checked]\n  - text: イベントを表示\n  - generic: goto → Workspace / Diagram\n  - text: ›\n  - generic: \"[Workspace / Split] set(DiagramView)\"\n  - text: ›\n  - generic: \"[Workspace / Split] set(DocumentStatus)\"\n  - text: ›\n  - generic: 起動\n- main:\n  - generic: 現在の画面\n  - button \"初期状態へ\"\n  - generic: アクティブな frame の表示（本体）と掲示中カード\n  - checkbox \"アクションを表示\" [checked]\n  - text: アクションを表示\n  - checkbox \"部品の状態を表示\"\n  - text: 部品の状態を表示\n  - button \"画面外 component の姿切替（gate 試験用）\"\n  - paragraph: 今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。\n  - generic: Workspace\n  - generic: \"## Diagram\"\n  - generic \"navigation\"\n  - generic \"folder\"\n  - generic \"files\"\n  - generic \"recent\"\n  - generic \"tabs\"\n  - generic \"DocumentTab\"\n  - generic \"name\"\n  - generic \"state\"\n  - generic \"close\"\n  - generic \"identity\"\n  - generic \"name\"\n  - generic \"context\"\n  - generic \"document\"\n  - generic \"save\"\n  - generic \"format\"\n  - generic \"Normalize\"\n  - generic \"view\"\n  - generic \"diagram\"\n  - generic \"problem\"\n  - generic \"status\"\n  - generic \"state\"\n  - generic \"problems\"\n  - button \"Split variant固有\":\n    - generic: Split\n    - generic \"この姿（variant）でだけ有効な操作\": variant固有\n  - button \"SourceOnly variant固有\":\n    - generic: SourceOnly\n    - generic \"この姿（variant）でだけ有効な操作\": variant固有\n  - generic: NodeDoubleClick(DiagramView.graph)\n  - 'generic \"member gate 判定対象: DiagramView.graph\"': DiagramView / Error\n  - combobox:\n    - option \"Ready\"\n    - option \"Error\" [selected]\n  - generic: gate off で無効\n  - generic \"この姿（variant）でだけ有効な操作\": variant固有\n  - button \"CloseLastDocument component common\":\n    - generic: CloseLastDocument\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - button \"OpenDocument component common\":\n    - generic: OpenDocument\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - button \"ParseError component common\":\n    - generic: ParseError\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - button \"ValidInput component common\":\n    - generic: ValidInput\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - generic \"スタック\"\n  - generic: 今積み重なっている画面。プッシュダウン構成として読める。上が現在地\n  - generic: Workspace / Diagram\n  - generic \"遷移マップ\"\n  - generic: 画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。\n  - button \"設定を保存\"\n  - checkbox \"全体を見る\"\n  - text: 全体を見る"
+    },
+    {
+      "case": "proof-display",
+      "at": "2026-10-14T08:06:24.378Z",
+      "dom": "- complementary:\n  - generic \"統合ログ — 実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は ghost として残ります\": 統合ログ\n  - generic: ナビゲーション履歴。実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は薄く（ghost）表示され、再クリックでやり直せます。新しいものが上\n  - checkbox \"イベントを表示\" [checked]\n  - text: イベントを表示\n  - generic: \"[Screen / Changed] manual-test(Card##Idle)\"\n  - text: ›\n  - generic: \"[Screen / Changed] manual-test(Card##Ready)\"\n  - text: ›\n  - generic: \"[Screen / Changed] show(Card)\"\n  - text: ›\n  - generic: goto → Screen / Changed\n  - text: ›\n  - generic: \"[Screen / Start] show(Badge)\"\n  - text: ›\n  - generic: \"[Screen / Start] set(Badge)\"\n  - text: ›\n  - generic: \"[Screen / Start] effect: pre-effect\"\n  - text: ›\n  - generic: 起動\n- main:\n  - generic: 現在の画面\n  - button \"初期状態へ\"\n  - generic: アクティブな frame の表示（本体）と掲示中カード\n  - checkbox \"アクションを表示\"\n  - text: アクションを表示\n  - checkbox \"部品の状態を表示\" [checked]\n  - text: 部品の状態を表示\n  - button \"画面外 component の姿切替（gate 試験用）\"\n  - paragraph: 今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。\n  - generic: Screen\n  - generic: \"## Changed\"\n  - generic: 画面の値 · DSL\n  - 'generic \"a → Card · ##Idle · 部品の試験値 · 手動試験\"':\n    - text: a\n    - generic: \"→ Card · ##Idle · 部品の試験値 · 手動試験\"\n  - 'generic \"b → Card · ##Idle · 部品の試験値 · 手動試験\"':\n    - text: b\n    - generic: \"→ Card · ##Idle · 部品の試験値 · 手動試験\"\n  - 'generic \"badge → Badge · ##On · 共有 (singleton) · DSL\"':\n    - text: badge\n    - generic: \"→ Badge · ##On · 共有 (singleton) · DSL\"\n  - generic: 掲示中\n  - generic: Badge\n  - generic: \"## On\"\n  - generic: 共有 (singleton) · DSL\n  - generic: signal\n  - generic: 掲示中\n  - generic: Card\n  - generic: \"## Ready\"\n  - generic: 掲示の値 · DSL\n  - generic: signal\n  - generic \"スタック\"\n  - generic \"遷移マップ\" [active]"
+    },
+    {
+      "case": "offline-proof-display",
+      "at": "2026-10-14T08:07:22.470Z",
+      "dom": "- complementary:\n  - generic \"統合ログ — 実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は ghost として残ります\": 統合ログ\n  - generic: ナビゲーション履歴。実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は薄く（ghost）表示され、再クリックでやり直せます。新しいものが上\n  - checkbox \"イベントを表示\" [checked]\n  - text: イベントを表示\n  - generic: \"[Screen / Start] manual-test(Card##Idle)\"\n  - text: ›\n  - generic: \"[Screen / Start] manual-test(Card##Ready)\"\n  - text: ›\n  - generic: \"[Screen / Start] show(Card)\"\n  - text: ›\n  - generic: 起動\n- main:\n  - generic: 現在の画面\n  - button \"初期状態へ\"\n  - generic: アクティブな frame の表示（本体）と掲示中カード\n  - checkbox \"アクションを表示\" [active]\n  - text: アクションを表示\n  - checkbox \"部品の状態を表示\" [checked]\n  - text: 部品の状態を表示\n  - button \"画面外 component の姿切替（gate 試験用）\"\n  - paragraph: 今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。\n  - generic: Screen\n  - generic: \"## Start\"\n  - generic: 画面の値 · 初期\n  - 'generic \"a → Card · ##Idle · 部品の試験値 · 手動試験\"':\n    - text: a\n    - generic: \"→ Card · ##Idle · 部品の試験値 · 手動試験\"\n  - 'generic \"b → Card · ##Idle · 部品の試験値 · 手動試験\"':\n    - text: b\n    - generic: \"→ Card · ##Idle · 部品の試験値 · 手動試験\"\n  - 'generic \"badge → Badge · ##Off · 共有 (singleton) · 初期\"':\n    - text: badge\n    - generic: \"→ Badge · ##Off · 共有 (singleton) · 初期\"\n  - generic: 掲示中\n  - generic: Card\n  - generic: \"## Ready\"\n  - generic: 掲示の値 · DSL\n  - generic: signal\n  - generic \"スタック\"\n  - generic \"遷移マップ\""
+    }
+  ],
+  "logs": {
+    "trials": [],
+    "solProposed": []
+  },
+  "engineVersion": "6eeaddc5012170138186bd98d7bcc7332a0bcb87f68d63f162acb3935fd16a92",
+  "baseCommit": "f6887ec",
+  "source": "working tree compact inventory implementation",
+  "server": {
+    "bind": "127.0.0.1",
+    "port": 53153,
+    "pid": 3065,
+    "stopped": true,
+    "afterStopConnectEx": 61,
+    "stopOutput": "server closed",
+    "stopExitCode": 0,
+    "stopOutputProvenance": "transcribed tool output; connectEx is current direct observation"
+  },
+  "artifactSha256": {
+    "trials": "6a201abaf440dbe7bcf5726eb0a570c283479218d5f9b2cba5a30cd5c361b16d",
+    "sol-proposed": "43cc50091e1ea2013a93adcdae3a302bd53d76d19e582f5e71bcf9b4eea0c643"
+  },
+  "sourceCommit": "7e08011"
+}

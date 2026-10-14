@@ -22,7 +22,15 @@ node packages/cli/dist/index.js session docs/design/session-fixtures/trial-value
 {"id":"q1","command":"query"}
 ```
 
-dispatch は summary と今回の receipt、既定 query は summary だけを返す。受理された操作の後は新しい actions query で handle を取り直す。全状態や履歴を毎回受信する必要はない。[最初の実測往復](evidence/cli-roundtrip-v1.json) は同一 process の実際の request/response を記録したもの。
+dispatch は summary と今回の receipt、既定 query は summary だけを返す。受理された操作の後は新しい actions query で handle を取り直す。全状態や履歴を毎回受信する必要はない。[最初の実測往復](evidence/cli-roundtrip-v1.json) は縮小前の一覧形式の歴史的記録で、[現在の実測往復](evidence/compact-actions/roundtrip.json) は現在の一覧・一操作の詳細・実行・現在地確認を同一 process で記録している。
+
+操作一覧の各項目は `handle / actionText / scope / placement / host / enabled / branches` だけを持つ。placement は root と path、branches は ID と表示ラベルだけ。AST、source、結果列、gate の詳細は送らない。必要な操作だけ handle を指定して読む。
+
+```json
+{"id":"x1","command":"query","select":["action"],"handle":"一覧で選んだ handle"}
+```
+
+`data.action` は元の定義 AST `definition`（全 results を含む）、source、gate、prelude と branch の結果参照を返す。照会は状態や handle を変えず、一覧からそのまま dispatch してもよい。無効操作の説明も読める。失効した handle は `STALE_HANDLE`、不明・別 Session の handle は `UNKNOWN_HANDLE`。組込み back の詳細は kind:"control"・enabled・reason・source:null で、DSL 定義を持たない。
 
 詳細が必要なときだけ select に追加する。複数項目は一度に照会できる。
 
@@ -74,7 +82,7 @@ CLI が生成する GUI と CLI Session の metadata は同一。engineVersion �
 
 その後、ユーザーの指定で一時ローカル HTTP サーバーを使い、G02/G03 の実ブラウザ操作と D02 の利用評価を完了した。[実ブラウザ確認と利用評価](session-browser-evaluation.md) に環境・手順・全入出力・画像・制限を記録した。8 HTMLを読み込み、サーバー終了後も操作が動き、観測資産に外部 URL はなかった。`file:` での開き方を確認したとは扱わない。自由文 effect に書かれた保存・focus などの実処理も行わない。
 
-4モデルで35手順を実施し、34成功と意図した無効操作1件が CLI/GUI で対応した。通常応答は小さいが、全操作一覧を毎回照会する量は改善余地がある。評価者はモデルを知る1 agentなので、時間短縮・理解改善は断定しない。履歴ラベルの variant 欠落は修正し、追加の対象267テスト、build/typecheck と実ブラウザ表示を確認した。Astra の独立レビューで未解消の指摘はない。
+4モデルで35手順を実施し、34成功と意図した無効操作1件が CLI/GUI で対応した。その後の一覧縮小で、同じ114要求の再実行結果は一致し、一覧40回の出力は290,500から81,311 bytesへ約72%減った。詳細は必要時の一操作照会へ分けた。[一覧縮小の検証](session-compact-actions.md) に現在の形式と入出力を記録した。評価者はモデルを知る1 agentなので、時間短縮・理解改善は断定しない。以前の履歴ラベル修正後の対象267テストと、一覧縮小後の検証は別記録である。
 
 手元で HTTP 経由で開く場合は、専用の一時ディレクトリに生成する。以下は起動後に表示 URL をブラウザで開き、確認が終わったら Ctrl-C でサーバーを終了する例。
 

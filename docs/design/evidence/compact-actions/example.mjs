@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import {spawn} from 'node:child_process';
+import {once} from 'node:events';
+import {createInterface} from 'node:readline';
+import {writeFileSync} from 'node:fs';
+import {resolve} from 'node:path';
+const root=resolve(import.meta.dirname,'../../../..');
+const source=resolve(root,'docs/design/session-fixtures/trial-values.shitae');
+const child=spawn(process.execPath,[resolve(root,'packages/cli/dist/index.js'),'session',source]);
+const done=once(child,'close');let stderr='';child.stderr.on('data',c=>stderr+=c);
+const lines=createInterface({input:child.stdout})[Symbol.asyncIterator]();const exchanges=[];
+async function request(req){const input=JSON.stringify(req)+'\n';child.stdin.write(input);const next=await lines.next();assert.equal(next.done,false);const output=next.value+'\n';const response=JSON.parse(next.value);exchanges.push({request:req,response,inputBytes:Buffer.byteLength(input),outputBytes:Buffer.byteLength(output)});return response;}
+const list=await request({id:'a1',command:'query',select:['actions']});
+const action=list.data.actions.items.find(a=>a.actionText==='choose');assert.ok(action);
+const detail=await request({id:'x1',command:'query',select:['action'],handle:action.handle});assert.equal(detail.ok,true);assert.equal(detail.revision,list.revision);assert.deepEqual(detail.summary,list.summary);
+const dispatch=await request({id:'d1',command:'dispatch',handle:action.handle,branch:action.branches.find(b=>b.label==='yes').id});assert.equal(dispatch.ok,true);
+const summary=await request({id:'q1',command:'query'});assert.deepEqual(summary.summary,dispatch.summary);assert.equal(summary.summary.location.variant,'Changed');
+const stale=await request({id:'x2',command:'query',select:['action'],handle:action.handle});assert.equal(stale.error.code,'STALE_HANDLE');
+child.stdin.end();const exitCode=(await done)[0];assert.equal(exitCode,0);assert.equal(stderr,'');
+writeFileSync(resolve(import.meta.dirname,'roundtrip.json'),JSON.stringify({source,pid:child.pid,at:new Date().toISOString(),exchanges,exitCode,stderr},null,2)+'\n');
+console.log(JSON.stringify({chosen:action,bytes:exchanges.map(e=>({id:e.request.id,outputBytes:e.outputBytes})),location:summary.summary.location}));
