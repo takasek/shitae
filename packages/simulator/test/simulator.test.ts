@@ -11,6 +11,28 @@ function parseOk(src: string) {
 }
 
 describe('toSimulator', () => {
+  it('alias and named member gates follow the same singleton variant while undefined refs stay on', () => {
+    const doc = parseOk(`# Workspace
+diagram: DiagramView
+> Alias(diagram.graph?) -> observed
+> Named(DiagramView.graph?) -> observed
+> Undefined(Missing.graph?) -> observed
+#! DiagramView
+## Ready
+graph: Graph
+## Error
+problem: Diagnostics
+`);
+    const context = runSimulatorScript(toSimulator(new Map([['main', doc]]), 'main'));
+    const enabled = () => JSON.parse(vm.runInContext('JSON.stringify(DATA.modules.main.components.Workspace.commonInteractions.map(i => gateEnabled(i)))', context));
+    expect(enabled()).toEqual([true, true, true]);
+    vm.runInContext("setInstanceVariant('main', 'DiagramView', 'Error')", context);
+    expect(enabled()).toEqual([false, false, true]);
+    expect(vm.runInContext('app.innerHTML', context)).toContain('gate-off-mark');
+    vm.runInContext("setInstanceVariant('main', 'DiagramView', 'Ready')", context);
+    expect(enabled()).toEqual([true, true, true]);
+  });
+
   it('returns a complete HTML document', () => {
     const doc = parseOk('# ホーム\nロゴ\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');

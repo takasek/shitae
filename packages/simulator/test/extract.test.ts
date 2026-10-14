@@ -10,6 +10,62 @@ function parseOk(src: string) {
 }
 
 describe('extractSimData', () => {
+  it('member gate resolves aliases only in the interaction source body, before merging scopes', () => {
+    const doc = parseOk(`shared: DocTarget
+> Doc(shared.item?) -> observed
+# Host
+shared: CommonTarget
+> Common(shared.item?) -> observed
+## Ready
+shared: VariantTarget
+> Variant(shared.item?) -> observed
+## Other
+> Other(shared.item?) -> observed
+# DocTarget
+item
+# CommonTarget
+item
+# VariantTarget
+item
+`);
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    const host = data.modules.main!.components.Host!;
+    expect(data.documentCommon[0]!.gate?.targetComponent).toBe('DocTarget');
+    expect(host.commonInteractions[0]!.gate?.targetComponent).toBe('CommonTarget');
+    expect(host.docCommonInteractions[0]!.gate?.targetComponent).toBe('DocTarget');
+    expect(host.variants.Ready!.interactions.map((i) => i.gate?.targetComponent)).toEqual(['CommonTarget', 'VariantTarget']);
+    expect(host.variants.Ready!.docCommonInteractions[0]!.gate?.targetComponent).toBe('DocTarget');
+    expect(host.variants.Other!.interactions.map((i) => i.gate?.targetComponent)).toEqual(['CommonTarget', 'shared']);
+    expect(data.gateTargets.map((t) => t.name).sort()).toEqual(['CommonTarget', 'DocTarget', 'VariantTarget']);
+  });
+
+  it('member alias wins over a colliding component name, including undefined targets', () => {
+    const doc = parseOk('# Host\nTarget: Missing\n> Alias(Target.item?) -> observed\n# Target\nitem\n');
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.modules.main!.components.Host!.commonInteractions[0]!.gate?.targetComponent).toBe('Missing');
+    expect(data.gateTargets).toEqual([]);
+  });
+
+  it('member alias resolves imported element refs while explicit module refs bypass local aliases', () => {
+    const main = parseOk('import widgets as w\n# Host\nTarget: w::Panel\n> Alias(Target.item?) -> observed\n> Explicit(w::Target.item?) -> observed\n');
+    const widgets = parseOk('# Panel\nitem\n# Target\nitem\n');
+    const data = extractSimData(new Map([['main', main], ['widgets', widgets]]), 'main');
+    expect(data.modules.main!.components.Host!.commonInteractions.map((i) => i.gate)).toEqual([
+      { kind: 'member', name: 'item', targetComponent: 'Panel', module: 'widgets' },
+      { kind: 'member', name: 'item', targetComponent: 'Target', module: 'widgets' },
+    ]);
+    expect(data.gateTargets).toEqual([{ module: 'widgets', name: 'Panel' }, { module: 'widgets', name: 'Target' }]);
+  });
+
+  it('imported document common resolves aliases in its own file and body', () => {
+    const main = parseOk('import widgets as w\n# Host\n> Open -> push(w::Host)\n');
+    const widgets = parseOk('panel: Panel\n> Doc(panel.item?) -> observed\n# Host\npanel: Wrong\n## Ready\nitem\n# Panel\nitem\n');
+    const data = extractSimData(new Map([['main', main], ['widgets', widgets]]), 'main');
+    expect(data.modules.widgets!.components.Host!.variants.Ready!.docCommonInteractions[0]!.gate).toEqual({
+      kind: 'member', name: 'item', targetComponent: 'Panel', module: 'widgets',
+    });
+  });
+
   it('single component no variant', () => {
     const doc = parseOk('# ホーム\nロゴ\n> タップ(ロゴ) -> push(設定)\n');
     const data = extractSimData(new Map([['main', doc]]), 'main');
