@@ -427,7 +427,10 @@ export class Session {
       this.state = result.state;
       const changed = !same(prior, this.comparable());
       if (changed || body.kind !== 'transition') {
-        const label = body.kind === 'transition' ? `${body.word} → ${this.location().component}` : `${body.verb}(${body.target.name})`;
+        const destination = this.location();
+        const label = body.kind === 'transition'
+          ? `${body.word} → ${destination.component}${destination.variant ? ` / ${destination.variant}` : ''}`
+          : `${body.verb}(${body.target.name})`;
         this.observe(body.kind === 'transition' ? 'transition' : 'event', label, operationId, ref);
       }
       for (const diagnostic of result.diagnostics) {

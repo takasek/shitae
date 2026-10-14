@@ -37,6 +37,17 @@ const invoke = (s: Session, text: string, branch?: string) => {
 };
 
 describe('Session snapshots, details and manual trials', () => {
+  it('labels transition observations with the effective destination variant', () => {
+    const s = make();
+    invoke(s, 'choose', 'yes');
+    expect(history(s).items.at(-1)!.label).toBe('goto → Screen / Changed');
+    invoke(s, 'open');
+    expect(history(s).items.at(-1)!.label).toBe('push → Card / Ready');
+    const bare = make('# Home\n> Next -> push(Detail)\n# Detail\nx\n');
+    invoke(bare, 'Next');
+    expect(history(bare).items.at(-1)!.label).toBe('push → Detail');
+  });
+
   it('separates shared manual/DSL origin, restores intermediate snapshots and never replays an effect on query/seek', () => {
     const s = make();
     s.setTestVariant({ module: 'main', component: 'Badge', variant: 'On' });
