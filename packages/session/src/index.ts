@@ -28,12 +28,27 @@ export interface Operation {
   prelude: ResultRef[];
   branches: Branch[];
 }
-export interface Actions {
+export interface ActionItem {
+  handle: string;
+  actionText: string;
+  scope: Operation['scope'];
+  placement: Pick<Operation['placement'], 'root' | 'path'>;
+  host: Location;
+  enabled: boolean;
+  branches: Array<Pick<Branch, 'id' | 'label'>>;
+}
+export interface BackControl { handle: string; kind: 'control'; source: null; enabled: boolean; reason: string | null }
+export type ActionDetail = (Operation & { definition: Interaction }) | BackControl;
+export interface DetailedActions {
   items: Operation[];
-  controls: { back: { handle: string; kind: 'control'; source: null; enabled: boolean; reason: string | null } };
+  controls: { back: BackControl };
+}
+export interface Actions {
+  items: ActionItem[];
+  controls: { back: Pick<BackControl, 'handle' | 'enabled'> };
 }
 export interface Query { revision: number; summary: Summary; data?: {
-  actions?: Actions; state?: StateView; history?: { items: HistoryItem[]; nextAfter: number | null }; observation?: ObservationView; metadata?: ModelMetadata | null;
+  actions?: Actions; action?: ActionDetail; state?: StateView; history?: { items: HistoryItem[]; nextAfter: number | null }; observation?: ObservationView; metadata?: ModelMetadata | null;
 } }
 export interface Receipt {
   operationId: number;
@@ -43,6 +58,7 @@ export interface Receipt {
   diagnostics: Array<ResultRef & { diagnostic: Diagnostic }>;
 }
 interface Entry { operation: Operation; interaction: Interaction; module: string }
+interface Inventory { entries: Entry[]; actions: DetailedActions; byHandle: Map<string, Entry> }
 interface Observation {
   id: number;
   operationId: number | null;
@@ -74,6 +90,7 @@ export class Session {
   private operationId = 0;
   private nextObservationId = 1;
   private observations: Observation[] = [];
+  private currentInventory: { revision: number; context: Context; value: Inventory } | undefined;
 
   constructor(documents: Map<string, Document>, private readonly entryModule: string, files = new Map<string, string>(), metadata: ModelMetadata | null = null) {
     this.documents = structuredClone(documents);
@@ -156,7 +173,8 @@ export class Session {
     return element.value.kind === 'ref' && element.value.name === target.name &&
       this.normalize(module, element.value.module) === this.normalize(module, target.module);
   }
-  private inventory(context = this.context): { entries: Entry[]; actions: Actions } {
+  private inventory(context = this.context): Inventory {
+    if (context === this.context && this.currentInventory?.revision === this.revision && this.currentInventory.context === context) return this.currentInventory.value;
     const entries: Entry[] = [];
     const collect = (host: Location, root: string, path: number[], placementSource: Source | null,
       includeDocument: boolean, visited: Set<string>, overrides: Interaction[] = []) => {
@@ -215,23 +233,45 @@ export class Session {
     }
     const frame = activeFrame(context.runtime);
     const enabled = frame.stack.length > 1 || (!frame.barrier && frame.parentId != null);
-    return { entries, actions: { items: entries.map((e) => e.operation), controls: { back: {
+    const value: Inventory = { entries, byHandle: new Map(entries.map(e => [e.operation.handle, e])), actions: { items: entries.map((e) => e.operation), controls: { back: {
       handle: this.handle('back'), kind: 'control', source: null, enabled,
       reason: enabled ? null : frame.barrier ? 'barrier' : 'no-return-location',
     } } } };
+    if (context === this.context) this.currentInventory = { revision: this.revision, context, value };
+    return value;
+  }
+
+  private actionDetail(handle: string): ActionDetail {
+    if (!handle.startsWith(this.sessionId + ':')) fail('UNKNOWN_HANDLE', 'Unknown operation handle');
+    const parts = handle.split(':');
+    if (!/^\d+$/.test(parts[1] ?? '') || parts.length !== 3 || (parts[2] !== 'back' && !/^\d+$/.test(parts[2] ?? ''))) fail('UNKNOWN_HANDLE', 'Unknown operation handle');
+    if (Number(parts[1]) !== this.revision) fail('STALE_HANDLE', 'Query actions again');
+    const { byHandle, actions } = this.inventory();
+    if (handle === actions.controls.back.handle) return actions.controls.back;
+    const entry = byHandle.get(handle);
+    if (!entry) fail('UNKNOWN_HANDLE', 'Unknown operation handle');
+    return { ...entry.operation, definition: entry.interaction };
   }
 
   query(options: QueryOptions = {}): Query {
     const select = options.select ?? [];
-    if (!Array.isArray(select) || select.some((s) => !['actions', 'state', 'history', 'observation', 'metadata'].includes(s)) || new Set(select).size !== select.length ||
-      Object.keys(options).some((k) => !['select', 'history', 'observationId'].includes(k)) ||
-      (options.history !== undefined && !select.includes('history')) || (options.observationId !== undefined && !select.includes('observation'))) {
+    if (!Array.isArray(select) || select.some((s) => !['actions', 'action', 'state', 'history', 'observation', 'metadata'].includes(s)) || new Set(select).size !== select.length ||
+      Object.keys(options).some((k) => !['select', 'history', 'observationId', 'handle'].includes(k)) ||
+      (options.history !== undefined && !select.includes('history')) || (options.observationId !== undefined && !select.includes('observation')) ||
+      (select.includes('action') ? typeof options.handle !== 'string' : options.handle !== undefined)) {
       fail('INVALID_REQUEST', 'Invalid query selection/options');
     }
     const data: NonNullable<Query['data']> = {};
     for (const s of select) {
       if (s === 'metadata') data.metadata = this.metadata;
-      if (s === 'actions') data.actions = this.inventory().actions;
+      if (s === 'actions') {
+        const { actions } = this.inventory();
+        data.actions = { items: actions.items.map(({ handle, actionText, scope, placement, host, enabled, branches }) => ({
+          handle, actionText, scope, placement: { root: placement.root, path: placement.path }, host, enabled,
+          branches: branches.map(({ id, label }) => ({ id, label })),
+        })), controls: { back: { handle: actions.controls.back.handle, enabled: actions.controls.back.enabled } } };
+      }
+      if (s === 'action') data.action = this.actionDetail(options.handle!);
       if (s === 'state') data.state = this.projectState(this.context);
       if (s === 'history') data.history = this.historyPage(options.history);
       if (s === 'observation') {

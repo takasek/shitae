@@ -1,5 +1,5 @@
 import type { Location, RuntimeState } from '@shitae/runtime';
-import type { Actions, Source } from './index.js';
+import type { DetailedActions, Source } from './index.js';
 export type ValueOrigin = 'initial' | 'dsl' | 'manual-test';
 export interface VariantValue {
   variant: string | null;
@@ -27,8 +27,8 @@ export interface HistoryItem {
   kind: 'transition' | 'event'; label: string; location: Location; ghost: boolean;
 }
 export type HistoricalActions = {
-  items: Array<Omit<Actions['items'][number], 'handle'>>;
-  controls: { back: Omit<Actions['controls']['back'], 'handle'> };
+  items: Array<Omit<DetailedActions['items'][number], 'handle'>>;
+  controls: { back: Omit<DetailedActions['controls']['back'], 'handle'> };
 };
 export interface ObservationView extends HistoryItem {
   view: { location: Location; state: StateView; actions: HistoricalActions };
@@ -37,4 +37,5 @@ export interface QueryOptions {
   select?: string[];
   history?: { after?: number; limit?: number; operationId?: number };
   observationId?: number;
+  handle?: string;
 }

@@ -28,7 +28,14 @@ function make(source = model) {
   const p = parse(source); expect(p.diagnostics.filter((d) => d.severity === 'error')).toEqual([]);
   return new Session(new Map([['main', p.document]]), 'main');
 }
-const actions = (s: Session) => s.query({ select: ['actions'] }).data!.actions!;
+const actions = (s: Session) => {
+  const compact = s.query({ select: ['actions'] }).data!.actions!;
+  return { ...compact, items: compact.items.map(a => {
+    const detail = s.query({ select: ['action'], handle: a.handle }).data!.action!;
+    if (!('definition' in detail)) throw new Error('Expected model action');
+    return detail;
+  }) };
+};
 const state = (s: Session) => s.query({ select: ['state'] }).data!.state!;
 const history = (s: Session, options = {}) => s.query({ select: ['history'], history: options }).data!.history!;
 const invoke = (s: Session, text: string, branch?: string) => {

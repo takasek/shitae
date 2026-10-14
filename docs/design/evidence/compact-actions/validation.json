@@ -1,0 +1,83 @@
+{
+  "baseCommit": "f6887ec",
+  "engineVersion": "6eeaddc5012170138186bd98d7bcc7332a0bcb87f68d63f162acb3935fd16a92",
+  "tdd": {
+    "compactInventoryRed": {
+      "failed": 2,
+      "passed": 19
+    },
+    "cliCompactRed": {
+      "failed": 1,
+      "passed": 24
+    },
+    "inventoryReuseRed": {
+      "failed": 1,
+      "passed": 21,
+      "expectedResolutions": 1,
+      "observedResolutions": 11
+    },
+    "greenSession": 22
+  },
+  "validation": {
+    "build": "passed",
+    "typecheck": "passed",
+    "session": 22,
+    "cli": 25,
+    "simulator": 223,
+    "relatedTotal": 270,
+    "otherUnchangedPackagesFromFullRun": {
+      "parser": 246,
+      "resolver": 37,
+      "runtime": 97,
+      "transpiler-xstate": 35,
+      "checker": 29,
+      "transpiler-mermaid": 20
+    },
+    "finalAllPackageTotal": 734,
+    "suiteRunNote": "Unchanged dependency packages passed full workspace run. That run failed on legacy simulator helper after inventory schema change; helper/cache fixture corrected and affected Session/CLI/simulator all rechecked. No single final full-suite rerun claimed.",
+    "publicCliGui": {
+      "steps": 54,
+      "renderedActions": 48,
+      "rejections": 2,
+      "observationComparisons": 70
+    },
+    "realBrowser": "browser.json"
+  },
+  "replay": {
+    "requests": 114,
+    "dispatch": 35,
+    "accepted": 34,
+    "expectedRejection": 1,
+    "actionsQueries": 40,
+    "inputBytes": 6028,
+    "beforeOutputBytes": 382379,
+    "afterOutputBytes": 173190,
+    "beforeActionsBytes": 290500,
+    "afterActionsBytes": 81311,
+    "actionsReductionPercent": 72.01,
+    "outputReductionPercent": 54.71,
+    "allSummaryReceiptFinalStateMatched": true,
+    "detailQueriesInReplay": 0,
+    "method": "mechanical replay of fixed existing workflows; not a new user/timing study"
+  },
+  "independentReview": {
+    "model": "gpt-6-astra",
+    "relatedTestsPassed": 270,
+    "productionFinding": "per-action whole inventory rebuild",
+    "fixedAndRechecked": true,
+    "recordedBrowserReviewedNotIndependentlyOperated": true,
+    "performanceObservations": {
+      "source": "reviewer tool-result transcribed; single Node probe, not browser-user latency",
+      "2000OperationsDetailsMs": {
+        "before": 586,
+        "after": 13
+      },
+      "5000OperationsDetailsMs": {
+        "before": 3881,
+        "after": 30
+      }
+    },
+    "unresolvedActionableFindings": 0,
+    "contractTableCorrectionReadBack": true
+  }
+}

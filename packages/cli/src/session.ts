@@ -25,9 +25,9 @@ export async function serveSession(session: Session): Promise<void> {
       if (typeof request.command !== 'string') invalid('command must be a string');
       let result;
       if (request.command === 'query') {
-        fields(request, ['id', 'command', 'select', 'history', 'observationId']);
+        fields(request, ['id', 'command', 'select', 'history', 'observationId', 'handle']);
         if (request.select !== undefined && (!Array.isArray(request.select) || request.select.some((s) => typeof s !== 'string'))) invalid('select must be an array of strings');
-        result = session.query({ select: request.select as string[] | undefined, history: request.history as QueryOptions['history'], observationId: request.observationId as number | undefined });
+        result = session.query({ select: request.select as string[] | undefined, history: request.history as QueryOptions['history'], observationId: request.observationId as number | undefined, handle: request.handle as string | undefined });
       } else if (request.command === 'dispatch') {
         fields(request, ['id', 'command', 'handle', 'branch']);
         if (typeof request.handle !== 'string') invalid('handle must be a string');

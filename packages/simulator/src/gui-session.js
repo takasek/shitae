@@ -12,6 +12,8 @@ function getComp(module, name) { return DATA.modules[module]?.components[name]; 
 function currentFrame() { return stack.at(-1); }
 function syncView() {
   view = SESSION.query({ select: ['state', 'actions'] });
+  // Rendering uses gate/target/source annotations; the wire inventory stays compact.
+  view.data.actions.items = view.data.actions.items.map(item => SESSION.query({ select: ['action'], handle: item.handle }).data.action);
   const s = view.data.state;
   stack = s.activePath.flatMap(id => {
     const f = s.frames.find(f => f.id === id);

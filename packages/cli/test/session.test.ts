@@ -61,7 +61,16 @@ describe('shitae session persistent JSON Lines', () => {
     expect(listed.ok).toBe(true);
     const action = listed.data.actions.items.find((i: any) => i.actionText === 'Purchase');
     expect(action.branches.map((b: any) => b.label)).toEqual(['Success', 'Failure']);
-    expect(action.source.file).toBe(realpathSync(file));
+    expect(Object.keys(action).sort()).toEqual(['actionText', 'branches', 'enabled', 'handle', 'host', 'placement', 'scope']);
+    expect(action.branches[0]).toEqual({ id: 'b0', label: 'Success' });
+    const detail = await s.request({ id: 'detail', command: 'query', select: ['action'], handle: action.handle });
+    expect(detail.ok).toBe(true);
+    expect(detail.data.action.source.file).toBe(realpathSync(file));
+    expect(detail.data.action.definition.results[0].body).toMatchObject({ kind: 'transition', word: 'goto', target: { name: 'Done' } });
+    for (const request of [
+      { select: ['action'] }, { select: ['actions'], handle: action.handle }, { select: ['action'], handle: null },
+    ]) expect(await s.request({ id: 'bad-detail', command: 'query', ...request })).toMatchObject({ ok: false, revision: 0, error: { code: 'INVALID_REQUEST' } });
+    expect(await s.request({ id: 'unknown-detail', command: 'query', select: ['action'], handle: 'unknown' })).toMatchObject({ ok: false, revision: 0, error: { code: 'UNKNOWN_HANDLE' } });
     const done = await s.request({ id: 2, command: 'dispatch', handle: action.handle, branch: action.branches[0].id });
     expect(done).toMatchObject({ id: 2, ok: true, protocolVersion: 1, revision: 1,
       summary: { location: { module: 'main', component: 'Done', variant: null } },
@@ -70,6 +79,7 @@ describe('shitae session persistent JSON Lines', () => {
     const q = await s.request({ id: 3, command: 'query' });
     expect(q.summary).toEqual(done.summary);
     expect(q).not.toHaveProperty('data');
+    expect(await s.request({ id: 'stale-detail', command: 'query', select: ['action'], handle: action.handle })).toMatchObject({ ok: false, revision: 1, error: { code: 'STALE_HANDLE' } });
     expect(await s.finish()).toMatchObject({ code: 0, stderr: '', rest: { done: true } });
   });
 

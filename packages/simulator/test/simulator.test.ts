@@ -510,15 +510,17 @@ problem: Diagnostics
         const list = SESSION.documents.get(view.summary.location.module).common.interactions;
         const action = {action:{text:'__fixture',target:null,span},results:[{label:null,body,span}],span};
         list.push(action);
+        // Only this legacy fixture mutates the fixed private model between commands.
+        SESSION.currentInventory = undefined;
         try {
-          const op = SESSION.query({select:['actions']}).data.actions.items.find(i => i.action.text === '__fixture');
+          const op = SESSION.query({select:['actions']}).data.actions.items.find(i => i.actionText === '__fixture');
           SESSION.dispatch({handle:op.handle});
-        } finally { list.splice(list.indexOf(action),1); }
+        } finally { list.splice(list.indexOf(action),1); SESSION.currentInventory = undefined; }
         syncView();
       }
       function fixtureResults(rs) { for (const r of rs) fixtureResult(r); render(); }
       function fixtureOverlay(name, o) { fixtureResult({type:'overlay',op:'show',component:name,module:o.module,variant:o.variant}); }
-      function fixtureTrial(module, component, variant) { SESSION.context.tests.set(module+String.fromCharCode(0)+component,variant); syncView(); }
+      function fixtureTrial(module, component, variant) { SESSION.context.tests.set(module+String.fromCharCode(0)+component,variant); SESSION.currentInventory = undefined; syncView(); }
       function fixtureSnapshot(index) {
         const s = SESSION.query({select:['observation'],observationId:timeline[index].id}).data.observation.view.state;
         return { stack:s.activePath.flatMap(id => s.frames.find(f => f.id === id).stack),

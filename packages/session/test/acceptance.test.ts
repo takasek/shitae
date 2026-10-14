@@ -7,7 +7,7 @@ function make(source: string, extras = new Map<string, ReturnType<typeof parse>[
   return new Session(new Map([['main', p.document], ...extras]), 'main');
 }
 function act(s: Session, name: string) {
-  const a = s.query({select:['actions']}).data!.actions!.items.find(a => a.action.text === name)!;
+  const a = s.query({select:['actions']}).data!.actions!.items.find(a => a.actionText === name)!;
   return s.dispatch({handle:a.handle});
 }
 describe('Session acceptance with independent expected states', () => {
