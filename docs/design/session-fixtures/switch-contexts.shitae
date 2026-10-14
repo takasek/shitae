@@ -1,0 +1,18 @@
+> home -> present(Home, @home)
+> detail -> push(Detail, @reading)
+> b -> switch(B, @b)
+> modal -> present(Modal, @modal)
+> c -> switch(C, @c)
+> close-reading -> exit(@reading)
+> close-modal -> exit(@modal)
+> close-b -> exit(@b)
+> resume-b -> switch(B, @b)
+> push-detail -> push(Detail)
+> back -> back()
+
+# Entry
+# Home
+# Detail
+# B
+# Modal
+# C

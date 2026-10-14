@@ -1,0 +1,22 @@
+# Screen
+a: Card
+b: Card
+badge: Badge
+> choose -> pre-effect ; [yes] set(Badge##On) ; show(Badge) ; goto(##Changed)
+> gate(badge.signal?) -> singleton-effect
+> gate(a.signal?) -> ordinary-effect
+> open-card -> push(Card##Ready)
+> show-card -> show(Card##Ready)
+## Start
+## Changed
+
+# Card
+## Idle
+label
+## Ready
+signal
+
+#! Badge
+## Off
+## On
+signal

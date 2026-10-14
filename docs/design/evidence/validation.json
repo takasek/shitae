@@ -1,0 +1,67 @@
+{
+  "baselineCommit": "e985f4ee58ab76339df5b0f59144e1f1a5da91c8",
+  "scope": "contract proposal and fixtures only; no production changes",
+  "build": {
+    "exitCode": 0
+  },
+  "tests": {
+    "exitCode": 0,
+    "byPackage": {
+      "parser": 246,
+      "runtime": 96,
+      "resolver": 37,
+      "transpiler-xstate": 35,
+      "checker": 29,
+      "transpiler-mermaid": 20,
+      "simulator": 218,
+      "cli": 19
+    },
+    "totalPassed": 700
+  },
+  "typecheck": {
+    "exitCode": 2,
+    "preExistingFailure": {
+      "file": "packages/runtime/test/runtime.test.ts",
+      "line": 37,
+      "code": "TS2322",
+      "reason": "navVar helper omits required NavTarget.module field"
+    }
+  },
+  "fixtures": [
+    {
+      "file": "session-fixtures/switch-contexts.shitae",
+      "checkExitCode": 0,
+      "warnings": {
+        "W103": 6
+      }
+    },
+    {
+      "file": "session-fixtures/trial-values.shitae",
+      "checkExitCode": 0,
+      "warnings": {}
+    },
+    {
+      "file": "session-fixtures/builtin-back.shitae",
+      "checkExitCode": 0,
+      "warnings": {}
+    }
+  ],
+  "runtimeSpecProbe": {
+    "command": "node docs/design/evidence/runtime-switch-probe.mjs --expect-spec",
+    "exitCode": 1,
+    "matched": 0,
+    "total": 4,
+    "meaning": "expected red evidence of baseline runtime versus SPEC; not a Session implementation test"
+  },
+  "proofLimits": [
+    "Session/CLI/GUI integration is not implemented",
+    "No changed GUI browser validation",
+    "No CLI or browser re-dogfooding",
+    "S01-D02 acceptance table is unexecuted"
+  ],
+  "independentReview": {
+    "unresolvedActionableFindings": 0,
+    "record": "evidence/independent-review.md",
+    "proofLimit": "contract review only; implementation acceptance remains unexecuted"
+  }
+}
