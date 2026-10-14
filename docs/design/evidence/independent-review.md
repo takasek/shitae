@@ -26,3 +26,9 @@
 指摘は一件。G01 を receipt.operationId からの観測点照会だけにすると、receipt のない reset/拒否と観測点のない no-op を比較できなかった。観測ありの受理操作、reset、拒否/無観測 no-op の比較経路をそれぞれ定義し、内部 seek/分岐と公開 CLI の境界を明記した。修正箇所の読戻しと diff check で解消を確認し、未解消・新規の actionable finding はない。
 
 本改訂の文書検証は [compact-response-validation.json](compact-response-validation.json)。JSON Lines の例とローカルリンク、差分の整形を検査した。production/fixture は変更しておらず、既存全件テストの再実行は行っていない。実 response の byte 数、pagination 実行、CLI/GUI 接続は未実装のため未検証。
+
+## HTML 一枚の条件を緩める改訂レビュー
+
+2026-10-14、契約 commit `818ce95` からの改訂。ユーザーの「HTML 一枚が難しくなれば前提を外してよい、保てれば維持してよい」という指定に合わせ、一枚化を優先候補とし必須条件から外した。代替の静的ファイル群と必要時だけのローカル静的サーバー、選定理由/出力方法/開き方の文書化、選んだ形での実ブラウザ検証を定めた。
+
+実装会話を引き継がない別 agent が差分と関連本文を照合し、配布方針・G02・対象外の整合と、通常応答/共通 Session の実行・観測契約/CLI protocol が変わらないことを確認した。actionable finding なし。JSON Lines 例十件、ローカルリンク、Markdown fence、diff check も成功。production/fixture は未変更で全件テストは再実行していない。配布形の選定・実装・実ブラウザ動作は今後の検証対象である。

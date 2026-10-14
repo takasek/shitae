@@ -4,7 +4,7 @@ Status: proposed。2026-10-14、`origin/main` の固定版 `e985f4ee58ab76339df5
 
 ## 判断を求める点
 
-1. 初版 CLI は `shitae session <file>` の stdin/stdout JSON Lines とする。同じ process 内で query → dispatch → query を継続し、EOF で終了する。既存 `simulate` は自己完結 HTML の生成を維持する。
+1. 初版 CLI は `shitae session <file>` の stdin/stdout JSON Lines とする。同じ process 内で query → dispatch → query を継続し、EOF で終了する。既存 `simulate` の入口を維持し、GUI の配布形は後述の方針で選ぶ。
 2. singleton の手動試験変更は共有値そのものへの書込みにする。別の override 層を置かず、後続の DSL 書込みが勝つ。通常 component の試験値は component 単位の模擬値として分離し、包含表示と member gate だけへ適用する。frame/overlay の実状態は変えない。
 3. 操作・部品・配置・result の定義 module と source span を初版の必須情報にする。モデルへ戻る負担に直結するため。CLI は実ファイルパスも返し、直接 `toSimulator(documents, ...)` を呼ぶ場合はファイルパス未提供を `null` で表す。
 
@@ -21,7 +21,11 @@ runtime の兄弟規則には後述の不一致がある。推奨は SPEC の規
 
 Session は `Document` の集合と entry module、モデル metadata を受け取る。extract の状態・操作データの準備を Session 側へ移し、simulator は Session と静的 graph データを消費する。共有処理のために Session → simulator の逆依存や循環依存を作らない。
 
-自己完結 HTML には同じ Session/runtime の実装を build 時に bundle して埋め込む。ブラウザ内の import、CDN、daemon、通信は要求しない。CLI が使う実装と HTML に埋める実装は同じ source から生成し、手作業で写した JavaScript を残さない。表示のための純粋な整形関数は GUI に置けるが、variant/gate/実効操作の再解決は置けない。
+GUI の配布は自己完結 HTML 一枚を優先候補とする。通常の build/bundle で共通 Session/runtime を無理なく埋め込めるなら維持する。2026-10-14 のユーザー指定により、一枚化は必須の受入条件から外す。一枚化のために実行コードの複製、独自ローダー、大きな迂回や保守負担が必要になるなら、その前提を外して構成を選び直す。
+
+代替の第一候補は、HTML と生成 JS/CSS をまとめた静的ファイル群。必要なら利用時に起動するローカル静的サーバーで開く。配布形の切替理由、`simulate` の出力方法と利用者が開く手順、サーバーが必要なら起動/終了手順を文書化し、選んだ形で実ブラウザ検証する。HTML 一枚を外すことだけを理由に再承認を要求しない。外部 CDN/クラウド配信や常駐サービスを追加する範囲には広げない。
+
+配布形によらず、CLI と GUI が使う Session/runtime は同じ source から生成し、手作業で写した JavaScript を残さない。表示のための純粋な整形関数は GUI に置けるが、variant/gate/実効操作の再解決は置けない。外部ネットワークなしで利用できることと、共通 Session の実行・観測契約を保つことを受入条件とする。
 
 ## モデルの同一性と位置
 
@@ -171,7 +175,7 @@ receipt の effects/diagnostics は今回の実行出力、history/observation q
 | runtime の警告 | GUI 独自の発生条件・文言 | runtime 診断 code/source を共通出力 |
 | 古い操作指定/誤 branch | index や未選択で prelude だけ実行し得る | command 検証後に実行。拒否時は無変更 |
 
-HTML のレイアウト、操作ラベル、結果ごとの timeline、ghost のクリック復元、gate 試験、表示設定は維持する。stack 表示はアクティブ経路を frame stack の順に並べ、frame の底に barrier と begin marker を付ける。frame 木全体の新しい GUI は初版に追加しない。
+既存 GUI のレイアウト、操作ラベル、結果ごとの timeline、ghost のクリック復元、gate 試験、表示設定は維持する。stack 表示はアクティブ経路を frame stack の順に並べ、frame の底に barrier と begin marker を付ける。frame 木全体の新しい GUI は初版に追加しない。
 
 #12 は「部品の状態を表示」を既定 off とし、Session の包含 query の値をそのまま補助表示する。初期姿、component 単位試験値、singleton の共有範囲を区別する。checkbox は実行状態/履歴/操作集合/gate を変えず、fold/focus を保つ。inline/未定義に実 component 状態を捏造しない。receiver 説明と表示設定の永続化は保留。
 
@@ -216,7 +220,7 @@ SPEC の「switch（中断と復帰）」と ADR-0008 は、最も近い switch 
 | C04 | 同じ短い操作の前に履歴/中断 frame/包含/module を増やす | 通常 command response と既定 query に全状態/履歴/manifest/操作/view が混入しない。response schema と実 byte 数を確認。今回の effect/診断と ID の桁数による増加は区別 |
 | C05 | history の複数ページ/operation 絞込み、途中 observation 照会 | 全観測点を重複・欠落なく読める。query で state/revision/cursor/ghost/effect を変えない。破棄済み ID は無変更拒否、無観測 no-op は空ページ |
 | G01 | S01–S14 の CLI 公開操作と branch を CLI/GUI で照合 | 観測ありの受理操作は receipt.operationId で history query を絞り、全ページの各 ID を observation query で読む。reset は summary の初期観測点 ID を observation query で読む。拒否と無観測 no-op は明示 state/actions query で前後を比較する。各 view は GUI が同じ観測点へ seek した state/actions query と照合し、state/操作説明・branch・enabled/包含/gate/controls が一致。Session 固有 handle、revision、履歴 cursor は値比較から外し、拒否/no-op 等の revision 規則は S09/S10 で別に確認する。双方に同じ誤りがある場合を S 系 oracle が検出 |
-| G02 | HTML をネットワークなしで実ブラウザ表示 | main/overlay/包含、timeline、gate drawer、map、操作、focus/fold を確認 |
+| G02 | 選んだ配布形式を外部ネットワークなしで実ブラウザ表示 | HTML 一枚または静的ファイル群の開き方を確認。ローカルサーバーが必要なら起動/終了も確認。main/overlay/包含、timeline、gate drawer、map、操作、focus/fold を検証。一枚化自体は必須としない |
 | G03 | #12 表示 checkbox と keyboard 操作 | 値は query と一致。切替で state/history/操作/gate は変わらず focus/fold 維持 |
 | D01 | 保存済み Sol/Astra の current/proposed モデル | 旧 GUI と同じであるべき経路、SPEC 修正による差、作者修正による差を別記録 |
 | D02 | CLI とブラウザで再ドッグフーディング | 完遂、モデルへの参照回数、操作特定失敗、branch 誤り、転記量を実測。CLI の時間短縮/理解改善を事前に断定しない |
@@ -227,11 +231,11 @@ G01 は公開 CLI からも行える dispatch、手動試験、reset、query の
 
 固定版の検証結果は [validation.json](evidence/validation.json)。build と既存テスト 700 件は成功。typecheck は既存 `runtime/test/runtime.test.ts:37` の helper に必須 `module` がない TS2322 で失敗した。production と既存テストは変更していない。新しい Session/CLI/GUI の実行・ブラウザ接続・再ドッグフーディングはまだ検証していない。
 
-[独立レビュー記録](evidence/independent-review.md) には、初版の結果途中観測/組込み戻ると、今回の通常応答縮小に関する指摘・修正・再確認を分けて残した。今回の [文書検証結果](evidence/compact-response-validation.json) は JSON Lines 例、ローカルリンク、差分の整形の確認であり、初版の固定版 build/test 結果の再取得や新 CLI の実測ではない。最終再確認で未解消の actionable finding はない。残っている proposed な設計判断の採用を示すものではない。
+[独立レビュー記録](evidence/independent-review.md) には、初版の結果途中観測/組込み戻る、通常応答縮小、HTML 一枚の条件を緩める改訂の確認を分けて残した。通常応答縮小の [文書検証結果](evidence/compact-response-validation.json) と、配布方針改訂の文書検査は JSON Lines 例、ローカルリンク、差分の整形の確認であり、初版の固定版 build/test 結果の再取得や新 CLI/配布形の実測ではない。最終再確認で未解消の actionable finding はない。残っている proposed な設計判断の採用を示すものではない。
 
-実装の論理単位は (1) runtime 不一致修正、(2) Session の観測・操作・snapshot、(3) 共通 Session への GUI 接続と bundle、(4) CLI protocol と利用実証、(5) #12 表示、(6) 保存モデル回帰/再評価。各段階で必要な red → green と独立レビューを行い、変更がない全件検査を繰り返さない。SPEC に転記する場合は転記元の内部整合レビューを先に済ませる。本案のツール API は原則 SPEC へ追加しない。
+実装の論理単位は (1) runtime 不一致修正、(2) Session の観測・操作・snapshot、(3) 共通 Session への GUI 接続と配布形の選択、(4) CLI protocol と利用実証、(5) #12 表示、(6) 保存モデル回帰/再評価。各段階で必要な red → green と独立レビューを行い、変更がない全件検査を繰り返さない。SPEC に転記する場合は転記元の内部整合レビューを先に済ませる。本案のツール API は原則 SPEC へ追加しない。
 
-初版の対象外は #11 の export/import、daemon、MCP、クラウド保存、自由文 effect の実処理、期待値 DSL、エディタ連携、check JSON、receiver 事前説明、新しい独立 instance 状態エンジン。履歴は同一 Session 内の探索用であり、永続保存や別モデルへの replay を保証しない。
+初版の対象外は #11 の export/import、常駐 daemon、MCP、クラウド保存、自由文 effect の実処理、期待値 DSL、エディタ連携、check JSON、receiver 事前説明、新しい独立 instance 状態エンジン。必要時だけ起動する GUI 用ローカル静的サーバーは配布形の選択に含め、常駐 daemon とは区別する。履歴は同一 Session 内の探索用であり、永続保存や別モデルへの replay を保証しない。
 
 ## 一次資料
 
