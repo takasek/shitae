@@ -1,0 +1,17 @@
+{
+  "kind": "current socket observation plus transcribed prior tool results",
+  "checkedAt": "2026-10-14T07:33:13.818337+00:00",
+  "address": {
+    "port": 51289,
+    "pid": 80554
+  },
+  "afterStopConnectEx": 61,
+  "priorStopToolOutput": {
+    "psArgs": "node /private/tmp/shitae-18-http-01a1384b/server.mjs",
+    "signal": "SIGTERM",
+    "sessionOutput": "server closed",
+    "sessionExitCode": 0
+  },
+  "priorStopOutputProvenance": "tool-result transcribed; not a contemporaneously saved raw log",
+  "serverSource": "server.mjs"
+}

@@ -1,0 +1,1844 @@
+{
+  "sourceCommit": "cd7fb9c",
+  "browser": "Codex in-app browser on macOS",
+  "transport": "loopback HTTP",
+  "savedAt": "2026-10-14T07:37:02.797014+00:00",
+  "provenance": "All cases and four goal runs observed in pages generated at cd7fb9c, including supplemental toggle/reset/map cases. Save time is not per-case execution time. Label-fix observations are in post-label-browser.json.",
+  "serverStoppedBeforeRemainingRuns": true,
+  "cases": [
+    {
+      "case": "initial",
+      "at": "2026-10-14T06:52:49.772Z",
+      "observed": {
+        "controls": [
+          {
+            "onclick": null,
+            "text": "gate(a.signal)Card / IdleIdleReadygate off で無効component common"
+          },
+          {
+            "onclick": null,
+            "text": "gate(badge.signal)Badge / OffOffOngate off で無効component common"
+          },
+          {
+            "onclick": null,
+            "text": "choosecomponent common[yes]"
+          },
+          {
+            "onclick": "handleInteraction('component',3,0, '805870f8-29cd-47cb-9a63-6cefcb50ae22:0:3')",
+            "text": "open-cardcomponent common"
+          },
+          {
+            "onclick": "handleInteraction('component',4,0, '805870f8-29cd-47cb-9a63-6cefcb50ae22:0:4')",
+            "text": "show-cardcomponent common"
+          }
+        ],
+        "stateShown": false,
+        "text": "Screen",
+        "timeline": "起動"
+      }
+    },
+    {
+      "case": "keyboard-state-toggle",
+      "at": "2026-10-14T06:53:13.392Z",
+      "observed": {
+        "annotations": [
+          "画面の値 · 初期",
+          " → Card · ##Idle · 包含の初期値 · 初期",
+          " → Card · ##Idle · 包含の初期値 · 初期",
+          " → Badge · ##Off · 共有 (singleton) · 初期"
+        ],
+        "checked": true,
+        "controls": [
+          {
+            "onclick": null,
+            "text": "gate(a.signal)Card / IdleIdleReadygate off で無効component common"
+          },
+          {
+            "onclick": null,
+            "text": "gate(badge.signal)Badge / OffOffOngate off で無効component common"
+          },
+          {
+            "onclick": null,
+            "text": "choosecomponent common[yes]"
+          },
+          {
+            "onclick": "handleInteraction('component',3,0, '805870f8-29cd-47cb-9a63-6cefcb50ae22:0:3')",
+            "text": "open-cardcomponent common"
+          },
+          {
+            "onclick": "handleInteraction('component',4,0, '805870f8-29cd-47cb-9a63-6cefcb50ae22:0:4')",
+            "text": "show-cardcomponent common"
+          }
+        ],
+        "focused": "toggleShowStates()",
+        "folds": [
+          {
+            "key": "main:trial-values:9:0",
+            "open": false
+          },
+          {
+            "key": "main:trial-values:17:1",
+            "open": true
+          },
+          {
+            "key": "main:trial-values:25:2",
+            "open": true
+          }
+        ],
+        "timeline": "起動"
+      }
+    },
+    {
+      "case": "keyboard-card-trial",
+      "at": "2026-10-14T06:54:42.258Z",
+      "observed": {
+        "annotations": [
+          "画面の値 · 初期",
+          " → Card · ##Idle · 包含の初期値 · 初期",
+          " → Card · ##Idle · 包含の初期値 · 初期",
+          " → Badge · ##Off · 共有 (singleton) · 初期",
+          "掲示の値 · DSL"
+        ],
+        "focusKey": "main::trial-values:158:gate",
+        "timeline": [
+          "[Screen / Start] show(Card)",
+          "起動"
+        ],
+        "value": "Idle"
+      }
+    },
+    {
+      "case": "keyboard-card-selected",
+      "at": "2026-10-14T06:54:55.215Z",
+      "observed": {
+        "annotations": [
+          "画面の値 · 初期",
+          " → Card · ##Ready · 部品の試験値 · 手動試験",
+          " → Card · ##Ready · 部品の試験値 · 手動試験",
+          " → Badge · ##Off · 共有 (singleton) · 初期",
+          "掲示の値 · DSL"
+        ],
+        "enabledGate": "button",
+        "focusKey": "main::trial-values:158:gate",
+        "timeline": [
+          "[Screen / Start] manual-test(Card##Ready)",
+          "[Screen / Start] show(Card)",
+          "起動"
+        ],
+        "value": "Ready"
+      }
+    },
+    {
+      "case": "trial-overlay-separation",
+      "at": "2026-10-14T06:55:27.268Z",
+      "observed": {
+        "annotations": [
+          "画面の値 · 初期",
+          " → Card · ##Idle · 部品の試験値 · 手動試験",
+          " → Card · ##Idle · 部品の試験値 · 手動試験",
+          " → Badge · ##Off · 共有 (singleton) · 初期",
+          "掲示の値 · DSL"
+        ],
+        "focusKey": "main::trial-values:158:gate",
+        "history": [
+          "[Screen / Start] manual-test(Card##Idle)",
+          "[Screen / Start] manual-test(Card##Ready)",
+          "[Screen / Start] show(Card)",
+          "起動"
+        ],
+        "overlayVariant": "## Ready",
+        "value": "Idle"
+      }
+    },
+    {
+      "case": "branch-final",
+      "at": "2026-10-14T06:56:01.418Z",
+      "observed": {
+        "annotations": [
+          "画面の値 · DSL",
+          " → Card · ##Idle · 部品の試験値 · 手動試験",
+          " → Card · ##Idle · 部品の試験値 · 手動試験",
+          " → Badge · ##On · 共有 (singleton) · DSL",
+          "掲示の値 · DSL",
+          "共有 (singleton) · DSL"
+        ],
+        "timeline": [
+          {
+            "classes": "timeline-item timeline-item-transition current",
+            "text": "goto → Screen"
+          },
+          {
+            "classes": "timeline-item timeline-item-event",
+            "text": "[Screen / Start] show(Badge)"
+          },
+          {
+            "classes": "timeline-item timeline-item-event",
+            "text": "[Screen / Start] set(Badge)"
+          },
+          {
+            "classes": "timeline-item timeline-item-event",
+            "text": "[Screen / Start] effect: pre-effect"
+          },
+          {
+            "classes": "timeline-item timeline-item-event",
+            "text": "[Screen / Start] manual-test(Badge##On)"
+          },
+          {
+            "classes": "timeline-item timeline-item-event",
+            "text": "[Screen / Start] manual-test(Card##Idle)"
+          },
+          {
+            "classes": "timeline-item timeline-item-event",
+            "text": "[Screen / Start] manual-test(Card##Ready)"
+          },
+          {
+            "classes": "timeline-item timeline-item-event",
+            "text": "[Screen / Start] show(Card)"
+          },
+          {
+            "classes": "timeline-item timeline-item-transition",
+            "text": "起動"
+          }
+        ],
+        "variant": "## Changed"
+      }
+    },
+    {
+      "case": "seek-result-intermediate",
+      "at": "2026-10-14T06:56:17.187Z",
+      "observed": {
+        "annotations": [
+          "画面の値 · 初期",
+          " → Card · ##Idle · 部品の試験値 · 手動試験",
+          " → Card · ##Idle · 部品の試験値 · 手動試験",
+          " → Badge · ##On · 共有 (singleton) · DSL",
+          "掲示の値 · DSL"
+        ],
+        "history": [
+          {
+            "current": false,
+            "ghost": true,
+            "text": "goto → Screen"
+          },
+          {
+            "current": false,
+            "ghost": true,
+            "text": "[Screen / Start] show(Badge)"
+          },
+          {
+            "current": true,
+            "ghost": false,
+            "text": "[Screen / Start] set(Badge)"
+          },
+          {
+            "current": false,
+            "ghost": false,
+            "text": "[Screen / Start] effect: pre-effect"
+          },
+          {
+            "current": false,
+            "ghost": false,
+            "text": "[Screen / Start] manual-test(Badge##On)"
+          },
+          {
+            "current": false,
+            "ghost": false,
+            "text": "[Screen / Start] manual-test(Card##Idle)"
+          },
+          {
+            "current": false,
+            "ghost": false,
+            "text": "[Screen / Start] manual-test(Card##Ready)"
+          },
+          {
+            "current": false,
+            "ghost": false,
+            "text": "[Screen / Start] show(Card)"
+          },
+          {
+            "current": false,
+            "ghost": false,
+            "text": "起動"
+          }
+        ],
+        "overlays": [
+          "Card"
+        ],
+        "variant": "## Start"
+      }
+    },
+    {
+      "case": "seek-manual-origin",
+      "at": "2026-10-14T06:56:17.462Z",
+      "observed": {
+        "badge": " → Badge · ##On · 共有 (singleton) · 手動試験",
+        "ghosts": 4
+      }
+    },
+    {
+      "case": "branch-discards-ghosts",
+      "at": "2026-10-14T06:56:55.217Z",
+      "observed": {
+        "current": "[Screen / Start] show(Card)",
+        "ghosts": 0,
+        "history": [
+          "[Screen / Start] show(Card)",
+          "[Screen / Start] manual-test(Badge##On)",
+          "[Screen / Start] manual-test(Card##Idle)",
+          "[Screen / Start] manual-test(Card##Ready)",
+          "[Screen / Start] show(Card)",
+          "起動"
+        ]
+      }
+    },
+    {
+      "case": "map-display-only",
+      "at": "2026-10-14T06:57:16.846Z",
+      "observed": {
+        "handles": [
+          null,
+          null,
+          null,
+          "handleInteraction('component',3,0, '805870f8-29cd-47cb-9a63-6cefcb50ae22:11:3')",
+          "handleInteraction('component',4,0, '805870f8-29cd-47cb-9a63-6cefcb50ae22:11:4')"
+        ],
+        "history": "起動",
+        "nodes": [
+          "Screen",
+          "Card ## Idle",
+          "Card ## Ready",
+          "Badge"
+        ]
+      }
+    },
+    {
+      "case": "builtin-back-keyboard",
+      "at": "2026-10-14T06:57:38.898Z",
+      "observed": {
+        "backVisible": false,
+        "history": "back → Home › push → Detail › 起動",
+        "location": "Home"
+      }
+    },
+    {
+      "case": "inline-unresolved-no-fake-variant",
+      "at": "2026-10-14T06:58:14.684Z",
+      "observed": {
+        "focus": "toggleShowStates()",
+        "leafAnnotations": [
+          {
+            "annotations": 0,
+            "text": "New"
+          },
+          {
+            "annotations": 0,
+            "text": "Save"
+          },
+          {
+            "annotations": 0,
+            "text": "Format"
+          },
+          {
+            "annotations": 0,
+            "text": "New"
+          },
+          {
+            "annotations": 0,
+            "text": "Save"
+          },
+          {
+            "annotations": 0,
+            "text": "Format"
+          }
+        ],
+        "summaries": [
+          {
+            "annotations": 0,
+            "text": "inline群"
+          },
+          {
+            "annotations": 1,
+            "text": "名前付き群 → 操作群 · variantなし · 包含の初期値 · 初期"
+          }
+        ]
+      }
+    },
+    {
+      "case": "real-frame-tree-and-diagnostics",
+      "at": "2026-10-14T06:58:51.311Z",
+      "observed": [
+        {
+          "action": "home",
+          "backVisible": false,
+          "current": "present → Home",
+          "location": "Home",
+          "stack": [
+            "▌Home@home",
+            "Entry"
+          ]
+        },
+        {
+          "action": "detail",
+          "backVisible": true,
+          "current": "push → Detail",
+          "location": "Detail",
+          "stack": [
+            "Detail@reading",
+            "▌Home@home",
+            "Entry"
+          ]
+        },
+        {
+          "action": "b",
+          "backVisible": false,
+          "current": "switch → B",
+          "location": "B",
+          "stack": [
+            "▌B@b",
+            "Detail@reading",
+            "▌Home@home",
+            "Entry"
+          ]
+        },
+        {
+          "action": "modal",
+          "backVisible": false,
+          "current": "present → Modal",
+          "location": "Modal",
+          "stack": [
+            "▌Modal@modal",
+            "▌B@b",
+            "Detail@reading",
+            "▌Home@home",
+            "Entry"
+          ]
+        },
+        {
+          "action": "c",
+          "backVisible": false,
+          "current": "switch → C",
+          "location": "C",
+          "stack": [
+            "▌C@c",
+            "Detail@reading",
+            "▌Home@home",
+            "Entry"
+          ]
+        },
+        {
+          "action": "close-reading",
+          "backVisible": false,
+          "current": "exit → Home",
+          "location": "Home",
+          "stack": [
+            "▌Home@home",
+            "Entry"
+          ]
+        },
+        {
+          "action": "resume-b",
+          "backVisible": false,
+          "current": "switch → B",
+          "location": "B",
+          "stack": [
+            "▌B@b",
+            "▌Home@home",
+            "Entry"
+          ]
+        },
+        {
+          "action": "push-detail",
+          "backVisible": true,
+          "current": "push → Detail",
+          "location": "Detail",
+          "stack": [
+            "Detail",
+            "▌B@b",
+            "▌Home@home",
+            "Entry"
+          ]
+        },
+        {
+          "action": "back",
+          "backVisible": false,
+          "current": "back → B",
+          "location": "B",
+          "stack": [
+            "▌B@b",
+            "▌Home@home",
+            "Entry"
+          ]
+        },
+        {
+          "action": "close-modal",
+          "backVisible": false,
+          "current": "[B] R002: exit 対象セッション @modal がスタックに不在",
+          "location": "B",
+          "stack": [
+            "▌B@b",
+            "▌Home@home",
+            "Entry"
+          ]
+        },
+        {
+          "action": "back",
+          "backVisible": false,
+          "current": "[B] R003: back() が壁に阻まれ no-op",
+          "location": "B",
+          "stack": [
+            "▌B@b",
+            "▌Home@home",
+            "Entry"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "compact-proof-display",
+      "at": "2026-10-14T07:22:06.106Z",
+      "observed": {
+        "overlay": "掲示中Card## Ready掲示の値 · DSLsignal",
+        "summaries": [
+          "a → Card · ##Idle · 部品の試験値 · 手動試験",
+          "b → Card · ##Idle · 部品の試験値 · 手動試験",
+          "badge → Badge · ##Off · 共有 (singleton) · 初期"
+        ],
+        "timeline": "[Screen / Start] manual-test(Card##Idle) › [Screen / Start] manual-test(Card##Ready) › [Screen / Start] show(Card) › 起動"
+      }
+    },
+    {
+      "case": "keyboard-toggle-full-before-off-on",
+      "before": {
+        "checked": true,
+        "folds": [
+          {
+            "label": "a → Card · ##Idle · 部品の試験値 · 手動試験",
+            "open": false
+          },
+          {
+            "label": "b → Card · ##Idle · 部品の試験値 · 手動試験",
+            "open": false
+          },
+          {
+            "label": "badge → Badge · ##Off · 共有 (singleton) · 初期",
+            "open": false
+          },
+          {
+            "label": "スタック",
+            "open": false
+          },
+          {
+            "label": "遷移マップ",
+            "open": false
+          }
+        ],
+        "handles": [
+          "jumpToTimeline(3)",
+          "jumpToTimeline(2)",
+          "jumpToTimeline(1)",
+          "jumpToTimeline(0)",
+          "resetSession()",
+          "toggleGatePanel()",
+          "saveGraphConfig()",
+          "pinGraphTooltip(0)",
+          "pinGraphTooltip(1)",
+          "pinGraphTooltip(2)",
+          "pinGraphTooltip(3)"
+        ]
+      },
+      "off": {
+        "checked": false,
+        "focus": "toggleShowStates()",
+        "folds": [
+          {
+            "label": "a",
+            "open": false
+          },
+          {
+            "label": "b",
+            "open": false
+          },
+          {
+            "label": "badge",
+            "open": false
+          },
+          {
+            "label": "スタック",
+            "open": false
+          },
+          {
+            "label": "遷移マップ",
+            "open": false
+          }
+        ],
+        "handles": [
+          "jumpToTimeline(3)",
+          "jumpToTimeline(2)",
+          "jumpToTimeline(1)",
+          "jumpToTimeline(0)",
+          "resetSession()",
+          "toggleGatePanel()",
+          "saveGraphConfig()",
+          "pinGraphTooltip(0)",
+          "pinGraphTooltip(1)",
+          "pinGraphTooltip(2)",
+          "pinGraphTooltip(3)"
+        ]
+      },
+      "on": {
+        "checked": true,
+        "focus": "toggleShowStates()",
+        "folds": [
+          {
+            "label": "a → Card · ##Idle · 部品の試験値 · 手動試験",
+            "open": false
+          },
+          {
+            "label": "b → Card · ##Idle · 部品の試験値 · 手動試験",
+            "open": false
+          },
+          {
+            "label": "badge → Badge · ##Off · 共有 (singleton) · 初期",
+            "open": false
+          },
+          {
+            "label": "スタック",
+            "open": false
+          },
+          {
+            "label": "遷移マップ",
+            "open": false
+          }
+        ],
+        "handles": [
+          "jumpToTimeline(3)",
+          "jumpToTimeline(2)",
+          "jumpToTimeline(1)",
+          "jumpToTimeline(0)",
+          "resetSession()",
+          "toggleGatePanel()",
+          "saveGraphConfig()",
+          "pinGraphTooltip(0)",
+          "pinGraphTooltip(1)",
+          "pinGraphTooltip(2)",
+          "pinGraphTooltip(3)"
+        ]
+      }
+    },
+    {
+      "case": "reset-explicit-before-after",
+      "before": {
+        "history": [
+          "[Screen / Start] manual-test(Card##Idle)",
+          "[Screen / Start] manual-test(Card##Ready)",
+          "[Screen / Start] show(Card)",
+          "起動"
+        ],
+        "main": "現在の画面初期状態へアクティブな frame の表示（本体）と掲示中カード アクションを表示 部品の状態を表示画面外 component の姿切替（gate 試験用）今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。Screen## Start画面の値 · 初期a → Card · ##Idle · 部品の試験値 · 手動試験labelb → Card · ##Idle · 部品の試験値 · 手動試験labelbadge → Badge · ##Off · 共有 (singleton) · 初期掲示中Card## Ready掲示の値 · DSLsignalスタック今積み重なっている画面。プッシュダウン構成として読める。上が現在地Screen / Start遷移マップ画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。設定を保存 全体を見るScreenCard ## IdleCard ## ReadyBadge"
+      },
+      "after": {
+        "history": [
+          "起動"
+        ],
+        "main": "現在の画面初期状態へアクティブな frame の表示（本体）と掲示中カード アクションを表示 部品の状態を表示画面外 component の姿切替（gate 試験用）今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。Screen## Start画面の値 · 初期a → Card · ##Idle · 包含の初期値 · 初期labelb → Card · ##Idle · 包含の初期値 · 初期labelbadge → Badge · ##Off · 共有 (singleton) · 初期スタック今積み重なっている画面。プッシュダウン構成として読める。上が現在地Screen / Start遷移マップ画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。設定を保存 全体を見るScreenCard ## IdleCard ## ReadyBadge"
+      }
+    },
+    {
+      "case": "map-before-after",
+      "before": {
+        "handles": [
+          null,
+          null,
+          null,
+          "handleInteraction('component',3,0, '805870f8-29cd-47cb-9a63-6cefcb50ae22:11:3')",
+          "handleInteraction('component',4,0, '805870f8-29cd-47cb-9a63-6cefcb50ae22:11:4')"
+        ],
+        "history": "起動"
+      },
+      "after": {
+        "handles": [
+          null,
+          null,
+          null,
+          "handleInteraction('component',3,0, '805870f8-29cd-47cb-9a63-6cefcb50ae22:11:3')",
+          "handleInteraction('component',4,0, '805870f8-29cd-47cb-9a63-6cefcb50ae22:11:4')"
+        ],
+        "history": "起動",
+        "nodes": [
+          "Screen",
+          "Card ## Idle",
+          "Card ## Ready",
+          "Badge"
+        ]
+      }
+    },
+    {
+      "case": "display-toggle-live-handles-history-fold",
+      "before": {
+        "checked": true,
+        "folds": [
+          true,
+          false,
+          false,
+          false,
+          false
+        ],
+        "history": [
+          "起動"
+        ],
+        "operations": [
+          "handleInteraction('component',0,0, '805870f8-29cd-47cb-9a63-6cefcb50ae22:15:0', 'b0')",
+          "handleInteraction('component',3,0, '805870f8-29cd-47cb-9a63-6cefcb50ae22:15:3')",
+          "handleInteraction('component',4,0, '805870f8-29cd-47cb-9a63-6cefcb50ae22:15:4')"
+        ]
+      },
+      "off": {
+        "checked": false,
+        "focus": "toggleShowStates()",
+        "folds": [
+          true,
+          false,
+          false,
+          false,
+          false
+        ],
+        "history": [
+          "起動"
+        ],
+        "operations": [
+          "handleInteraction('component',0,0, '805870f8-29cd-47cb-9a63-6cefcb50ae22:15:0', 'b0')",
+          "handleInteraction('component',3,0, '805870f8-29cd-47cb-9a63-6cefcb50ae22:15:3')",
+          "handleInteraction('component',4,0, '805870f8-29cd-47cb-9a63-6cefcb50ae22:15:4')"
+        ]
+      },
+      "on": {
+        "checked": true,
+        "focus": "toggleShowStates()",
+        "folds": [
+          true,
+          false,
+          false,
+          false,
+          false
+        ],
+        "history": [
+          "起動"
+        ],
+        "operations": [
+          "handleInteraction('component',0,0, '805870f8-29cd-47cb-9a63-6cefcb50ae22:15:0', 'b0')",
+          "handleInteraction('component',3,0, '805870f8-29cd-47cb-9a63-6cefcb50ae22:15:3')",
+          "handleInteraction('component',4,0, '805870f8-29cd-47cb-9a63-6cefcb50ae22:15:4')"
+        ]
+      }
+    }
+  ],
+  "guiRuns": [
+    {
+      "name": "sol/current",
+      "start": "2026-10-14T07:03:20.545Z",
+      "actions": [
+        {
+          "name": "Normalize variant固有",
+          "at": "2026-10-14T07:04:37.132Z",
+          "observed": {
+            "annotations": [
+              "画面の値 · 初期",
+              " → DocumentCommands · variantなし · 包含の初期値 · 初期",
+              " → New · variantなし · 包含の初期値 · 初期",
+              " → OpenFile · variantなし · 包含の初期値 · 初期",
+              " → OpenFolder · variantなし · 包含の初期値 · 初期",
+              " → Save · variantなし · 包含の初期値 · 初期",
+              " → SaveAs · variantなし · 包含の初期値 · 初期",
+              " → FormatFlows · variantなし · 包含の初期値 · 初期",
+              " → FormatFlat · variantなし · 包含の初期値 · 初期",
+              " → NormalizedEdges · variantなし · 包含の初期値 · 初期",
+              " → EdgeText · variantなし · 包含の初期値 · 初期",
+              " → Close · variantなし · 包含の初期値 · 初期",
+              " → Navigation · variantなし · 包含の初期値 · 初期",
+              " → RecentTargets · variantなし · 包含の初期値 · 初期",
+              " → FolderFiles · variantなし · 包含の初期値 · 初期",
+              " → GlobalMessage · ##Instruction · 共有 (singleton) · 初期",
+              " → SaveExplicitly · variantなし · 包含の初期値 · 初期",
+              " → DocumentTabs · variantなし · 包含の初期値 · 初期",
+              " → DocumentTab · variantなし · 包含の初期値 · 初期",
+              " → FileName · variantなし · 包含の初期値 · 初期",
+              " → Close · variantなし · 包含の初期値 · 初期",
+              " → SourceEditor · variantなし · 包含の初期値 · 初期",
+              " → SourceText · variantなし · 包含の初期値 · 初期",
+              " → Diagnostics · variantなし · 包含の初期値 · 初期",
+              " → DiagramView · ##Ready · 共有 (singleton) · 初期",
+              " → ZoomOut · variantなし · 包含の初期値 · 初期",
+              " → ZoomLevel · variantなし · 包含の初期値 · 初期",
+              " → ZoomIn · variantなし · 包含の初期値 · 初期",
+              " → Fit · variantなし · 包含の初期値 · 初期",
+              " → ActualSize · variantなし · 包含の初期値 · 初期",
+              " → NodeActions · variantなし · 包含の初期値 · 初期",
+              " → Help · variantなし · 包含の初期値 · 初期",
+              " → Graph · variantなし · 包含の初期値 · 初期",
+              "掲示の値 · 初期",
+              " → EdgeText · variantなし · 包含の初期値 · 初期",
+              " → Close · variantなし · 包含の初期値 · 初期"
+            ],
+            "current": "[Workspace / Editing] show(NormalizedEdges)",
+            "location": "Workspace",
+            "overlays": [
+              "NormalizedEdges"
+            ],
+            "variant": "## Editing"
+          }
+        },
+        {
+          "name": "NodeDoubleClick variant固有",
+          "at": "2026-10-14T07:04:37.411Z",
+          "observed": {
+            "annotations": [
+              "画面の値 · 初期",
+              " → DocumentCommands · variantなし · 包含の初期値 · 初期",
+              " → New · variantなし · 包含の初期値 · 初期",
+              " → OpenFile · variantなし · 包含の初期値 · 初期",
+              " → OpenFolder · variantなし · 包含の初期値 · 初期",
+              " → Save · variantなし · 包含の初期値 · 初期",
+              " → SaveAs · variantなし · 包含の初期値 · 初期",
+              " → FormatFlows · variantなし · 包含の初期値 · 初期",
+              " → FormatFlat · variantなし · 包含の初期値 · 初期",
+              " → NormalizedEdges · variantなし · 包含の初期値 · 初期",
+              " → EdgeText · variantなし · 包含の初期値 · 初期",
+              " → Close · variantなし · 包含の初期値 · 初期",
+              " → Navigation · variantなし · 包含の初期値 · 初期",
+              " → RecentTargets · variantなし · 包含の初期値 · 初期",
+              " → FolderFiles · variantなし · 包含の初期値 · 初期",
+              " → GlobalMessage · ##Instruction · 共有 (singleton) · 初期",
+              " → SaveExplicitly · variantなし · 包含の初期値 · 初期",
+              " → DocumentTabs · variantなし · 包含の初期値 · 初期",
+              " → DocumentTab · variantなし · 包含の初期値 · 初期",
+              " → FileName · variantなし · 包含の初期値 · 初期",
+              " → Close · variantなし · 包含の初期値 · 初期",
+              " → SourceEditor · variantなし · 包含の初期値 · 初期",
+              " → SourceText · variantなし · 包含の初期値 · 初期",
+              " → Diagnostics · variantなし · 包含の初期値 · 初期",
+              " → DiagramView · ##Ready · 共有 (singleton) · 初期",
+              " → ZoomOut · variantなし · 包含の初期値 · 初期",
+              " → ZoomLevel · variantなし · 包含の初期値 · 初期",
+              " → ZoomIn · variantなし · 包含の初期値 · 初期",
+              " → Fit · variantなし · 包含の初期値 · 初期",
+              " → ActualSize · variantなし · 包含の初期値 · 初期",
+              " → NodeActions · variantなし · 包含の初期値 · 初期",
+              " → Help · variantなし · 包含の初期値 · 初期",
+              " → Graph · variantなし · 包含の初期値 · 初期",
+              "掲示の値 · 初期",
+              " → EdgeText · variantなし · 包含の初期値 · 初期",
+              " → Close · variantなし · 包含の初期値 · 初期"
+            ],
+            "current": "[Workspace / Editing] effect: Move source cursor to node definition and focus source editor",
+            "location": "Workspace",
+            "overlays": [
+              "NormalizedEdges"
+            ],
+            "variant": "## Editing"
+          }
+        },
+        {
+          "name": "ParseError component common",
+          "at": "2026-10-14T07:04:37.683Z",
+          "observed": {
+            "annotations": [
+              "画面の値 · 初期",
+              " → DocumentCommands · variantなし · 包含の初期値 · 初期",
+              " → New · variantなし · 包含の初期値 · 初期",
+              " → OpenFile · variantなし · 包含の初期値 · 初期",
+              " → OpenFolder · variantなし · 包含の初期値 · 初期",
+              " → Save · variantなし · 包含の初期値 · 初期",
+              " → SaveAs · variantなし · 包含の初期値 · 初期",
+              " → FormatFlows · variantなし · 包含の初期値 · 初期",
+              " → FormatFlat · variantなし · 包含の初期値 · 初期",
+              " → NormalizedEdges · variantなし · 包含の初期値 · 初期",
+              " → EdgeText · variantなし · 包含の初期値 · 初期",
+              " → Close · variantなし · 包含の初期値 · 初期",
+              " → Navigation · variantなし · 包含の初期値 · 初期",
+              " → RecentTargets · variantなし · 包含の初期値 · 初期",
+              " → FolderFiles · variantなし · 包含の初期値 · 初期",
+              " → GlobalMessage · ##Instruction · 共有 (singleton) · 初期",
+              " → SaveExplicitly · variantなし · 包含の初期値 · 初期",
+              " → DocumentTabs · variantなし · 包含の初期値 · 初期",
+              " → DocumentTab · variantなし · 包含の初期値 · 初期",
+              " → FileName · variantなし · 包含の初期値 · 初期",
+              " → Close · variantなし · 包含の初期値 · 初期",
+              " → SourceEditor · variantなし · 包含の初期値 · 初期",
+              " → SourceText · variantなし · 包含の初期値 · 初期",
+              " → Diagnostics · variantなし · 包含の初期値 · 初期",
+              " → DiagramView · ##Error · 共有 (singleton) · DSL",
+              " → ZoomOut · variantなし · 包含の初期値 · 初期",
+              " → ZoomLevel · variantなし · 包含の初期値 · 初期",
+              " → ZoomIn · variantなし · 包含の初期値 · 初期",
+              " → Fit · variantなし · 包含の初期値 · 初期",
+              " → ActualSize · variantなし · 包含の初期値 · 初期",
+              " → NodeActions · variantなし · 包含の初期値 · 初期",
+              " → Help · variantなし · 包含の初期値 · 初期",
+              " → Diagnostics · variantなし · 包含の初期値 · 初期",
+              "掲示の値 · 初期",
+              " → EdgeText · variantなし · 包含の初期値 · 初期",
+              " → Close · variantなし · 包含の初期値 · 初期"
+            ],
+            "current": "[Workspace / Editing] set(DiagramView)",
+            "location": "Workspace",
+            "overlays": [
+              "NormalizedEdges"
+            ],
+            "variant": "## Editing"
+          }
+        },
+        {
+          "name": "ValidInput variant固有",
+          "at": "2026-10-14T07:05:46.898Z",
+          "observed": {
+            "current": "[Workspace / Editing] set(DiagramView)",
+            "location": "Workspace",
+            "overlays": [
+              "NormalizedEdges"
+            ],
+            "variant": "## Editing"
+          }
+        },
+        {
+          "name": "CloseLastDocument component common",
+          "at": "2026-10-14T07:05:47.181Z",
+          "observed": {
+            "current": "goto → Workspace",
+            "location": "Workspace",
+            "overlays": [],
+            "variant": "## NoDocument"
+          }
+        },
+        {
+          "name": "Save variant固有",
+          "at": "2026-10-14T07:06:31.248Z",
+          "observed": {
+            "current": "[Workspace / NoDocument] effect: No active document so nothing happens",
+            "location": "Workspace",
+            "overlays": 0,
+            "variant": "## NoDocument"
+          }
+        }
+      ],
+      "sourceInspections": 0,
+      "identificationFailures": 0,
+      "branchErrors": 0,
+      "end": "2026-10-14T07:06:31.263Z",
+      "completed": true
+    },
+    {
+      "name": "sol/proposed",
+      "start": "2026-10-14T07:06:31.888Z",
+      "actions": [
+        {
+          "name": "SourceOnly",
+          "branch": null,
+          "at": "2026-10-14T07:09:42.044Z",
+          "observed": {
+            "annotations": [
+              "画面の値 · DSL",
+              " → Navigation · variantなし · 包含の初期値 · 初期",
+              " → FolderIdentity · variantなし · 包含の初期値 · 初期",
+              " → FileTree · variantなし · 包含の初期値 · 初期",
+              " → RecentTargets · variantなし · 包含の初期値 · 初期",
+              " → DocumentTabs · variantなし · 包含の初期値 · 初期",
+              " → DocumentTab · variantなし · 包含の初期値 · 初期",
+              " → FileName · variantなし · 包含の初期値 · 初期",
+              " → DocumentStateText · variantなし · 包含の初期値 · 初期",
+              " → Close · variantなし · 包含の初期値 · 初期",
+              " → DocumentIdentity · variantなし · 包含の初期値 · 初期",
+              " → FileName · variantなし · 包含の初期値 · 初期",
+              " → ParentFolder · variantなし · 包含の初期値 · 初期",
+              " → DocumentCommands · variantなし · 包含の初期値 · 初期",
+              " → Save · variantなし · 包含の初期値 · 初期",
+              " → FormatMenu · variantなし · 包含の初期値 · 初期",
+              " → NormalizeAction · variantなし · 包含の初期値 · 初期",
+              " → ViewModes · variantなし · 包含の初期値 · 初期",
+              " → SourceEditor · variantなし · 包含の初期値 · 初期",
+              " → SourceText · variantなし · 包含の初期値 · 初期",
+              " → Diagnostics · variantなし · 包含の初期値 · 初期",
+              " → DocumentStatus · ##Valid · 共有 (singleton) · 初期",
+              " → SavedOrUnsaved · variantなし · 包含の初期値 · 初期"
+            ],
+            "current": "goto → Workspace",
+            "location": "Workspace",
+            "overlays": [],
+            "variant": "## Source"
+          }
+        },
+        {
+          "name": "DiagramOnly",
+          "branch": null,
+          "at": "2026-10-14T07:09:42.327Z",
+          "observed": {
+            "annotations": [
+              "画面の値 · DSL",
+              " → Navigation · variantなし · 包含の初期値 · 初期",
+              " → FolderIdentity · variantなし · 包含の初期値 · 初期",
+              " → FileTree · variantなし · 包含の初期値 · 初期",
+              " → RecentTargets · variantなし · 包含の初期値 · 初期",
+              " → DocumentTabs · variantなし · 包含の初期値 · 初期",
+              " → DocumentTab · variantなし · 包含の初期値 · 初期",
+              " → FileName · variantなし · 包含の初期値 · 初期",
+              " → DocumentStateText · variantなし · 包含の初期値 · 初期",
+              " → Close · variantなし · 包含の初期値 · 初期",
+              " → DocumentIdentity · variantなし · 包含の初期値 · 初期",
+              " → FileName · variantなし · 包含の初期値 · 初期",
+              " → ParentFolder · variantなし · 包含の初期値 · 初期",
+              " → DocumentCommands · variantなし · 包含の初期値 · 初期",
+              " → Save · variantなし · 包含の初期値 · 初期",
+              " → FormatMenu · variantなし · 包含の初期値 · 初期",
+              " → NormalizeAction · variantなし · 包含の初期値 · 初期",
+              " → ViewModes · variantなし · 包含の初期値 · 初期",
+              " → DiagramView · ##Ready · 共有 (singleton) · 初期",
+              " → ZoomLevel · variantなし · 包含の初期値 · 初期",
+              " → Fit · variantなし · 包含の初期値 · 初期",
+              " → ActualSize · variantなし · 包含の初期値 · 初期",
+              " → Graph · variantなし · 包含の初期値 · 初期",
+              " → NodeActions · variantなし · 包含の初期値 · 初期",
+              " → DocumentStatus · ##Valid · 共有 (singleton) · 初期",
+              " → SavedOrUnsaved · variantなし · 包含の初期値 · 初期"
+            ],
+            "current": "goto → Workspace",
+            "location": "Workspace",
+            "overlays": [],
+            "variant": "## Diagram"
+          }
+        },
+        {
+          "name": "NodeDoubleClick(DiagramView.graph)",
+          "branch": null,
+          "at": "2026-10-14T07:11:33.839Z",
+          "observed": {
+            "annotations": [
+              "画面の値 · DSL",
+              " → Navigation · variantなし · 包含の初期値 · 初期",
+              " → FolderIdentity · variantなし · 包含の初期値 · 初期",
+              " → FileTree · variantなし · 包含の初期値 · 初期",
+              " → RecentTargets · variantなし · 包含の初期値 · 初期",
+              " → DocumentTabs · variantなし · 包含の初期値 · 初期",
+              " → DocumentTab · variantなし · 包含の初期値 · 初期",
+              " → FileName · variantなし · 包含の初期値 · 初期",
+              " → DocumentStateText · variantなし · 包含の初期値 · 初期",
+              " → Close · variantなし · 包含の初期値 · 初期",
+              " → DocumentIdentity · variantなし · 包含の初期値 · 初期",
+              " → FileName · variantなし · 包含の初期値 · 初期",
+              " → ParentFolder · variantなし · 包含の初期値 · 初期",
+              " → DocumentCommands · variantなし · 包含の初期値 · 初期",
+              " → Save · variantなし · 包含の初期値 · 初期",
+              " → FormatMenu · variantなし · 包含の初期値 · 初期",
+              " → NormalizeAction · variantなし · 包含の初期値 · 初期",
+              " → ViewModes · variantなし · 包含の初期値 · 初期",
+              " → SourceEditor · variantなし · 包含の初期値 · 初期",
+              " → SourceText · variantなし · 包含の初期値 · 初期",
+              " → Diagnostics · variantなし · 包含の初期値 · 初期",
+              " → DiagramView · ##Ready · 共有 (singleton) · 初期",
+              " → ZoomLevel · variantなし · 包含の初期値 · 初期",
+              " → Fit · variantなし · 包含の初期値 · 初期",
+              " → ActualSize · variantなし · 包含の初期値 · 初期",
+              " → Graph · variantなし · 包含の初期値 · 初期",
+              " → NodeActions · variantなし · 包含の初期値 · 初期",
+              " → DocumentStatus · ##Valid · 共有 (singleton) · 初期",
+              " → SavedOrUnsaved · variantなし · 包含の初期値 · 初期"
+            ],
+            "current": "goto → Workspace",
+            "location": "Workspace",
+            "overlays": [],
+            "variant": "## Split"
+          }
+        },
+        {
+          "name": "Conflict",
+          "branch": null,
+          "at": "2026-10-14T07:11:34.116Z",
+          "observed": {
+            "annotations": [
+              "画面の値 · DSL",
+              " → Navigation · variantなし · 包含の初期値 · 初期",
+              " → FolderIdentity · variantなし · 包含の初期値 · 初期",
+              " → FileTree · variantなし · 包含の初期値 · 初期",
+              " → RecentTargets · variantなし · 包含の初期値 · 初期",
+              " → DocumentTabs · variantなし · 包含の初期値 · 初期",
+              " → DocumentTab · variantなし · 包含の初期値 · 初期",
+              " → FileName · variantなし · 包含の初期値 · 初期",
+              " → DocumentStateText · variantなし · 包含の初期値 · 初期",
+              " → Close · variantなし · 包含の初期値 · 初期",
+              " → DocumentIdentity · variantなし · 包含の初期値 · 初期",
+              " → FileName · variantなし · 包含の初期値 · 初期",
+              " → ParentFolder · variantなし · 包含の初期値 · 初期",
+              " → DocumentCommands · variantなし · 包含の初期値 · 初期",
+              " → Save · variantなし · 包含の初期値 · 初期",
+              " → FormatMenu · variantなし · 包含の初期値 · 初期",
+              " → NormalizeAction · variantなし · 包含の初期値 · 初期",
+              " → ViewModes · variantなし · 包含の初期値 · 初期",
+              " → SourceEditor · variantなし · 包含の初期値 · 初期",
+              " → SourceText · variantなし · 包含の初期値 · 初期",
+              " → Diagnostics · variantなし · 包含の初期値 · 初期",
+              " → DiagramView · ##Ready · 共有 (singleton) · 初期",
+              " → ZoomLevel · variantなし · 包含の初期値 · 初期",
+              " → Fit · variantなし · 包含の初期値 · 初期",
+              " → ActualSize · variantなし · 包含の初期値 · 初期",
+              " → Graph · variantなし · 包含の初期値 · 初期",
+              " → NodeActions · variantなし · 包含の初期値 · 初期",
+              " → DocumentStatus · ##Conflict · 共有 (singleton) · DSL",
+              " → ExternalChange · variantなし · 包含の初期値 · 初期",
+              "掲示の値 · 初期",
+              " → ExternalChange · variantなし · 包含の初期値 · 初期",
+              " → ReviewVersions · variantなし · 包含の初期値 · 初期"
+            ],
+            "current": "[Workspace / Split] show(RecoveryNotice)",
+            "location": "Workspace",
+            "overlays": [
+              "RecoveryNotice"
+            ],
+            "variant": "## Split"
+          }
+        },
+        {
+          "name": "Review",
+          "branch": null,
+          "at": "2026-10-14T07:11:34.393Z",
+          "observed": {
+            "annotations": [
+              "画面の値 · 初期",
+              " → DocumentIdentity · variantなし · 包含の初期値 · 初期",
+              " → FileName · variantなし · 包含の初期値 · 初期",
+              " → ParentFolder · variantなし · 包含の初期値 · 初期",
+              " → EditorVersion · variantなし · 包含の初期値 · 初期",
+              " → DiskVersion · variantなし · 包含の初期値 · 初期",
+              " → KeepEditing · variantなし · 包含の初期値 · 初期",
+              " → SaveCopy · variantなし · 包含の初期値 · 初期",
+              " → ReplaceReviewedDisk · variantなし · 包含の初期値 · 初期",
+              " → UseDiskVersion · variantなし · 包含の初期値 · 初期"
+            ],
+            "current": "present → VersionReview",
+            "location": "VersionReview",
+            "overlays": []
+          }
+        },
+        {
+          "name": "KeepEditing",
+          "branch": null,
+          "at": "2026-10-14T07:12:11.205Z",
+          "observed": {
+            "annotations": [
+              "画面の値 · DSL",
+              " → Navigation · variantなし · 包含の初期値 · 初期",
+              " → FolderIdentity · variantなし · 包含の初期値 · 初期",
+              " → FileTree · variantなし · 包含の初期値 · 初期",
+              " → RecentTargets · variantなし · 包含の初期値 · 初期",
+              " → DocumentTabs · variantなし · 包含の初期値 · 初期",
+              " → DocumentTab · variantなし · 包含の初期値 · 初期",
+              " → FileName · variantなし · 包含の初期値 · 初期",
+              " → DocumentStateText · variantなし · 包含の初期値 · 初期",
+              " → Close · variantなし · 包含の初期値 · 初期",
+              " → DocumentIdentity · variantなし · 包含の初期値 · 初期",
+              " → FileName · variantなし · 包含の初期値 · 初期",
+              " → ParentFolder · variantなし · 包含の初期値 · 初期",
+              " → DocumentCommands · variantなし · 包含の初期値 · 初期",
+              " → Save · variantなし · 包含の初期値 · 初期",
+              " → FormatMenu · variantなし · 包含の初期値 · 初期",
+              " → NormalizeAction · variantなし · 包含の初期値 · 初期",
+              " → ViewModes · variantなし · 包含の初期値 · 初期",
+              " → SourceEditor · variantなし · 包含の初期値 · 初期",
+              " → SourceText · variantなし · 包含の初期値 · 初期",
+              " → Diagnostics · variantなし · 包含の初期値 · 初期",
+              " → DiagramView · ##Ready · 共有 (singleton) · 初期",
+              " → ZoomLevel · variantなし · 包含の初期値 · 初期",
+              " → Fit · variantなし · 包含の初期値 · 初期",
+              " → ActualSize · variantなし · 包含の初期値 · 初期",
+              " → Graph · variantなし · 包含の初期値 · 初期",
+              " → NodeActions · variantなし · 包含の初期値 · 初期",
+              " → DocumentStatus · ##Conflict · 共有 (singleton) · DSL",
+              " → ExternalChange · variantなし · 包含の初期値 · 初期",
+              "掲示の値 · 初期",
+              " → ExternalChange · variantなし · 包含の初期値 · 初期",
+              " → ReviewVersions · variantなし · 包含の初期値 · 初期"
+            ],
+            "current": "[Workspace / Split] show(RecoveryNotice)",
+            "location": "Workspace",
+            "overlays": [
+              "RecoveryNotice"
+            ],
+            "variant": "## Split"
+          }
+        },
+        {
+          "name": "ParseError",
+          "branch": null,
+          "at": "2026-10-14T07:12:11.479Z",
+          "observed": {
+            "annotations": [
+              "画面の値 · DSL",
+              " → Navigation · variantなし · 包含の初期値 · 初期",
+              " → FolderIdentity · variantなし · 包含の初期値 · 初期",
+              " → FileTree · variantなし · 包含の初期値 · 初期",
+              " → RecentTargets · variantなし · 包含の初期値 · 初期",
+              " → DocumentTabs · variantなし · 包含の初期値 · 初期",
+              " → DocumentTab · variantなし · 包含の初期値 · 初期",
+              " → FileName · variantなし · 包含の初期値 · 初期",
+              " → DocumentStateText · variantなし · 包含の初期値 · 初期",
+              " → Close · variantなし · 包含の初期値 · 初期",
+              " → DocumentIdentity · variantなし · 包含の初期値 · 初期",
+              " → FileName · variantなし · 包含の初期値 · 初期",
+              " → ParentFolder · variantなし · 包含の初期値 · 初期",
+              " → DocumentCommands · variantなし · 包含の初期値 · 初期",
+              " → Save · variantなし · 包含の初期値 · 初期",
+              " → FormatMenu · variantなし · 包含の初期値 · 初期",
+              " → NormalizeAction · variantなし · 包含の初期値 · 初期",
+              " → ViewModes · variantなし · 包含の初期値 · 初期",
+              " → SourceEditor · variantなし · 包含の初期値 · 初期",
+              " → SourceText · variantなし · 包含の初期値 · 初期",
+              " → Diagnostics · variantなし · 包含の初期値 · 初期",
+              " → DiagramView · ##Error · 共有 (singleton) · DSL",
+              " → Diagnostics · variantなし · 包含の初期値 · 初期",
+              " → DocumentStatus · ##Invalid · 共有 (singleton) · DSL",
+              " → DiagramUnavailable · variantなし · 包含の初期値 · 初期",
+              " → Diagnostics · variantなし · 包含の初期値 · 初期",
+              "掲示の値 · 初期",
+              " → ExternalChange · variantなし · 包含の初期値 · 初期",
+              " → ReviewVersions · variantなし · 包含の初期値 · 初期"
+            ],
+            "current": "[Workspace / Split] set(DiagramView)",
+            "location": "Workspace",
+            "overlays": [
+              "RecoveryNotice"
+            ],
+            "variant": "## Split"
+          }
+        },
+        {
+          "name": "DiagramOnly",
+          "branch": null,
+          "at": "2026-10-14T07:12:11.755Z",
+          "observed": {
+            "annotations": [
+              "画面の値 · DSL",
+              " → Navigation · variantなし · 包含の初期値 · 初期",
+              " → FolderIdentity · variantなし · 包含の初期値 · 初期",
+              " → FileTree · variantなし · 包含の初期値 · 初期",
+              " → RecentTargets · variantなし · 包含の初期値 · 初期",
+              " → DocumentTabs · variantなし · 包含の初期値 · 初期",
+              " → DocumentTab · variantなし · 包含の初期値 · 初期",
+              " → FileName · variantなし · 包含の初期値 · 初期",
+              " → DocumentStateText · variantなし · 包含の初期値 · 初期",
+              " → Close · variantなし · 包含の初期値 · 初期",
+              " → DocumentIdentity · variantなし · 包含の初期値 · 初期",
+              " → FileName · variantなし · 包含の初期値 · 初期",
+              " → ParentFolder · variantなし · 包含の初期値 · 初期",
+              " → DocumentCommands · variantなし · 包含の初期値 · 初期",
+              " → Save · variantなし · 包含の初期値 · 初期",
+              " → FormatMenu · variantなし · 包含の初期値 · 初期",
+              " → NormalizeAction · variantなし · 包含の初期値 · 初期",
+              " → ViewModes · variantなし · 包含の初期値 · 初期",
+              " → DiagramView · ##Error · 共有 (singleton) · DSL",
+              " → Diagnostics · variantなし · 包含の初期値 · 初期",
+              " → DocumentStatus · ##Invalid · 共有 (singleton) · DSL",
+              " → DiagramUnavailable · variantなし · 包含の初期値 · 初期",
+              " → Diagnostics · variantなし · 包含の初期値 · 初期",
+              "掲示の値 · 初期",
+              " → ExternalChange · variantなし · 包含の初期値 · 初期",
+              " → ReviewVersions · variantなし · 包含の初期値 · 初期"
+            ],
+            "current": "goto → Workspace",
+            "location": "Workspace",
+            "overlays": [
+              "RecoveryNotice"
+            ],
+            "variant": "## Diagram"
+          }
+        },
+        {
+          "name": "NodeDoubleClick(DiagramView.graph)",
+          "branch": null,
+          "at": "2026-10-14T07:12:11.762Z",
+          "intentionalDisabled": true
+        },
+        {
+          "name": "ValidInput",
+          "branch": null,
+          "at": "2026-10-14T07:12:55.967Z",
+          "observed": {
+            "annotations": [
+              "画面の値 · DSL",
+              " → Navigation · variantなし · 包含の初期値 · 初期",
+              " → FolderIdentity · variantなし · 包含の初期値 · 初期",
+              " → FileTree · variantなし · 包含の初期値 · 初期",
+              " → RecentTargets · variantなし · 包含の初期値 · 初期",
+              " → DocumentTabs · variantなし · 包含の初期値 · 初期",
+              " → DocumentTab · variantなし · 包含の初期値 · 初期",
+              " → FileName · variantなし · 包含の初期値 · 初期",
+              " → DocumentStateText · variantなし · 包含の初期値 · 初期",
+              " → Close · variantなし · 包含の初期値 · 初期",
+              " → DocumentIdentity · variantなし · 包含の初期値 · 初期",
+              " → FileName · variantなし · 包含の初期値 · 初期",
+              " → ParentFolder · variantなし · 包含の初期値 · 初期",
+              " → DocumentCommands · variantなし · 包含の初期値 · 初期",
+              " → Save · variantなし · 包含の初期値 · 初期",
+              " → FormatMenu · variantなし · 包含の初期値 · 初期",
+              " → NormalizeAction · variantなし · 包含の初期値 · 初期",
+              " → ViewModes · variantなし · 包含の初期値 · 初期",
+              " → DiagramView · ##Ready · 共有 (singleton) · DSL",
+              " → ZoomLevel · variantなし · 包含の初期値 · 初期",
+              " → Fit · variantなし · 包含の初期値 · 初期",
+              " → ActualSize · variantなし · 包含の初期値 · 初期",
+              " → Graph · variantなし · 包含の初期値 · 初期",
+              " → NodeActions · variantなし · 包含の初期値 · 初期",
+              " → DocumentStatus · ##Valid · 共有 (singleton) · DSL",
+              " → SavedOrUnsaved · variantなし · 包含の初期値 · 初期",
+              "掲示の値 · 初期",
+              " → ExternalChange · variantなし · 包含の初期値 · 初期",
+              " → ReviewVersions · variantなし · 包含の初期値 · 初期"
+            ],
+            "current": "[Workspace / Diagram] set(DiagramView)",
+            "location": "Workspace",
+            "overlays": [
+              "RecoveryNotice"
+            ],
+            "variant": "## Diagram"
+          }
+        },
+        {
+          "name": "NodeDoubleClick(DiagramView.graph)",
+          "branch": null,
+          "at": "2026-10-14T07:12:56.241Z",
+          "observed": {
+            "annotations": [
+              "画面の値 · DSL",
+              " → Navigation · variantなし · 包含の初期値 · 初期",
+              " → FolderIdentity · variantなし · 包含の初期値 · 初期",
+              " → FileTree · variantなし · 包含の初期値 · 初期",
+              " → RecentTargets · variantなし · 包含の初期値 · 初期",
+              " → DocumentTabs · variantなし · 包含の初期値 · 初期",
+              " → DocumentTab · variantなし · 包含の初期値 · 初期",
+              " → FileName · variantなし · 包含の初期値 · 初期",
+              " → DocumentStateText · variantなし · 包含の初期値 · 初期",
+              " → Close · variantなし · 包含の初期値 · 初期",
+              " → DocumentIdentity · variantなし · 包含の初期値 · 初期",
+              " → FileName · variantなし · 包含の初期値 · 初期",
+              " → ParentFolder · variantなし · 包含の初期値 · 初期",
+              " → DocumentCommands · variantなし · 包含の初期値 · 初期",
+              " → Save · variantなし · 包含の初期値 · 初期",
+              " → FormatMenu · variantなし · 包含の初期値 · 初期",
+              " → NormalizeAction · variantなし · 包含の初期値 · 初期",
+              " → ViewModes · variantなし · 包含の初期値 · 初期",
+              " → SourceEditor · variantなし · 包含の初期値 · 初期",
+              " → SourceText · variantなし · 包含の初期値 · 初期",
+              " → Diagnostics · variantなし · 包含の初期値 · 初期",
+              " → DiagramView · ##Ready · 共有 (singleton) · DSL",
+              " → ZoomLevel · variantなし · 包含の初期値 · 初期",
+              " → Fit · variantなし · 包含の初期値 · 初期",
+              " → ActualSize · variantなし · 包含の初期値 · 初期",
+              " → Graph · variantなし · 包含の初期値 · 初期",
+              " → NodeActions · variantなし · 包含の初期値 · 初期",
+              " → DocumentStatus · ##Valid · 共有 (singleton) · DSL",
+              " → SavedOrUnsaved · variantなし · 包含の初期値 · 初期",
+              "掲示の値 · 初期",
+              " → ExternalChange · variantなし · 包含の初期値 · 初期",
+              " → ReviewVersions · variantなし · 包含の初期値 · 初期"
+            ],
+            "current": "goto → Workspace",
+            "location": "Workspace",
+            "overlays": [
+              "RecoveryNotice"
+            ],
+            "variant": "## Split"
+          }
+        },
+        {
+          "name": "CloseLastDocument",
+          "branch": null,
+          "at": "2026-10-14T07:12:56.519Z",
+          "observed": {
+            "annotations": [
+              "画面の値 · DSL",
+              " → Navigation · variantなし · 包含の初期値 · 初期",
+              " → FolderIdentity · variantなし · 包含の初期値 · 初期",
+              " → FileTree · variantなし · 包含の初期値 · 初期",
+              " → RecentTargets · variantなし · 包含の初期値 · 初期",
+              " → StartActions · variantなし · 包含の初期値 · 初期",
+              " → OpenAction · variantなし · 包含の初期値 · 初期",
+              " → NewAction · variantなし · 包含の初期値 · 初期"
+            ],
+            "current": "goto → Workspace",
+            "location": "Workspace",
+            "overlays": [],
+            "variant": "## NoDocument"
+          }
+        },
+        {
+          "name": "NewDocument(StartActions.New)",
+          "branch": null,
+          "at": "2026-10-14T07:13:33.293Z",
+          "observed": {
+            "annotations": [
+              "画面の値 · DSL",
+              " → Navigation · variantなし · 包含の初期値 · 初期",
+              " → FolderIdentity · variantなし · 包含の初期値 · 初期",
+              " → FileTree · variantなし · 包含の初期値 · 初期",
+              " → RecentTargets · variantなし · 包含の初期値 · 初期",
+              " → DocumentTabs · variantなし · 包含の初期値 · 初期",
+              " → DocumentTab · variantなし · 包含の初期値 · 初期",
+              " → FileName · variantなし · 包含の初期値 · 初期",
+              " → DocumentStateText · variantなし · 包含の初期値 · 初期",
+              " → Close · variantなし · 包含の初期値 · 初期",
+              " → DocumentIdentity · variantなし · 包含の初期値 · 初期",
+              " → FileName · variantなし · 包含の初期値 · 初期",
+              " → ParentFolder · variantなし · 包含の初期値 · 初期",
+              " → DocumentCommands · variantなし · 包含の初期値 · 初期",
+              " → Save · variantなし · 包含の初期値 · 初期",
+              " → FormatMenu · variantなし · 包含の初期値 · 初期",
+              " → NormalizeAction · variantなし · 包含の初期値 · 初期",
+              " → ViewModes · variantなし · 包含の初期値 · 初期",
+              " → SourceEditor · variantなし · 包含の初期値 · 初期",
+              " → SourceText · variantなし · 包含の初期値 · 初期",
+              " → Diagnostics · variantなし · 包含の初期値 · 初期",
+              " → DocumentStatus · ##Valid · 共有 (singleton) · DSL",
+              " → SavedOrUnsaved · variantなし · 包含の初期値 · 初期"
+            ],
+            "current": "goto → Workspace",
+            "location": "Workspace",
+            "overlays": [],
+            "variant": "## Source"
+          }
+        }
+      ],
+      "sourceInspections": 0,
+      "identificationFailures": 0,
+      "branchErrors": 0,
+      "end": "2026-10-14T07:13:33.293Z",
+      "completed": true
+    },
+    {
+      "name": "astra/current",
+      "start": "2026-10-14T07:13:33.410Z",
+      "actions": [
+        {
+          "name": "開く(開始ボタン)",
+          "branch": null,
+          "at": "2026-10-14T07:13:33.733Z",
+          "observed": {
+            "annotations": [
+              "共有 (singleton) · 初期",
+              " → アプリ操作群 · variantなし · 包含の初期値 · 初期",
+              " → 文書一覧 · variantなし · 包含の初期値 · 初期",
+              " → タブ一覧 · variantなし · 包含の初期値 · 初期",
+              " → ソース部品 · variantなし · 包含の初期値 · 初期",
+              " → 図部品 · variantなし · 包含の初期値 · 初期",
+              " → 正規化A · ##非表示 · 共有 (singleton) · 初期",
+              " → 共通通知 · ##初期 · 共有 (singleton) · 初期"
+            ],
+            "current": "present → 文書A",
+            "location": "文書A",
+            "overlays": [],
+            "variant": "## 保存済"
+          }
+        },
+        {
+          "name": "編集",
+          "branch": null,
+          "at": "2026-10-14T07:14:27.726Z",
+          "observed": {
+            "annotations": [
+              "共有 (singleton) · DSL",
+              " → アプリ操作群 · variantなし · 包含の初期値 · 初期",
+              " → 文書一覧 · variantなし · 包含の初期値 · 初期",
+              " → タブ一覧 · variantなし · 包含の初期値 · 初期",
+              " → ソース部品 · variantなし · 包含の初期値 · 初期",
+              " → 図部品 · variantなし · 包含の初期値 · 初期",
+              " → 正規化A · ##非表示 · 共有 (singleton) · DSL",
+              " → 共通通知 · ##初期 · 共有 (singleton) · 初期"
+            ],
+            "current": "goto → 文書A",
+            "location": "文書A",
+            "overlays": [],
+            "variant": "## 未保存"
+          }
+        },
+        {
+          "name": "保存",
+          "branch": "成功",
+          "at": "2026-10-14T07:14:28.006Z",
+          "observed": {
+            "annotations": [
+              "共有 (singleton) · DSL",
+              " → アプリ操作群 · variantなし · 包含の初期値 · 初期",
+              " → 文書一覧 · variantなし · 包含の初期値 · 初期",
+              " → タブ一覧 · variantなし · 包含の初期値 · 初期",
+              " → ソース部品 · variantなし · 包含の初期値 · 初期",
+              " → 図部品 · variantなし · 包含の初期値 · 初期",
+              " → 正規化A · ##非表示 · 共有 (singleton) · DSL",
+              " → 共通通知 · ##Aを保存した · 共有 (singleton) · DSL"
+            ],
+            "current": "goto → 文書A",
+            "location": "文書A",
+            "overlays": [],
+            "variant": "## 保存済"
+          }
+        },
+        {
+          "name": "切替(B)",
+          "branch": null,
+          "at": "2026-10-14T07:14:28.288Z",
+          "observed": {
+            "annotations": [
+              "共有 (singleton) · 初期",
+              " → アプリ操作群 · variantなし · 包含の初期値 · 初期",
+              " → 文書一覧 · variantなし · 包含の初期値 · 初期",
+              " → タブ一覧 · variantなし · 包含の初期値 · 初期",
+              " → ソース部品 · variantなし · 包含の初期値 · 初期",
+              " → 図部品 · variantなし · 包含の初期値 · 初期",
+              " → 共通通知 · ##Aを保存した · 共有 (singleton) · DSL"
+            ],
+            "current": "switch → 文書B",
+            "location": "文書B",
+            "overlays": [],
+            "variant": "## 保存済"
+          }
+        },
+        {
+          "name": "編集",
+          "branch": null,
+          "at": "2026-10-14T07:14:28.566Z",
+          "observed": {
+            "annotations": [
+              "共有 (singleton) · DSL",
+              " → アプリ操作群 · variantなし · 包含の初期値 · 初期",
+              " → 文書一覧 · variantなし · 包含の初期値 · 初期",
+              " → タブ一覧 · variantなし · 包含の初期値 · 初期",
+              " → ソース部品 · variantなし · 包含の初期値 · 初期",
+              " → 図部品 · variantなし · 包含の初期値 · 初期",
+              " → 共通通知 · ##Aを保存した · 共有 (singleton) · DSL"
+            ],
+            "current": "goto → 文書B",
+            "location": "文書B",
+            "overlays": [],
+            "variant": "## 未保存"
+          }
+        },
+        {
+          "name": "切替(A)",
+          "branch": null,
+          "at": "2026-10-14T07:14:28.844Z",
+          "observed": {
+            "annotations": [
+              "共有 (singleton) · DSL",
+              " → アプリ操作群 · variantなし · 包含の初期値 · 初期",
+              " → 文書一覧 · variantなし · 包含の初期値 · 初期",
+              " → タブ一覧 · variantなし · 包含の初期値 · 初期",
+              " → ソース部品 · variantなし · 包含の初期値 · 初期",
+              " → 図部品 · variantなし · 包含の初期値 · 初期",
+              " → 正規化A · ##非表示 · 共有 (singleton) · DSL",
+              " → 共通通知 · ##Aを保存した · 共有 (singleton) · DSL"
+            ],
+            "current": "switch → 文書A",
+            "location": "文書A",
+            "overlays": [],
+            "variant": "## 保存済"
+          }
+        }
+      ],
+      "sourceInspections": 0,
+      "identificationFailures": 0,
+      "branchErrors": 0,
+      "end": "2026-10-14T07:14:28.844Z",
+      "completed": true
+    },
+    {
+      "name": "astra/proposed",
+      "start": "2026-10-14T07:16:02.371Z",
+      "actions": [
+        {
+          "name": "開く(開始ボタン)",
+          "branch": null,
+          "at": "2026-10-14T07:16:05.875Z",
+          "observed": {
+            "annotations": [
+              "共有 (singleton) · 初期",
+              " → 文書操作群 · variantなし · 包含の初期値 · 初期",
+              " → 表示操作群 · variantなし · 包含の初期値 · 初期",
+              " → 文書コマンド群 · variantなし · 包含の初期値 · 初期",
+              " → 作業面A · ##並列 · 共有 (singleton) · 初期",
+              " → 図の状態A · ##最新 · 共有 (singleton) · 初期",
+              " → 状態A · ##保存済 · 共有 (singleton) · 初期",
+              " → 正規化A · ##非表示 · 共有 (singleton) · 初期",
+              " → タブ一覧 · variantなし · 包含の初期値 · 初期"
+            ],
+            "current": "present → 文書A",
+            "location": "文書A",
+            "overlays": []
+          }
+        },
+        {
+          "name": "編集",
+          "branch": null,
+          "at": "2026-10-14T07:16:38.877Z",
+          "observed": {
+            "annotations": [
+              "共有 (singleton) · 初期",
+              " → 文書操作群 · variantなし · 包含の初期値 · 初期",
+              " → 表示操作群 · variantなし · 包含の初期値 · 初期",
+              " → 文書コマンド群 · variantなし · 包含の初期値 · 初期",
+              " → 作業面A · ##並列 · 共有 (singleton) · 初期",
+              " → 図の状態A · ##最新 · 共有 (singleton) · 初期",
+              " → 状態A · ##未保存 · 共有 (singleton) · DSL",
+              " → 正規化A · ##非表示 · 共有 (singleton) · DSL",
+              " → タブ一覧 · variantなし · 包含の初期値 · 初期"
+            ],
+            "current": "[文書A] set(正規化A)",
+            "location": "文書A",
+            "overlays": []
+          }
+        },
+        {
+          "name": "保存",
+          "branch": "成功",
+          "at": "2026-10-14T07:16:39.166Z",
+          "observed": {
+            "annotations": [
+              "共有 (singleton) · 初期",
+              " → 文書操作群 · variantなし · 包含の初期値 · 初期",
+              " → 表示操作群 · variantなし · 包含の初期値 · 初期",
+              " → 文書コマンド群 · variantなし · 包含の初期値 · 初期",
+              " → 作業面A · ##並列 · 共有 (singleton) · 初期",
+              " → 図の状態A · ##最新 · 共有 (singleton) · 初期",
+              " → 状態A · ##保存済 · 共有 (singleton) · DSL",
+              " → 正規化A · ##非表示 · 共有 (singleton) · DSL",
+              " → タブ一覧 · variantなし · 包含の初期値 · 初期"
+            ],
+            "current": "[文書A] set(状態A)",
+            "location": "文書A",
+            "overlays": []
+          }
+        },
+        {
+          "name": "切替(B)",
+          "branch": null,
+          "at": "2026-10-14T07:16:39.449Z",
+          "observed": {
+            "annotations": [
+              "共有 (singleton) · 初期",
+              " → 文書操作群 · variantなし · 包含の初期値 · 初期",
+              " → 表示操作群 · variantなし · 包含の初期値 · 初期",
+              " → 並列作業面 · variantなし · 包含の初期値 · 初期",
+              " → 状態B · ##保存済 · 共有 (singleton) · 初期",
+              " → タブ一覧 · variantなし · 包含の初期値 · 初期"
+            ],
+            "current": "switch → 文書B",
+            "location": "文書B",
+            "overlays": []
+          }
+        },
+        {
+          "name": "編集",
+          "branch": null,
+          "at": "2026-10-14T07:16:39.724Z",
+          "observed": {
+            "annotations": [
+              "共有 (singleton) · 初期",
+              " → 文書操作群 · variantなし · 包含の初期値 · 初期",
+              " → 表示操作群 · variantなし · 包含の初期値 · 初期",
+              " → 並列作業面 · variantなし · 包含の初期値 · 初期",
+              " → 状態B · ##未保存 · 共有 (singleton) · DSL",
+              " → タブ一覧 · variantなし · 包含の初期値 · 初期"
+            ],
+            "current": "[文書B] set(状態B)",
+            "location": "文書B",
+            "overlays": []
+          }
+        },
+        {
+          "name": "切替(A)",
+          "branch": null,
+          "at": "2026-10-14T07:16:40.014Z",
+          "observed": {
+            "annotations": [
+              "共有 (singleton) · 初期",
+              " → 文書操作群 · variantなし · 包含の初期値 · 初期",
+              " → 表示操作群 · variantなし · 包含の初期値 · 初期",
+              " → 文書コマンド群 · variantなし · 包含の初期値 · 初期",
+              " → 作業面A · ##並列 · 共有 (singleton) · 初期",
+              " → 図の状態A · ##最新 · 共有 (singleton) · 初期",
+              " → 状態A · ##保存済 · 共有 (singleton) · DSL",
+              " → 正規化A · ##非表示 · 共有 (singleton) · DSL",
+              " → タブ一覧 · variantなし · 包含の初期値 · 初期"
+            ],
+            "current": "switch → 文書A",
+            "location": "文書A",
+            "overlays": []
+          }
+        },
+        {
+          "name": "図のみ",
+          "branch": null,
+          "at": "2026-10-14T07:16:40.291Z",
+          "observed": {
+            "annotations": [
+              "共有 (singleton) · 初期",
+              " → 文書操作群 · variantなし · 包含の初期値 · 初期",
+              " → 表示操作群 · variantなし · 包含の初期値 · 初期",
+              " → 文書コマンド群 · variantなし · 包含の初期値 · 初期",
+              " → 作業面A · ##図中心 · 共有 (singleton) · DSL",
+              " → 図の状態A · ##最新 · 共有 (singleton) · 初期",
+              " → 状態A · ##保存済 · 共有 (singleton) · DSL",
+              " → 正規化A · ##非表示 · 共有 (singleton) · DSL",
+              " → タブ一覧 · variantなし · 包含の初期値 · 初期"
+            ],
+            "current": "[文書A] set(作業面A)",
+            "location": "文書A",
+            "overlays": []
+          }
+        },
+        {
+          "name": "ノードからソースへ",
+          "branch": null,
+          "at": "2026-10-14T07:17:14.466Z",
+          "observed": {
+            "annotations": [
+              "共有 (singleton) · 初期",
+              " → 文書操作群 · variantなし · 包含の初期値 · 初期",
+              " → 表示操作群 · variantなし · 包含の初期値 · 初期",
+              " → 文書コマンド群 · variantなし · 包含の初期値 · 初期",
+              " → 作業面A · ##並列 · 共有 (singleton) · DSL",
+              " → 図の状態A · ##最新 · 共有 (singleton) · 初期",
+              " → 状態A · ##保存済 · 共有 (singleton) · DSL",
+              " → 正規化A · ##非表示 · 共有 (singleton) · DSL",
+              " → タブ一覧 · variantなし · 包含の初期値 · 初期"
+            ],
+            "current": "[文書A] effect: 該当行へ移動しエディタへフォーカス",
+            "location": "文書A",
+            "overlays": []
+          }
+        },
+        {
+          "name": "外部変更確認",
+          "branch": null,
+          "at": "2026-10-14T07:17:14.751Z",
+          "observed": {
+            "annotations": [
+              "画面の値 · 初期"
+            ],
+            "current": "present → 比較",
+            "location": "比較",
+            "overlays": []
+          }
+        },
+        {
+          "name": "取消(KeepEditing)",
+          "branch": null,
+          "at": "2026-10-14T07:17:34.090Z",
+          "observed": {
+            "annotations": [
+              "共有 (singleton) · 初期",
+              " → 文書操作群 · variantなし · 包含の初期値 · 初期",
+              " → 表示操作群 · variantなし · 包含の初期値 · 初期",
+              " → 文書コマンド群 · variantなし · 包含の初期値 · 初期",
+              " → 作業面A · ##並列 · 共有 (singleton) · DSL",
+              " → 図の状態A · ##最新 · 共有 (singleton) · 初期",
+              " → 状態A · ##保存済 · 共有 (singleton) · DSL",
+              " → 正規化A · ##非表示 · 共有 (singleton) · DSL",
+              " → タブ一覧 · variantなし · 包含の初期値 · 初期"
+            ],
+            "current": "dismiss → 文書A",
+            "location": "文書A",
+            "overlays": []
+          }
+        }
+      ],
+      "sourceInspections": 0,
+      "identificationFailures": 0,
+      "branchErrors": 0,
+      "end": "2026-10-14T07:17:34.090Z",
+      "completed": true
+    }
+  ],
+  "assets": [
+    {
+      "name": "trials",
+      "pageUrl": "http://127.0.0.1:51289/trials.html",
+      "assets": [
+        {
+          "kind": "image",
+          "url": "http://127.0.0.1:51289/favicon.ico"
+        }
+      ],
+      "inlineSvgCount": 1
+    },
+    {
+      "name": "back",
+      "pageUrl": "http://127.0.0.1:51289/back.html",
+      "assets": [],
+      "inlineSvgCount": 1
+    },
+    {
+      "name": "inline",
+      "pageUrl": "http://127.0.0.1:51289/inline.html",
+      "assets": [],
+      "inlineSvgCount": 1
+    },
+    {
+      "name": "switch",
+      "pageUrl": "http://127.0.0.1:51289/switch.html",
+      "assets": [],
+      "inlineSvgCount": 1
+    },
+    {
+      "name": "sol-current",
+      "pageUrl": "http://127.0.0.1:51289/sol-current.html",
+      "assets": [],
+      "inlineSvgCount": 1
+    },
+    {
+      "name": "sol-proposed",
+      "pageUrl": "http://127.0.0.1:51289/sol-proposed.html",
+      "assets": [],
+      "inlineSvgCount": 1
+    },
+    {
+      "name": "astra-current",
+      "pageUrl": "http://127.0.0.1:51289/astra-current.html",
+      "assets": [],
+      "inlineSvgCount": 1
+    },
+    {
+      "name": "astra-proposed",
+      "pageUrl": "http://127.0.0.1:51289/astra-proposed.html",
+      "assets": [],
+      "inlineSvgCount": 1
+    }
+  ],
+  "console": [
+    {
+      "name": "trials",
+      "logs": []
+    },
+    {
+      "name": "back",
+      "logs": []
+    },
+    {
+      "name": "inline",
+      "logs": []
+    },
+    {
+      "name": "switch",
+      "logs": []
+    },
+    {
+      "name": "sol-current",
+      "logs": []
+    },
+    {
+      "name": "sol-proposed",
+      "logs": []
+    },
+    {
+      "name": "astra-current",
+      "logs": []
+    },
+    {
+      "name": "astra-proposed",
+      "logs": []
+    }
+  ]
+}

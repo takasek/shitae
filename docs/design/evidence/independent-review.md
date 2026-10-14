@@ -58,3 +58,13 @@ GUI レビューは追加4テストと examples 全6モデルの起動・実 onc
 公開 CLI と生成 GUI の比較 script を Astra が一次読取・再実行し、54手順・実 onclick 48件・拒否2件・70観測点の一致を確認。固定値だった sourceReads を fixedFixtureLoads へ改名し、利用者の参照回数の測定とは扱わない。Session の追加固定期待も独立レビューした。子孫破棄の証拠不足は実子frame Child を作り解消、規模比較の証拠不足は実際に包含330/module31/frame101を作る小／大比較で解消した。公開 CLI の応答 bytes も独立再現した。その後、中断99frameへ resume する条件を加え、同じ bytes を再確認した。
 
 実ブラウザの G02 と G03 keyboard/focus/fold は未確認。ブラウザツールの file URL 拒否を記録し、VM と DOM mock の成功をその代替とはしない。
+
+## ローカル HTTP による実ブラウザと利用評価のレビュー
+
+上段の未確認は GUI 共通化時点の記録。続くユーザー依頼で loopback HTTP を使い、実ブラウザの G02/G03 と D02 を実施した。実装会話を引き継がない Astra が [全 CLI 入出力](browser/cli-agent-runs.json)、[ブラウザ観察](browser/browser-observations.json)、画像と集計を独立照合した。4 process の114要求（20/42/20/32）、35 dispatch、34成功と意図した拒否1件、入力6,028 bytesと出力382,379 bytesが一致。全 JSON Lines の再直列化 byte 数と handle の先行 inventory 解決、操作順・分岐・現在地を確認した。レビュー初回の112要求という記述は reviewer の誤記で、全量集計で114へ訂正した。
+
+P2の証跡不足が1件。状態表示の on/off と fold 維持を追える前後観察が不足していたため、live handle/history/fold/focus の before/off/on、reset直後、map前後を追記した。Astra の再確認で解消した。サーバー実装と停止後の接続拒否も保存し、以前の停止 tool 出力の転記はその旨を明記した。外部資産なしを OS 全体の通信保証に広げず、モデル本文追加読取0を事前知識／loader を除いた手集計とし、速度・理解改善を主張しない制限も妥当と確認した。
+
+実ブラウザ評価から遷移履歴の variant 欠落を修正した。Astra は reduce 後の実効現在地を使う label と variant付きgoto/push・variantなしpushの回帰テストを読取り、Session全19テストを独立実行して成功。Red実行自体は reviewer が再現したとは扱わない。修正前 `cd7fb9c` の4モデル評価と、修正後 `7cb02aa` の [ブラウザ確認](browser/post-label-browser.json)／[回帰](browser/post-label-regression.json) を分離した。再レビューで未解消の actionable finding はない。レビュー agent は編集/commit/push を行っていない。
+
+最終文書も原記録と独立照合し、114要求の種類別 byte 集計、修正後回帰の54手順／70観測点、版の分離と残件記述の整合を確認した。誤集計・根拠超過・版の混同に関する actionable finding はない。実装差分が増えていないため、通過済みの19テストはこの文書レビューで再実行していない。実装側でも JSON/JSONL 構文、全114要求・応答の byte 数、表示切替の前後不変値、文書リンクと fence、diff check が成功した。

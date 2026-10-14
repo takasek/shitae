@@ -1,0 +1,138 @@
+{
+  "environment": "Node VM of generated GUI and public persistent CLI; not a real browser",
+  "legacyBaseline": null,
+  "comparisons": [
+    {
+      "label": "frame tree switch/exit",
+      "steps": 10,
+      "renderedActions": 10,
+      "rejections": 0,
+      "observationComparisons": 10,
+      "cliRequests": 51,
+      "modelId": "a5ba5d5f86fb1d733291a2d90e9b147cc4bdf2e244baac561e195a199460e141"
+    },
+    {
+      "label": "snapshot/manual/branch/reset",
+      "steps": 9,
+      "renderedActions": 4,
+      "rejections": 1,
+      "observationComparisons": 11,
+      "cliRequests": 42,
+      "modelId": "41edec0b478078b60d697ec5de2b7523c293e1bd37ac5102fc86d01786286887"
+    },
+    {
+      "label": "sol/current",
+      "steps": 6,
+      "renderedActions": 6,
+      "rejections": 0,
+      "observationComparisons": 8,
+      "cliRequests": 34,
+      "modelId": "9cdaf867600a695e3690fd7f3b26a8b221f188a560ed8f63f93a4f9e11437580"
+    },
+    {
+      "label": "sol/proposed",
+      "steps": 13,
+      "renderedActions": 12,
+      "rejections": 1,
+      "observationComparisons": 21,
+      "cliRequests": 74,
+      "modelId": "9801e27a724fafba281938f9247c5a2c88e423d9eed5201f744fa492fcf7873d"
+    },
+    {
+      "label": "astra/current",
+      "steps": 6,
+      "renderedActions": 6,
+      "rejections": 0,
+      "observationComparisons": 8,
+      "cliRequests": 33,
+      "modelId": "eddb612270912c3b9b3163a98d49f6a4e18383c55e45889d68b4a1eb251a0a48"
+    },
+    {
+      "label": "astra/proposed",
+      "steps": 10,
+      "renderedActions": 10,
+      "rejections": 0,
+      "observationComparisons": 12,
+      "cliRequests": 53,
+      "modelId": "f697e6feb968f2bca9abf2aa7195c64960040e49271a5b9bd0368984f15d7f44"
+    }
+  ],
+  "savedModels": [
+    {
+      "name": "sol/current",
+      "authorModelChanged": false,
+      "fixedFixtureLoads": 1,
+      "steps": 6,
+      "unexpectedActionIdentificationFailures": 0,
+      "unexpectedBranchErrors": 0
+    },
+    {
+      "name": "sol/proposed",
+      "authorModelChanged": false,
+      "fixedFixtureLoads": 1,
+      "steps": 13,
+      "unexpectedActionIdentificationFailures": 0,
+      "unexpectedBranchErrors": 0
+    },
+    {
+      "name": "astra/current",
+      "authorModelChanged": false,
+      "fixedFixtureLoads": 1,
+      "steps": 6,
+      "unexpectedActionIdentificationFailures": 0,
+      "unexpectedBranchErrors": 0
+    },
+    {
+      "name": "astra/proposed",
+      "authorModelChanged": false,
+      "fixedFixtureLoads": 1,
+      "steps": 10,
+      "unexpectedActionIdentificationFailures": 0,
+      "unexpectedBranchErrors": 0
+    }
+  ],
+  "legacyComparisons": [],
+  "compactBytes": [
+    {
+      "inclusions": 0,
+      "modules": 1,
+      "frames": 1,
+      "activePathDepth": 1,
+      "dormantFrames": 0,
+      "totalStackEntries": 2,
+      "history": 2,
+      "dispatchUtf8Bytes": 325,
+      "summaryUtf8Bytes": 196,
+      "defaultKeys": [
+        "id",
+        "ok",
+        "protocolVersion",
+        "revision",
+        "summary"
+      ]
+    },
+    {
+      "inclusions": 330,
+      "modules": 31,
+      "frames": 101,
+      "activePathDepth": 2,
+      "dormantFrames": 99,
+      "totalStackEntries": 102,
+      "history": 103,
+      "dispatchUtf8Bytes": 341,
+      "summaryUtf8Bytes": 206,
+      "defaultKeys": [
+        "id",
+        "ok",
+        "protocolVersion",
+        "revision",
+        "summary"
+      ]
+    }
+  ],
+  "proofLimits": [
+    "No disk/network/focus effect is executed",
+    "This regression script uses VM; real-browser checks are recorded separately",
+    "No timing/usability benefit measured"
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "source": "working tree after cd7fb9c; transition-label-only fix",
+  "at": "2026-10-14T07:35:47.875Z",
+  "transport": "loopback HTTP",
+  "goto": {
+    "history": [
+      "goto → Screen / Changed",
+      "[Screen / Start] show(Badge)",
+      "[Screen / Start] set(Badge)",
+      "[Screen / Start] effect: pre-effect",
+      "起動"
+    ],
+    "main": "現在の画面初期状態へアクティブな frame の表示（本体）と掲示中カード アクションを表示 部品の状態を表示画面外 component の姿切替（gate 試験用）今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。Screen## Changedagate(a.signal)Card / IdleIdleReadygate off で無効component commonlabelblabelbadgegate(badge.signal)Badge / OnOffOncomponent commonsignalchoosecomponent common[yes]open-cardcomponent commonshow-cardcomponent common掲示中Badge## Onsignalアクションなしスタック今積み重なっている画面。プッシュダウン構成として読める。上が現在地Screen / Changed遷移マップ画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。設定を保存 全体を見るScreenCardBadge"
+  },
+  "push": {
+    "history": [
+      "push → Card / Ready",
+      "goto → Screen / Changed",
+      "[Screen / Start] show(Badge)",
+      "[Screen / Start] set(Badge)",
+      "[Screen / Start] effect: pre-effect",
+      "起動"
+    ],
+    "main": "現在の画面初期状態へアクティブな frame の表示（本体）と掲示中カード アクションを表示 部品の状態を表示画面外 component の姿切替（gate 試験用）今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。Card## Readysignalアクションなし← 戻る掲示中Badge## Onsignalアクションなしスタック今積み重なっている画面。プッシュダウン構成として読める。上が現在地Card / ReadyScreen / Changed遷移マップ画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。設定を保存 全体を見るScreenCardBadge"
+  },
+  "engineVersion": "fc676dd2f142cf0e7b38d4bc505f2a944bbe9fbf932e449b67b44d1420435806",
+  "htmlSha256": "72f5bb6bc325b1cbe139501b4479a8e70ba421588853aba54e1b1bbaa6f80347",
+  "server": {
+    "bind": "127.0.0.1",
+    "port": 52640,
+    "pid": 92289,
+    "stopped": true,
+    "afterStopConnectEx": 61,
+    "stopSessionOutput": "server closed",
+    "stopSessionExitCode": 0,
+    "stopOutputProvenance": "transcribed tool result"
+  },
+  "sourceCommit": "7cb02aa",
+  "afterServerStop": {
+    "at": "2026-10-14T07:39:30.255Z",
+    "seek": {
+      "history": [
+        "push → Card / Ready",
+        "goto → Screen / Changed",
+        "[Screen / Start] show(Badge)",
+        "[Screen / Start] set(Badge)",
+        "[Screen / Start] effect: pre-effect",
+        "起動"
+      ],
+      "main": "現在の画面初期状態へアクティブな frame の表示（本体）と掲示中カード アクションを表示 部品の状態を表示画面外 component の姿切替（gate 試験用）今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。Screen## Changedagate(a.signal)Card / IdleIdleReadygate off で無効component commonlabelblabelbadgegate(badge.signal)Badge / OnOffOncomponent commonsignalchoosecomponent common[yes]open-cardcomponent commonshow-cardcomponent common掲示中Badge## Onsignalアクションなしスタック今積み重なっている画面。プッシュダウン構成として読める。上が現在地Screen / Changed遷移マップ画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。設定を保存 全体を見るScreenCardBadge"
+    }
+  }
+}

@@ -105,19 +105,39 @@
     "unresolvedActionableFindings": 0
   },
   "browser": {
-    "status": "unverified",
-    "attempt": "file URL of generated standalone HTML",
-    "toolResult": "Browser URL policy permits http/https and rejected file protocol; no workaround attempted",
-    "pending": [
-      "G02 actual browser display/offline operations",
-      "G03 actual browser keyboard/focus/fold",
-      "D02 browser-inclusive user evaluation"
-    ]
+    "status": "passed within documented scope",
+    "priorFileAttempt": {
+      "status": "unverified",
+      "attempt": "file URL of generated standalone HTML",
+      "toolResult": "Browser URL policy permits http/https and rejected file protocol; no workaround attempted",
+      "pending": [
+        "G02 actual browser display/offline operations",
+        "G03 actual browser keyboard/focus/fold",
+        "D02 browser-inclusive user evaluation"
+      ]
+    },
+    "transport": "loopback HTTP",
+    "gates": [
+      "G02",
+      "G03",
+      "D02"
+    ],
+    "evidence": "browser/evaluation.json",
+    "report": "../session-browser-evaluation.md",
+    "independentReview": "gpt-6-astra; evidence gap fixed and rechecked"
   },
   "proofLimits": [
     "Node VM and DOM mocks are distinct from real browser evidence",
     "Saved model traces are fixed functional regression, not a measured time/usability improvement",
     "Effect text does not perform real I/O or focus",
-    "No claim of full Issue 18 acceptance"
-  ]
+    "D02 is one familiar agent with fixed goals, not a controlled timing or novice usability study",
+    "One macOS in-app browser; no all-browser or assistive-technology guarantee",
+    "file protocol remains unverified; checked distribution path is loopback HTTP"
+  ],
+  "postBrowserFix": {
+    "commit": "7cb02aa",
+    "engineVersion": "fc676dd2f142cf0e7b38d4bc505f2a944bbe9fbf932e449b67b44d1420435806",
+    "validation": "browser/post-label-validation.json",
+    "note": "Earlier engine/fullSuite fields remain historical; subsequent target tests 19+25+223, build and typecheck passed"
+  }
 }

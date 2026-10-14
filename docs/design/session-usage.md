@@ -57,7 +57,7 @@ CLI が生成する GUI と CLI Session の metadata は同一。engineVersion �
 
 ライブラリから `toSimulator` に AST だけを渡す場合は、source bytes を復元できないため `sourceBasis:"ast"` と明示して AST の hash を使う。CLI の source-byte ID と同一だと扱わない。source-byte identity を持たせる場合は第4引数に `{files, metadata}` を渡す。Session の直接生成では metadata は準備側が渡し、省略時の metadata query は null を返す。CLI と通常の生成 GUI は常に準備済み metadata を渡す。
 
-## 検証済みの範囲と残件
+## 検証済みの範囲
 
 [回帰記録](evidence/session-regression.json) は6ケース54手順、描画された実 onclick 48件、意図した拒否2件、結果途中70観測点を公開 CLI と生成 GUI で照合した。history の全ページを読み、GUI で同じ観測点へ seek した state/actions と比較している。保存済み Sol/Astra の current/proposed の4モデルは変更していない。固定された試験シナリオによる機能回帰であり、利用者の探索時間・モデル参照回数・理解改善を測ったものではない。
 
@@ -72,6 +72,15 @@ CLI が生成する GUI と CLI Session の metadata は同一。engineVersion �
 
 [検証記録](evidence/session-validation.json) と [Astra 独立レビュー](evidence/independent-review.md) に TDD・再検証・修正の根拠を残した。全730テスト、build、typecheck が成功。GUI の実行コードを VM で動かす検証と、DOM mock による focus/fold 検証を、実ブラウザ確認と区別している。
 
-未完了は G02（実ブラウザでの配布・表示操作）、G03 の実ブラウザ keyboard/focus/fold、および D02 の実ブラウザを含む利用評価。ブラウザツールが `file:` URL をポリシーで拒否したため、確認できたとは扱わない。外部ネットワーク不要の構成は生成物と VM で確認したが、実ブラウザの network 動作を観察したわけではない。自由文 effect に書かれた保存・focus などの実処理も行わない。
+その後、ユーザーの指定で一時ローカル HTTP サーバーを使い、G02/G03 の実ブラウザ操作と D02 の利用評価を完了した。[実ブラウザ確認と利用評価](session-browser-evaluation.md) に環境・手順・全入出力・画像・制限を記録した。8 HTMLを読み込み、サーバー終了後も操作が動き、観測資産に外部 URL はなかった。`file:` での開き方を確認したとは扱わない。自由文 effect に書かれた保存・focus などの実処理も行わない。
 
-手元の HTML をブラウザで確認するときは、Card の包含を折り畳む→Tab/Space で状態表示を切り替える→checkbox の focus と折畳み維持を確認する。show-card と Card の手動試験値を変え、包含と overlay の独立表示、choose の分岐と結果途中の巻戻し、gate drawer、stack、map も確認する。この確認が残るため、Issue #18 全受入の完了とはしない。
+4モデルで35手順を実施し、34成功と意図した無効操作1件が CLI/GUI で対応した。通常応答は小さいが、全操作一覧を毎回照会する量は改善余地がある。評価者はモデルを知る1 agentなので、時間短縮・理解改善は断定しない。履歴ラベルの variant 欠落は修正し、追加の対象267テスト、build/typecheck と実ブラウザ表示を確認した。Astra の独立レビューで未解消の指摘はない。
+
+手元で HTTP 経由で開く場合は、専用の一時ディレクトリに生成する。以下は起動後に表示 URL をブラウザで開き、確認が終わったら Ctrl-C でサーバーを終了する例。
+
+```sh
+preview_dir=$(mktemp -d)
+node packages/cli/dist/index.js simulate docs/design/session-fixtures/trial-values.shitae > "$preview_dir/trial-values.html"
+python3 -m http.server 8000 --bind 127.0.0.1 --directory "$preview_dir"
+# ブラウザで http://127.0.0.1:8000/trial-values.html を開く
+```
