@@ -1,6 +1,8 @@
 import type { Body, Component, Diagnostic, Document, ElementLine, Interaction, Result, Span } from '@shitae/ast';
 import { effectiveResults, mergeInteractions, resolveModuleRef } from '@shitae/resolver';
 import { activeFrame, activeLocation, initialState, reduce, singletonKey, type Location, type RuntimeState } from '@shitae/runtime';
+import type { ComponentValue, HistoryItem, InclusionNode, InclusionRoot, ObservationView, QueryOptions, StateView, ValueOrigin, VariantValue } from './views.js';
+export type * from './views.js';
 
 export interface Source { module: string; file: string | null; span: Span }
 export interface Summary {
@@ -20,7 +22,7 @@ export interface Operation {
   placement: { root: string; path: number[]; source: Source | null };
   host: Location;
   enabled: boolean;
-  gate: { kind: 'host' | 'member'; enabled: boolean; unresolved: boolean } | null;
+  gate: { kind: 'host' | 'member'; name: string; enabled: boolean; unresolved: boolean; module?: string; targetComponent?: string; value?: VariantValue } | null;
   prelude: ResultRef[];
   branches: Branch[];
 }
@@ -28,7 +30,9 @@ export interface Actions {
   items: Operation[];
   controls: { back: { handle: string; kind: 'control'; source: null; enabled: boolean; reason: string | null } };
 }
-export interface Query { revision: number; summary: Summary; data?: { actions: Actions } }
+export interface Query { revision: number; summary: Summary; data?: {
+  actions?: Actions; state?: StateView; history?: { items: HistoryItem[]; nextAfter: number | null }; observation?: ObservationView;
+} }
 export interface Receipt {
   operationId: number;
   changed: string[];
@@ -43,8 +47,9 @@ interface Observation {
   result: ResultRef | null;
   kind: 'transition' | 'event';
   label: string;
-  state: RuntimeState;
+  context: Context;
 }
+interface Context { runtime: RuntimeState; tests: Map<string, string>; origins: Map<string, ValueOrigin> }
 
 export class SessionError extends Error {
   constructor(public readonly code: string, message: string) { super(`${code}: ${message}`); }
@@ -53,13 +58,15 @@ function fail(code: string, message: string): never { throw new SessionError(cod
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 const nameOf = (e: ElementLine) => e.alias ?? (e.value.kind === 'ref' ? e.value.name : '{...}');
 
-/** DOM/Node-independent execution. This first slice exposes summary/actions/dispatch.
- * Detailed queries, manual trials and seek will be connected in subsequent slices. */
+/** DOM/Node-independent execution and observation. */
 export class Session {
   private readonly sessionId = globalThis.crypto.randomUUID();
   private readonly documents: Map<string, Document>;
   private readonly files: Map<string, string>;
-  private state: RuntimeState;
+  private context: Context;
+  private cursor = -1;
+  private get state() { return this.context.runtime; }
+  private set state(state: RuntimeState) { this.context.runtime = state; }
   private revision = 0;
   private operationId = 0;
   private nextObservationId = 1;
@@ -70,9 +77,13 @@ export class Session {
     this.files = new Map(files);
     const entry = this.documents.get(entryModule)?.components[0];
     if (!entry) fail('INVALID_MODEL', 'Entry component is missing');
-    this.state = initialState({ module: entryModule, component: entry.name, variant: null },
-      [...this.documents].flatMap(([module, doc]) => doc.components.filter((c) => c.singleton).map((c) => ({ module, name: c.name }))));
+    this.context = this.initialContext();
     this.observe('transition', '起動', null, null);
+  }
+  private initialContext(): Context {
+    const entry = this.documents.get(this.entryModule)!.components[0]!;
+    return { runtime: initialState({ module: this.entryModule, component: entry.name, variant: null },
+      [...this.documents].flatMap(([module, doc]) => doc.components.filter((c) => c.singleton).map((c) => ({ module, name: c.name })))), tests: new Map(), origins: new Map() };
   }
 
   private source(module: string, span: Span): Source {
@@ -88,10 +99,10 @@ export class Session {
     const module = loc.module ?? this.entryModule;
     return { ...loc, module, variant: loc.variant ?? this.comp(module, loc.component)?.variants[0]?.name ?? null };
   }
-  private location(): Location { return this.display(activeLocation(this.state)); }
+  private location(context = this.context): Location { return this.display(activeLocation(context.runtime)); }
   private summary(): Summary {
     const last = this.observations[this.observations.length - 1]!.id;
-    return { location: this.location(), cursorObservationId: last, latestObservationId: last, observationCount: this.observations.length };
+    return { location: this.location(), cursorObservationId: this.observations[this.cursor]!.id, latestObservationId: last, observationCount: this.observations.length };
   }
   private handle(index: number | 'back') { return `${this.sessionId}:${this.revision}:${index}`; }
   private elements(loc: Location, includeDocument: boolean): ElementLine[] {
@@ -109,23 +120,24 @@ export class Session {
     }
     throw new Error('Interaction is not part of the fixed model');
   }
-  private gate(module: string, interaction: Interaction, host: Location, includeDocument: boolean): Operation['gate'] {
+  private gate(module: string, interaction: Interaction, host: Location, includeDocument: boolean, context: Context): Operation['gate'] {
     const ref = interaction.action.target;
     if (!ref?.existsGated) return null;
     if (ref.member == null) {
       const unresolved = !this.comp(host.module!, host.component);
-      return { kind: 'host', unresolved, enabled: unresolved || this.elements(host, includeDocument).some((e) => nameOf(e) === ref.name) };
+      return { kind: 'host', name: ref.name, unresolved, enabled: unresolved || this.elements(host, includeDocument).some((e) => nameOf(e) === ref.name) };
     }
     const alias = ref.module == null ? this.bodyOf(module, interaction).elements.find((e) => e.alias === ref.name) : undefined;
     if (alias?.value.kind === 'inline') {
-      return { kind: 'member', unresolved: false, enabled: alias.value.elements.some((e) => nameOf(e) === ref.member) };
+      return { kind: 'member', name: ref.member, unresolved: false, enabled: alias.value.elements.some((e) => nameOf(e) === ref.member) };
     }
     const target = alias?.value.kind === 'ref' ? alias.value : ref;
     const targetModule = this.normalize(module, target.module);
     const comp = this.comp(targetModule, target.name);
-    const variant = comp?.singleton ? this.state.sharedVariants.get(singletonKey(targetModule, target.name)) ?? null : null;
-    const loc = this.display({ module: targetModule, component: target.name, variant });
-    return { kind: 'member', unresolved: !comp, enabled: !comp || this.elements(loc, false).some((e) => nameOf(e) === ref.member) };
+    const value = this.value(targetModule, target.name, null, 'inclusion-initial', context);
+    const loc = { module: targetModule, component: target.name, variant: value.variant };
+    return { kind: 'member', name: ref.member, module: targetModule, targetComponent: target.name, value,
+      unresolved: !comp, enabled: !comp || this.elements(loc, false).some((e) => nameOf(e) === ref.member) };
   }
   private indexedResults(module: string, interaction: Interaction) {
     return effectiveResults(interaction).map(({ label, result }) => ({ label, result,
@@ -140,7 +152,7 @@ export class Session {
     return element.value.kind === 'ref' && element.value.name === target.name &&
       this.normalize(module, element.value.module) === this.normalize(module, target.module);
   }
-  private inventory(): { entries: Entry[]; actions: Actions } {
+  private inventory(context = this.context): { entries: Entry[]; actions: Actions } {
     const entries: Entry[] = [];
     const collect = (host: Location, root: string, path: number[], placementSource: Source | null,
       includeDocument: boolean, visited: Set<string>, overrides: Interaction[] = []) => {
@@ -167,7 +179,7 @@ export class Session {
           if (!b) { b = { id: `b${branches.length}`, label: r.label, results: [] }; branches.push(b); }
           b.results.push({ resultIndex: r.resultIndex, source: r.source });
         }
-        const gate = this.gate(module, interaction, host, includeDocument);
+        const gate = this.gate(module, interaction, host, includeDocument, context);
         const a = interaction.action, target = a.target;
         const actionText = a.text + (target ? `(${target.collection ? '*' : ''}${target.module ? target.module + '::' : ''}${target.name}${target.member ? '.' + target.member : ''}${target.existsGated ? '?' : ''})` : '');
         entries.push({ interaction, module, operation: {
@@ -184,20 +196,20 @@ export class Session {
         const childModule = this.normalize(module, el.value.module);
         const child = this.comp(childModule, el.value.name);
         if (!child) return;
-        const variant = child.singleton ? this.state.sharedVariants.get(singletonKey(childModule, child.name)) ?? null : null;
+        const variant = this.value(childModule, child.name, null, 'inclusion-initial', context).variant;
         collect(this.display({ module: childModule, component: child.name, variant }), root, childPath,
           this.source(module, el.span), false, nextVisited,
           effective.filter((i) => this.targetsPlacement(module, i, el)));
       });
       walkElements(this.elements(host, includeDocument), path);
     };
-    collect(this.location(), 'main', [], null, true, new Set());
-    for (const [name, overlay] of this.state.overlays) {
+    collect(this.location(context), 'main', [], null, true, new Set());
+    for (const [name, overlay] of context.runtime.overlays) {
       const key = singletonKey(overlay.module, name);
-      const variant = this.state.singletons.has(key) ? this.state.sharedVariants.get(key) ?? null : overlay.variant;
+      const variant = context.runtime.singletons.has(key) ? context.runtime.sharedVariants.get(key) ?? null : overlay.variant;
       collect(this.display({ module: overlay.module, component: name, variant }), `overlay:${name}`, [], null, false, new Set());
     }
-    const frame = activeFrame(this.state);
+    const frame = activeFrame(context.runtime);
     const enabled = frame.stack.length > 1 || (!frame.barrier && frame.parentId != null);
     return { entries, actions: { items: entries.map((e) => e.operation), controls: { back: {
       handle: this.handle('back'), kind: 'control', source: null, enabled,
@@ -205,21 +217,165 @@ export class Session {
     } } } };
   }
 
-  query(options: { select?: string[] } = {}): Query {
+  query(options: QueryOptions = {}): Query {
     const select = options.select ?? [];
-    if (!Array.isArray(select) || select.some((s) => s !== 'actions') || new Set(select).size !== select.length) {
-      fail('INVALID_REQUEST', 'This slice supports only summary and select:["actions"]');
+    if (!Array.isArray(select) || select.some((s) => !['actions', 'state', 'history', 'observation'].includes(s)) || new Set(select).size !== select.length ||
+      Object.keys(options).some((k) => !['select', 'history', 'observationId'].includes(k)) ||
+      (options.history !== undefined && !select.includes('history')) || (options.observationId !== undefined && !select.includes('observation'))) {
+      fail('INVALID_REQUEST', 'Invalid query selection/options');
     }
-    return structuredClone({ revision: this.revision, summary: this.summary(),
-      ...(select.length ? { data: { actions: this.inventory().actions } } : {}) });
+    const data: NonNullable<Query['data']> = {};
+    for (const s of select) {
+      if (s === 'actions') data.actions = this.inventory().actions;
+      if (s === 'state') data.state = this.projectState(this.context);
+      if (s === 'history') data.history = this.historyPage(options.history);
+      if (s === 'observation') {
+        const index = this.observationIndex(options.observationId);
+        const observation = this.observations[index]!;
+        const actions = this.inventory(observation.context).actions;
+        data.observation = { ...this.historyItem(index), view: { location: this.location(observation.context),
+          state: this.projectState(observation.context), actions: {
+            items: actions.items.map(({ handle, ...a }) => a),
+            controls: { back: (({ handle, ...back }) => back)(actions.controls.back) },
+          } } };
+      }
+    }
+    return structuredClone({ revision: this.revision, summary: this.summary(), ...(select.length ? { data } : {}) });
   }
 
   private observe(kind: Observation['kind'], label: string, operationId: number | null, result: ResultRef | null) {
-    this.observations.push({ id: this.nextObservationId++, operationId, result, kind, label, state: structuredClone(this.state) });
+    this.observations = this.observations.slice(0, this.cursor + 1);
+    this.observations.push({ id: this.nextObservationId++, operationId, result, kind, label, context: structuredClone(this.context) });
+    this.cursor = this.observations.length - 1;
   }
   private comparable() {
     return { frames: { frames: this.state.frames, activeFrameId: this.state.activeFrameId, nextFrameId: this.state.nextFrameId },
-      overlays: [...this.state.overlays], sharedVariants: [...this.state.sharedVariants] };
+      overlays: [...this.state.overlays], sharedVariants: [...this.state.sharedVariants], testVariants: [...this.context.tests], origins: [...this.context.origins] };
+  }
+  private value(module: string, component: string, storedVariant: string | null, scope: VariantValue['scope'], context: Context): VariantValue {
+    const key = singletonKey(module, component);
+    const singleton = context.runtime.singletons.has(key);
+    let variant = storedVariant;
+    let origin: ValueOrigin = storedVariant == null ? 'initial' : 'dsl';
+    if (singleton) {
+      variant = context.runtime.sharedVariants.get(key) ?? null;
+      scope = 'singleton-shared';
+      origin = context.origins.get(key) ?? (context.runtime.sharedVariants.has(key) ? 'dsl' : 'initial');
+    } else if (scope === 'inclusion-initial' && context.tests.has(key)) {
+      variant = context.tests.get(key)!; scope = 'component-test'; origin = 'manual-test';
+    }
+    return { variant: variant ?? this.comp(module, component)?.variants[0]?.name ?? null, singleton, scope, origin };
+  }
+  private allComponentValues(context: Context): ComponentValue[] {
+    return [...this.documents].flatMap(([module, doc]) => doc.components.map((c) => ({ module, component: c.name,
+      ...this.value(module, c.name, null, 'inclusion-initial', context) })));
+  }
+  private gateTargets(context = this.context): Array<ComponentValue & { variants: string[] }> {
+    const keys = new Set<string>();
+    for (const [module, doc] of this.documents) {
+      const bodies = [doc.common, ...doc.components.flatMap((c) => [c.common, ...c.variants.map((v) => v.body)])];
+      for (const body of bodies) for (const i of body.interactions) {
+        const t = i.action.target;
+        if (!t?.existsGated || t.member == null) continue;
+        const alias = t.module == null ? body.elements.find((e) => e.alias === t.name) : undefined;
+        if (alias?.value.kind === 'inline') continue;
+        const ref = alias?.value.kind === 'ref' ? alias.value : t;
+        const mod = this.normalize(module, ref.module);
+        if (this.comp(mod, ref.name)) keys.add(singletonKey(mod, ref.name));
+      }
+    }
+    return this.allComponentValues(context).filter((c) => keys.has(singletonKey(c.module, c.component))).map((c) => ({ ...c, variants: this.comp(c.module, c.component)!.variants.map((v) => v.name) }));
+  }
+  private projectState(context: Context): StateView {
+    const rt = context.runtime;
+    const frames = rt.frames.map((f) => ({ ...f, stack: f.stack.map((loc) => ({ module: loc.module!, component: loc.component,
+      ...this.value(loc.module!, loc.component, loc.variant, 'frame-location', context) })) }));
+    const activePath: number[] = [];
+    for (let id: number | null = rt.activeFrameId; id != null;) {
+      activePath.unshift(id); id = rt.frames.find((f) => f.id === id)!.parentId;
+    }
+    const overlays = [...rt.overlays].map(([component, o]) => ({ module: o.module!, component,
+      ...this.value(o.module!, component, o.variant, 'overlay-entry', context) }));
+    const root = (loc: Location, root: string, scope: VariantValue['scope']): InclusionRoot => ({
+      module: loc.module!, component: loc.component, root,
+      ...this.value(loc.module!, loc.component, loc.variant, scope, context),
+      source: this.comp(loc.module!, loc.component) ? this.source(loc.module!, this.comp(loc.module!, loc.component)!.span) : null,
+      children: nodes(this.elements({ ...loc, variant: this.value(loc.module!, loc.component, loc.variant, scope, context).variant }, root === 'main'), loc.module!, root, [], new Set([singletonKey(loc.module, loc.component)])),
+    });
+    const nodes = (elements: ElementLine[], module: string, root: string, base: number[], seen: Set<string>): InclusionNode[] => elements.map((el, i) => {
+      const path = [...base, i];
+      const node = { name: nameOf(el), root, path, source: this.source(module, el.span), collection: el.collection };
+      if (el.value.kind === 'inline') return { ...node, kind: 'inline', children: nodes(el.value.elements, module, root, path, seen) };
+      const mod = this.normalize(module, el.value.module), comp = this.comp(mod, el.value.name);
+      const reference = { module: mod, component: el.value.name };
+      if (!comp) return { ...node, reference, kind: 'unresolved', children: [] };
+      const key = singletonKey(mod, comp.name), cycle = seen.has(key);
+      const value = this.value(mod, comp.name, null, 'inclusion-initial', context);
+      return { ...node, reference, kind: 'component', value, componentSource: this.source(mod, comp.span),
+        ...(cycle ? { cycle: true } : {}), children: cycle ? [] : nodes(this.elements({ module: mod, component: comp.name, variant: value.variant }, false), mod, root, path, new Set(seen).add(key)) };
+    });
+    const all = this.allComponentValues(context);
+    return { frames, activeFrameId: rt.activeFrameId, nextFrameId: rt.nextFrameId, activePath, overlays,
+      sharedVariants: all.filter((c) => c.singleton), testVariants: all.filter((c) => c.scope === 'component-test'), componentValues: all,
+      gateTargets: this.gateTargets(context), inclusion: { main: root(activeLocation(rt), 'main', 'frame-location'),
+        overlays: [...rt.overlays].map(([component, o]) => root({ module: o.module, component, variant: o.variant }, `overlay:${component}`, 'overlay-entry')) } };
+  }
+  private observationIndex(id: number | undefined): number {
+    if (!Number.isSafeInteger(id) || id! < 1) fail('INVALID_REQUEST', 'observationId must be a positive integer');
+    const index = this.observations.findIndex((o) => o.id === id);
+    if (index < 0) fail('UNKNOWN_OBSERVATION', 'Observation is not retained');
+    return index;
+  }
+  private historyItem(index: number): HistoryItem {
+    const o = this.observations[index]!;
+    return { id: o.id, operationId: o.operationId, resultIndex: o.result?.resultIndex ?? null, source: o.result?.source ?? null,
+      kind: o.kind, label: o.label, location: this.location(o.context), ghost: index > this.cursor };
+  }
+  private historyPage(options: QueryOptions['history'] = {}) {
+    if (options == null || typeof options !== 'object' || Array.isArray(options) || Object.keys(options).some((k) => !['after', 'limit', 'operationId'].includes(k))) fail('INVALID_REQUEST', 'Invalid history options');
+    const limit = options.limit === undefined ? 20 : options.limit;
+    if (!Number.isSafeInteger(limit) || limit < 1 || limit > 100 ||
+      (options.operationId !== undefined && (!Number.isSafeInteger(options.operationId) || options.operationId < 1))) fail('INVALID_REQUEST', 'Invalid history limit/operationId');
+    const start = options.after === undefined ? -1 : this.observationIndex(options.after);
+    if (start >= 0 && options.operationId !== undefined && this.observations[start]!.operationId !== options.operationId) fail('INVALID_REQUEST', 'after belongs to another operation');
+    const filtered = this.observations.map((_, i) => i).filter((i) => i > start && (options.operationId === undefined || this.observations[i]!.operationId === options.operationId));
+    const items = filtered.slice(0, limit).map((i) => this.historyItem(i));
+    return { items, nextAfter: filtered.length > limit ? items.at(-1)!.id : null };
+  }
+  seek(observationId: number): Query {
+    const index = this.observationIndex(observationId);
+    this.context = structuredClone(this.observations[index]!.context); this.cursor = index; this.revision++;
+    return this.query();
+  }
+  reset(): Query {
+    this.context = this.initialContext(); this.observations = []; this.cursor = -1; this.revision++;
+    this.observe('transition', '起動', null, null);
+    return this.query();
+  }
+  setTestVariant(request: { module: string; component: string; variant: string }): Query & { receipt: Receipt } {
+    const target = this.gateTargets().find((c) => c.module === request.module && c.component === request.component);
+    if (!target || !target.variants.includes(request.variant)) fail('INVALID_REQUEST', 'Unknown trial target or variant');
+    const before = this.comparable(); const operationId = ++this.operationId;
+    const key = singletonKey(request.module, request.component);
+    if (target.singleton) {
+      const values = new Map(this.state.sharedVariants).set(key, request.variant);
+      this.state = { ...this.state, sharedVariants: values }; this.context.origins.set(key, 'manual-test');
+    } else { this.context.tests.set(key, request.variant); }
+    this.observe('event', `manual-test(${request.component}##${request.variant})`, operationId, null);
+    this.revision++;
+    const after = this.comparable();
+    return { ...this.query(), receipt: { operationId, changed: (Object.keys(before) as Array<keyof typeof before>).filter((k) => !same(before[k], after[k])),
+      observations: { count: 1, firstId: this.observations[this.cursor]!.id, lastId: this.observations[this.cursor]!.id }, effects: [], diagnostics: [] } };
+  }
+  private markDslOrigin(body: Exclude<Result['body'], { kind: 'effect' }>, module: string) {
+    let target: Location | null = null;
+    if (body.kind === 'state' || (body.kind === 'overlay' && body.verb === 'show' && body.target.variant != null)) {
+      target = { module: this.normalize(module, body.target.module), component: body.target.name, variant: body.target.variant ?? null };
+    } else if (body.kind === 'transition' && body.target && ['push', 'present', 'goto', 'switch'].includes(body.word)) {
+      target = body.target.kind === 'variant' ? { ...activeLocation(this.state), variant: body.target.name } : {
+        module: this.normalize(module, body.target.module), component: body.target.name, variant: body.target.variant };
+    }
+    if (target?.variant != null && this.state.singletons.has(singletonKey(target.module, target.component))) this.context.origins.set(singletonKey(target.module, target.component), 'dsl');
   }
   private normalizeResult(body: Exclude<Result['body'], { kind: 'effect' }>, module: string) {
     if (body.kind === 'transition') {
@@ -246,7 +402,7 @@ export class Session {
     const branch = branches.find((b) => b.id === request.branch);
     if (request.branch !== undefined && !branch) fail('INVALID_BRANCH', 'Unknown branch for this operation');
     const before = this.comparable();
-    const observationStart = this.observations.length;
+    const observationStart = this.nextObservationId;
     const operationId = ++this.operationId;
     const receipt: Receipt = { operationId, changed: [], observations: { count: 0, firstId: null, lastId: null }, effects: [], diagnostics: [] };
     const results = back ? [{ result: { body: { kind: 'transition', word: 'back', target: null, session: null,
@@ -262,6 +418,7 @@ export class Session {
       }
       const prior = this.comparable();
       const result = reduce(this.state, this.normalizeResult(body, entry?.module ?? this.location().module!));
+      this.markDslOrigin(body, entry?.module ?? this.location().module!);
       this.state = result.state;
       const changed = !same(prior, this.comparable());
       if (changed || body.kind !== 'transition') {
@@ -275,7 +432,7 @@ export class Session {
     }
     const after = this.comparable();
     receipt.changed = (Object.keys(before) as Array<keyof typeof before>).filter((key) => !same(before[key], after[key]));
-    const added = this.observations.slice(observationStart);
+    const added = this.observations.filter((o) => o.id >= observationStart);
     receipt.observations = { count: added.length, firstId: added[0]?.id ?? null, lastId: added[added.length - 1]?.id ?? null };
     this.revision++;
     return structuredClone({ revision: this.revision, summary: this.summary(), receipt });

@@ -1,6 +1,6 @@
 import { createInterface } from 'node:readline';
 import { once } from 'node:events';
-import { Session, SessionError } from '@shitae/session';
+import { Session, SessionError, type QueryOptions } from '@shitae/session';
 
 function invalid(message: string): never { throw new SessionError('INVALID_REQUEST', message); }
 function fields(request: Record<string, unknown>, allowed: string[]) {
@@ -25,16 +25,22 @@ export async function serveSession(session: Session): Promise<void> {
       if (typeof request.command !== 'string') invalid('command must be a string');
       let result;
       if (request.command === 'query') {
-        fields(request, ['id', 'command', 'select']);
+        fields(request, ['id', 'command', 'select', 'history', 'observationId']);
         if (request.select !== undefined && (!Array.isArray(request.select) || request.select.some((s) => typeof s !== 'string'))) invalid('select must be an array of strings');
-        result = session.query({ select: request.select as string[] | undefined });
+        result = session.query({ select: request.select as string[] | undefined, history: request.history as QueryOptions['history'], observationId: request.observationId as number | undefined });
       } else if (request.command === 'dispatch') {
         fields(request, ['id', 'command', 'handle', 'branch']);
         if (typeof request.handle !== 'string') invalid('handle must be a string');
         if (request.branch !== undefined && typeof request.branch !== 'string') invalid('branch must be a string');
         result = session.dispatch({ handle: request.handle, branch: request.branch as string | undefined });
+      } else if (request.command === 'reset') {
+        fields(request, ['id', 'command']); result = session.reset();
+      } else if (request.command === 'setTestVariant') {
+        fields(request, ['id', 'command', 'module', 'component', 'variant']);
+        if (typeof request.module !== 'string' || typeof request.component !== 'string' || typeof request.variant !== 'string') invalid('module/component/variant must be strings');
+        result = session.setTestVariant({ module: request.module, component: request.component, variant: request.variant });
       } else {
-        throw new SessionError('UNKNOWN_COMMAND', 'This slice supports query and dispatch');
+        throw new SessionError('UNKNOWN_COMMAND', 'Unknown command');
       }
       response = { id, ok: true, protocolVersion: 1, ...result };
     } catch (error) {

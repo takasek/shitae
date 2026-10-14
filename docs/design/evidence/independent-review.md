@@ -44,3 +44,7 @@ Astra の再確認は Session 9/9 と追加独立反例 5/5 が成功。追加�
 最初のレビューでは Session 7/7、新規 CLI 4/4 を独立実行した。保存済み roundtrip は新しい同一 CLI process で再現し、Session 固有 handle 以外の全応答が一致、exit 0、stderr 空、現在地「完了」を確認した。過去の保存 PID/採取過程そのものを独立に証明したとは扱わない。再レビューでは CLI 全件/GUI/詳細照会を再実行していない。レビュー agent は編集/commit/push を行っていない。
 
 使用方法と現在の実装範囲は [session-first-slice.md](../session-first-slice.md)、実演は [cli-roundtrip-v1.json](cli-roundtrip-v1.json)、実装側の検証は [first-slice-validation.json](first-slice-validation.json)。この段階の実装とレビューを Issue #18 全体の受入完了とはしない。
+
+## 詳細照会と snapshot のレビュー
+
+Astra を実装会話なしで起動し、state/history/observation、手動試験、seek/reset、CLI 接続を点検した。通常 overlay の初期値の由来が inclusion だけ DSL と表示される P2 と、history.limit:null を省略扱いする P3 を独立 probe で再現した。両方の反例で red（2 failed / 12 passed）を確認後、保存 variant の投影と undefined のみの既定値処理へ修正した。Astra の再レビューで両方の修正、明示/未定義/singleton overlay の副作用なしを確認。Session 14/14 と CLI 対象 5/5 を独立再実行し、未解消の指摘はない。metadata/GUI/ブラウザはこのレビュー範囲に含めていない。

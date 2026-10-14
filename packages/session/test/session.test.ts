@@ -19,7 +19,7 @@ problem
 # Done
 receipt
 `;
-const actions = (s: Session) => s.query({ select: ['actions'] }).data!.actions;
+const actions = (s: Session) => s.query({ select: ['actions'] }).data!.actions!;
 
 describe('Session first CLI slice', () => {
   it('lists branches and sources, executes only the selected branch sequentially, returns a compact receipt', () => {
@@ -72,7 +72,7 @@ describe('Session first CLI slice', () => {
     expect(actions(s).items[0]!.branches).toEqual([]);
     expect(actions(s).items[0]!.handle).toBe(handle);
     expect(() => s.dispatch({ handle, branch: 'fake' })).toThrow('INVALID_BRANCH');
-    expect(() => s.query({ select: ['state'] })).toThrow('INVALID_REQUEST');
+    expect(() => s.query({ select: ['unknown'] })).toThrow('INVALID_REQUEST');
     expect(() => s.query({ select: ['actions', 'actions'] })).toThrow('INVALID_REQUEST');
     const result = s.dispatch({ handle });
     expect(result.summary.location.component).toBe('A');

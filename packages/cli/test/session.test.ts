@@ -62,7 +62,8 @@ describe('shitae session persistent JSON Lines', () => {
       [{ id: 5, command: 'query', select: ['actions'], extra: true }, 'INVALID_REQUEST'],
       [{ id: 6, command: 'dispatch', handle: a.handle, branch: null }, 'INVALID_REQUEST'],
       [{ id: 7, command: 'unknown' }, 'UNKNOWN_COMMAND'],
-      [{ id: 8, command: 'query', select: ['state'] }, 'INVALID_REQUEST'],
+      [{ id: 8, command: 'query', select: ['unknown'] }, 'INVALID_REQUEST'],
+      [{ id: 9, command: 'query', select: ['history'], history: { limit: null } }, 'INVALID_REQUEST'],
     ] as const) {
       const response = await s.request(r);
       expect(response).toMatchObject({ ok: false, revision: 0, error: { code } });
@@ -94,5 +95,28 @@ describe('shitae session persistent JSON Lines', () => {
     expect(r.stderr).toContain('sub.shitae');
     expect(r.stderr).toContain('[error]');
     expect(r.rest.done).toBe(true);
+  });
+
+  it('supports paged detail reads/manual trials/reset without exposing seek as a wire command', async () => {
+    const s = start(fixture({ 'main.shitae': '# Host\n> Go -> set(Badge##On) ; show(Badge) ; goto(##Done)\n> Check(Badge.signal?) -> effect\n## Start\nx\n## Done\ny\n#! Badge\n## Off\nx\n## On\nsignal\n' }));
+    const initial = await s.request({ id: 1, command: 'query', select: ['state', 'actions'] });
+    const a = initial.data.actions.items.find((a: any) => a.actionText === 'Go');
+    const trial = await s.request({ id: 2, command: 'setTestVariant', module: 'main', component: 'Badge', variant: 'On' });
+    expect(trial).toMatchObject({ ok: true, revision: 1 });
+    expect(trial).not.toHaveProperty('data');
+    const current = await s.request({ id: 3, command: 'query', select: ['actions'] });
+    const go = current.data.actions.items.find((a: any) => a.actionText === 'Go');
+    const r = await s.request({ id: 4, command: 'dispatch', handle: go.handle });
+    const h = await s.request({ id: 5, command: 'query', select: ['history'], history: { operationId: r.receipt.operationId, limit: 1 } });
+    expect(h.data.history.items).toHaveLength(1); expect(h.data.history.nextAfter).not.toBeNull();
+    const o = await s.request({ id: 6, command: 'query', select: ['observation'], observationId: h.data.history.items[0].id });
+    expect(o.data.observation.view.location.variant).toBe('Start');
+    expect(o.data.observation.view.state.sharedVariants[0].origin).toBe('dsl');
+    expect(o.data.observation.view.actions.items[0]).not.toHaveProperty('handle');
+    const now = await s.request({ id: 7, command: 'query' }); expect(now.summary).toEqual(r.summary);
+    expect(await s.request({ id: 8, command: 'seek', observationId: 1 })).toMatchObject({ ok: false, error: { code: 'UNKNOWN_COMMAND' } });
+    const reset = await s.request({ id: 9, command: 'reset' }); expect(reset.summary.location.variant).toBe('Start');
+    expect(await s.request({ id: 10, command: 'dispatch', handle: a.handle })).toMatchObject({ error: { code: 'STALE_HANDLE' } });
+    expect(await s.finish()).toMatchObject({ code: 0, stderr: '' });
   });
 });
