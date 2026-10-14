@@ -54,6 +54,9 @@ importers:
       '@shitae/resolver':
         specifier: workspace:*
         version: link:../resolver
+      '@shitae/session':
+        specifier: workspace:*
+        version: link:../session
       '@shitae/simulator':
         specifier: workspace:*
         version: link:../simulator
@@ -105,6 +108,28 @@ importers:
       '@shitae/ast':
         specifier: workspace:*
         version: link:../ast
+    devDependencies:
+      '@shitae/parser':
+        specifier: workspace:*
+        version: link:../parser
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.3
+        version: 3.2.4(@types/node@22.19.20)
+
+  packages/session:
+    dependencies:
+      '@shitae/ast':
+        specifier: workspace:*
+        version: link:../ast
+      '@shitae/resolver':
+        specifier: workspace:*
+        version: link:../resolver
+      '@shitae/runtime':
+        specifier: workspace:*
+        version: link:../runtime
     devDependencies:
       '@shitae/parser':
         specifier: workspace:*

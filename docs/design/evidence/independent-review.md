@@ -32,3 +32,15 @@
 2026-10-14、契約 commit `818ce95` からの改訂。ユーザーの「HTML 一枚が難しくなれば前提を外してよい、保てれば維持してよい」という指定に合わせ、一枚化を優先候補とし必須条件から外した。代替の静的ファイル群と必要時だけのローカル静的サーバー、選定理由/出力方法/開き方の文書化、選んだ形での実ブラウザ検証を定めた。
 
 実装会話を引き継がない別 agent が差分と関連本文を照合し、配布方針・G02・対象外の整合と、通常応答/共通 Session の実行・観測契約/CLI protocol が変わらないことを確認した。actionable finding なし。JSON Lines 例十件、ローカルリンク、Markdown fence、diff check も成功。production/fixture は未変更で全件テストは再実行していない。配布形の選定・実装・実ブラウザ動作は今後の検証対象である。
+
+## 最初の CLI 一往復の Astra 独立レビュー
+
+2026-10-14、ユーザーの指定で最初の一往復を実装し、実際の入出力を示した後、実装会話を引き継がない Astra（gpt-6-astra）へレビューを依頼した。対象は `@shitae/session`、CLI の session 入口、runtime の switch 修正、関連テストと実演記録。全体契約の GUI/詳細照会/手動試験/seek/model identity は後続範囲として区別した。
+
+P2 が一件、反例が二つあった。module 修飾付き外側操作が包含部品の内部操作を隠せず、CLI で内部 effect を発火できた。また common/variant の同名 alias を配置名だけで照合し、別 body の無関係な操作まで隠していた。二反例を回帰テストに追加し Red を確認した後、宣言 single-body の alias を AST element identity へ束縛し、非 alias の参照は正準 module/component と照合するよう修正した。
+
+Astra の再確認は Session 9/9 と追加独立反例 5/5 が成功。追加反例は alias の component 名より高い優先度、明示 module の alias 回避、別 module の同名 component、collection の区別、body 間の同名 alias。未解消の actionable finding なし。runtime 修正も SPEC/ADR-0008 に一致すると確認した。
+
+最初のレビューでは Session 7/7、新規 CLI 4/4 を独立実行した。保存済み roundtrip は新しい同一 CLI process で再現し、Session 固有 handle 以外の全応答が一致、exit 0、stderr 空、現在地「完了」を確認した。過去の保存 PID/採取過程そのものを独立に証明したとは扱わない。再レビューでは CLI 全件/GUI/詳細照会を再実行していない。レビュー agent は編集/commit/push を行っていない。
+
+使用方法と現在の実装範囲は [session-first-slice.md](../session-first-slice.md)、実演は [cli-roundtrip-v1.json](cli-roundtrip-v1.json)、実装側の検証は [first-slice-validation.json](first-slice-validation.json)。この段階の実装とレビューを Issue #18 全体の受入完了とはしない。

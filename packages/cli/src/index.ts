@@ -6,13 +6,15 @@ import { resolveProject } from '@shitae/resolver';
 import { check } from '@shitae/checker';
 import { toMermaid } from '@shitae/transpiler-mermaid';
 import { toSimulator } from '@shitae/simulator';
+import { Session } from '@shitae/session';
+import { serveSession } from './session.js';
 import type { SimulatorConfig } from '@shitae/simulator';
 import type { Document, Diagnostic } from '@shitae/ast';
 
 const [, , command, filePath] = process.argv;
 
 if (!command || !filePath) {
-  process.stderr.write('Usage: shitae <check|mermaid|simulate> <file>\n');
+  process.stderr.write('Usage: shitae <check|mermaid|simulate|session> <file>\n');
   process.exit(1);
 }
 
@@ -101,6 +103,20 @@ if (command === 'check') {
   printDiags(checkDiags.map(d => ({ diag: d, path: entryPath })));
   process.stdout.write(toMermaid(documents.get(entryModule)!) + '\n');
   process.exit(0);
+} else if (command === 'session') {
+  const errors = [...diagnosticsMap].flatMap(([module, diagnostics]) => diagnostics
+    .filter((d) => d.severity === 'error').map((diag) => ({ diag, path: modulePaths.get(module) ?? entryPath })));
+  if (errors.length) {
+    printDiags(errors);
+    process.exit(1);
+  }
+  try {
+    const session = new Session(documents, entryModule, modulePaths);
+    await serveSession(session);
+  } catch (error) {
+    process.stderr.write(`Error: ${error instanceof Error ? error.message : String(error)}\n`);
+    process.exitCode = 1;
+  }
 } else if (command === 'simulate') {
   const errors = parseDiags.filter(d => d.severity === 'error');
   if (errors.length > 0) {
@@ -127,6 +143,6 @@ if (command === 'check') {
   process.stdout.write(toSimulator(documents, entryModule, simConfig) + '\n');
   // pipe の非同期 write が完了するまで、イベントループの自然終了に任せる。
 } else {
-  process.stderr.write(`Error: unknown command '${command}'. Use 'check', 'mermaid', or 'simulate'.\n`);
+  process.stderr.write(`Error: unknown command '${command}'. Use 'check', 'mermaid', 'simulate', or 'session'.\n`);
   process.exit(1);
 }

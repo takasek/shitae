@@ -19,6 +19,7 @@
     "@shitae/resolver": "workspace:*",
     "@shitae/transpiler-mermaid": "workspace:*",
     "@shitae/checker": "workspace:*",
+    "@shitae/session": "workspace:*",
     "@shitae/simulator": "workspace:*"
   },
   "devDependencies": {

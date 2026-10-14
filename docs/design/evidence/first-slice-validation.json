@@ -1,0 +1,95 @@
+{
+  "scope": "first query(actions) -> dispatch(branch) -> query(summary) slice",
+  "baseCommit": "2fb8a9c",
+  "runtimeTdd": "runtime-switch-tdd.json",
+  "sessionTdd": {
+    "red": {
+      "command": "pnpm --filter @shitae/session test",
+      "exitCode": 1,
+      "reason": "new entry point missing after tests were written",
+      "testsCollected": 0
+    },
+    "green": {
+      "exitCode": 0,
+      "passed": 7
+    },
+    "overrideFix": {
+      "redFailed": 2,
+      "redPassed": 7,
+      "greenPassed": 9
+    }
+  },
+  "cliTdd": {
+    "red": {
+      "command": "pnpm --filter @shitae/cli exec vitest run test/session.test.ts",
+      "exitCode": 1,
+      "failed": 4,
+      "reason": "session command unknown before implementation"
+    },
+    "green": {
+      "exitCode": 0,
+      "passed": 23,
+      "newSessionTests": 4
+    }
+  },
+  "finalTests": {
+    "command": "pnpm -r test",
+    "exitCode": 0,
+    "byPackage": {
+      "parser": 246,
+      "runtime": 97,
+      "resolver": 37,
+      "transpiler-mermaid": 20,
+      "checker": 29,
+      "session": 9,
+      "simulator": 218,
+      "transpiler-xstate": 35,
+      "cli": 23
+    },
+    "totalPassed": 714
+  },
+  "typecheck": {
+    "command": "pnpm -r typecheck",
+    "exitCode": 0,
+    "afterOverrideFix": "pnpm --filter @shitae/session typecheck also passed"
+  },
+  "build": {
+    "command": "CLI pretest builds all CLI dependencies including Session/runtime",
+    "exitCode": 0
+  },
+  "fixtureCheck": {
+    "file": "session-fixtures/roundtrip.shitae",
+    "exitCode": 0,
+    "diagnostics": 0
+  },
+  "actualIo": {
+    "file": "cli-roundtrip-v1.json",
+    "sameProcess": true,
+    "exitCode": 0,
+    "stderr": "",
+    "requestBytes": [
+      51,
+      99,
+      30
+    ],
+    "responseBytes": [
+      1471,
+      335,
+      206
+    ]
+  },
+  "independentReview": {
+    "model": "gpt-6-astra",
+    "unresolvedActionableFindings": 0,
+    "sessionTestsPassed": 9,
+    "additionalCounterexamplesPassed": 5,
+    "initialIndependentCliTestsPassed": 4,
+    "roundtripReproduced": true
+  },
+  "proofLimits": [
+    "GUI is unchanged and not connected to Session",
+    "Detailed queries, reset, manual trials, seek, model identity and full file canonicalization are pending",
+    "No changed browser test or saved-model re-dogfooding",
+    "No claim of Issue 18 full acceptance"
+  ]
+}

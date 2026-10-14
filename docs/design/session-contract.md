@@ -1,8 +1,8 @@
 # Issue #18: 共通 Session の契約案
 
-Status: proposed。2026-10-14、`origin/main` の固定版 `e985f4ee58ab76339df5b0f59144e1f1a5da91c8` を調査。これは実装前の契約案であり、実装済み API や新しい言語仕様ではない。[Issue #18](https://github.com/takasek/shitae/issues/18) の工程 1 を対象とする。設計確認後に TDD で Session、GUI 接続、CLI、#12 の表示、再評価へ進む。
+Status: approved / 段階実装中。2026-10-14 にユーザーが本契約での実装を承認し、その後「操作一覧 → 分岐実行 → 現在地確認」を一本通し、実物を Astra が独立レビューする区切りを指定した。調査の固定版は `e985f4ee58ab76339df5b0f59144e1f1a5da91c8`。[最初の区切りの実装・出力形・未接続範囲](session-first-slice.md) を全体契約と区別する。これは新しい言語仕様ではなく、全 API が実装済みであることも表さない。
 
-## 判断を求める点
+## 採用した方針
 
 1. 初版 CLI は `shitae session <file>` の stdin/stdout JSON Lines とする。同じ process 内で query → dispatch → query を継続し、EOF で終了する。既存 `simulate` の入口を維持し、GUI の配布形は後述の方針で選ぶ。
 2. singleton の手動試験変更は共有値そのものへの書込みにする。別の override 層を置かず、後続の DSL 書込みが勝つ。通常 component の試験値は component 単位の模擬値として分離し、包含表示と member gate だけへ適用する。frame/overlay の実状態は変えない。
@@ -179,7 +179,7 @@ receipt の effects/diagnostics は今回の実行出力、history/observation q
 
 #12 は「部品の状態を表示」を既定 off とし、Session の包含 query の値をそのまま補助表示する。初期姿、component 単位試験値、singleton の共有範囲を区別する。checkbox は実行状態/履歴/操作集合/gate を変えず、fold/focus を保つ。inline/未定義に実 component 状態を捏造しない。receiver 説明と表示設定の永続化は保留。
 
-## runtime の既知の不一致（設計確認対象）
+## runtime の不一致（固定版の記録と修正）
 
 SPEC の「switch（中断と復帰）」と ADR-0008 は、最も近い switch 製祖先の兄弟、無ければ現在フレームの子、とする。`runtime/src/index.ts` の `switchParentId` は最初の present 製祖先で走査を止めてその子を選ぶ。既存 `runtime.test.ts` にも present anchor 直下の push から新タブを作ると anchor の子になる、という期待値がある。SPEC の字義との一致を既存 green で主張できない。
 
@@ -192,7 +192,7 @@ SPEC の「switch（中断と復帰）」と ADR-0008 は、最も近い switch 
 
 実測は [runtime-switch-probe.mjs](evidence/runtime-switch-probe.mjs)、出力は [runtime-switch-baseline.json](evidence/runtime-switch-baseline.json)。probe の期待値は上表の固定値であり、CLI/GUI の一致や同じ関数を使った再計算を oracle にしない。`--expect-spec` は全期待を満たさなければ失敗する。
 
-推奨は present での特別な打切りを削除して SPEC に揃える。上表の第一経路では今まで残った B が破棄されるという変更を明記する。anchor が必ず他タブを残す規則を意図する場合は SPEC 自体の設計変更になるため、その決定を先に設計者へ確認する。Session 側に補正ロジックを足して両方の意味を残さない。
+承認した修正は present での特別な打切りを削除して SPEC に揃えること。上表の第一経路では今まで残った B が破棄される。最初の実装区切りで runtime を修正し、[TDD 記録](evidence/runtime-switch-tdd.json) のとおり四観測が SPEC と一致した。Session 側に補正ロジックを足して両方の意味を残さない。
 
 ## 受入表と TDD の順序
 
@@ -229,9 +229,9 @@ G01 は公開 CLI からも行える dispatch、手動試験、reset、query の
 
 初期 fixture は [switch-contexts.shitae](session-fixtures/switch-contexts.shitae)、[trial-values.shitae](session-fixtures/trial-values.shitae)、[builtin-back.shitae](session-fixtures/builtin-back.shitae)。機械検査では parse/check、runtime probe では既知の不一致を確認する。この三つだけで S01–D02 を通過したとはしない。
 
-固定版の検証結果は [validation.json](evidence/validation.json)。build と既存テスト 700 件は成功。typecheck は既存 `runtime/test/runtime.test.ts:37` の helper に必須 `module` がない TS2322 で失敗した。production と既存テストは変更していない。新しい Session/CLI/GUI の実行・ブラウザ接続・再ドッグフーディングはまだ検証していない。
+契約作成時の固定版の検証結果は [validation.json](evidence/validation.json)。当時は build と既存テスト 700 件が成功、typecheck は既存 `runtime/test/runtime.test.ts:37` の helper に必須 `module` がない TS2322 で失敗した。当時の production/既存テストは未変更だった。最初の実装区切りでは helper も修正し、[現在の検証結果](evidence/first-slice-validation.json) に CLI の実演・テスト・typecheck を分けて記録した。GUI 接続・実ブラウザ・再ドッグフーディングは後続段階。
 
-[独立レビュー記録](evidence/independent-review.md) には、初版の結果途中観測/組込み戻る、通常応答縮小、HTML 一枚の条件を緩める改訂の確認を分けて残した。通常応答縮小の [文書検証結果](evidence/compact-response-validation.json) と、配布方針改訂の文書検査は JSON Lines 例、ローカルリンク、差分の整形の確認であり、初版の固定版 build/test 結果の再取得や新 CLI/配布形の実測ではない。最終再確認で未解消の actionable finding はない。残っている proposed な設計判断の採用を示すものではない。
+[独立レビュー記録](evidence/independent-review.md) には、契約改訂のレビューと最初の CLI 一往復の Astra 実装レビューを分けて残した。通常応答縮小の [文書検証結果](evidence/compact-response-validation.json) と、配布方針改訂の文書検査を、新 CLI/配布形の実測には数えない。最初の CLI 区切りの最終再レビューで未解消の actionable finding はない。後続 API/GUI の実装受入まで完了したとは扱わない。
 
 実装の論理単位は (1) runtime 不一致修正、(2) Session の観測・操作・snapshot、(3) 共通 Session への GUI 接続と配布形の選択、(4) CLI protocol と利用実証、(5) #12 表示、(6) 保存モデル回帰/再評価。各段階で必要な red → green と独立レビューを行い、変更がない全件検査を繰り返さない。SPEC に転記する場合は転記元の内部整合レビューを先に済ませる。本案のツール API は原則 SPEC へ追加しない。
 

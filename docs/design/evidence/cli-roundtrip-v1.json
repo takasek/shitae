@@ -1,0 +1,192 @@
+{
+  "sameProcess": true,
+  "pid": 11260,
+  "exitCode": 0,
+  "stderr": "",
+  "exchanges": [
+    {
+      "request": {
+        "id": "a1",
+        "command": "query",
+        "select": [
+          "actions"
+        ]
+      },
+      "response": {
+        "id": "a1",
+        "ok": true,
+        "protocolVersion": 1,
+        "revision": 0,
+        "summary": {
+          "location": {
+            "module": "roundtrip",
+            "component": "購入確認",
+            "variant": "入力済み"
+          },
+          "cursorObservationId": 1,
+          "latestObservationId": 1,
+          "observationCount": 1
+        },
+        "data": {
+          "actions": {
+            "items": [
+              {
+                "handle": "e2f4b59c-4bf6-429a-a6e5-3089e18fce4c:0:0",
+                "action": {
+                  "text": "購入する",
+                  "target": null,
+                  "span": {
+                    "offset": 7,
+                    "length": 42,
+                    "line": 2,
+                    "col": 1
+                  }
+                },
+                "actionText": "購入する",
+                "scope": "component",
+                "source": {
+                  "module": "roundtrip",
+                  "file": "/Users/m5/works/shitae/.worktrees/issue-18-session/docs/design/session-fixtures/roundtrip.shitae",
+                  "span": {
+                    "offset": 7,
+                    "length": 42,
+                    "line": 2,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "host": {
+                  "module": "roundtrip",
+                  "component": "購入確認",
+                  "variant": "入力済み"
+                },
+                "enabled": true,
+                "gate": null,
+                "prelude": [],
+                "branches": [
+                  {
+                    "id": "b0",
+                    "label": "成功",
+                    "results": [
+                      {
+                        "resultIndex": 0,
+                        "source": {
+                          "module": "roundtrip",
+                          "file": "/Users/m5/works/shitae/.worktrees/issue-18-session/docs/design/session-fixtures/roundtrip.shitae",
+                          "span": {
+                            "offset": 7,
+                            "length": 42,
+                            "line": 2,
+                            "col": 1
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "b1",
+                    "label": "失敗",
+                    "results": [
+                      {
+                        "resultIndex": 1,
+                        "source": {
+                          "module": "roundtrip",
+                          "file": "/Users/m5/works/shitae/.worktrees/issue-18-session/docs/design/session-fixtures/roundtrip.shitae",
+                          "span": {
+                            "offset": 7,
+                            "length": 42,
+                            "line": 2,
+                            "col": 1
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "controls": {
+              "back": {
+                "handle": "e2f4b59c-4bf6-429a-a6e5-3089e18fce4c:0:back",
+                "kind": "control",
+                "source": null,
+                "enabled": false,
+                "reason": "no-return-location"
+              }
+            }
+          }
+        }
+      },
+      "requestBytes": 51,
+      "responseBytes": 1471
+    },
+    {
+      "request": {
+        "id": "d1",
+        "command": "dispatch",
+        "handle": "e2f4b59c-4bf6-429a-a6e5-3089e18fce4c:0:0",
+        "branch": "b0"
+      },
+      "response": {
+        "id": "d1",
+        "ok": true,
+        "protocolVersion": 1,
+        "revision": 1,
+        "summary": {
+          "location": {
+            "module": "roundtrip",
+            "component": "完了",
+            "variant": null
+          },
+          "cursorObservationId": 2,
+          "latestObservationId": 2,
+          "observationCount": 2
+        },
+        "receipt": {
+          "operationId": 1,
+          "changed": [
+            "frames"
+          ],
+          "observations": {
+            "count": 1,
+            "firstId": 2,
+            "lastId": 2
+          },
+          "effects": [],
+          "diagnostics": []
+        }
+      },
+      "requestBytes": 99,
+      "responseBytes": 335
+    },
+    {
+      "request": {
+        "id": "q1",
+        "command": "query"
+      },
+      "response": {
+        "id": "q1",
+        "ok": true,
+        "protocolVersion": 1,
+        "revision": 1,
+        "summary": {
+          "location": {
+            "module": "roundtrip",
+            "component": "完了",
+            "variant": null
+          },
+          "cursorObservationId": 2,
+          "latestObservationId": 2,
+          "observationCount": 2
+        }
+      },
+      "requestBytes": 30,
+      "responseBytes": 206
+    }
+  ],
+  "proofLimit": "first CLI slice only; no GUI connection, detail queries, manual trials or replay yet"
+}
