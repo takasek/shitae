@@ -1,4 +1,4 @@
-import type { Action, Document, Component, ElementLine, Interaction, Result } from '@shitae/ast';
+import type { Action, Body, Document, Component, ElementLine, Interaction, Result } from '@shitae/ast';
 import { effectiveResults, mergeInteractions, resolveModuleRef } from '@shitae/resolver';
 import { singletonNames } from '@shitae/runtime';
 
@@ -95,12 +95,14 @@ export interface SimElementRef {
 /**
  * 要素行1件（表示名 + 定義済み component への参照）。Task 8「要素の階層表示」。
  * ref は要素行の参照が project 内で定義済み component に解決する場合のみ設定する。
- * collection（`{...}`）や未定義参照は ref: null——階層展開できるのは単一 component 参照のみ。
+ * inline（`{...}`）や未定義参照は ref: null。inline は children に要素列を保持する。
  */
 export interface SimElement {
   /** 表示名（alias があればそれ、なければ ref 名 or '{...}'） */
   name: string;
   ref: SimElementRef | null;
+  /** inline component の要素列。名前付き参照・未定義参照では省略する */
+  children?: SimElement[];
 }
 
 export interface SimVariant {
@@ -193,14 +195,18 @@ export interface SimulatorData {
 type ModuleNormalizer = (module: string | null) => string | null;
 
 /**
- * 要素行1件を SimElement へ変換する（Task 8）。collection（`{...}`）は ref を持てない
- * ため常に null。ref 参照は module をレキシカル解決（ADR-0018）した上でひとまず候補として
+ * 要素行1件を SimElement へ変換する（Task 8）。inline（`{...}`）は ref: null と
+ * children を持つ。ref 参照は module をレキシカル解決（ADR-0018）した上でひとまず候補として
  * 保持し、project 内で定義済み component に解決するかは全 module 構築後の
  * pruneUnresolvedElementRefs で確定させる（この時点では他 module が未構築のことがある）。
  */
 function convertElementLine(el: ElementLine, norm: ModuleNormalizer, sourceModule: string): SimElement {
   if (el.value.kind === 'inline') {
-    return { name: el.alias ?? '{...}', ref: null };
+    return {
+      name: el.alias ?? '{...}',
+      ref: null,
+      children: el.value.elements.map((child) => convertElementLine(child, norm, sourceModule)),
+    };
   }
   const module = norm(el.value.module ?? sourceModule) ?? sourceModule;
   return { name: el.alias ?? el.value.name, ref: { module, name: el.value.name } };
@@ -216,6 +222,7 @@ function pruneUnresolvedElementRefs(modules: Record<string, SimModuleData>): voi
   const prune = (elements: SimElement[]): void => {
     for (const el of elements) {
       if (el.ref && !isDefined(el.ref)) el.ref = null;
+      if (el.children) prune(el.children);
     }
   };
   for (const mod of Object.values(modules)) {
@@ -278,13 +285,27 @@ function convertResultBody(r: Result, norm: ModuleNormalizer, sourceModule: stri
  * 実効 body で判定する（ADR-0015。ADR-0012 B7a の always-on を置き換え）。
  * member gate の module 帰属は無修飾参照と同じくレキシカル——sourceModule で解決する（ADR-0018）。
  */
-function buildGate(action: Action, norm: ModuleNormalizer, sourceModule: string): SimGate | null {
+function buildGate(
+  action: Action,
+  norm: ModuleNormalizer,
+  sourceModule: string,
+  elements: ElementLine[],
+): SimGate | null {
   const ref = action.target;
   if (!ref || !ref.existsGated) return null;
   if (ref.member === null) {
     return { name: ref.name, kind: 'host' };
   }
-  return { name: ref.member, kind: 'member', targetComponent: ref.name, module: norm(ref.module ?? sourceModule) };
+  // alias は interaction が宣言された single-body 内だけで解決する。明示 module は
+  // component 参照なので local alias を見ない（SPEC「alias のスコープと優先順位」）。
+  const alias = ref.module === null ? elements.find((el) => el.alias === ref.name) : undefined;
+  const target = alias?.value;
+  return {
+    name: ref.member,
+    kind: 'member',
+    targetComponent: target ? (target.kind === 'ref' ? target.name : undefined) : ref.name,
+    module: norm((target?.kind === 'ref' ? target.module : ref.module) ?? sourceModule),
+  };
 }
 
 function convertInteraction(
@@ -292,6 +313,7 @@ function convertInteraction(
   norm: ModuleNormalizer,
   sourceModule: string,
   scope: SimInteractionScope,
+  elements: ElementLine[],
 ): SimInteraction {
   const action = i.action;
   const member = action.target?.member ?? null;
@@ -321,7 +343,7 @@ function convertInteraction(
     targetMember: member,
     prelude,
     choices,
-    gate: buildGate(action, norm, sourceModule),
+    gate: buildGate(action, norm, sourceModule, elements),
     scope,
   };
 }
@@ -340,15 +362,17 @@ function survivingDocCommon(documentCommon: Interaction[], effective: Interactio
 
 function convertComponent(
   comp: Component,
-  documentCommon: Interaction[],
+  documentCommon: Body,
   norm: ModuleNormalizer,
   sourceModule: string,
 ): SimComponent {
   const commonElements = comp.common.elements.map((el) => convertElementLine(el, norm, sourceModule));
   const commonInteractionsAst = comp.common.interactions;
-  const commonInteractions = commonInteractionsAst.map((it) => convertInteraction(it, norm, sourceModule, 'component'));
-  const docCommonInteractions = survivingDocCommon(documentCommon, commonInteractionsAst).map(
-    (it) => convertInteraction(it, norm, sourceModule, 'document'),
+  const commonInteractions = commonInteractionsAst.map((it) =>
+    convertInteraction(it, norm, sourceModule, 'component', comp.common.elements),
+  );
+  const docCommonInteractions = survivingDocCommon(documentCommon.interactions, commonInteractionsAst).map(
+    (it) => convertInteraction(it, norm, sourceModule, 'document', documentCommon.elements),
   );
   const variants: Record<string, SimVariant> = {};
   for (const v of comp.variants) {
@@ -360,11 +384,15 @@ function convertComponent(
     const specificAst = new Set(v.body.interactions);
     variants[v.name] = {
       elements: v.body.elements.map((el) => convertElementLine(el, norm, sourceModule)),
-      interactions: effectiveAst.map((it) =>
-        convertInteraction(it, norm, sourceModule, specificAst.has(it) ? 'variant' : 'component'),
-      ),
-      docCommonInteractions: survivingDocCommon(documentCommon, effectiveAst).map(
-        (it) => convertInteraction(it, norm, sourceModule, 'document'),
+      interactions: effectiveAst.map((it) => {
+        const specific = specificAst.has(it);
+        return convertInteraction(
+          it, norm, sourceModule, specific ? 'variant' : 'component',
+          specific ? v.body.elements : comp.common.elements,
+        );
+      }),
+      docCommonInteractions: survivingDocCommon(documentCommon.interactions, effectiveAst).map(
+        (it) => convertInteraction(it, norm, sourceModule, 'document', documentCommon.elements),
       ),
     };
   }
@@ -452,7 +480,7 @@ export function extractSimData(
   };
   // document common（entry ファイル）の無修飾参照は entryModule をレキシカル基準とする（ADR-0018）
   const documentCommon = documentCommonAst.map((it) =>
-    convertInteraction(it, normFor(entryDoc), entryModule, 'document'),
+    convertInteraction(it, normFor(entryDoc), entryModule, 'document', entryDoc?.common.elements ?? []),
   );
 
   const modules: Record<string, SimModuleData> = {};
@@ -464,7 +492,7 @@ export function extractSimData(
       // SPEC「document common」: 実行時に有効な document common はその component が
       // 定義されているファイル自身のもの（entry ファイルのものではない）。
       // 無修飾参照の module 帰属はこの component が定義されているファイル（moduleName）自身（ADR-0018）
-      components[comp.name] = convertComponent(comp, doc.common.interactions, norm, moduleName);
+      components[comp.name] = convertComponent(comp, doc.common, norm, moduleName);
       graphNodes.push({ module: moduleName, name: comp.name });
     }
     modules[moduleName] = {
