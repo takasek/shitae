@@ -1,0 +1,20 @@
+{
+  "baseCommit": "2fb8a9c",
+  "expectationSource": "docs/SPEC.md:434 and ADR-0008",
+  "red": {
+    "command": "pnpm --filter @shitae/runtime test",
+    "exitCode": 1,
+    "failed": 2,
+    "passed": 95,
+    "reason": "the two independent switch parent expectations failed before production changes"
+  },
+  "green": {
+    "command": "pnpm --filter @shitae/runtime test",
+    "exitCode": 0,
+    "passed": 97
+  },
+  "typecheck": { "exitCode": 0 },
+  "specProbe": { "exitCode": 0, "matches": 4, "total": 4 },
+  "independentReview": "Astra confirmed the switch ancestor rule matches SPEC and ADR-0008",
+  "preExistingTypecheckRepair": "test helper navVar now supplies required module:null"
+}

@@ -369,17 +369,15 @@ function closeSession(
 }
 
 /**
- * switch でフレームを新規作成するときの親フレーム ID を決める（ADR-0008 補正）。
- * 現在フレームから祖先方向に辿り、最初に見つかった switch 製 or present 製フレームを基準に:
+ * switch でフレームを新規作成するときの親フレーム ID を決める（SPEC・ADR-0008）。
+ * 現在フレームから祖先方向に辿り、最も近い switch 製フレームを基準に:
  * - switch 製 → その兄弟（= その親の子）
- * - present 製（タブ群 anchor）→ その子
- * - どちらも無ければ現在フレームの子。
+ * - 無ければ現在フレームの子。present 製フレームで走査を止めない。
  */
 function switchParentId(state: RuntimeState, cur: Frame): number {
   let f: Frame | null = cur;
   while (f !== null) {
     if (f.origin === 'switch') return f.parentId!;
-    if (f.origin === 'present') return f.id;
     f = f.parentId !== null ? getFrame(state, f.parentId) : null;
   }
   return cur.id;
@@ -566,9 +564,7 @@ function reduceTransition(state: RuntimeState, transition: Transition): ReduceRe
         const sharedVariants = target ? writeShared(state, navTargetToLocation(target, current)) : state.sharedVariants;
         return { state: { ...state, activeFrameId: resumeFrame.id, sharedVariants }, diagnostics: diags };
       }
-      // create: 兄弟規則（ADR-0008 補正）。祖先方向に最も近い switch 製 or present 製
-      // （タブ群 anchor）を基準に親を決める: switch 製ならその兄弟、present 製ならその子、
-      // どちらも無ければ現在フレームの子。
+      // create: 最も近い switch 製祖先の兄弟、無ければ現在フレームの子（SPEC）。
       if (!target) return { state, diagnostics: diags };
       const loc = navTargetToLocation(target, current);
       const sharedVariants = writeShared(state, loc);
