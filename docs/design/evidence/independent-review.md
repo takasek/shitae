@@ -80,3 +80,11 @@ legacy rendering fixture は private モデル／試験値を直接変更して�
 以前の4モデルと新しい [全114要求](compact-actions/cli-runs.json) の summary/receipt/state が一致し、35 dispatchの34成功＋意図した拒否1件、一覧40回の290,500→81,311 bytes、全応答382,379→173,190 bytes、[実演](compact-actions/roundtrip.json) の各応答 bytes、[回帰](compact-actions/regression.json) の54手順／70観測点を独立照合した。新しい詳細 query を挟まず一覧だけで選択できている。ブラウザは8ケースの保存記録と空の warning/error log を確認したが、reviewer 自身が実ブラウザを再操作したとは扱わない。最終確認で未解消の actionable finding はない。reviewer は編集/commit/push を行っていない。
 
 追加の validation.json と本節も Astra が読み戻し、関連270件と依存464件の合算734を最終一括実行と混同していないこと、応答削減率72.01%／54.71%、engineVersionと参照、画像とDOM、停止出力の転記が整合することを確認した。実装 commit は `7e08011`。Red/build/typecheck/依存テスト/サーバー停止そのものを reviewer の独立実行と扱っていない。未解消の指摘なし。
+
+## #18 PR前の全体受入レビュー
+
+最新Issue #18/#12とSPEC、`origin/main=e985f4e` からの全差分、原記録を実装会話なしの Astra に渡し、実行意味／接続／保存回帰／表示／実ブラウザ評価と残件を独立照合した。#12のmodule識別欠落と同名表示の重複を独立生成GUI probeでも再現した。親側で1 failed/223 passedのRed後にstateLabelを修正し、Astra は反例を含むGUI接続5＋presentation1テストで解消を確認した。
+
+独立実行はSession22、runtime97、CLI session6、GUI6が成功。SPECのswitch祖先／復帰／非アクティブ子孫破棄／barrier／singleton書込み／結果途中のseekを点検し、追加コード指摘なし。旧GUI44比較で現在地差0、activePath差1が意図したSPEC修正であること、比較基準0d0d814のsimulator sourceがe985f4eと同じことも確認した。114要求・35dispatch・34成功＋意図した拒否1・40一覧照会・旧新bytesを原入出力から再集計し一致した。
+
+最終 [受入と残件](../session-acceptance.md)、取得済みIssue原文、追加CLI/DOMと表示画像を読み戻し、module／同名抑止／variantなし、Sol Conflict/Invalid/Valid、Astra正規化の値・singleton・由来を照合した。734全体実行と表示修正後224による735の合算を区別し、#11／公開seek／receiver説明等の後続scopeと利用評価の証拠限界が妥当と確認した。受入を妨げる未解消指摘や根拠を超える完了主張はない。ブラウザは保存証拠レビューでありreviewer自身の再操作ではない。reviewerは編集/commit/pushをしていない。

@@ -1,0 +1,179 @@
+{
+  "at": "2026-10-14T09:59:55.461Z",
+  "browser": "Codex in-app browser on macOS",
+  "transport": "loopback HTTP",
+  "baseCommit": "b8f8660",
+  "source": "working tree state label fix",
+  "cases": [
+    {
+      "case": "ambiguous-module-and-equal-name",
+      "at": "2026-10-14T09:57:08.345Z",
+      "dom": "- complementary:\n  - generic \"統合ログ — 実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は ghost として残ります\": 統合ログ\n  - generic: ナビゲーション履歴。実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は薄く（ghost）表示され、再クリックでやり直せます。新しいものが上\n  - checkbox \"イベントを表示\" [checked]\n  - text: イベントを表示\n  - generic: 起動\n- main:\n  - generic: 現在の画面\n  - button \"初期状態へ\"\n  - generic: アクティブな frame の表示（本体）と掲示中カード\n  - checkbox \"アクションを表示\" [checked]\n  - text: アクションを表示\n  - checkbox \"部品の状態を表示\" [checked] [active]\n  - text: 部品の状態を表示\n  - button \"画面外 component の姿切替（gate 試験用）\"\n  - paragraph: 今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。\n  - generic: Home\n  - generic: 画面の値 · 初期\n  - 'generic \"one → left::Card · ##Left · 包含の初期値 · 初期\"':\n    - text: one\n    - generic: \"→ left::Card · ##Left · 包含の初期値 · 初期\"\n  - generic: body\n  - 'generic \"two → right::Card · ##Right · 包含の初期値 · 初期\"':\n    - text: two\n    - generic: \"→ right::Card · ##Right · 包含の初期値 · 初期\"\n  - generic: body\n  - 'generic \"Card · main · ##Local · 包含の初期値 · 初期\"':\n    - text: Card\n    - generic: \"· main · ##Local · 包含の初期値 · 初期\"\n  - generic: body\n  - generic \"Plain · variantなし · 包含の初期値 · 初期\":\n    - text: Plain\n    - generic: · variantなし · 包含の初期値 · 初期\n  - generic: body\n  - generic: アクションなし\n  - generic \"スタック\"\n  - generic: 今積み重なっている画面。プッシュダウン構成として読める。上が現在地\n  - generic: Home\n  - generic \"遷移マップ\"\n  - generic: 画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。\n  - button \"設定を保存\"\n  - checkbox \"全体を見る\"\n  - text: 全体を見る"
+    },
+    {
+      "case": "astra-normalization-visible",
+      "at": "2026-10-14T09:57:24.575Z",
+      "dom": "- complementary:\n  - generic \"統合ログ — 実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は ghost として残ります\": 統合ログ\n  - generic: ナビゲーション履歴。実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は薄く（ghost）表示され、再クリックでやり直せます。新しいものが上\n  - checkbox \"イベントを表示\" [checked]\n  - text: イベントを表示\n  - generic: \"[文書A] set(正規化A)\"\n  - text: ›\n  - generic: present → 文書A\n  - text: ›\n  - generic: 起動\n- main:\n  - generic: 現在の画面\n  - button \"初期状態へ\"\n  - generic: アクティブな frame の表示（本体）と掲示中カード\n  - checkbox \"アクションを表示\" [checked]\n  - text: アクションを表示\n  - checkbox \"部品の状態を表示\" [checked]\n  - text: 部品の状態を表示\n  - button \"画面外 component の姿切替（gate 試験用）\"\n  - paragraph: 今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。\n  - generic: 文書A\n  - generic: 共有 (singleton) · 初期\n  - generic \"文書操作 → 文書操作群 · variantなし · 包含の初期値 · 初期\":\n    - text: 文書操作\n    - generic: → 文書操作群 · variantなし · 包含の初期値 · 初期\n  - generic: Open\n  - generic: Save\n  - generic: 文書名と親フォルダ\n  - generic \"表示操作 → 表示操作群 · variantなし · 包含の初期値 · 初期\":\n    - text: 表示操作\n    - generic: → 表示操作群 · variantなし · 包含の初期値 · 初期\n  - generic: Source\n  - generic: Split\n  - generic: Diagram\n  - generic: Sidebar\n  - generic \"文書メニュー → 文書コマンド群 · variantなし · 包含の初期値 · 初期\":\n    - text: 文書メニュー\n    - generic: → 文書コマンド群 · variantなし · 包含の初期値 · 初期\n  - generic: FormatFlows\n  - generic: FormatFlat\n  - generic: InspectNormalizedEdges\n  - 'generic \"作業面 → 作業面A · ##並列 · 共有 (singleton) · 初期\"':\n    - text: 作業面\n    - generic: \"→ 作業面A · ##並列 · 共有 (singleton) · 初期\"\n  - generic: ソース\n  - generic: 図\n  - 'generic \"診断 → 図の状態A · ##最新 · 共有 (singleton) · 初期\"':\n    - text: 診断\n    - generic: \"→ 図の状態A · ##最新 · 共有 (singleton) · 初期\"\n  - generic: 最新の図\n  - 'generic \"保存状態 → 状態A · ##保存済 · 共有 (singleton) · 初期\"':\n    - text: 保存状態\n    - generic: \"→ 状態A · ##保存済 · 共有 (singleton) · 初期\"\n  - generic: A.pfdsl — Saved\n  - 'generic \"検査結果 → 正規化A · ##表示 · 共有 (singleton) · DSL\"':\n    - text: 検査結果\n    - generic: \"→ 正規化A · ##表示 · 共有 (singleton) · DSL\"\n  - button \"Escape variant固有\":\n    - generic: Escape\n    - generic \"この姿（variant）でだけ有効な操作\": variant固有\n  - generic: Normalized edges — A.pfdsl\n  - generic: Copy\n  - generic: Close\n  - button \"閉じる(Close) variant固有\":\n    - generic: 閉じる(Close)\n    - generic \"この姿（variant）でだけ有効な操作\": variant固有\n  - generic \"タブ → タブ一覧 · variantなし · 包含の初期値 · 初期\":\n    - text: タブ\n    - generic: → タブ一覧 · variantなし · 包含の初期値 · 初期\n  - generic: A\n  - generic: B\n  - button \"切替(B) component common\":\n    - generic: 切替(B)\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - button \"編集 component common\":\n    - generic: 編集\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - button \"図のみ component common\":\n    - generic: 図のみ\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - button \"並列 component common\":\n    - generic: 並列\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - button \"ソースのみ component common\":\n    - generic: ソースのみ\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - generic: 正規化\n  - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - button \"[有効な入力]\" [active]\n  - button \"[入力エラー]\"\n  - generic: 保存\n  - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - button \"[成功]\"\n  - button \"[外部変更]\"\n  - button \"入力エラー発生 component common\":\n    - generic: 入力エラー発生\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - button \"入力修正 component common\":\n    - generic: 入力修正\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - button \"外部変更確認 component common\":\n    - generic: 外部変更確認\n    - generic \"この component のどの姿でも共通して有効な操作\": component common\n  - generic \"スタック\"\n  - generic: 今積み重なっている画面。プッシュダウン構成として読める。上が現在地\n  - generic: ▌文書A@a\n  - generic: 開始\n  - generic \"遷移マップ\"\n  - generic: 画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。\n  - button \"設定を保存\"\n  - checkbox \"全体を見る\"\n  - text: 全体を見る"
+    },
+    {
+      "case": "sol-status-Conflict",
+      "at": "2026-10-14T09:58:01.066Z",
+      "visible": {
+        "annotations": [
+          "画面の値 · 初期",
+          "navigation → Navigation · variantなし · 包含の初期値 · 初期",
+          "folder → FolderIdentity · variantなし · 包含の初期値 · 初期",
+          "files → FileTree · variantなし · 包含の初期値 · 初期",
+          "recent → RecentTargets · variantなし · 包含の初期値 · 初期",
+          "tabs → DocumentTabs · variantなし · 包含の初期値 · 初期",
+          "DocumentTab · variantなし · 包含の初期値 · 初期",
+          "name → FileName · variantなし · 包含の初期値 · 初期",
+          "state → DocumentStateText · variantなし · 包含の初期値 · 初期",
+          "close → Close · variantなし · 包含の初期値 · 初期",
+          "identity → DocumentIdentity · variantなし · 包含の初期値 · 初期",
+          "name → FileName · variantなし · 包含の初期値 · 初期",
+          "context → ParentFolder · variantなし · 包含の初期値 · 初期",
+          "document → DocumentCommands · variantなし · 包含の初期値 · 初期",
+          "save → Save · variantなし · 包含の初期値 · 初期",
+          "format → FormatMenu · variantなし · 包含の初期値 · 初期",
+          "Normalize → NormalizeAction · variantなし · 包含の初期値 · 初期",
+          "view → ViewModes · variantなし · 包含の初期値 · 初期",
+          "source → SourceEditor · variantなし · 包含の初期値 · 初期",
+          "text → SourceText · variantなし · 包含の初期値 · 初期",
+          "markers → Diagnostics · variantなし · 包含の初期値 · 初期",
+          "diagram → DiagramView · ##Ready · 共有 (singleton) · 初期",
+          "ZoomLevel · variantなし · 包含の初期値 · 初期",
+          "Fit · variantなし · 包含の初期値 · 初期",
+          "ActualSize · variantなし · 包含の初期値 · 初期",
+          "graph → Graph · variantなし · 包含の初期値 · 初期",
+          "details → NodeActions · variantなし · 包含の初期値 · 初期",
+          "status → DocumentStatus · ##Conflict · 共有 (singleton) · DSL",
+          "state → ExternalChange · variantなし · 包含の初期値 · 初期",
+          "掲示の値 · 初期",
+          "state → ExternalChange · variantなし · 包含の初期値 · 初期",
+          "review → ReviewVersions · variantなし · 包含の初期値 · 初期"
+        ],
+        "history": [
+          "[Workspace / Split] show(RecoveryNotice)",
+          "[Workspace / Split] set(DocumentStatus)",
+          "起動"
+        ]
+      }
+    },
+    {
+      "case": "sol-status-Invalid",
+      "at": "2026-10-14T09:58:01.091Z",
+      "visible": {
+        "annotations": [
+          "画面の値 · 初期",
+          "navigation → Navigation · variantなし · 包含の初期値 · 初期",
+          "folder → FolderIdentity · variantなし · 包含の初期値 · 初期",
+          "files → FileTree · variantなし · 包含の初期値 · 初期",
+          "recent → RecentTargets · variantなし · 包含の初期値 · 初期",
+          "tabs → DocumentTabs · variantなし · 包含の初期値 · 初期",
+          "DocumentTab · variantなし · 包含の初期値 · 初期",
+          "name → FileName · variantなし · 包含の初期値 · 初期",
+          "state → DocumentStateText · variantなし · 包含の初期値 · 初期",
+          "close → Close · variantなし · 包含の初期値 · 初期",
+          "identity → DocumentIdentity · variantなし · 包含の初期値 · 初期",
+          "name → FileName · variantなし · 包含の初期値 · 初期",
+          "context → ParentFolder · variantなし · 包含の初期値 · 初期",
+          "document → DocumentCommands · variantなし · 包含の初期値 · 初期",
+          "save → Save · variantなし · 包含の初期値 · 初期",
+          "format → FormatMenu · variantなし · 包含の初期値 · 初期",
+          "Normalize → NormalizeAction · variantなし · 包含の初期値 · 初期",
+          "view → ViewModes · variantなし · 包含の初期値 · 初期",
+          "source → SourceEditor · variantなし · 包含の初期値 · 初期",
+          "text → SourceText · variantなし · 包含の初期値 · 初期",
+          "markers → Diagnostics · variantなし · 包含の初期値 · 初期",
+          "diagram → DiagramView · ##Error · 共有 (singleton) · DSL",
+          "problem → Diagnostics · variantなし · 包含の初期値 · 初期",
+          "status → DocumentStatus · ##Invalid · 共有 (singleton) · DSL",
+          "state → DiagramUnavailable · variantなし · 包含の初期値 · 初期",
+          "problems → Diagnostics · variantなし · 包含の初期値 · 初期",
+          "掲示の値 · 初期",
+          "state → ExternalChange · variantなし · 包含の初期値 · 初期",
+          "review → ReviewVersions · variantなし · 包含の初期値 · 初期"
+        ],
+        "history": [
+          "[Workspace / Split] set(DiagramView)",
+          "[Workspace / Split] set(DocumentStatus)",
+          "[Workspace / Split] show(RecoveryNotice)",
+          "[Workspace / Split] set(DocumentStatus)",
+          "起動"
+        ]
+      }
+    },
+    {
+      "case": "sol-status-Valid",
+      "at": "2026-10-14T09:58:01.106Z",
+      "visible": {
+        "annotations": [
+          "画面の値 · 初期",
+          "navigation → Navigation · variantなし · 包含の初期値 · 初期",
+          "folder → FolderIdentity · variantなし · 包含の初期値 · 初期",
+          "files → FileTree · variantなし · 包含の初期値 · 初期",
+          "recent → RecentTargets · variantなし · 包含の初期値 · 初期",
+          "tabs → DocumentTabs · variantなし · 包含の初期値 · 初期",
+          "DocumentTab · variantなし · 包含の初期値 · 初期",
+          "name → FileName · variantなし · 包含の初期値 · 初期",
+          "state → DocumentStateText · variantなし · 包含の初期値 · 初期",
+          "close → Close · variantなし · 包含の初期値 · 初期",
+          "identity → DocumentIdentity · variantなし · 包含の初期値 · 初期",
+          "name → FileName · variantなし · 包含の初期値 · 初期",
+          "context → ParentFolder · variantなし · 包含の初期値 · 初期",
+          "document → DocumentCommands · variantなし · 包含の初期値 · 初期",
+          "save → Save · variantなし · 包含の初期値 · 初期",
+          "format → FormatMenu · variantなし · 包含の初期値 · 初期",
+          "Normalize → NormalizeAction · variantなし · 包含の初期値 · 初期",
+          "view → ViewModes · variantなし · 包含の初期値 · 初期",
+          "source → SourceEditor · variantなし · 包含の初期値 · 初期",
+          "text → SourceText · variantなし · 包含の初期値 · 初期",
+          "markers → Diagnostics · variantなし · 包含の初期値 · 初期",
+          "diagram → DiagramView · ##Ready · 共有 (singleton) · DSL",
+          "ZoomLevel · variantなし · 包含の初期値 · 初期",
+          "Fit · variantなし · 包含の初期値 · 初期",
+          "ActualSize · variantなし · 包含の初期値 · 初期",
+          "graph → Graph · variantなし · 包含の初期値 · 初期",
+          "details → NodeActions · variantなし · 包含の初期値 · 初期",
+          "status → DocumentStatus · ##Valid · 共有 (singleton) · DSL",
+          "state → SavedOrUnsaved · variantなし · 包含の初期値 · 初期",
+          "掲示の値 · 初期",
+          "state → ExternalChange · variantなし · 包含の初期値 · 初期",
+          "review → ReviewVersions · variantなし · 包含の初期値 · 初期"
+        ],
+        "history": [
+          "[Workspace / Split] set(DiagramView)",
+          "[Workspace / Split] set(DocumentStatus)",
+          "[Workspace / Split] set(DiagramView)",
+          "[Workspace / Split] set(DocumentStatus)",
+          "[Workspace / Split] show(RecoveryNotice)",
+          "[Workspace / Split] set(DocumentStatus)",
+          "起動"
+        ]
+      }
+    }
+  ],
+  "console": {
+    "modules": [],
+    "astra": [],
+    "sol": []
+  },
+  "engineVersion": "6eeaddc5012170138186bd98d7bcc7332a0bcb87f68d63f162acb3935fd16a92",
+  "server": {
+    "bind": "127.0.0.1",
+    "port": 54165,
+    "pid": 23381,
+    "stopped": true,
+    "afterStopConnectEx": 61,
+    "stopOutput": "server closed",
+    "stopExitCode": 0,
+    "stopProvenance": "tool result transcribed; socket refusal directly observed"
+  },
+  "artifactSha256": {
+    "modules": "7bd9df8397d93f0ab57f322fdac57fe8bc251bbfc2d0653e45964acf7fee9629",
+    "astra": "39c5c18f3c5fc028fac6964560294dd5955dbb13b656df24b0814dd91233a1ac",
+    "sol": "8f7e01ef4712005e613a1421abb9dddc2f3c1c25beb7ed516f95e6441a62610c"
+  },
+  "uiFixCommit": "0f06ddb"
+}

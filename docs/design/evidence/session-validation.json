@@ -148,5 +148,15 @@
     "independentRelatedTests": 270,
     "unresolvedActionableFindings": 0,
     "commit": "7e08011"
+  },
+  "prAcceptance": {
+    "base": "e985f4e",
+    "fullTestRunHead": "b8f8660",
+    "fullTests": 734,
+    "finalUiSimulatorTests": 224,
+    "evidence": "acceptance/validation.json",
+    "report": "../session-acceptance.md",
+    "uiFixCommit": "0f06ddb",
+    "independentReview": "passed; no unresolved acceptance blocker"
   }
 }
