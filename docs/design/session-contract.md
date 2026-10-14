@@ -8,6 +8,8 @@ Status: proposed。2026-10-14、`origin/main` の固定版 `e985f4ee58ab76339df5
 2. singleton の手動試験変更は共有値そのものへの書込みにする。別の override 層を置かず、後続の DSL 書込みが勝つ。通常 component の試験値は component 単位の模擬値として分離し、包含表示と member gate だけへ適用する。frame/overlay の実状態は変えない。
 3. 操作・部品・配置・result の定義 module と source span を初版の必須情報にする。モデルへ戻る負担に直結するため。CLI は実ファイルパスも返し、直接 `toSimulator(documents, ...)` を呼ぶ場合はファイルパス未提供を `null` で表す。
 
+2026-10-14 の通常応答に関する指定を反映し、command の応答と query の既定値は小さな要約とする。全状態、操作一覧、model manifest、履歴、結果途中の詳細は必要な項目を指定して照会する。JSON Lines であることを理由に毎回全データを返さない。
+
 runtime の兄弟規則には後述の不一致がある。推奨は SPEC の規則へ runtime と既存の矛盾するテストを修正すること。既存 runtime の結果を Session の独立期待値として流用しない。
 
 ## 責務と配置
@@ -33,9 +35,23 @@ Session はモデルを読込時に固定する。process 中のファイル変�
 
 ## query の値と作用範囲
 
-query は JSON 化できる detached value を返す。呼出し側が結果を書き換えても Session は変わらない。Map/Set は配列に変換する。query 自体は revision、状態、履歴を変えない。
+query は JSON 化できる detached value を返す。呼出し側が結果を書き換えても Session は変わらない。Map/Set は配列に変換する。query 自体は revision、状態、履歴を変えない。Session の query は以下の項目選択を提供し、GUI も必要な項目を選んで使う。CLI 側に状態・操作・gate の別の解決処理を置かない。
 
-最小の query は metadata、revision、現在地、全 frame 木、アクティブ経路、overlay、singleton 共有値、通常 component 試験値、現在表示する包含木、実効操作、組込み controls、履歴と cursor を返す。内部 snapshot 自体を公開 JSON に載せない。CLI の result response にも同じ query を添える。
+既定の query と全 successful command response は `revision` と `summary` だけを共通の状態情報として返す。summary は現在地（正準 module/component/表示 variant）、現在の観測点 ID、最新の観測点 ID、保持している観測点数。全 frame 木、包含木、操作一覧、manifest、履歴行は含まない。command は今回の実行出力を後述の receipt に返し、全 query を自動で添えない。
+
+query の `select` に項目を列挙すると、指定した値だけを `data` に追加する。省略または空配列なら summary のみ。同じ項目の重複、未知の項目、対応しない追加引数は `INVALID_REQUEST` とする。複数項目の照会は同じ現在 revision から一度に作る。
+
+| select 項目 | data に返す値 |
+| --- | --- |
+| `state` | 現在の全 frame 木、アクティブ経路、overlay、singleton 共有値、通常 component 試験値と由来、現在表示する包含木 |
+| `actions` | 現在の実効操作と branch/有効性/gate/source、現在 revision の操作 handle、組込み controls |
+| `metadata` | 処理系版、modelId、entry module、全参照 module の manifest |
+| `history` | 指定ページの観測点の概要（ID、operation ID、result の順番/source、kind、label、記録時の現在地、ghost）、次ページ用 ID。snapshot/view は含まない |
+| `observation` | 指定した観測点一件の概要と、snapshot から投影した詳細 view。現在の状態を変更しない |
+
+`history` は `history:{after?, limit?, operationId?}` で照会する。after は直前ページの最後の観測点 ID で、その後を保持順に読む。省略時は先頭から。limit は既定 20、1–100 の整数。operationId を指定するとその操作の観測点に絞る。各ページは `items` と `nextAfter`（続きがなければ null）を返す。存在しない operationId は空ページ、保持されていない after は `UNKNOWN_OBSERVATION`。絞込みと after/limit は併用でき、after は同じ絞込みの前ページから得た ID とする。
+
+`observation` は `observationId` が必須。現在点より未来の ghost も保持中なら読める。reset または新しい分岐で破棄した ID は `UNKNOWN_OBSERVATION` として無変更で拒否する。ページをまたぐ照会の間に command が入れば履歴が変わり得るため、複数 response の revision が違う場合は同じ履歴版として扱わない。query で過去の観測値を読むことと、seek で実行状態を復元することは別である。内部 snapshot 自体を公開 JSON に載せない。
 
 各表示値は `variant` と二つの軸を持つ。`scope` は値の作用範囲、`origin` はその値を最後に設定した由来。`singleton` と初期値であることは別に返す。保存されていない null を表示時に initial variant へ解決するが、未定義 variant 名を initial へ置換しない。
 
@@ -70,13 +86,13 @@ Session command `setTestVariant({module, component, variant})` を GUI の gate 
 
 resolver の shadow 規則を使い、アクティブ画面、アクティブ module の document common、掲示中 overlay、表示中の包含部品から操作を列挙する。包含部品自身に document common を重複登録しない。外側上書きは SPEC の行動と対象の一致規則に従い、collection の有無・module・member を失わない構造情報で照合する。`actionText` の表示文字列を分解して操作の同一性を決めない。
 
-操作項目は `handle`、行動と対象の構造、説明用 text、scope、定義 source、配置 path、host、gate の判定/対象/値の scope/origin、選択可能な branch、prelude/result の source を持つ。source component と作用する runtime 現在地は別の概念。receiver の事前説明 UI は追加しない。
+`actions` を選んだ query の操作項目は `handle`、行動と対象の構造、説明用 text、scope、定義 source、配置 path、host、gate の判定/対象/値の scope/origin、選択可能な branch、prelude/result の source を持つ。source component と作用する runtime 現在地は別の概念。receiver の事前説明 UI は追加しない。
 
 包含・overlay の裸 gate はその表示 component の実効 body、document common の裸 gate はアクティブ画面の実効 bodyで判定する。member gate は定義 module と上表の値を読む。判定不能なモデル参照は SPEC の方針に従い有効とし、未解決であることを query に示す。host gate の無効操作も query には `enabled:false` と理由付きで含める。GUI は既存どおり host gate の無効行を隠し、member gate の無効行は表示して disabled にする。GUI には判定結果だけを渡す。
 
 `handle` は Session 固有識別子 + revision + 現在の配置/操作を指す不透明値。別 Session の handle は拒否する。説明文字列や source line を dispatch key にしない。同じ query を繰り返した場合は同じ revision の handle を返す。
 
-モデルに `back()` interaction がなくても既存 GUI の「← 戻る」を維持するため、query の `controls.back` に組込み back 操作の handle、enabled、無効理由を別枠で返す。Session が判定し、GUI は enabled のときだけボタンを表示する。アクティブ frame の stack が二段以上、または最下段で barrier がなく親へ抜けられるときに enabled とする。組込みは `kind:control`、定義/配置 source は `null` で、モデルの DSL 操作を捏造しない。
+モデルに `back()` interaction がなくても既存 GUI の「← 戻る」を維持するため、`data.actions.controls.back` に組込み back 操作の handle、enabled、無効理由を別枠で返す。Session が判定し、GUI は enabled のときだけボタンを表示する。アクティブ frame の stack が二段以上、または最下段で barrier がなく親へ抜けられるときに enabled とする。組込みは `kind:control`、定義/配置 source は `null` で、モデルの DSL 操作を捏造しない。
 
 組込み handle も同じ dispatch へ渡す。branch は許可しない。enabled なら Session 内で runtime の引数なし back を実行し、通常 dispatch と同じ revision/operation ID/観測/ghost 処理を通す。無効なら `DISABLED_ACTION` として無変更で拒否する。モデルに定義された back interaction はこれと別であり、barrier 上で呼べば受理され runtime の no-op/診断を返す。GUI に任意 result/reducer を直接実行する入口を残さない。CLI からも query で得た組込み handle を dispatch でき、専用 back command は追加しない。
 
@@ -95,22 +111,22 @@ resolver の shadow 規則を使い、アクティブ画面、アクティブ mo
 
 一つの dispatch は prelude + 選択 branch の全 result。全 result は途中で gate/操作集合を再判定して取消さず、逐次に実行する。処理中の query/command の割込みは受け付けない。一つの result が effect なら自由文の出力だけを記録し、実 I/O は行わない。
 
-履歴は既存の統合 timeline（ADR-0023）と同じ観測点の列である。各観測点は operation ID、result の順番/source、kind、label、適用後の現在地、snapshot を持つ。operation ID が同じ複数の観測点を一操作として読める。query の公開履歴は snapshot を含まない。
+履歴は既存の統合 timeline（ADR-0023）と同じ観測点の列である。各観測点は operation ID、result の順番/source、kind、label、適用後の現在地、snapshot を持つ。operation ID が同じ複数の観測点を一操作として読める。公開履歴は明示的な history query でページごとに取得し、snapshot や詳細 view は含まない。
 
-dispatch response の各 observation には、その適用直後の snapshot から Session が作る detached な `view` も返す。view は全 frame 木/現在地、overlay、共有値/通常試験値と由来、包含木、操作の説明・branch・enabled・gate、controls の enabled/理由を含む。model metadata と履歴は最終 query にだけ含む。view の操作と controls には dispatch handle を付けない。過去の状態説明と現在の操作可能性を混同させず、CLI の公開 seek なしで各 result の状態と有効操作を検証できるようにする。最終 query だけが現在 revision の実行 handle を返す。
+結果途中の詳細は `query({select:["observation"], observationId})` で必要な一件だけ読む。Session はその適用直後の snapshot から detached な `view` を作る。view は全 frame 木/現在地、overlay、共有値/通常試験値と由来、包含木、操作の説明・branch・enabled・gate、controls の enabled/理由を含む。model manifest と履歴は含まない。過去 view の操作と controls には dispatch handle を付けない。過去の状態説明と現在の操作可能性を混同させず、CLI の公開 seek なしで各 result の状態と有効操作を検証できるようにする。現在状態の `actions` query だけが現在 revision の実行 handle を返す。
 
 - 起動/reset: 初期観測点一件。reset は過去/ghost を捨て、初期観測点を作り直す。
 - runtime 構成または値の由来が変わる transition: 一件の transition 観測点。遠隔 exit は現在地が同じでも木が変わるため記録する。singleton 書込みだけの switch-resume、同じ値への DSL 書込みで手動由来が変わる場合も記録する。
 - effect、set、show、hide: 現在と同じ値/no-op でも一件の event 観測点。
 - runtime 診断: 発生順に event 観測点。状態を変える result の観測点を先に置き、同じ適用後状態の診断を続ける。result が no-op で診断のみの場合は診断だけを置く。
-- 状態も由来も変わらず診断のない transition: 観測点を追加しない。受理 response は operation ID と空の observations を返す。その operation を架空の timeline 行として記録しない。
+- 状態も由来も変わらず診断のない transition: 観測点を追加しない。receipt の観測点数は 0、first/last ID は null。その operation を架空の timeline 行として記録しない。
 - 手動試験: 一件の `manual-test` event 観測点。
 
 snapshot は全 frame 木、active/nextFrame ID、overlay、singleton 共有値、通常 component 試験値、全値の由来を所有する。snapshot の Map/配列は live state と共有して破壊されない。seek で単調 revision や operation counter は巻き戻さない。
 
 `seek(observationId)` は Session 内部 API として GUI から呼ぶ。存在しない ID は無変更で拒否。成功時はその snapshot 全体を復元し cursor を移し、後続は ghost として残す。ghost へも seek できる。新しい command の最初の観測点追加時にだけ cursor より先を破棄する。無効 dispatch や観測点のない no-op は ghost を捨てない。
 
-結果途中へ seek した後に新しい操作を行っても、元操作の残り result を自動再開しない。復元した状態から新しい操作を列挙・選択する。破棄した ghost の observation ID は再利用しない。effect は実行 response の observations と歴史表示に現れるが、query/seek によって effect を再実行しない。
+結果途中へ seek した後に新しい操作を行っても、元操作の残り result を自動再開しない。復元した状態から新しい操作を列挙・選択する。破棄した ghost の observation ID は再利用しない。effect は実行 response の receipt と、照会した歴史表示に現れるが、query/seek によって effect を再実行しない。
 
 ## 初版 CLI wire contract
 
@@ -118,19 +134,30 @@ snapshot は全 frame 木、active/nextFrame ID、overlay、singleton 共有値�
 
 ```json
 {"id":"q1","command":"query"}
+{"id":"a1","command":"query","select":["actions"]}
 {"id":"d1","command":"dispatch","handle":"<query が返した handle>","branch":"<query が返した branch ID>"}
 {"id":"q2","command":"query"}
+{"id":"s1","command":"query","select":["state"]}
+{"id":"m1","command":"query","select":["metadata"]}
+{"id":"h1","command":"query","select":["history"],"history":{"operationId":7,"limit":20}}
+{"id":"o1","command":"query","select":["observation"],"observationId":42}
 {"id":"r1","command":"reset"}
 {"id":"t1","command":"setTestVariant","module":"main","component":"Card","variant":"Ready"}
 ```
 
-request ID は文字列または数値。response は `{id, ok:true, protocolVersion:1, query, operationId?, observations?}` または `{id, ok:false, error:{code,message}, revision}`。不正 JSON など ID を読めない場合は `id:null`。query の model metadata と revision は全 successful response に含む。
+request ID は文字列または数値。successful response は `{id, ok:true, protocolVersion:1, revision, summary, receipt?, data?}`。summary の形は `{location:{module,component,variant}, cursorObservationId, latestObservationId, observationCount}`。query の明示した select 項目だけを data に返し、select が空なら data は省略する。dispatch/setTestVariant/reset の response は data を持たない。model manifest、全状態、操作一覧、全履歴、途中 view を command 応答へ自動追加しない。
+
+dispatch/setTestVariant は今回の操作の `receipt` を返す。形は `{operationId, changed, observations:{count,firstId,lastId}, effects, diagnostics}`。changed は前後で変わった領域の名前だけ（`frames`、`overlays`、`sharedVariants`、`testVariants`、`origins`）で、全値や patch は返さない。effects/diagnostics は今回の実行で発生した出力だけを result の順番/source 付きで返し、過去のものを再送しない。観測点 ID の全列挙や各 view は返さない。今回の観測点を読むときは operationId で history query を絞り、その ID で observation query を行う。reset は小さな summary を返し、初期観測点の ID から詳細を照会できる。
+
+通常応答の大きさは summary と今回の操作の出力に依存し、保持履歴数・全 frame 数・包含木・全 module 数には比例させない。effect 自由文や多数の診断を生む一操作の出力までは一定 byte 数と保証せず、省略や黙った切捨てはしない。state/actions/metadata/observation の明示照会は対象モデルや状態に応じて大きくなり得る。history は limit で件数を制限する。
+
+拒否 response は `{id, ok:false, protocolVersion:1, error:{code,message}, revision}`。不正 JSON など ID を読めない場合は `id:null`。command 後は revision が更新されるため、次の操作には `select:["actions"]` で新しい handle を取得する。通常応答の changed を状態の完全な差分や新しい handle の代用にはしない。
 
 不正 JSON、command/必須 field/type の不正は `INVALID_REQUEST`、未知 command は `UNKNOWN_COMMAND` とし response 後も process を継続する。操作のエラーは前述の code。空行は無視する。末尾改行のない最終 JSON 行も処理する。EOF で stdout の write 完了後に自然終了する。初版 CLI では seek を公開しない。
 
 全 module の parse error、ファイル読込失敗、entry component 不在は起動失敗とし stderr にファイル/行の診断を出して exit 1、stdout は空にする。check が出すラフな参照 warning や静的診断を新しい実行エラーへ昇格させない。正常起動後の request 拒否だけでは exit 1 にしない。stderr の文言は wire contract として解析させない。重大な内部不変条件違反は stderr と exit 1 とし、成功 response を捏造しない。
 
-request ごとの observations は実行出力、query の history は過去の記録である。agent は effect の自由文から保存、I/O、focus 成功を推定しない。同じ process を保つ利用例を README に記載し、利用予定 agent の process 操作ツールで実際に query → dispatch → query を往復して接続を確認する。
+receipt の effects/diagnostics は今回の実行出力、history/observation query は過去の記録である。query は state、revision、cursor、ghost、履歴、operation counter、effect を変えず、途中状態の照会で現在の handle を失効させない。agent は effect の自由文から保存、I/O、focus 成功を推定しない。同じ process を保つ利用例を README に記載し、利用予定 agent の process 操作ツールで実際に actions query → dispatch → summary query を往復し、必要なときに詳細照会することを確認する。
 
 ## 既存 GUI から意図的に変わる経路
 
@@ -183,20 +210,24 @@ SPEC の「switch（中断と復帰）」と ADR-0008 は、最も近い switch 
 | S12 | module alias、同名 component、module 内 document common | 定義ファイルの共有を維持。動的裸 variant と字句 module を区別 |
 | S13 | inline/未定義/循環/variantなし/未定義 variant | 捏造せず表示・操作可能性を説明。query 改変で Session を変えられない |
 | S14 | Detail に back interaction がないモデルで組込み戻る | controls.back の handle で Home へ戻り、通常観測/revision を更新。barrier/根では disabled、古い handle で実行できない |
-| C01 | 実 agent ツールで同一 CLI process を保持 | query の handle を dispatch し query の状態変化を読む。stdin が終了する一回実行だけを成功と数えない |
+| C01 | 実 agent ツールで同一 CLI process を保持 | actions query の handle を dispatch し summary query の状態変化を読む。更新後は新しい handle を取る。stdin が終了する一回実行だけを成功と数えない |
 | C02 | 不正 JSON、request type、branch の後に正常 query | 各 response 一行、拒否後も継続、stderr/stdout 分離、EOF flush |
 | C03 | import の source だけ変更、モデル移動、engine 変更 | 前二者はそれぞれ ID 変更/維持、engine 変更は ID 変更。全 manifest を照合 |
-| G01 | S01–S14 の同じ操作/branch を CLI/GUI で実行 | CLI response の各 observation.view と GUI が同じ観測点へ seek した query の state/操作説明・branch・enabled/包含/gate/controls が一致。Session 固有 handle、revision、履歴 cursor は比較対象から外す。双方に同じ誤りがある場合を S 系 oracle が検出 |
+| C04 | 同じ短い操作の前に履歴/中断 frame/包含/module を増やす | 通常 command response と既定 query に全状態/履歴/manifest/操作/view が混入しない。response schema と実 byte 数を確認。今回の effect/診断と ID の桁数による増加は区別 |
+| C05 | history の複数ページ/operation 絞込み、途中 observation 照会 | 全観測点を重複・欠落なく読める。query で state/revision/cursor/ghost/effect を変えない。破棄済み ID は無変更拒否、無観測 no-op は空ページ |
+| G01 | S01–S14 の CLI 公開操作と branch を CLI/GUI で照合 | 観測ありの受理操作は receipt.operationId で history query を絞り、全ページの各 ID を observation query で読む。reset は summary の初期観測点 ID を observation query で読む。拒否と無観測 no-op は明示 state/actions query で前後を比較する。各 view は GUI が同じ観測点へ seek した state/actions query と照合し、state/操作説明・branch・enabled/包含/gate/controls が一致。Session 固有 handle、revision、履歴 cursor は値比較から外し、拒否/no-op 等の revision 規則は S09/S10 で別に確認する。双方に同じ誤りがある場合を S 系 oracle が検出 |
 | G02 | HTML をネットワークなしで実ブラウザ表示 | main/overlay/包含、timeline、gate drawer、map、操作、focus/fold を確認 |
 | G03 | #12 表示 checkbox と keyboard 操作 | 値は query と一致。切替で state/history/操作/gate は変わらず focus/fold 維持 |
 | D01 | 保存済み Sol/Astra の current/proposed モデル | 旧 GUI と同じであるべき経路、SPEC 修正による差、作者修正による差を別記録 |
 | D02 | CLI とブラウザで再ドッグフーディング | 完遂、モデルへの参照回数、操作特定失敗、branch 誤り、転記量を実測。CLI の時間短縮/理解改善を事前に断定しない |
 
+G01 は公開 CLI からも行える dispatch、手動試験、reset、query の接続比較とする。seek と巻戻し後の新規分岐は S06/S08/S10 で共通 Session 内部 API と GUI を検証し、CLI では保持された観測点の read-only query を照合する。初版で seek を公開しない以上、CLI から巻戻し後の新規分岐を実行できたとは数えない。
+
 初期 fixture は [switch-contexts.shitae](session-fixtures/switch-contexts.shitae)、[trial-values.shitae](session-fixtures/trial-values.shitae)、[builtin-back.shitae](session-fixtures/builtin-back.shitae)。機械検査では parse/check、runtime probe では既知の不一致を確認する。この三つだけで S01–D02 を通過したとはしない。
 
 固定版の検証結果は [validation.json](evidence/validation.json)。build と既存テスト 700 件は成功。typecheck は既存 `runtime/test/runtime.test.ts:37` の helper に必須 `module` がない TS2322 で失敗した。production と既存テストは変更していない。新しい Session/CLI/GUI の実行・ブラウザ接続・再ドッグフーディングはまだ検証していない。
 
-[独立レビュー記録](evidence/independent-review.md) には、結果途中の CLI 観測と組込み戻るの入口に関する指摘・修正・再確認を残した。最終再確認で未解消の actionable finding はない。proposed な設計判断の採用を示すものではない。
+[独立レビュー記録](evidence/independent-review.md) には、初版の結果途中観測/組込み戻ると、今回の通常応答縮小に関する指摘・修正・再確認を分けて残した。今回の [文書検証結果](evidence/compact-response-validation.json) は JSON Lines 例、ローカルリンク、差分の整形の確認であり、初版の固定版 build/test 結果の再取得や新 CLI の実測ではない。最終再確認で未解消の actionable finding はない。残っている proposed な設計判断の採用を示すものではない。
 
 実装の論理単位は (1) runtime 不一致修正、(2) Session の観測・操作・snapshot、(3) 共通 Session への GUI 接続と bundle、(4) CLI protocol と利用実証、(5) #12 表示、(6) 保存モデル回帰/再評価。各段階で必要な red → green と独立レビューを行い、変更がない全件検査を繰り返さない。SPEC に転記する場合は転記元の内部整合レビューを先に済ませる。本案のツール API は原則 SPEC へ追加しない。
 
