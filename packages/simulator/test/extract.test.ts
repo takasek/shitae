@@ -10,6 +10,41 @@ function parseOk(src: string) {
 }
 
 describe('extractSimData', () => {
+  it('retains inline child names and aliases in document, component and variant bodies', () => {
+    const doc = parseOk(`global: { Header; *rows: Row }
+# Host
+group: { New; Save; Format }
+{ *Unknown; label: Caption }
+## Ready
+variantGroup: { Local }
+`);
+    const data = extractSimData(new Map([['main', doc]]), 'main');
+    expect(data.modules.main!.docCommonElements).toEqual([
+      { name: 'global', ref: null, children: [{ name: 'Header', ref: null }, { name: 'rows', ref: null }] },
+    ]);
+    const host = data.modules.main!.components.Host!;
+    expect(host.commonElements).toEqual([
+      { name: 'group', ref: null, children: ['New', 'Save', 'Format'].map((name) => ({ name, ref: null })) },
+      { name: '{...}', ref: null, children: [{ name: 'Unknown', ref: null }, { name: 'label', ref: null }] },
+    ]);
+    expect(host.variants.Ready!.elements).toEqual([
+      { name: 'variantGroup', ref: null, children: [{ name: 'Local', ref: null }] },
+    ]);
+  });
+
+  it('inline child refs resolve imports and prune undefined refs', () => {
+    const main = parseOk('import widgets as w\n# Host\ngroup: { local: Local; remote: w::Panel; w::Missing }\n# Local\nitem\n');
+    const widgets = parseOk('# Panel\nitem\n');
+    const data = extractSimData(new Map([['main', main], ['widgets', widgets]]), 'main');
+    expect(data.modules.main!.components.Host!.commonElements[0]).toEqual({
+      name: 'group', ref: null, children: [
+        { name: 'local', ref: { module: 'main', name: 'Local' } },
+        { name: 'remote', ref: { module: 'widgets', name: 'Panel' } },
+        { name: 'Missing', ref: null },
+      ],
+    });
+  });
+
   it('member gate resolves aliases only in the interaction source body, before merging scopes', () => {
     const doc = parseOk(`shared: DocTarget
 > Doc(shared.item?) -> observed

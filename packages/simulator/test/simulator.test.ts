@@ -11,6 +11,46 @@ function parseOk(src: string) {
 }
 
 describe('toSimulator', () => {
+  it('renders aliased and unnamed inline children, including collections and escaped names', () => {
+    const doc = parseOk(`# Host
+inlineGroup: { New; Save; Format }
+{ *rows: Row; "<Caption>" }
+namedGroup: Controls
+# Controls
+New
+Save
+Format
+`);
+    const context = runSimulatorScript(toSimulator(new Map([['main', doc]]), 'main'));
+    const rendered = vm.runInContext('app.innerHTML', context) as string;
+    expect(rendered).toContain('<summary class="element">inlineGroup</summary>');
+    expect(rendered).toContain('<summary class="element">{...}</summary>');
+    for (const child of ['New', 'Save', 'Format']) {
+      expect(rendered.match(new RegExp(`<div class="element">${child}</div>`, 'g'))).toHaveLength(2);
+    }
+    expect(rendered).toContain('<div class="element">rows</div>');
+    expect(rendered).toContain('<div class="element">&lt;Caption&gt;</div>');
+    vm.runInContext('showActions = false; render()', context);
+    expect(vm.runInContext('app.innerHTML', context)).toContain('<div class="element">Save</div>');
+  });
+
+  it.each(['main', 'overlay'])('inline named children retain clickable paths and cycle guards in %s cards', (card) => {
+    const main = parseOk('import widgets as w\n# Host\nbox: { child: w::Panel }\n');
+    const widgets = parseOk('# Panel\nleaf\n> Open(leaf) -> push(Destination)\nloop: Panel\n# Destination\narrived\n');
+    const context = runSimulatorScript(toSimulator(new Map([['main', main], ['widgets', widgets]]), 'main'));
+    if (card === 'overlay') {
+      vm.runInContext("applyTransition({ type: 'overlay', op: 'show', component: 'Host', module: 'main', variant: null }); render()", context);
+    }
+    const rendered = vm.runInContext('app.innerHTML', context) as string;
+    expect(rendered).toContain('<summary class="element">child</summary>');
+    expect(rendered).toContain('（循環）');
+    const handler = rendered.match(new RegExp(`onclick="(handleNestedInteraction\\(${card === 'main' ? '-1' : '0'},[^\"]+)"`));
+    expect(handler).not.toBeNull();
+    vm.runInContext(handler![1]!, context);
+    expect(vm.runInContext('currentFrame().module', context)).toBe('widgets');
+    expect(vm.runInContext('currentFrame().component', context)).toBe('Destination');
+  });
+
   it('alias and named member gates follow the same singleton variant while undefined refs stay on', () => {
     const doc = parseOk(`# Workspace
 diagram: DiagramView

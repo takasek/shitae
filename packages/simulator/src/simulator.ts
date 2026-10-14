@@ -865,6 +865,12 @@ function computeOwnComponentContext(elRef, overrideItems) {
   return { comp, v, ownItems, childEls };
 }
 
+// 描画とクリック時の path 解決で同じ要素列を辿る。inline 自体は interaction を持たない。
+function computeElementContext(el, overrideItems) {
+  if (el.children) return { childEls: el.children, ownItems: [] };
+  return el.ref ? computeOwnComponentContext(el.ref, overrideItems) : null;
+}
+
 // 要素サブツリー 1 件。ref を持つ要素（project 内の定義済み component への参照）は参照先の
 // 中身（commonElements + 現在 variant の elements。variant は sharedVariants → initialVariant
 // のオートマトン整合の解決——displayVariant / gateEnabled の member 分岐と同じ規約）を
@@ -879,17 +885,16 @@ function computeOwnComponentContext(elRef, overrideItems) {
 // さらに外側）側の attached items のうち targetMember を持つもの——外側上書き（Task 13
 // 受入基準d）の判定に computeOwnComponentContext へそのまま渡す。
 function renderElementNode(el, visited, attachedHtml, cardIdx, path, overrideItems) {
-  const comp = el.ref ? getComp(el.ref.module, el.ref.name) : null;
-  if (!comp) {
+  const ctx = computeElementContext(el, overrideItems);
+  if (!ctx) {
     return '<div class="element">' + esc(el.name) + '</div>' + attachedHtml;
   }
-  const key = skey(el.ref.module, el.ref.name);
-  if (visited.has(key)) {
+  const key = el.ref ? skey(el.ref.module, el.ref.name) : null;
+  if (key !== null && visited.has(key)) {
     return '<div class="element">' + esc(el.name) + '<span class="element-cycle">（循環）</span></div>' + attachedHtml;
   }
   const nextVisited = new Set(visited);
-  nextVisited.add(key);
-  const ctx = computeOwnComponentContext(el.ref, overrideItems);
+  if (key !== null) nextVisited.add(key);
   const buildOwnOnclick = (scope, idx, choiceIdx) =>
     "handleNestedInteraction(" + cardIdx + ",[" + path.join(",") + "],'" + scope + "'," + idx + "," + choiceIdx + ")";
   const { elementsHtml: childElementsHtml, actionsHtml: ownActionsHtml } =
@@ -1028,11 +1033,11 @@ function resolveNestedItems(cardIdx, path) {
   if (!els || !items) return null;
   for (let i = 0; i < path.length; i++) {
     const el = els[path[i]];
-    if (!el || !el.ref) return null;
+    if (!el) return null;
     // el に紐付く（親側の）attached items のうち targetMember 持ちが外側上書き（Task 13 受入基準d）
     const { attachedByIndex } = computeAttachments(els, items);
     const overrideItems = (attachedByIndex[path[i]] ?? []).filter((item) => item.inter.targetMember != null);
-    const ctx = computeOwnComponentContext(el.ref, overrideItems);
+    const ctx = computeElementContext(el, overrideItems);
     if (!ctx) return null;
     if (i === path.length - 1) return ctx.ownItems;
     els = ctx.childEls;

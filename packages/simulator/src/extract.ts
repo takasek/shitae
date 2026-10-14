@@ -95,12 +95,14 @@ export interface SimElementRef {
 /**
  * 要素行1件（表示名 + 定義済み component への参照）。Task 8「要素の階層表示」。
  * ref は要素行の参照が project 内で定義済み component に解決する場合のみ設定する。
- * collection（`{...}`）や未定義参照は ref: null——階層展開できるのは単一 component 参照のみ。
+ * inline（`{...}`）や未定義参照は ref: null。inline は children に要素列を保持する。
  */
 export interface SimElement {
   /** 表示名（alias があればそれ、なければ ref 名 or '{...}'） */
   name: string;
   ref: SimElementRef | null;
+  /** inline component の要素列。名前付き参照・未定義参照では省略する */
+  children?: SimElement[];
 }
 
 export interface SimVariant {
@@ -193,14 +195,18 @@ export interface SimulatorData {
 type ModuleNormalizer = (module: string | null) => string | null;
 
 /**
- * 要素行1件を SimElement へ変換する（Task 8）。collection（`{...}`）は ref を持てない
- * ため常に null。ref 参照は module をレキシカル解決（ADR-0018）した上でひとまず候補として
+ * 要素行1件を SimElement へ変換する（Task 8）。inline（`{...}`）は ref: null と
+ * children を持つ。ref 参照は module をレキシカル解決（ADR-0018）した上でひとまず候補として
  * 保持し、project 内で定義済み component に解決するかは全 module 構築後の
  * pruneUnresolvedElementRefs で確定させる（この時点では他 module が未構築のことがある）。
  */
 function convertElementLine(el: ElementLine, norm: ModuleNormalizer, sourceModule: string): SimElement {
   if (el.value.kind === 'inline') {
-    return { name: el.alias ?? '{...}', ref: null };
+    return {
+      name: el.alias ?? '{...}',
+      ref: null,
+      children: el.value.elements.map((child) => convertElementLine(child, norm, sourceModule)),
+    };
   }
   const module = norm(el.value.module ?? sourceModule) ?? sourceModule;
   return { name: el.alias ?? el.value.name, ref: { module, name: el.value.name } };
@@ -216,6 +222,7 @@ function pruneUnresolvedElementRefs(modules: Record<string, SimModuleData>): voi
   const prune = (elements: SimElement[]): void => {
     for (const el of elements) {
       if (el.ref && !isDefined(el.ref)) el.ref = null;
+      if (el.children) prune(el.children);
     }
   };
   for (const mod of Object.values(modules)) {
