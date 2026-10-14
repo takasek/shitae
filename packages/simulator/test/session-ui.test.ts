@@ -1,0 +1,50 @@
+import { describe, it, expect } from 'vitest';
+import vm from 'node:vm';
+import { webcrypto } from 'node:crypto';
+import { parse } from '@shitae/parser';
+import { toSimulator } from '../src/simulator.js';
+
+function gui(source: string) {
+  const p = parse(source); expect(p.diagnostics.filter((d) => d.severity === 'error')).toEqual([]);
+  const html = toSimulator(new Map([['main', p.document]]), 'main');
+  const app = { innerHTML: '' };
+  const ctx = vm.createContext({ crypto: webcrypto, structuredClone, document: { getElementById: () => app }, console, setTimeout: () => 0 });
+  vm.runInContext(html.match(/<script>\n([\s\S]*)\n<\/script>/)![1]!, ctx);
+  const run = (s: string) => vm.runInContext(s, ctx);
+  return { html, app, run, view: () => JSON.parse(run('JSON.stringify(SESSION.query({select:["state","actions","history"]}))')) };
+}
+describe('GUI consumes the common Session', () => {
+  it('resumes saved switch frames and renders their active path without a GUI reducer', () => {
+    const g = gui('# Home\n> A -> switch(A, @a)\n# A\n> Detail -> push(D)\n# D\n> B -> switch(B, @b)\n# B\n> A -> switch(A, @a)\n');
+    g.run("handleInteraction('component',0,0)"); g.run("handleInteraction('component',0,0)"); g.run("handleInteraction('component',0,0)"); g.run("handleInteraction('component',0,0)");
+    expect(g.view().summary.location.component).toBe('D');
+    expect(g.view().data.state.frames).toHaveLength(3);
+    expect(g.app.innerHTML).toContain('D');
+    expect(g.html).not.toContain('function applyTransition(');
+    expect(g.html).not.toContain('function restoreState(');
+  });
+  it('captures handles in rendered clicks and rejects a queued click after a revision change', () => {
+    const g = gui('# Home\n> Go -> push(Detail)\n# Detail\n> Surprise -> effect\n');
+    const click = g.app.innerHTML.match(/onclick="(handleInteraction[^\"]+)"/)![1]!;
+    g.run(click); const before = g.view(); g.run(click);
+    expect(g.view()).toEqual(before);
+    expect(g.app.innerHTML).toContain('STALE_HANDLE');
+  });
+  it('uses Session trial values/overlays and makes state annotations optional without changing execution', () => {
+    const g = gui('# Home\ncard: Card\n> Show -> show(Card)\n> Check(card.ready?) -> effect\n# Card\n## Idle\nx\n## Ready\nready\n');
+    expect(g.app.innerHTML).not.toContain('component-state-value');
+    g.run("handleInteraction('component',0,0)"); g.run("setInstanceVariant('main','Card','Ready')");
+    expect(g.view().data.state.inclusion.main.children[0].value).toMatchObject({ variant: 'Ready', origin: 'manual-test' });
+    expect(g.view().data.state.inclusion.overlays[0]).toMatchObject({ variant: 'Idle', origin: 'initial' });
+    const before = g.view(); g.run('toggleShowStates()');
+    expect(g.view()).toEqual(before);
+    expect(g.app.innerHTML).toContain('component-state-value');
+    expect(g.app.innerHTML).toContain('manual-test');
+    g.run('jumpToTimeline(0)'); expect(g.view().data.state.overlays).toEqual([]);
+    g.run('resetSession()'); expect(g.view().data.history.items).toHaveLength(1);
+  });
+  it('does not embed model text as a closing script tag', () => {
+    const g = gui('# Home\n> Go -> "</script><script>injected()"\n');
+    expect(g.html.match(/<\/script>/g)).toHaveLength(1);
+  });
+});

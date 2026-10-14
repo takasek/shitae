@@ -2,9 +2,9 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { once } from 'node:events';
 import { createInterface } from 'node:readline';
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, rmSync, mkdirSync, symlinkSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
 
 const CLI = join(import.meta.dirname, '../dist/index.js');
 const MODEL = '# Confirm\n> Purchase -> [Success] goto(Done) ; [Failure] goto(##Error)\n## Ready\nbutton\n## Error\nproblem\n# Done\nreceipt\n';
@@ -13,7 +13,10 @@ afterEach(() => { while (cleanup.length) cleanup.pop()!(); });
 function fixture(files: Record<string, string> = { 'main.shitae': MODEL }) {
   const dir = mkdtempSync(join(tmpdir(), 'shitae-session-cli-'));
   cleanup.push(() => rmSync(dir, { recursive: true, force: true }));
-  for (const [name, text] of Object.entries(files)) writeFileSync(join(dir, name), text);
+  for (const [name, text] of Object.entries(files)) {
+    mkdirSync(dirname(join(dir, name)), { recursive: true });
+    writeFileSync(join(dir, name), text);
+  }
   return join(dir, 'main.shitae');
 }
 function start(file: string) {
@@ -33,13 +36,32 @@ function start(file: string) {
 }
 
 describe('shitae session persistent JSON Lines', () => {
+  it('canonicalizes real files instead of basenames, coalesces aliases and keeps identity after relocation', async () => {
+    const files = {
+      'main.shitae': 'import left/part as l\nimport right/part as r\nimport alias as a\n# Home\n> Left -> goto(l::Left)\n> Right -> goto(r::Right)\n',
+      'left/part.shitae': '# Left\nx\n', 'right/part.shitae': '# Right\ny\n',
+    };
+    const ids = [];
+    for (let i = 0; i < 2; i++) {
+      const file = fixture(files); symlinkSync('left/part.shitae', join(dirname(file), 'alias.shitae'));
+      const s = start(file);
+      const q = await s.request({ id: 1, command: 'query', select: ['metadata', 'actions'] });
+      expect(q.ok).toBe(true);
+      expect(q.data.metadata.manifest.map((m: any) => m.module)).toEqual(['left/part', 'main', 'right/part']);
+      ids.push(q.data.metadata.modelId);
+      const a = q.data.actions.items.find((a: any) => a.actionText === 'Right');
+      expect((await s.request({ id: 2, command: 'dispatch', handle: a.handle })).summary.location).toMatchObject({ module: 'right/part', component: 'Right' });
+      expect(await s.finish()).toMatchObject({ code: 0, stderr: '' });
+    }
+    expect(ids[0]).toBe(ids[1]);
+  });
   it('uses a handle/branch from the live process and returns compact dispatch and subsequent summary', async () => {
     const file = fixture(); const s = start(file);
     const listed = await s.request({ id: 1, command: 'query', select: ['actions'] });
     expect(listed.ok).toBe(true);
     const action = listed.data.actions.items.find((i: any) => i.actionText === 'Purchase');
     expect(action.branches.map((b: any) => b.label)).toEqual(['Success', 'Failure']);
-    expect(action.source.file).toBe(file);
+    expect(action.source.file).toBe(realpathSync(file));
     const done = await s.request({ id: 2, command: 'dispatch', handle: action.handle, branch: action.branches[0].id });
     expect(done).toMatchObject({ id: 2, ok: true, protocolVersion: 1, revision: 1,
       summary: { location: { module: 'main', component: 'Done', variant: null } },

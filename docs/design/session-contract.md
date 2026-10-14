@@ -231,7 +231,7 @@ G01 は公開 CLI からも行える dispatch、手動試験、reset、query の
 
 契約作成時の固定版の検証結果は [validation.json](evidence/validation.json)。当時は build と既存テスト 700 件が成功、typecheck は既存 `runtime/test/runtime.test.ts:37` の helper に必須 `module` がない TS2322 で失敗した。当時の production/既存テストは未変更だった。最初の実装区切りでは helper も修正し、[現在の検証結果](evidence/first-slice-validation.json) に CLI の実演・テスト・typecheck を分けて記録した。GUI 接続・実ブラウザ・再ドッグフーディングは後続段階。
 
-[独立レビュー記録](evidence/independent-review.md) には、契約改訂のレビューと最初の CLI 一往復の Astra 実装レビューを分けて残した。通常応答縮小の [文書検証結果](evidence/compact-response-validation.json) と、配布方針改訂の文書検査を、新 CLI/配布形の実測には数えない。最初の CLI 区切りの最終再レビューで未解消の actionable finding はない。後続 API/GUI の実装受入まで完了したとは扱わない。
+[独立レビュー記録](evidence/independent-review.md) には、契約改訂のレビューと最初の CLI 一往復の Astra 実装レビューを分けて残した。通常応答縮小の [文書検証結果](evidence/compact-response-validation.json) と、配布方針改訂の文書検査を、新 CLI/配布形の実測には数えない。最初の CLI 区切りの後、詳細照会・手動試験・seek/reset、モデル識別・正準 loader、GUI 共通化・#12 表示を実装した。[実装版の検証と残件](session-usage.md) を参照。Astra の実装レビューで未解消の指摘はない。実ブラウザの G02/G03 と利用評価 D02 は未完了で、全受入の完了とは扱わない。
 
 実装の論理単位は (1) runtime 不一致修正、(2) Session の観測・操作・snapshot、(3) 共通 Session への GUI 接続と配布形の選択、(4) CLI protocol と利用実証、(5) #12 表示、(6) 保存モデル回帰/再評価。各段階で必要な red → green と独立レビューを行い、変更がない全件検査を繰り返さない。SPEC に転記する場合は転記元の内部整合レビューを先に済ませる。本案のツール API は原則 SPEC へ追加しない。
 

@@ -3,6 +3,8 @@ import { effectiveResults, mergeInteractions, resolveModuleRef } from '@shitae/r
 import { activeFrame, activeLocation, initialState, reduce, singletonKey, type Location, type RuntimeState } from '@shitae/runtime';
 import type { ComponentValue, HistoryItem, InclusionNode, InclusionRoot, ObservationView, QueryOptions, StateView, ValueOrigin, VariantValue } from './views.js';
 export type * from './views.js';
+import type { ModelMetadata } from './metadata.js';
+export type { ModelMetadata } from './metadata.js';
 
 export interface Source { module: string; file: string | null; span: Span }
 export interface Summary {
@@ -31,7 +33,7 @@ export interface Actions {
   controls: { back: { handle: string; kind: 'control'; source: null; enabled: boolean; reason: string | null } };
 }
 export interface Query { revision: number; summary: Summary; data?: {
-  actions?: Actions; state?: StateView; history?: { items: HistoryItem[]; nextAfter: number | null }; observation?: ObservationView;
+  actions?: Actions; state?: StateView; history?: { items: HistoryItem[]; nextAfter: number | null }; observation?: ObservationView; metadata?: ModelMetadata | null;
 } }
 export interface Receipt {
   operationId: number;
@@ -63,6 +65,7 @@ export class Session {
   private readonly sessionId = globalThis.crypto.randomUUID();
   private readonly documents: Map<string, Document>;
   private readonly files: Map<string, string>;
+  private readonly metadata: ModelMetadata | null;
   private context: Context;
   private cursor = -1;
   private get state() { return this.context.runtime; }
@@ -72,9 +75,10 @@ export class Session {
   private nextObservationId = 1;
   private observations: Observation[] = [];
 
-  constructor(documents: Map<string, Document>, private readonly entryModule: string, files = new Map<string, string>()) {
+  constructor(documents: Map<string, Document>, private readonly entryModule: string, files = new Map<string, string>(), metadata: ModelMetadata | null = null) {
     this.documents = structuredClone(documents);
     this.files = new Map(files);
+    this.metadata = structuredClone(metadata);
     const entry = this.documents.get(entryModule)?.components[0];
     if (!entry) fail('INVALID_MODEL', 'Entry component is missing');
     this.context = this.initialContext();
@@ -219,13 +223,14 @@ export class Session {
 
   query(options: QueryOptions = {}): Query {
     const select = options.select ?? [];
-    if (!Array.isArray(select) || select.some((s) => !['actions', 'state', 'history', 'observation'].includes(s)) || new Set(select).size !== select.length ||
+    if (!Array.isArray(select) || select.some((s) => !['actions', 'state', 'history', 'observation', 'metadata'].includes(s)) || new Set(select).size !== select.length ||
       Object.keys(options).some((k) => !['select', 'history', 'observationId'].includes(k)) ||
       (options.history !== undefined && !select.includes('history')) || (options.observationId !== undefined && !select.includes('observation'))) {
       fail('INVALID_REQUEST', 'Invalid query selection/options');
     }
     const data: NonNullable<Query['data']> = {};
     for (const s of select) {
+      if (s === 'metadata') data.metadata = this.metadata;
       if (s === 'actions') data.actions = this.inventory().actions;
       if (s === 'state') data.state = this.projectState(this.context);
       if (s === 'history') data.history = this.historyPage(options.history);

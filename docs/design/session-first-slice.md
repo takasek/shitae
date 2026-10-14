@@ -1,5 +1,7 @@
 # Session CLI: 最初の一往復
 
+本書は commit `0d0d814` 時点の最初の区切りの記録。現在の機能と検証範囲は [実装版の使い方](session-usage.md) を参照。
+
 2026-10-14。Issue #18 の承認済み [契約](session-contract.md) を段階実装する最初の区切り。共通 Session と runtime を使い、「操作一覧の照会 → 分岐を選んで実行 → 現在地の確認」を同じ process で実行できる。GUI 接続と残りの query/command は後続段階であり、Issue #18 全体の完了を表さない。
 
 ## 使用方法

@@ -48,3 +48,13 @@ Astra の再確認は Session 9/9 と追加独立反例 5/5 が成功。追加�
 ## 詳細照会と snapshot のレビュー
 
 Astra を実装会話なしで起動し、state/history/observation、手動試験、seek/reset、CLI 接続を点検した。通常 overlay の初期値の由来が inclusion だけ DSL と表示される P2 と、history.limit:null を省略扱いする P3 を独立 probe で再現した。両方の反例で red（2 failed / 12 passed）を確認後、保存 variant の投影と undefined のみの既定値処理へ修正した。Astra の再レビューで両方の修正、明示/未定義/singleton overlay の副作用なしを確認。Session 14/14 と CLI 対象 5/5 を独立再実行し、未解消の指摘はない。metadata/GUI/ブラウザはこのレビュー範囲に含めていない。
+
+## モデル準備・GUI 共通化のレビュー
+
+metadata/正準 loader と GUI を、それぞれ実装会話を渡さない Astra で独立レビューした。モデル準備では循環 import、symlink alias 合流、import 先だけの bytes 変更、移動後の ID、metadata の改変隔離、engine source/lock の hash 変化を確認し、実行コードに指摘なし。最終 build で並行作業中に変わった lockfile と生成 engineVersion を揃えた。
+
+GUI レビューは追加4テストと examples 全6モデルの起動・実 onclick 16件を独立実行し、確定した実行コードの指摘なし。追加の focus テストには、DOM 再生成で旧 activeElement が残り復元欠落を検出できない P2 があった。setter で focus を失わせ、新 DOM 内の所属・個別 select の参照一致・旧 select との不一致を検証する形に修正した。focus 呼出しだけを外す反例は失敗し、通常1/1は成功することを Astra が独立確認した。
+
+公開 CLI と生成 GUI の比較 script を Astra が一次読取・再実行し、54手順・実 onclick 48件・拒否2件・70観測点の一致を確認。固定値だった sourceReads を fixedFixtureLoads へ改名し、利用者の参照回数の測定とは扱わない。Session の追加固定期待も独立レビューした。子孫破棄の証拠不足は実子frame Child を作り解消、規模比較の証拠不足は実際に包含330/module31/frame101を作る小／大比較で解消した。公開 CLI の応答 bytes も独立再現した。その後、中断99frameへ resume する条件を加え、同じ bytes を再確認した。
+
+実ブラウザの G02 と G03 keyboard/focus/fold は未確認。ブラウザツールの file URL 拒否を記録し、VM と DOM mock の成功をその代替とはしない。

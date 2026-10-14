@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { createMetadata } from '@shitae/session/model';
+import type { ModelMetadata } from '@shitae/session';
 import type { Document } from '@shitae/ast';
 import { extractSimData } from './extract.js';
 import type { SimulatorData, SimulatorConfig } from './extract.js';
@@ -6,13 +9,18 @@ export function toSimulator(
   documents: Map<string, Document>,
   entryModule: string,
   config?: SimulatorConfig,
+  model?: { files: Map<string, string>; metadata: ModelMetadata },
 ): string {
   const data = extractSimData(documents, entryModule, config);
-  return buildHtml(data);
+  return buildHtml(data, documents, entryModule, model);
 }
 
-function buildHtml(data: SimulatorData): string {
-  const json = JSON.stringify(data);
+function buildHtml(data: SimulatorData, documents: Map<string, Document>, entryModule: string, model?: { files: Map<string, string>; metadata: ModelMetadata }): string {
+  const safeJson = (v: unknown) => JSON.stringify(v).replace(/</g, '\\u003c');
+  const json = safeJson(data);
+  const modelJson = safeJson({ documents: [...documents], entryModule, files: [...(model?.files ?? new Map())], metadata: model?.metadata ?? createMetadata(documents, entryModule) });
+  const bundle = readFileSync(new URL('../dist/session-browser.js', import.meta.url), 'utf8');
+  const sessionScript = readFileSync(new URL('./gui-session.js', import.meta.url), 'utf8');
   return `<!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -180,27 +188,9 @@ summary.pane-title { cursor: pointer; }
 <script>
 const DATA = ${json};
 const app = document.getElementById('app');
-// (module, component) の合成キー（ADR-0013: singleton の共有スコープは定義ファイル単位）
-function skey(module, component) { return JSON.stringify([module, component]); }
-const SINGLETONS = new Set((DATA.singletons || []).map(s => skey(s.module, s.name)));
-function isSingleton(module, component) { return SINGLETONS.has(skey(module, component)); }
-
-// 姿指定なしで component に入ったら、最初に定義された姿を初期姿として扱う
-function initialVariant(module, component) {
-  const comp = DATA.modules[module]?.components[component];
-  return comp?.initialVariant ?? null;
-}
-
-// singleton の共有 variant レジストリ（skey(module, component) → 現在 variant）。
-// フレームスタック・overlays に置かれた singleton はスナップショットでなくここへの参照を見る（ADR-0011）。
-// 二重の役割: presence gate の member 参照（対象.要素?）が対象インスタンスの現在 variant を
-// 判定する際のデフォルト解決にも流用する（対象は非 singleton でもよい）。手動トグルパネルが
-// 書き込む先も同じレジストリ——「document 内で variant 状態は単一」という原則と整合させるため
-// 分離しない（ADR-0002 Consequence「simulator はインスタンス variant の手動トグルで観測可能にする」）。
-let sharedVariants = new Map();
-
-// gate 対象 component（{module, name}）の一覧（手動トグルパネル用。定義 module へ解決済み）
-const GATE_TARGETS = DATA.gateTargets || [];
+${bundle}
+const MODEL = ${modelJson};
+${sessionScript}
 let gatePanelOpen = false;
 
 // 中央ペインのスタック・遷移マップの折畳み状態（gatePanelOpen と同じ JS グローバル方式だが、
@@ -239,512 +229,6 @@ function attachGraphMapResizeObserver(el) {
 // 値に関わらずその状態を保つ（手動操作を上書きしない）。
 let docEventsPanelOpen = null;
 
-// 対象インスタンスの variant を手動で書き換える（gate 観測用）
-function setInstanceVariant(module, name, variant) {
-  sharedVariants.set(skey(module, name), variant);
-  render();
-}
-
-function toggleGatePanel() {
-  gatePanelOpen = !gatePanelOpen;
-  render();
-}
-
-// push/present/goto/switch の行き先 variant を解決する。singleton は共有レジストリが優先し、
-// 明示 X##v はレジストリを書き換える（全所在に即時反映）。variant 省略時は「初回は initial、
-// 以降は最後に遷移した variant」（レジストリ未登録なら initial）。
-function resolveEntryVariant(target) {
-  if (isSingleton(target.module, target.component)) {
-    const k = skey(target.module, target.component);
-    if (target.variant != null) sharedVariants.set(k, target.variant);
-    return sharedVariants.has(k) ? sharedVariants.get(k) : initialVariant(target.module, target.component);
-  }
-  return target.variant ?? initialVariant(target.module, target.component);
-}
-
-// フレームの表示 variant。singleton は frame.variant（積んだ時点の値）を無視し、
-// 常に共有レジストリの現在値を見る（スナップショット禁止。ADR-0011）。
-function displayVariant(frame) {
-  if (isSingleton(frame.module, frame.component)) {
-    const k = skey(frame.module, frame.component);
-    return sharedVariants.has(k) ? sharedVariants.get(k) : initialVariant(frame.module, frame.component);
-  }
-  return frame.variant;
-}
-
-// ── stack frame: { module, component, variant, wall, sessionName }
-let stack = [{
-  module: DATA.entryModule,
-  component: DATA.entryComponent,
-  variant: initialVariant(DATA.entryModule, DATA.entryComponent),
-  wall: false,
-  sessionName: null,
-}];
-
-let overlays = new Map(); // 掲示中 component名 → 表示 variant（null=initial の含意。SPEC「オーバーレイ」。フレーム木とは別軸）
-
-// 統合ログ: 遷移（transition）と出力（event: effect / set / show / hide / 警告）を単一時系列に記録する
-// （Task 10。旧 traceLog/eventLog の分離を統合し「trace 末尾スナップショット陳腐化」を根治）。
-// 各エントリは { kind: 'transition' | 'event', label, snapshot }。snapshot は適用後の全状態
-// { stack, sharedVariants, overlays } の deep copy（Map は entries 配列化）——event エントリも
-// 状態を持つため巻き戻し対象になる。起動イベントを先頭に置く（設計判断: Task 2 brief）。
-// 現在の frame スタックは別にスタック表示（renderStackList）が専任で描画する（Task 7）。
-let timeline = [{ kind: 'transition', label: '起動', screen: currentLocationLabel(), snapshot: snapshotState() }];
-// 巻き戻し位置（timeline 上のインデックス）。現在地は「cursor が指すエントリ」に一般化される
-// （旧「末尾が現在地」の後継。Task 10）。cursor より未来のエントリは ghost として保持され、
-// クリック（jumpToTimeline）で前後どちらへも移動できる（undo/redo）。新規追記時のみ ghost を消す。
-let cursor = 0;
-// event 行（effect/set/show/hide/警告）の表示トグル。表示のみでデータ（timeline 本体）は
-// 保持される——transition 行は常時表示（Task 10 受入基準f）。既定は表示（旧 eventLog の
-// 常時可視という挙動を維持）。
-let showEvents = true;
-
-function toggleShowEvents() {
-  showEvents = !showEvents;
-  render();
-}
-
-// アクション行（紐付け・フラット・部品由来のいずれも）の表示トグル。表示のみで対象データ
-// （interactions・要素構造）自体は変わらない——要素階層は off でも残る（設計者注文「アクション
-// 自体がノイズになる局面もあるので『現在の画面』にアクション表示するかどうかをチェックボックスで
-// 選べるとよい」。showEvents と同じ JS グローバル + render() パターン。既定は表示。Task 15）。
-let showActions = true;
-
-function toggleShowActions() {
-  showActions = !showActions;
-  render();
-}
-
-function getComp(module, name) {
-  return DATA.modules[module]?.components[name];
-}
-
-function currentFrame() {
-  return stack[stack.length - 1];
-}
-
-// 現在の全状態 { stack, sharedVariants, overlays } の deep copy を作る（Map は entries 配列化。structuredClone 相当）
-function snapshotState() {
-  return {
-    stack: JSON.parse(JSON.stringify(stack)),
-    sharedVariants: JSON.parse(JSON.stringify([...sharedVariants.entries()])),
-    overlays: JSON.parse(JSON.stringify([...overlays.entries()])),
-  };
-}
-
-// snapshot から全状態を復元する（統合ログのエントリタップ用。壁は無視——開発者向けタイムトラベル）
-function restoreState(snapshot) {
-  stack = JSON.parse(JSON.stringify(snapshot.stack));
-  sharedVariants = new Map(JSON.parse(JSON.stringify(snapshot.sharedVariants)));
-  overlays = new Map(JSON.parse(JSON.stringify(snapshot.overlays)));
-}
-
-// 統合ログへ1件追記する共通経路（Task 10）。適用後スナップショットを添える——
-// 遷移だけでなく event（effect/set/show/hide/警告）も状態を持つため巻き戻し対象になる。
-// cursor より未来に残っていた ghost エントリはここで消去してから追記する（実際に log へ
-// 追記が起きる実行の時点でタイムライン分岐が確定し、以降の ghost は無意味になるため）。
-function pushTimelineEntry(kind, label) {
-  timeline = timeline.slice(0, cursor + 1);
-  timeline.push({ kind, label, screen: currentLocationLabel(), snapshot: snapshotState() });
-  cursor = timeline.length - 1;
-}
-
-// interaction 1 件分の prelude → 指定 choice（未指定・choices 空なら prelude のみ）を順に適用する。
-// ラベル無し操作（choices 空、行全体がボタン）は choiceIdx を渡しても choice が無いため prelude だけが起こる。
-function runChoice(interaction, choiceIdx) {
-  for (const body of interaction.prelude) applyTransition(body);
-  const choice = interaction.choices[choiceIdx];
-  if (choice) {
-    for (const body of choice.results) applyTransition(body);
-  }
-}
-
-// 現在のアクティブ画面の位置ラベル（"component" または "component / variant"）。統合ログの
-// 遷移ラベル（transitionLabel）と、各エントリに併記する記録時の画面名ラベル（Task 18 受入
-// 基準a）の両方が同じ算出方法を共有する——遷移エントリは pushTimelineEntry が
-// applyTransition の末尾（stack 更新後）で呼ばれるため、自然に「遷移後の画面」になる。
-function currentLocationLabel() {
-  const frame = currentFrame();
-  const v = displayVariant(frame);
-  return v ? frame.component + ' / ' + v : frame.component;
-}
-
-// 遷移イベントの label（適用後の現在地が分かる形。末尾が常に現在地。back も他の遷移語
-// と同じくこの label を使う——word には 'back' がそのまま渡る。Task 7）
-function transitionLabel(word) {
-  return word + ' → ' + currentLocationLabel();
-}
-
-// 掲示中 component の表示 variant（省略指定は initial。SPEC「オーバーレイ」）
-function overlayVariant(name) {
-  const entry = overlays.get(name);
-  if (!entry) return null;
-  // singleton は再 show の「省略時 initial 上書き」規則が適用されない——常に共有レジストリを見る（SPEC「オーバーレイ」）
-  if (isSingleton(entry.module, name)) {
-    const k = skey(entry.module, name);
-    return sharedVariants.has(k) ? sharedVariants.get(k) : initialVariant(entry.module, name);
-  }
-  if (entry.variant != null) return entry.variant;
-  return initialVariant(entry.module, name);
-}
-
-// 掲示中 component の実効 interactions（表示 variant で mergeInteractions 済み。全画面から操作可能。SPEC「オーバーレイ」）
-// 裸 gate は掲示中 component 自身の表示 variant の実効 body で判定する——アクティブ画面の body は見ない（ADR-0019）。
-function overlayInteractions(name) {
-  const entry = overlays.get(name);
-  if (!entry) return [];
-  const comp = getComp(entry.module, name);
-  if (!comp) return [];
-  const v = overlayVariant(name);
-  const list = v ? (comp.variants[v]?.interactions ?? []) : comp.commonInteractions;
-  const hostCtx = { module: entry.module, component: name, variant: v };
-  return filterHostGate(list, hostCtx);
-}
-
-// 要素配列（SimElement { name, ref }）から表示名（alias 優先）の一覧を得る。gate の
-// 構造的 presence 照合は従来どおり表示名で行う（Task 8 の要素構造化で挙動を変えない）。
-function elementNames(els) {
-  return (els ?? []).map((e) => e.name);
-}
-
-// presence gate（'?'）の構造的 presence 判定（SPEC「2種類のガード的なもの」・ADR-0002）。
-// gate なしは常に有効。host は既定で発火時のアクティブ component の現在 variant で判定
-// （document common の裸参照もこの経路——ADR-0015 の動的解決）。
-// hostCtx（{module, component, variant}）を渡すと判定対象をそちらに差し替える——
-// overlay 掲示中 component の裸参照は自身の表示 variant の実効 body（共通＋固有）で判定し、
-// アクティブ画面の body は見ない（ADR-0019）。
-// member は対象インスタンスの現在 variant（未追跡なら initial。singleton なら共有レジストリ）を見る。
-function gateEnabled(inter, hostCtx) {
-  const gate = inter.gate;
-  if (!gate) return true;
-  if (gate.kind === 'host') {
-    if (hostCtx) {
-      const comp = getComp(hostCtx.module, hostCtx.component);
-      if (!comp) return true;
-      const commonEls = comp.commonElements ?? [];
-      const varEls = hostCtx.variant ? (comp.variants[hostCtx.variant]?.elements ?? []) : [];
-      return elementNames([...commonEls, ...varEls]).includes(gate.name);
-    }
-    const frame = currentFrame();
-    const comp = getComp(frame.module, frame.component);
-    if (!comp) return true;
-    const variant = displayVariant(frame);
-    const commonEls = comp.commonElements ?? [];
-    const varEls = variant ? (comp.variants[variant]?.elements ?? []) : [];
-    const docEls = DATA.modules[frame.module]?.docCommonElements ?? [];
-    return elementNames([...docEls, ...commonEls, ...varEls]).includes(gate.name);
-  }
-  // member
-  const mod = gate.module ?? currentFrame().module;
-  const targetComp = getComp(mod, gate.targetComponent);
-  if (!targetComp) return true; // 対象が判定不能（未定義 component 等）→ always-on
-  const k = skey(mod, gate.targetComponent);
-  const variant = sharedVariants.has(k) ? sharedVariants.get(k) : targetComp.initialVariant;
-  const commonEls = targetComp.commonElements ?? [];
-  const varEls = variant ? (targetComp.variants[variant]?.elements ?? []) : [];
-  return elementNames([...commonEls, ...varEls]).includes(gate.name);
-}
-
-// interaction 一覧のフィルタ（Task 18 項目4）: host gate（裸参照）は従来どおり行ごと除外する
-// ——判定対象が発火元 component 自身のため切り替える余地がなく、無効表示にしても操作しようが
-// ない。member gate は除外せずそのまま残す——off でも行として見えることで「gate off で操作が
-// 消えて存在に気づけない」を解消する（無効理由の可視化）。有効/無効の実際の判定は renderActionRow
-// 側が gateEnabled で個別に再計算し、無効な行に「無効」表示と disabled を付ける。gate なしの
-// interaction はそのまま通す。currentInteractions/docCommonInteractions/overlayInteractions/
-// computeOwnComponentContext の4経路すべてがこの1関数を通ることで挙動を一貫させる（brief 明記）。
-function filterHostGate(list, hostCtx) {
-  return list.filter((inter) => !inter.gate || inter.gate.kind !== 'host' || gateEnabled(inter, hostCtx));
-}
-
-// 現在画面（component common + variant固有 + document common）が持つ host gate（裸参照）の
-// 判定対象要素名一覧。gate ドロワーの empty state が「presence gate の参照先はありません」と
-// 断定し、host gate を持つ画面（langlearn の「続きから(レッスン開始ボタン?)」等）でも
-// gate が無いと誤読させていた（UX round4 §3-2）。host gate は member gate と違い判定対象を
-// 手動で切り替える余地がない（発火元 component 自身の現在 variant で決まる）ため、ドロワーの
-// 手動切替対象（GATE_TARGETS）には加えず、参照情報として名前だけ併記する。
-function currentHostGateNames() {
-  const frame = currentFrame();
-  const comp = getComp(frame.module, frame.component);
-  if (!comp) return [];
-  const variant = displayVariant(frame);
-  const ownList = variant ? (comp.variants[variant]?.interactions ?? []) : (comp.commonInteractions ?? []);
-  const docList = variant
-    ? (comp.variants[variant]?.docCommonInteractions ?? DATA.documentCommon ?? [])
-    : (comp.docCommonInteractions ?? DATA.documentCommon ?? []);
-  const seen = new Set();
-  const names = [];
-  for (const inter of [...ownList, ...docList]) {
-    if (inter.gate && inter.gate.kind === 'host' && !seen.has(inter.gate.name)) {
-      seen.add(inter.gate.name);
-      names.push(inter.gate.name);
-    }
-  }
-  return names;
-}
-
-function currentInteractions() {
-  const frame = currentFrame();
-  const comp = getComp(frame.module, frame.component);
-  if (!comp) return [];
-  // 姿の interactions は抽出時に mergeInteractions(共通, 姿固有) 済み（shadow 合成）
-  const variant = displayVariant(frame);
-  const list = variant ? (comp.variants[variant]?.interactions ?? []) : comp.commonInteractions;
-  return filterHostGate(list);
-}
-
-// stack 上の sessionName（非 null）一覧を積み順（下から上）で重複除去して返す
-// （exit/dismiss 警告のセッション一覧・スタック表示との突き合わせに使う。Task 7）。
-function currentSessionNames() {
-  const seen = new Set();
-  const names = [];
-  for (const f of stack) {
-    if (f.sessionName != null && !seen.has(f.sessionName)) {
-      seen.add(f.sessionName);
-      names.push(f.sessionName);
-    }
-  }
-  return names;
-}
-
-// exit/dismiss の対象セッション不在警告。スタック表示と突き合わせて理解できるよう、
-// 現在スタックに乗っている session 一覧を併記する（ゼロ件なら「なし」。Task 7 受入基準d）。
-function exitDismissWarning(word, sessionName) {
-  const label = sessionName != null ? '@' + sessionName : '';
-  const target = sessionName != null ? label + 'の開始点' : '直近の無名セッションの開始点';
-  const names = currentSessionNames();
-  const namesText = names.length > 0 ? names.map((n) => '@' + n).join(', ') : 'なし';
-  return word + '(' + label + '): スタックに' + target + 'が積まれていない（現在のセッション: ' + namesText + '）';
-}
-
-function resolveTarget(result, currentModule, currentComponent) {
-  if (!result || result.type !== 'transition') return null;
-  const t = result.target;
-  if (!t) return null;
-  if (t.kind === 'variant') {
-    return { module: currentModule, component: currentComponent, variant: t.variant };
-  }
-  return {
-    module: t.module ?? currentModule,
-    component: t.component,
-    variant: t.variant,
-  };
-}
-
-function applyTransition(result) {
-  const frame = currentFrame();
-  const mod = frame.module;
-  const comp = frame.component;
-
-  if (result.type === 'effect') {
-    // 効果は遷移でない → 統合ログへ event として追記（旧トースト表示分。toast の DOM/CSS は全廃）
-    pushTimelineEntry('event', 'effect: ' + result.text);
-    return;
-  }
-
-  if (result.type === 'overlay') {
-    // 掲示中集合を更新（show は表示 variant・module 込みで追加/上書き / hide 除去。hide 空打ち no-op）。フレーム木は動かさない。
-    // module 省略時はアクティブフレームの module で解決（push/goto の相対解決と同じ規約）。
-    // show/hide は遷移ではない → 統合ログへ event として1行。適用後の overlays/sharedVariants を
-    // snapshot に持つため、この event エントリへ巻き戻すと掲示状態も復元される。
-    if (result.op === 'show') {
-      const mod = result.module ?? frame.module;
-      // 明示 show(X##v) は singleton の共有レジストリも書き換える（全所在に即時反映。ADR-0011）
-      if (result.variant != null && isSingleton(mod, result.component)) {
-        sharedVariants.set(skey(mod, result.component), result.variant);
-      }
-      overlays.set(result.component, { variant: result.variant, module: mod });
-      pushTimelineEntry('event', 'show(' + result.component + (result.variant != null ? '##' + result.variant : '') + ')');
-    } else {
-      overlays.delete(result.component);
-      pushTimelineEntry('event', 'hide(' + result.component + ')');
-    }
-    return;
-  }
-
-  if (result.type === 'state') {
-    // set（ADR-0014）: 遷移も掲示もせず singleton の共有 variant だけを書き換える。
-    // 非 singleton は no-op（E030 は checker が静的に検出する）。set も遷移ではない →
-    // 統合ログへ event として追記する（適用後の sharedVariants を snapshot に持つ）。
-    const mod = result.module ?? frame.module;
-    if (isSingleton(mod, result.component)) {
-      sharedVariants.set(skey(mod, result.component), result.variant);
-      pushTimelineEntry('event', 'set(' + result.component + '##' + result.variant + ')');
-    } else {
-      pushTimelineEntry('event', 'set(' + result.component + '##' + result.variant + ') は singleton でないため無効');
-    }
-    return;
-  }
-
-  const word = result.word;
-  const target = resolveTarget(result, mod, comp);
-
-  // 遷移（back/push/present/switch/goto/exit/dismiss）: 実際に stack が変わったものだけ
-  // 統合ログへ transition として追加する（適用後の全状態 snapshot を添える）。back も他の
-  // 遷移語と同じくこの共通経路に乗る——統合ログ=実行された遷移と出力の忠実な列という
-  // オートマトン理論の見立てに沿い、back による巻き戻しも記録として残す（設計者確定
-  // 事項。旧仕様のトレースログ末尾除去 traceLog.pop() は全廃。Task 7）。
-  const beforeStack = JSON.stringify(stack);
-
-  // back() は shitae back() 準拠: アクティブパスを1つ遡る。失敗（wall・戻り先なし）は
-  // no-op のため stack は変わらず、警告を統合ログへ event として流す（transition 追記なし）。
-  if (word === 'back') {
-    if (stack.length <= 1) return;
-    if (!target) {
-      const top = stack[stack.length - 1];
-      if (top.wall) { pushTimelineEntry('event', 'back() が壁に阻まれました'); return; }
-      stack = stack.slice(0, -1);
-    } else {
-      // back(X): アクティブパスを遡るが barrier（wall）は越えない（runtime に整合）。
-      // 複数段の巻き戻しも stack を1回で切り詰め、transition への追記は末尾で1件だけ起こる。
-      let found = -1;
-      for (let i = stack.length - 1; i >= 0; i--) {
-        if (stack[i].component === target.component) { found = i; break; }
-        if (stack[i].wall) break; // 壁に阻まれ、これ以上遡れない
-      }
-      if (found < 0) {
-        pushTimelineEntry('event', 'back(' + target.component + ') の戻り先が見つかりません');
-      } else if (found < stack.length - 1) {
-        stack = stack.slice(0, found + 1);
-      }
-      // found === stack.length - 1 は既に対象がアクティブ（no-op）
-    }
-  } else if (word === 'push' || word === 'present') {
-    if (!target) return;
-    const variant = resolveEntryVariant(target);
-    stack = [...stack, { module: target.module, component: target.component, variant, wall: word === 'present', sessionName: result.session ?? null }];
-  } else if (word === 'switch') {
-    // 近似: 線形 stack 上で resume-or-create。stack 内に同名 sessionName が生存
-    // していればそこまで戻る（resume 近似）、無ければ新規に積む（create、wall=true）。
-    // 正確な兄弟規則・中断フレームの保持は @shitae/runtime（frame 木）の領分。
-    if (!target || !result.session) return;
-    const idx = stack.findLastIndex(f => f.sessionName === result.session);
-    if (idx >= 0) {
-      // resume: target frame は変えないが、明示 X##v の共有書換だけは効く（設計者確定。ADR-0011）。
-      resolveEntryVariant(target);
-      stack = stack.slice(0, idx + 1);
-    } else {
-      const variant = resolveEntryVariant(target);
-      stack = [...stack, { module: target.module, component: target.component, variant, wall: true, sessionName: result.session }];
-    }
-  } else if (word === 'goto') {
-    if (!target) return;
-    // 同一 component 内の姿替え（goto(##姿)）以外は初期姿の解決を行う。
-    // begin マーカー（sessionName）と wall は保存する（ADR-0006 B2）。
-    const variant = resolveEntryVariant(target);
-    const newFrame = { ...frame, component: target.component, variant, module: target.module };
-    stack = [...stack.slice(0, -1), newFrame];
-  } else if (word === 'exit' || word === 'dismiss') {
-    const sessionName = result.session ?? null;
-    let found = false;
-    for (let i = stack.length - 1; i >= 0; i--) {
-      // named（sessionName!=null）は従来どおり sessionName の一致で探す。無名
-      // （sessionName===null）は「無名セッションを開始したフレーム」（present(X)由来、
-      // wall===true かつ sessionName===null）だけを探す——ルートフレームや push() の素の
-      // フレームも sessionName===null になるが、これらは無名セッションの開始点ではないため
-      // 区別する（SPEC「無名 dismiss() が探すのは無名セッションだけ」・UX評価3.2、Task 12）。
-      // ルートフレーム（wall===false）は決してマッチしないため、無名セッションが不在なら
-      // 必ず no-op になる。
-      const matches = sessionName != null
-        ? stack[i].sessionName === sessionName
-        : (stack[i].wall && stack[i].sessionName === null);
-      if (matches) {
-        found = true;
-        stack = stack.slice(0, i);
-        if (stack.length === 0) {
-          stack = [{ module: DATA.entryModule, component: DATA.entryComponent, variant: initialVariant(DATA.entryModule, DATA.entryComponent), wall: false, sessionName: null }];
-        }
-        break;
-      }
-    }
-    if (!found) {
-      pushTimelineEntry('event', exitDismissWarning(word, sessionName));
-    }
-  }
-
-  if (JSON.stringify(stack) !== beforeStack) {
-    pushTimelineEntry('transition', transitionLabel(word));
-  }
-}
-
-// 選択肢 1 つ分の result 群を順に全部起こす
-function runResults(bodies) {
-  for (const body of bodies) applyTransition(body);
-  render();
-}
-
-// scope（'variant' | 'component' | 'document'）ごとの実効 interactions 一覧。
-// 操作一覧のカテゴリ折り畳み・クリックハンドラの両方がこの分類を基準にする。
-function scopedInteractions(scope) {
-  if (scope === 'document') return docCommonInteractions();
-  return currentInteractions().filter((inter) => inter.scope === scope);
-}
-
-// member gate 付きで現在 off の interaction か（Task 18 項目4）。host gate は filterHostGate が
-// 一覧の時点で既に除外しているためここでは判定不要——member gate だけが「行は残るが押せない」
-// 状態を持つ。gateEnabled は hostCtx を渡さなくても member 分岐では参照しないため単項呼び出しでよい
-// （gateEnabled のコメント参照）。UI の disabled 属性に加え、直接ハンドラを呼ばれた場合の防御も兼ねる。
-function isMemberGateBlocked(inter) {
-  return inter.gate != null && inter.gate.kind === 'member' && !gateEnabled(inter);
-}
-
-// 操作一覧のラベルボタンクリック。choiceIdx はラベル無し操作（行全体が1つのボタン）なら 0 のまま
-// 渡ってくるが choices が空のため runChoice は prelude のみ実行する。
-function handleInteraction(scope, idx, choiceIdx) {
-  const interaction = scopedInteractions(scope)[idx];
-  if (!interaction || isMemberGateBlocked(interaction)) return;
-  runChoice(interaction, choiceIdx);
-  render();
-}
-
-// 掲示中カードの scope（'component' | 'variant'）別 interactions。document common は掲示中
-// カードに出さない（発火判定はアクティブ画面基準 — ADR-0015 — であり掲示中カードの所属ではない）。
-function overlayScopedInteractions(name, scope) {
-  return overlayInteractions(name).filter((inter) => inter.scope === scope);
-}
-
-// 掲示中カードの interaction 発火。cardIdx は表示順（[...overlays.keys()] の添字）。
-// component 名は任意文字列（' や " を含みうる）のため onclick へ直接埋め込むと属性を壊しうる
-// （旧実装のバグ）——名前を埋め込まず表示順インデックスで参照し、クリック時に名前へ解決し直す。
-// 遷移の相対解決は常にアクティブフレーム基準（applyTransition が currentFrame() を見るため、
-// overlay 自身を「現在地」にはしない。SPEC 341）。
-function handleOverlayInteraction(cardIdx, scope, idx, choiceIdx) {
-  const name = [...overlays.keys()][cardIdx];
-  if (!name) return;
-  const interaction = overlayScopedInteractions(name, scope)[idx];
-  if (!interaction || isMemberGateBlocked(interaction)) return;
-  runChoice(interaction, choiceIdx);
-  render();
-}
-
-function goBack() {
-  runResults([{ type: 'transition', word: 'back', target: null, session: null }]);
-}
-
-// 統合ログのエントリタップ: 全状態巻き戻し（stack・sharedVariants・overlays を snapshot
-// から復元し、cursor をそのエントリへ移す）。timeline は truncate しない——cursor より
-// 未来のエントリは ghost として残り、再クリックで前後どちらへも移動できる（undo/redo。
-// Task 10 受入基準b・c）。壁は無視する（開発者向けタイムトラベル。設計者確定事項）。
-function jumpToTimeline(idx) {
-  const entry = timeline[idx];
-  if (!entry) return;
-  restoreState(entry.snapshot);
-  cursor = idx;
-  render();
-}
-
-// document common（最初の # より前）のインタラクション。どの画面でも常に有効だが、
-// 現在画面の実効 interactions に shadow されたものは除外する（SPEC「document common」3階層shadow）。
-function docCommonInteractions() {
-  const frame = currentFrame();
-  const comp = getComp(frame.module, frame.component);
-  if (!comp) return filterHostGate(DATA.documentCommon ?? []);
-  const variant = displayVariant(frame);
-  const list = variant
-    ? (comp.variants[variant]?.docCommonInteractions ?? DATA.documentCommon ?? [])
-    : (comp.docCommonInteractions ?? DATA.documentCommon ?? []);
-  return filterHostGate(list);
-}
-
 // scope バッジの表示ラベル（有効範囲の明示。旧カテゴリ見出しの置き換え——Task 8 / ADR-0022 5）
 const SCOPE_BADGE_LABELS = { variant: 'variant固有', component: 'component common', document: 'document common' };
 // scope バッジの title 属性（hover での一言説明。3種の見分けが初見では自明でないという
@@ -772,26 +256,26 @@ const SCOPE_BADGE_TITLES = {
 // 対象 component の variant 切替 select（member gate インライン化・マップ tooltip gate 統合の
 // 両方が使う共通部品——onchange は既存 setInstanceVariant を呼ぶため、書換え先の共有レジストリ
 // （sharedVariants）はどちらから切り替えても同期する。Task 18 項目4・6）。
-function renderVariantSelect(module, component, variantNames, current) {
+function renderVariantSelect(module, component, variantNames, current, focusKey) {
   const options = variantNames.map((v) =>
     '<option value="' + esc(v) + '"' + (v === current ? ' selected' : '') + '>' + esc(v) + '</option>'
   ).join('');
-  return '<select class="gate-inline-select" onchange="setInstanceVariant(' +
+  return '<select class="gate-inline-select" data-focus-key="' + esc(focusKey ?? ('gate:' + module + ':' + component)) + '" onclick="event.stopPropagation()" onchange="setInstanceVariant(' +
     esc(JSON.stringify(module)) + ', ' + esc(JSON.stringify(component)) + ', this.value)">' + options + '</select>';
 }
 
-function renderGateInlineControls(gate) {
+function renderGateInlineControls(gate, focusKey) {
   const mod = gate.module ?? currentFrame().module;
   const comp = getComp(mod, gate.targetComponent);
   if (!comp) return '';
   const k = skey(mod, gate.targetComponent);
-  const current = sharedVariants.has(k) ? sharedVariants.get(k) : comp.initialVariant;
+  const current = componentValue(mod, gate.targetComponent).variant;
   const badgeLabel = gate.targetComponent + (current ? ' / ' + current : '');
   const badge = '<span class="gate-inline-badge" title="member gate 判定対象: ' +
     esc(gate.targetComponent) + '.' + esc(gate.name) + '">' + esc(badgeLabel) + '</span>';
   const variantNames = Object.keys(comp.variants);
   if (variantNames.length === 0) return badge;
-  return badge + renderVariantSelect(mod, gate.targetComponent, variantNames, current);
+  return badge + renderVariantSelect(mod, gate.targetComponent, variantNames, current, focusKey);
 }
 
 // 操作行 1 件の描画。member gate 付きの行は renderGateInlineControls のバッジ+select を添え、
@@ -803,72 +287,22 @@ function renderActionRow(item, buildOnclick) {
   const badge = '<span class="scope-badge" title="' + esc(SCOPE_BADGE_TITLES[item.scope] ?? '') + '">' +
     esc(SCOPE_BADGE_LABELS[item.scope] ?? item.scope) + '</span>';
   const isMemberGate = inter.gate != null && inter.gate.kind === 'member';
-  const gateHtml = isMemberGate ? renderGateInlineControls(inter.gate) : '';
+  const focusKey = operationKey(inter);
+  const gateHtml = isMemberGate ? renderGateInlineControls(inter.gate, focusKey + ':gate') : '';
   const gateOff = isMemberGate && !gateEnabled(inter);
   const offMark = gateOff ? '<span class="gate-off-mark">gate off で無効</span>' : '';
   const rowClass = 'action-row' + (gateOff ? ' action-row-disabled' : '');
   if (inter.choices.length === 0) {
-    const onclickAttr = gateOff ? '' : ' onclick="' + buildOnclick(item.scope, item.idx, 0) + '"';
-    return '<div class="' + rowClass + ' action-row-solo"' + onclickAttr + '>' +
+    const onclickAttr = gateOff ? '' : ' onclick="' + renderedClick(item, 0, buildOnclick) + '"';
+    return '<div class="' + rowClass + ' action-row-solo" data-focus-key="' + esc(focusKey) + '"' + (gateOff ? '' : ' role="button" tabindex="0" onkeydown="if(event.target === this && (event.key === &quot;Enter&quot; || event.key === &quot; &quot;)){event.preventDefault();this.click()}"') + onclickAttr + '>' +
       '<span class="action-text">' + esc(inter.actionText) + '</span>' + gateHtml + offMark + badge + '</div>';
   }
   const buttons = inter.choices.map((c, choiceIdx) =>
-    '<button class="choice-chip" onclick="' + buildOnclick(item.scope, item.idx, choiceIdx) + '"' + (gateOff ? ' disabled' : '') + '>' +
+    '<button class="choice-chip" data-focus-key="' + esc(focusKey + ':' + c.id) + '" onclick="' + renderedClick(item, choiceIdx, buildOnclick) + '"' + (gateOff ? ' disabled' : '') + '>' +
     esc('[' + c.label + ']') + '</button>'
   ).join('');
   return '<div class="' + rowClass + '"><span class="action-text">' + esc(inter.actionText) + '</span>' +
     gateHtml + offMark + badge + '<span class="action-choices">' + buttons + '</span></div>';
-}
-
-// interaction の行動テキストから対象部分 "(対象[.member])" を除いた行動語だけを取り出す
-// （外側上書きの行動一致判定に使う。actionText は extract 側で word + targetPart として
-// 組み立てられているため、同じ規則で targetPart 長だけ末尾を落とせば word が復元できる。Task 13）。
-function actionWord(inter) {
-  if (inter.targetName == null) return inter.actionText;
-  const targetPart = '(' + inter.targetName + (inter.targetMember != null ? '.' + inter.targetMember : '') + ')';
-  return inter.actionText.slice(0, inter.actionText.length - targetPart.length);
-}
-
-// 外側上書き（SPEC「部品の内部要素参照・外側上書き」116-124 行）: 親の行動(部品要素.member) が
-// 行動文字列一致・member（parentItem.inter.targetMember）と部品側 interaction の対象
-// （inter.targetName）一致なら、部品側のその interaction を隠す（親が勝つ）。行動が違えば
-// 両方残る（Task 13 受入基準d）。overrideItems は「その部品要素に紐付いた親（またはさらに外側）
-// 側の attached items のうち targetMember を持つもの」——renderElementsAndActions /
-// resolveNestedItems が同じ computeAttachments から算出して渡す。
-function isOverriddenByOuter(inter, overrideItems) {
-  if (!overrideItems || overrideItems.length === 0 || inter.targetName == null) return false;
-  return overrideItems.some(
-    (item) => item.inter.targetMember === inter.targetName && actionWord(item.inter) === actionWord(inter),
-  );
-}
-
-// 部品要素 1 件が指す component 自身の実効 interactions（表示 variant で mergeInteractions 済み。
-// DATA の commonInteractions / variants[v].interactions そのもの）を、部品自身の gate 判定と
-// 外側上書き済みで組み立てる（埋め込み部品の interaction 有効化。Task 13。SPEC「部品の内部要素
-// 参照・外側上書き」116-124 行・タブバー慣用句 450-461 行）。裸 gate は overlayInteractions と
-// 同じ hostCtx 方式（ADR-0019）を部品自身に適用する——アクティブ画面の body ではなく部品自身の
-// 表示 variant の実効 body で判定する。document common 由来はここに含めない（アクティブ画面
-// 基準の既存経路のみが扱う。brief 明記）。戻り値の childEls は再帰展開の次段要素配列。
-function computeOwnComponentContext(elRef, overrideItems) {
-  const comp = getComp(elRef.module, elRef.name);
-  if (!comp) return null;
-  const key = skey(elRef.module, elRef.name);
-  const v = sharedVariants.has(key) ? sharedVariants.get(key) : comp.initialVariant;
-  const hostCtx = { module: elRef.module, component: elRef.name, variant: v };
-  const ownRaw = v ? (comp.variants[v]?.interactions ?? []) : comp.commonInteractions;
-  const ownFiltered = filterHostGate(ownRaw, hostCtx).filter((inter) => !isOverriddenByOuter(inter, overrideItems));
-  const ownItems = [
-    ...ownFiltered.filter((inter) => inter.scope === 'variant').map((inter, idx) => ({ inter, scope: 'variant', idx })),
-    ...ownFiltered.filter((inter) => inter.scope === 'component').map((inter, idx) => ({ inter, scope: 'component', idx })),
-  ];
-  const childEls = [...(comp.commonElements ?? []), ...(v ? (comp.variants[v]?.elements ?? []) : [])];
-  return { comp, v, ownItems, childEls };
-}
-
-// 描画とクリック時の path 解決で同じ要素列を辿る。inline 自体は interaction を持たない。
-function computeElementContext(el, overrideItems) {
-  if (el.children) return { childEls: el.children, ownItems: [] };
-  return el.ref ? computeOwnComponentContext(el.ref, overrideItems) : null;
 }
 
 // 要素サブツリー 1 件。ref を持つ要素（project 内の定義済み component への参照）は参照先の
@@ -887,11 +321,11 @@ function computeElementContext(el, overrideItems) {
 function renderElementNode(el, visited, attachedHtml, cardIdx, path, overrideItems) {
   const ctx = computeElementContext(el, overrideItems);
   if (!ctx) {
-    return '<div class="element">' + esc(el.name) + '</div>' + attachedHtml;
+    return '<div class="element">' + esc(el.name) + stateLabel(el.node) + '</div>' + attachedHtml;
   }
   const key = el.ref ? skey(el.ref.module, el.ref.name) : null;
   if (key !== null && visited.has(key)) {
-    return '<div class="element">' + esc(el.name) + '<span class="element-cycle">（循環）</span></div>' + attachedHtml;
+    return '<div class="element">' + esc(el.name) + stateLabel(el.node) + '<span class="element-cycle">（循環）</span></div>' + attachedHtml;
   }
   const nextVisited = new Set(visited);
   if (key !== null) nextVisited.add(key);
@@ -899,7 +333,7 @@ function renderElementNode(el, visited, attachedHtml, cardIdx, path, overrideIte
     "handleNestedInteraction(" + cardIdx + ",[" + path.join(",") + "],'" + scope + "'," + idx + "," + choiceIdx + ")";
   const { elementsHtml: childElementsHtml, actionsHtml: ownActionsHtml } =
     renderElementsAndActions(ctx.childEls, ctx.ownItems, buildOwnOnclick, nextVisited, cardIdx, path, false);
-  return '<details open class="element-hierarchy"><summary class="element">' + esc(el.name) + '</summary>' +
+  return '<details open class="element-hierarchy" data-state-key="' + esc(nodeKey(el.node)) + '"><summary class="element">' + esc(el.name) + stateLabel(el.node) + '</summary>' +
     attachedHtml + ownActionsHtml + '<div class="element-children">' + childElementsHtml + '</div></details>';
 }
 
@@ -962,102 +396,6 @@ function renderElementsAndActions(els, items, buildOnclick, visitedBase, cardIdx
   };
 }
 
-// 本体画面のトップレベル要素配列（document common + component common + 現在姿の elements）。
-// render() と resolveNestedItems（クリック時の path 解決）の両方がこれを呼ぶ——同一実装から
-// 得ることで描画とハンドラの要素インデックスがずれない（Task 13）。
-function mainTopLevelElements() {
-  const frame = currentFrame();
-  const comp = getComp(frame.module, frame.component);
-  const frameVariant = displayVariant(frame);
-  const docEls = DATA.modules[frame.module]?.docCommonElements ?? [];
-  const commonEls = comp?.commonElements ?? [];
-  const varEls = frameVariant ? (comp?.variants[frameVariant]?.elements ?? []) : [];
-  return [...docEls, ...commonEls, ...varEls];
-}
-
-// 本体画面のトップレベル操作一覧（scope 別 idx 付き、variant/component のみ）。render() と
-// resolveNestedItems 共通。document common（scope==='document'）はここに含めない——主操作
-// リストから分離し、専用の外部イベントセクションへ回す（documentEventItems。Task 18 項目2）。
-function mainTopLevelItems() {
-  const allInter = currentInteractions();
-  return [
-    ...allInter.filter((inter) => inter.scope === 'variant').map((inter, idx) => ({ inter, scope: 'variant', idx })),
-    ...allInter.filter((inter) => inter.scope === 'component').map((inter, idx) => ({ inter, scope: 'component', idx })),
-  ];
-}
-
-// 外部イベント（document common 由来。scope==='document'）の一覧——「外部イベントを発生させる」
-// details へ分離して描画する専用リスト（Task 18 項目2）。idx は docCommonInteractions() 内の
-// 位置のままなので、handleInteraction('document', idx, ...) は主リスト分離前と同じ発火経路・
-// 同じ実効 interactions（gate フィルタ込み）を引く——実行機構自体は変わらない。
-function documentEventItems() {
-  return docCommonInteractions().map((inter, idx) => ({ inter, scope: 'document', idx }));
-}
-
-// 掲示中カード cardIdx（[...overlays.keys()] の索引）の component 名。見つからなければ null
-function overlayNameAt(cardIdx) {
-  return [...overlays.keys()][cardIdx] ?? null;
-}
-
-// 掲示中カードのトップレベル要素配列（renderOverlayCard・resolveNestedItems 共通。Task 13）
-function overlayTopLevelElements(cardIdx) {
-  const name = overlayNameAt(cardIdx);
-  if (!name) return null;
-  const entry = overlays.get(name);
-  const comp = getComp(entry.module, name);
-  const v = overlayVariant(name);
-  const commonEls = comp?.commonElements ?? [];
-  const varEls = v ? (comp?.variants[v]?.elements ?? []) : [];
-  return [...commonEls, ...varEls];
-}
-
-// 掲示中カードのトップレベル操作一覧（renderOverlayCard・resolveNestedItems 共通。Task 13）
-function overlayTopLevelItems(cardIdx) {
-  const name = overlayNameAt(cardIdx);
-  if (!name) return null;
-  const all = overlayInteractions(name);
-  return [
-    ...all.filter((inter) => inter.scope === 'variant').map((inter, idx) => ({ inter, scope: 'variant', idx })),
-    ...all.filter((inter) => inter.scope === 'component').map((inter, idx) => ({ inter, scope: 'component', idx })),
-  ];
-}
-
-// onclick に埋め込まれた (cardIdx, path) から、対象の部品ノード自身の scope 別 items を
-// 再構築する（Task 13）。render 時に renderElementNode → computeOwnComponentContext が
-// 辿ったのと同じ経路をトップレベルから辿り直す——描画とクリックハンドラが同一の展開・
-// フィルタ結果を参照するための唯一の実装（インデックスのずれを構造的に防ぐ）。
-function resolveNestedItems(cardIdx, path) {
-  if (!path || path.length === 0) return null;
-  let els = cardIdx === -1 ? mainTopLevelElements() : overlayTopLevelElements(cardIdx);
-  let items = cardIdx === -1 ? mainTopLevelItems() : overlayTopLevelItems(cardIdx);
-  if (!els || !items) return null;
-  for (let i = 0; i < path.length; i++) {
-    const el = els[path[i]];
-    if (!el) return null;
-    // el に紐付く（親側の）attached items のうち targetMember 持ちが外側上書き（Task 13 受入基準d）
-    const { attachedByIndex } = computeAttachments(els, items);
-    const overrideItems = (attachedByIndex[path[i]] ?? []).filter((item) => item.inter.targetMember != null);
-    const ctx = computeElementContext(el, overrideItems);
-    if (!ctx) return null;
-    if (i === path.length - 1) return ctx.ownItems;
-    els = ctx.childEls;
-    items = ctx.ownItems;
-  }
-  return null;
-}
-
-// 部品 interaction の発火（Task 13）。cardIdx・path で対象の部品ノードを、scope・idx で
-// そのノード自身の items 内の1件を特定する。実行（runChoice → applyTransition）は
-// currentFrame() を見るため、遷移の相対解決は常にアクティブフレーム基準のまま（brief 明記）。
-function handleNestedInteraction(cardIdx, path, scope, idx, choiceIdx) {
-  const items = resolveNestedItems(cardIdx, path);
-  if (!items) return;
-  const found = items.find((item) => item.scope === scope && item.idx === idx);
-  if (!found || isMemberGateBlocked(found.inter)) return;
-  runChoice(found.inter, choiceIdx);
-  render();
-}
-
 // 1 枚のカード（タイトル・variant ラベル・elements・操作一覧・任意の付帯マークアップ）を描画する
 // 共通関数。本体画面のカードと掲示中カードの両方がこれを使う（Task 4: 掲示中を本体と同形にする）。
 function renderScreenCard(opts) {
@@ -1066,7 +404,7 @@ function renderScreenCard(opts) {
     (opts.badgeHtml ?? '') +
     '<div class="screen-title">' + esc(opts.title) + '</div>' +
     variantLabel +
-    (opts.elementsHtml ?? '') +
+    (opts.stateHtml ?? '') + (opts.elementsHtml ?? '') +
     opts.actionsHtml +
     (opts.trailingHtml ?? '') +
   '</div>';
@@ -1096,6 +434,7 @@ function renderOverlayCard(name, cardIdx) {
   return renderScreenCard({
     title: name,
     variant: v,
+    stateHtml: rootStateLabel(view.data.state.inclusion.overlays[cardIdx]),
     elementsHtml,
     actionsHtml,
     badgeHtml: '<div class="overlay-badge">掲示中</div>',
@@ -1500,9 +839,9 @@ function renderGraphTooltipGateControls(node) {
   const variantNames = comp ? Object.keys(comp.variants) : [];
   if (variantNames.length === 0) return '';
   const k = skey(node.module, node.component);
-  const current = sharedVariants.has(k) ? sharedVariants.get(k) : comp.initialVariant;
+  const current = componentValue(node.module, node.component).variant;
   const badge = '<span class="gate-inline-badge" title="この component は member gate（対象.要素?）の判定対象です">gate 試験</span>';
-  return '<div class="graph-tooltip-gate">' + badge + renderVariantSelect(node.module, node.component, variantNames, current) + '</div>';
+  return '<div class="graph-tooltip-gate">' + badge + renderVariantSelect(node.module, node.component, variantNames, current, 'graph:' + node.module + ':' + node.component) + '</div>';
 }
 
 // 遷移マップの hover tooltip。render() を経由せず #graph-tooltip を直接書き換える
@@ -1779,6 +1118,8 @@ function renderExternalEventsSection() {
 }
 
 function render() {
+  const presentation = capturePresentation();
+  syncView();
   const frame = currentFrame();
   const comp = getComp(frame.module, frame.component);
 
@@ -1826,8 +1167,8 @@ function render() {
   const overlayCardsHtml = [...overlays.keys()].map((n, cardIdx) => renderOverlayCard(n, cardIdx)).join('');
 
   // back button（「戻れない」= stack 長 1 または現 frame.wall。disabled でなく DOM から消す）
-  const canBack = stack.length > 1 && !currentFrame().wall;
-  const backBtn = canBack ? '<button class="back-btn" onclick="goBack()">← 戻る</button>' : '';
+  const canBack = view.data.actions.controls.back.enabled;
+  const backBtn = canBack ? '<button class="back-btn" onclick="' + esc('goBack(' + JSON.stringify(view.data.actions.controls.back.handle) + ')') + '">← 戻る</button>' : '';
 
   // インスタンス variant 手動トグルドロワー（画面外 component の姿切替。presence gate の
   // 効きを手動で試験するための開発者向け UI——姿を持たない対象は切替不要なので除外）。
@@ -1845,9 +1186,9 @@ function render() {
   const memberGateRowsHtml = gateTargetsWithVariants.map((t) => {
     const comp = getComp(t.module, t.name);
     const k = skey(t.module, t.name);
-    const current = sharedVariants.has(k) ? sharedVariants.get(k) : comp.initialVariant;
+    const current = t.variant;
     return '<div class="gate-row"><span class="gate-row-label">' + esc(t.name) + '</span>' +
-      renderVariantSelect(t.module, t.name, Object.keys(comp.variants), current) + '</div>';
+      renderVariantSelect(t.module, t.name, Object.keys(comp.variants), current, 'drawer:' + t.module + ':' + t.name) + '</div>';
   }).join('');
   const hostGateInfoHtml = hostGateNames.length > 0
     ? '<p class="gate-host-info">この画面の host gate（裸参照。対象.要素? でなく要素? 単体）は画面の要素で自動判定されます: ' +
@@ -1874,6 +1215,7 @@ function render() {
   const mainCardHtml = renderScreenCard({
     title: frame.component,
     variant: frameVariant,
+    stateHtml: rootStateLabel(view.data.state.inclusion.main),
     elementsHtml: elements,
     actionsHtml,
     trailingHtml: backBtn,
@@ -1900,8 +1242,11 @@ function render() {
     '<main class="pane pane-center">' +
       '<section class="screen-section">' +
         '<div class="pane-title">現在の画面</div>' +
+        '<button onclick="resetSession()">初期状態へ</button>' +
+        (sessionError ? '<p role="alert">' + esc(sessionError) + '</p>' : '') +
         '<div class="pane-desc">アクティブな frame の表示（本体）と掲示中カード</div>' +
         '<label class="action-toggle"><input type="checkbox" ' + (showActions ? 'checked' : '') + ' onchange="toggleShowActions()"> アクションを表示</label>' +
+        '<label class="action-toggle"><input type="checkbox" ' + (showStates ? 'checked' : '') + ' onchange="toggleShowStates()"> 部品の状態を表示</label>' +
         gateToggleHtml +
         mainCardHtml +
         externalEventsHtml +
@@ -1913,6 +1258,8 @@ function render() {
       '</div>' +
     '</main>' +
     gateDrawerHtml;
+
+  restorePresentation(presentation);
 
   // マップ高さのツマミ調整（ResizeObserver）は innerHTML 差し替えのたびに要素が作り直される
   // ため、render() のたびに新しい要素へ張り直す。document.querySelector が無いテスト環境

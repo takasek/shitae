@@ -6,8 +6,9 @@ import { resolveProject } from '@shitae/resolver';
 import { check } from '@shitae/checker';
 import { toMermaid } from '@shitae/transpiler-mermaid';
 import { toSimulator } from '@shitae/simulator';
-import { Session } from '@shitae/session';
+import { Session, type ModelMetadata } from '@shitae/session';
 import { serveSession } from './session.js';
+import { loadModel } from './model.js';
 import type { SimulatorConfig } from '@shitae/simulator';
 import type { Document, Diagnostic } from '@shitae/ast';
 
@@ -19,7 +20,7 @@ if (!command || !filePath) {
 }
 
 const entryPath = resolvePath(filePath);
-const entryModule = basename(entryPath, '.shitae');
+let entryModule = basename(entryPath, '.shitae');
 
 function loadDocuments(): {
   documents: Map<string, Document>;
@@ -66,7 +67,15 @@ function printDiags(items: Array<{ diag: Diagnostic; path: string }>): void {
   }
 }
 
-const { documents, diagnostics: diagnosticsMap, modulePaths, failed } = loadDocuments();
+let loaded;
+let modelMetadata: ModelMetadata | null = null;
+try {
+  if (command === 'session' || command === 'simulate') {
+    loaded = loadModel(entryPath); entryModule = loaded.entryModule; modelMetadata = loaded.metadata;
+  } else loaded = loadDocuments();
+}
+catch (error) { process.stderr.write(`Error: ${error instanceof Error ? error.message : String(error)}\n`); process.exit(1); }
+const { documents, diagnostics: diagnosticsMap, modulePaths, failed } = loaded;
 
 if (failed) {
   process.exit(1);
@@ -111,7 +120,7 @@ if (command === 'check') {
     process.exit(1);
   }
   try {
-    const session = new Session(documents, entryModule, modulePaths);
+    const session = new Session(documents, entryModule, modulePaths, modelMetadata);
     await serveSession(session);
   } catch (error) {
     process.stderr.write(`Error: ${error instanceof Error ? error.message : String(error)}\n`);
@@ -140,7 +149,7 @@ if (command === 'check') {
       process.stderr.write(`Warning: '${configPath}' は不正な JSON のため simconfig を無視します\n`);
     }
   }
-  process.stdout.write(toSimulator(documents, entryModule, simConfig) + '\n');
+  process.stdout.write(toSimulator(documents, entryModule, simConfig, modelMetadata ? { files: modulePaths, metadata: modelMetadata } : undefined) + '\n');
   // pipe の非同期 write が完了するまで、イベントループの自然終了に任せる。
 } else {
   process.stderr.write(`Error: unknown command '${command}'. Use 'check', 'mermaid', 'simulate', or 'session'.\n`);
