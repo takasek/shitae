@@ -1243,6 +1243,7 @@ function render() {
       '<section class="screen-section">' +
         '<div class="pane-title">現在の画面</div>' +
         '<button onclick="resetSession()">初期状態へ</button>' +
+        scenarioControls() +
         (sessionError ? '<p role="alert">' + esc(sessionError) + '</p>' : '') +
         '<div class="pane-desc">アクティブな frame の表示（本体）と掲示中カード</div>' +
         '<label class="action-toggle"><input type="checkbox" ' + (showActions ? 'checked' : '') + ' onchange="toggleShowActions()"> アクションを表示</label>' +

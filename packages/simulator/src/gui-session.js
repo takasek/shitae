@@ -1,7 +1,48 @@
 // Execution, gates, effective operations and snapshots belong to the bundled Session.
-const SESSION = new Shitae.Session(new Map(MODEL.documents), MODEL.entryModule, new Map(MODEL.files), MODEL.metadata);
+let SESSION = new Shitae.Session(new Map(MODEL.documents), MODEL.entryModule, new Map(MODEL.files), MODEL.metadata);
 let view, stack, overlays, sharedVariants, GATE_TARGETS, timeline, cursor, componentNameCounts;
 let showEvents = true, showActions = true, showStates = false, sessionError = '';
+let scenarioBusy = false, scenarioNotice = '';
+async function buildScenarioJson() { return JSON.stringify(await SESSION.exportScenario(), null, 2) + '\n'; }
+async function saveScenario() {
+  if (scenarioBusy) return;
+  try {
+    const text = await buildScenarioJson();
+    const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+    const link = document.createElement('a');
+    link.href = url; link.download = MODEL.entryModule + '.scenario.json'; link.click(); link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    sessionError = ''; scenarioNotice = 'シナリオの保存ファイルを作成しました';
+  } catch (e) { sessionError = e.message; scenarioNotice = ''; }
+  render();
+}
+async function replaceScenario(readText) {
+  if (scenarioBusy) return;
+  scenarioBusy = true; scenarioNotice = ''; sessionError = ''; render();
+  try {
+    const text = await readText();
+    let saved;
+    try { saved = JSON.parse(text); } catch { throw new Shitae.ScenarioError('SCENARIO_FORMAT', 'シナリオのJSONを読めません'); }
+    const next = await Shitae.replayScenario({ documents: new Map(MODEL.documents), entryModule: MODEL.entryModule,
+      files: new Map(MODEL.files), metadata: MODEL.metadata }, saved);
+    SESSION = next;
+    scenarioNotice = 'シナリオを読み込みました（' + saved.steps.length + '操作を照合）';
+  } catch (e) { sessionError = e.message; }
+  finally { scenarioBusy = false; render(); }
+}
+async function loadScenarioText(text) { return replaceScenario(() => Promise.resolve(text)); }
+async function loadScenarioFile(input) {
+  const file = input.files?.[0];
+  if (!file || scenarioBusy) return;
+  input.value = '';
+  return replaceScenario(() => file.text());
+}
+function scenarioControls() {
+  return '<div class="scenario-controls">' +
+    '<button data-focus-key="save-scenario" onclick="saveScenario()"' + (scenarioBusy ? ' disabled' : '') + '>シナリオを保存</button> ' +
+    '<label>シナリオを読み込む <input data-focus-key="load-scenario" type="file" accept=".scenario.json,application/json" onchange="loadScenarioFile(this)"' + (scenarioBusy ? ' disabled' : '') + '></label>' +
+    (scenarioBusy ? '<p role="status">シナリオを照合しています</p>' : scenarioNotice ? '<p role="status">' + esc(scenarioNotice) + '</p>' : '') + '</div>';
+}
 function skey(module, component) { return JSON.stringify([module, component]); }
 function componentValue(module, component) { return view.data.state.componentValues.find(c => c.module === module && c.component === component); }
 // Static map endpoints use the model's default, independently of trial display values.
@@ -37,6 +78,8 @@ function syncView() {
 function locationLabel(loc) { return loc.component + (loc.variant ? ' / ' + loc.variant : ''); }
 function currentLocationLabel() { return locationLabel(view.summary.location); }
 function command(run) {
+  if (scenarioBusy) return;
+  scenarioNotice = '';
   try { run(); sessionError = ''; } catch (e) {
     if (!(e instanceof Shitae.SessionError)) throw e;
     sessionError = e.message;
