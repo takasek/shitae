@@ -1,0 +1,1880 @@
+{
+  "format": "shitae-scenario",
+  "formatVersion": 1,
+  "protocolVersion": 1,
+  "model": {
+    "engineVersion": "8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db",
+    "modelId": "1e15f0c81f68cdd6dc4cd5d9c4b4361641aeda629c893a710907fa147eec5deb",
+    "entryModule": "current",
+    "sourceBasis": "source-bytes",
+    "manifest": [
+      {
+        "module": "current",
+        "sourceSha256": "4e0ae2bbac9557df599a2282b421beaac65dce4d33c36ef3c37f50e5c1a943da"
+      }
+    ]
+  },
+  "initialDigest": "ec461ba01ec903e0089f9606d873d29bb57e384259c95b97d813cc8d2f7e450d",
+  "steps": [
+    {
+      "step": 1,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "variant",
+          "host": {
+            "module": "current",
+            "component": "Workspace",
+            "variant": "Editing"
+          },
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 672,
+              "length": 36,
+              "line": 15,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "26adf87953a6320bd2335faaa62b5c89e6707b06b6c7b43fe3ac065a04755abe"
+        },
+        "branch": null
+      },
+      "afterDigest": "78b94b29c0f3021d2b594757d9561723cc7898c8445b1575e85fde2dfc238cbc",
+      "observations": [
+        {
+          "viewDigest": "ccb39112a6503aca35e9638bee32a4a95204d9cb5bace6bd0930b13312c6198d"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "overlays"
+        ]
+      },
+      "outputDigest": "4cd0a0d95765a7a1eec8255f5780ce1e54ff9288607da9d7d9a2932dd2be1e59"
+    },
+    {
+      "step": 2,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "variant",
+          "host": {
+            "module": "current",
+            "component": "DiagramView",
+            "variant": "Ready"
+          },
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 1595,
+              "length": 82,
+              "line": 47,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [
+              5
+            ],
+            "source": {
+              "module": "current",
+              "span": {
+                "offset": 651,
+                "length": 20,
+                "line": 14,
+                "col": 1
+              }
+            }
+          },
+          "definitionDigest": "66f0a5f7dac8e77e2a7c39f16909693729dfaad3487c85ae0c115deff27877ce"
+        },
+        "branch": null
+      },
+      "afterDigest": "7ddeb15bde32fabc395b49f782e063e8d6c30593ecf356d16907c2e23be660b8",
+      "observations": [
+        {
+          "viewDigest": "ccb39112a6503aca35e9638bee32a4a95204d9cb5bace6bd0930b13312c6198d"
+        }
+      ],
+      "output": {
+        "effects": [
+          {
+            "resultIndex": 0,
+            "source": {
+              "module": "current",
+              "span": {
+                "offset": 1595,
+                "length": 82,
+                "line": 47,
+                "col": 1
+              }
+            },
+            "text": "Move source cursor to node definition and focus source editor"
+          }
+        ],
+        "diagnostics": [],
+        "changed": []
+      },
+      "outputDigest": "57fc81db953496589b4573076594c51772eed496217176819c008624d8e48b61"
+    },
+    {
+      "step": 3,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "current",
+            "component": "DiagramView",
+            "variant": "Ready"
+          },
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 1533,
+              "length": 39,
+              "line": 44,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [
+              5
+            ],
+            "source": {
+              "module": "current",
+              "span": {
+                "offset": 651,
+                "length": 20,
+                "line": 14,
+                "col": 1
+              }
+            }
+          },
+          "definitionDigest": "56558f3f8c4c1c066232215e65ba311e8ed6a3b0ec4b8ef09faa180e98c49e6c"
+        },
+        "branch": null
+      },
+      "afterDigest": "a133f14663406d53990df85cb97857171ec53cf6e28468594d5eaefe061dffa2",
+      "observations": [
+        {
+          "viewDigest": "a5d47a27aff9ca260b7ae621ae781af58309755d0ee143959f38bc941fa2073b"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "sharedVariants",
+          "origins"
+        ]
+      },
+      "outputDigest": "e4686d3267f5aa16ab06a44c78ece53960fa308798890cd999c892ca41cb04db"
+    },
+    {
+      "step": 4,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "variant",
+          "host": {
+            "module": "current",
+            "component": "DiagramView",
+            "variant": "Error"
+          },
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 1898,
+              "length": 39,
+              "line": 53,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [
+              5
+            ],
+            "source": {
+              "module": "current",
+              "span": {
+                "offset": 651,
+                "length": 20,
+                "line": 14,
+                "col": 1
+              }
+            }
+          },
+          "definitionDigest": "ea7c52b57509f7bf5568d723015f2742177510d1ada36f273ad32edea323f04e"
+        },
+        "branch": null
+      },
+      "afterDigest": "e7b0c682a52fc8191eac22b0dc9d595fde070617d9fb2d8e58f3eeaf9f4eeaf5",
+      "observations": [
+        {
+          "viewDigest": "0c1a27f9d71d00dcf110ef4423a529ce2d5f93fb1c985106e0b65d87745125f6"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "sharedVariants"
+        ]
+      },
+      "outputDigest": "af7b49febd8c9b14cb20197629e4a31a977ed40c7dbe80d518db2b6964686948"
+    },
+    {
+      "step": 5,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "current",
+            "component": "Workspace",
+            "variant": "Editing"
+          },
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 460,
+              "length": 81,
+              "line": 9,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "fa7258b796d908274a87fd6422df49dc626b51090b2da32d22a6a15d8ebffd39"
+        },
+        "branch": null
+      },
+      "afterDigest": "4588d053ed06ccae37e85199a14d00667970a3eb5e74703005f76c2435671466",
+      "observations": [
+        {
+          "viewDigest": "5084f20523063cf22281cd6841b4718461cfc2e8d63afa4cdbb66e60606fe08f"
+        },
+        {
+          "viewDigest": "5084f20523063cf22281cd6841b4718461cfc2e8d63afa4cdbb66e60606fe08f"
+        },
+        {
+          "viewDigest": "587cb12825905d7835ce5ba4cb5027e046527d1db07d2ce9d294861561e060b4"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames",
+          "overlays"
+        ]
+      },
+      "outputDigest": "03b6b7e4315e9ca9581dd6133bf0b086060e76021d737592033087a617470315"
+    },
+    {
+      "step": 6,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "variant",
+          "host": {
+            "module": "current",
+            "component": "Workspace",
+            "variant": "NoDocument"
+          },
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 825,
+              "length": 47,
+              "line": 18,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "808d91491f6a42a4d2ef346c86c22d4a39b1e96c6f7f69d7f31f3e05d869be02"
+        },
+        "branch": null
+      },
+      "afterDigest": "213489a2f2a718c44ba6b95aa072e3576323e2b879d9f682c93a014e161d6b1e",
+      "observations": [
+        {
+          "viewDigest": "587cb12825905d7835ce5ba4cb5027e046527d1db07d2ce9d294861561e060b4"
+        }
+      ],
+      "output": {
+        "effects": [
+          {
+            "resultIndex": 0,
+            "source": {
+              "module": "current",
+              "span": {
+                "offset": 825,
+                "length": 47,
+                "line": 18,
+                "col": 1
+              }
+            },
+            "text": "No active document so nothing happens"
+          }
+        ],
+        "diagnostics": [],
+        "changed": []
+      },
+      "outputDigest": "1bc54155d0c18ba696779bc7cb7c2216b001301e64d443f88ce1ef458b783c94"
+    }
+  ],
+  "final": {
+    "view": {
+      "view": {
+        "location": {
+          "module": "current",
+          "component": "Workspace",
+          "variant": "NoDocument"
+        },
+        "state": {
+          "frames": [
+            {
+              "id": 0,
+              "parentId": null,
+              "stack": [
+                {
+                  "module": "current",
+                  "component": "Workspace",
+                  "variant": "NoDocument",
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "dsl"
+                }
+              ],
+              "barrier": false,
+              "beginsSession": null,
+              "origin": "root"
+            }
+          ],
+          "activeFrameId": 0,
+          "nextFrameId": 1,
+          "activePath": [
+            0
+          ],
+          "overlays": [],
+          "sharedVariants": [
+            {
+              "module": "current",
+              "component": "DiagramView",
+              "variant": "Ready",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "current",
+              "component": "GlobalMessage",
+              "variant": "Instruction",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "initial"
+            }
+          ],
+          "testVariants": [],
+          "componentValues": [
+            {
+              "module": "current",
+              "component": "ActualSize",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "AddConnection",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "Close",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "CreateDefinition",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "Diagnostics",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "DiagramView",
+              "variant": "Ready",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "current",
+              "component": "DiskText",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "DocumentCommands",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "DocumentTab",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "DocumentTabs",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "EdgeText",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "ErrorMessage",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "FileName",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "Fit",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "FolderFiles",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "FormatFlat",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "FormatFlows",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "GlobalMessage",
+              "variant": "Instruction",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "Graph",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "Help",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "Navigation",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "New",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "NodeActions",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "NodePanel",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "NormalizedEdges",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "OpenFile",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "OpenFolder",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "RecentTargets",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "RecoveryPanel",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "ReviewAndSaveHere",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "Save",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "SaveAs",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "SaveExplicitly",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "SelectedNode",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "SourceEditor",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "SourceText",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "UseCurrentDiskVersion",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "Workspace",
+              "variant": "Editing",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "ZoomIn",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "ZoomLevel",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "ZoomOut",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            }
+          ],
+          "gateTargets": [],
+          "inclusion": {
+            "main": {
+              "module": "current",
+              "component": "Workspace",
+              "root": "main",
+              "variant": "NoDocument",
+              "singleton": false,
+              "scope": "frame-location",
+              "origin": "dsl",
+              "source": {
+                "module": "current",
+                "span": {
+                  "offset": 239,
+                  "length": 11,
+                  "line": 3,
+                  "col": 1
+                }
+              },
+              "children": [
+                {
+                  "name": "commands",
+                  "root": "main",
+                  "path": [
+                    0
+                  ],
+                  "source": {
+                    "module": "current",
+                    "span": {
+                      "offset": 251,
+                      "length": 26,
+                      "line": 4,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "current",
+                    "component": "DocumentCommands"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  "componentSource": {
+                    "module": "current",
+                    "span": {
+                      "offset": 929,
+                      "length": 18,
+                      "line": 21,
+                      "col": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "name": "files",
+                      "root": "main",
+                      "path": [
+                        0,
+                        0
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 948,
+                          "length": 50,
+                          "line": 22,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "kind": "inline",
+                      "children": [
+                        {
+                          "name": "New",
+                          "root": "main",
+                          "path": [
+                            0,
+                            0,
+                            0
+                          ],
+                          "source": {
+                            "module": "current",
+                            "span": {
+                              "offset": 948,
+                              "length": 3,
+                              "line": 22,
+                              "col": 1
+                            }
+                          },
+                          "collection": false,
+                          "reference": {
+                            "module": "current",
+                            "component": "New"
+                          },
+                          "kind": "component",
+                          "value": {
+                            "variant": null,
+                            "singleton": false,
+                            "scope": "inclusion-initial",
+                            "origin": "initial"
+                          },
+                          "componentSource": {
+                            "module": "current",
+                            "span": {
+                              "offset": 2478,
+                              "length": 5,
+                              "line": 80,
+                              "col": 1
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "name": "OpenFile",
+                          "root": "main",
+                          "path": [
+                            0,
+                            0,
+                            1
+                          ],
+                          "source": {
+                            "module": "current",
+                            "span": {
+                              "offset": 948,
+                              "length": 8,
+                              "line": 22,
+                              "col": 1
+                            }
+                          },
+                          "collection": false,
+                          "reference": {
+                            "module": "current",
+                            "component": "OpenFile"
+                          },
+                          "kind": "component",
+                          "value": {
+                            "variant": null,
+                            "singleton": false,
+                            "scope": "inclusion-initial",
+                            "origin": "initial"
+                          },
+                          "componentSource": {
+                            "module": "current",
+                            "span": {
+                              "offset": 2484,
+                              "length": 10,
+                              "line": 81,
+                              "col": 1
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "name": "OpenFolder",
+                          "root": "main",
+                          "path": [
+                            0,
+                            0,
+                            2
+                          ],
+                          "source": {
+                            "module": "current",
+                            "span": {
+                              "offset": 948,
+                              "length": 10,
+                              "line": 22,
+                              "col": 1
+                            }
+                          },
+                          "collection": false,
+                          "reference": {
+                            "module": "current",
+                            "component": "OpenFolder"
+                          },
+                          "kind": "component",
+                          "value": {
+                            "variant": null,
+                            "singleton": false,
+                            "scope": "inclusion-initial",
+                            "origin": "initial"
+                          },
+                          "componentSource": {
+                            "module": "current",
+                            "span": {
+                              "offset": 2495,
+                              "length": 12,
+                              "line": 82,
+                              "col": 1
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "name": "Save",
+                          "root": "main",
+                          "path": [
+                            0,
+                            0,
+                            3
+                          ],
+                          "source": {
+                            "module": "current",
+                            "span": {
+                              "offset": 948,
+                              "length": 4,
+                              "line": 22,
+                              "col": 1
+                            }
+                          },
+                          "collection": false,
+                          "reference": {
+                            "module": "current",
+                            "component": "Save"
+                          },
+                          "kind": "component",
+                          "value": {
+                            "variant": null,
+                            "singleton": false,
+                            "scope": "inclusion-initial",
+                            "origin": "initial"
+                          },
+                          "componentSource": {
+                            "module": "current",
+                            "span": {
+                              "offset": 2508,
+                              "length": 6,
+                              "line": 83,
+                              "col": 1
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "name": "SaveAs",
+                          "root": "main",
+                          "path": [
+                            0,
+                            0,
+                            4
+                          ],
+                          "source": {
+                            "module": "current",
+                            "span": {
+                              "offset": 948,
+                              "length": 6,
+                              "line": 22,
+                              "col": 1
+                            }
+                          },
+                          "collection": false,
+                          "reference": {
+                            "module": "current",
+                            "component": "SaveAs"
+                          },
+                          "kind": "component",
+                          "value": {
+                            "variant": null,
+                            "singleton": false,
+                            "scope": "inclusion-initial",
+                            "origin": "initial"
+                          },
+                          "componentSource": {
+                            "module": "current",
+                            "span": {
+                              "offset": 2515,
+                              "length": 8,
+                              "line": 84,
+                              "col": 1
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "name": "transform",
+                      "root": "main",
+                      "path": [
+                        0,
+                        1
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 999,
+                          "length": 55,
+                          "line": 23,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "kind": "inline",
+                      "children": [
+                        {
+                          "name": "FormatFlows",
+                          "root": "main",
+                          "path": [
+                            0,
+                            1,
+                            0
+                          ],
+                          "source": {
+                            "module": "current",
+                            "span": {
+                              "offset": 999,
+                              "length": 11,
+                              "line": 23,
+                              "col": 1
+                            }
+                          },
+                          "collection": false,
+                          "reference": {
+                            "module": "current",
+                            "component": "FormatFlows"
+                          },
+                          "kind": "component",
+                          "value": {
+                            "variant": null,
+                            "singleton": false,
+                            "scope": "inclusion-initial",
+                            "origin": "initial"
+                          },
+                          "componentSource": {
+                            "module": "current",
+                            "span": {
+                              "offset": 2524,
+                              "length": 13,
+                              "line": 85,
+                              "col": 1
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "name": "FormatFlat",
+                          "root": "main",
+                          "path": [
+                            0,
+                            1,
+                            1
+                          ],
+                          "source": {
+                            "module": "current",
+                            "span": {
+                              "offset": 999,
+                              "length": 10,
+                              "line": 23,
+                              "col": 1
+                            }
+                          },
+                          "collection": false,
+                          "reference": {
+                            "module": "current",
+                            "component": "FormatFlat"
+                          },
+                          "kind": "component",
+                          "value": {
+                            "variant": null,
+                            "singleton": false,
+                            "scope": "inclusion-initial",
+                            "origin": "initial"
+                          },
+                          "componentSource": {
+                            "module": "current",
+                            "span": {
+                              "offset": 2538,
+                              "length": 12,
+                              "line": 86,
+                              "col": 1
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "name": "NormalizedEdges",
+                          "root": "main",
+                          "path": [
+                            0,
+                            1,
+                            2
+                          ],
+                          "source": {
+                            "module": "current",
+                            "span": {
+                              "offset": 999,
+                              "length": 15,
+                              "line": 23,
+                              "col": 1
+                            }
+                          },
+                          "collection": false,
+                          "reference": {
+                            "module": "current",
+                            "component": "NormalizedEdges"
+                          },
+                          "kind": "component",
+                          "value": {
+                            "variant": null,
+                            "singleton": false,
+                            "scope": "inclusion-initial",
+                            "origin": "initial"
+                          },
+                          "componentSource": {
+                            "module": "current",
+                            "span": {
+                              "offset": 2240,
+                              "length": 17,
+                              "line": 66,
+                              "col": 1
+                            }
+                          },
+                          "children": [
+                            {
+                              "name": "text",
+                              "root": "main",
+                              "path": [
+                                0,
+                                1,
+                                2,
+                                0
+                              ],
+                              "source": {
+                                "module": "current",
+                                "span": {
+                                  "offset": 2258,
+                                  "length": 14,
+                                  "line": 67,
+                                  "col": 1
+                                }
+                              },
+                              "collection": false,
+                              "reference": {
+                                "module": "current",
+                                "component": "EdgeText"
+                              },
+                              "kind": "component",
+                              "value": {
+                                "variant": null,
+                                "singleton": false,
+                                "scope": "inclusion-initial",
+                                "origin": "initial"
+                              },
+                              "componentSource": {
+                                "module": "current",
+                                "span": {
+                                  "offset": 2763,
+                                  "length": 10,
+                                  "line": 104,
+                                  "col": 1
+                                }
+                              },
+                              "children": []
+                            },
+                            {
+                              "name": "close",
+                              "root": "main",
+                              "path": [
+                                0,
+                                1,
+                                2,
+                                1
+                              ],
+                              "source": {
+                                "module": "current",
+                                "span": {
+                                  "offset": 2273,
+                                  "length": 12,
+                                  "line": 68,
+                                  "col": 1
+                                }
+                              },
+                              "collection": false,
+                              "reference": {
+                                "module": "current",
+                                "component": "Close"
+                              },
+                              "kind": "component",
+                              "value": {
+                                "variant": null,
+                                "singleton": false,
+                                "scope": "inclusion-initial",
+                                "origin": "initial"
+                              },
+                              "componentSource": {
+                                "module": "current",
+                                "span": {
+                                  "offset": 2562,
+                                  "length": 7,
+                                  "line": 88,
+                                  "col": 1
+                                }
+                              },
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "navigation",
+                  "root": "main",
+                  "path": [
+                    1
+                  ],
+                  "source": {
+                    "module": "current",
+                    "span": {
+                      "offset": 278,
+                      "length": 22,
+                      "line": 5,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "current",
+                    "component": "Navigation"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  "componentSource": {
+                    "module": "current",
+                    "span": {
+                      "offset": 1056,
+                      "length": 12,
+                      "line": 25,
+                      "col": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "name": "recent",
+                      "root": "main",
+                      "path": [
+                        1,
+                        0
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 1069,
+                          "length": 21,
+                          "line": 26,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "current",
+                        "component": "RecentTargets"
+                      },
+                      "kind": "component",
+                      "value": {
+                        "variant": null,
+                        "singleton": false,
+                        "scope": "inclusion-initial",
+                        "origin": "initial"
+                      },
+                      "componentSource": {
+                        "module": "current",
+                        "span": {
+                          "offset": 2448,
+                          "length": 15,
+                          "line": 78,
+                          "col": 1
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "name": "folder",
+                      "root": "main",
+                      "path": [
+                        1,
+                        1
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 1091,
+                          "length": 19,
+                          "line": 27,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "current",
+                        "component": "FolderFiles"
+                      },
+                      "kind": "component",
+                      "value": {
+                        "variant": null,
+                        "singleton": false,
+                        "scope": "inclusion-initial",
+                        "origin": "initial"
+                      },
+                      "componentSource": {
+                        "module": "current",
+                        "span": {
+                          "offset": 2464,
+                          "length": 13,
+                          "line": 79,
+                          "col": 1
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "name": "message",
+                  "root": "main",
+                  "path": [
+                    2
+                  ],
+                  "source": {
+                    "module": "current",
+                    "span": {
+                      "offset": 301,
+                      "length": 22,
+                      "line": 6,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "current",
+                    "component": "GlobalMessage"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": "Instruction",
+                    "singleton": true,
+                    "scope": "singleton-shared",
+                    "origin": "initial"
+                  },
+                  "componentSource": {
+                    "module": "current",
+                    "span": {
+                      "offset": 2150,
+                      "length": 16,
+                      "line": 60,
+                      "col": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "name": "instruction",
+                      "root": "main",
+                      "path": [
+                        2,
+                        0
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 2182,
+                          "length": 27,
+                          "line": 62,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "current",
+                        "component": "SaveExplicitly"
+                      },
+                      "kind": "component",
+                      "value": {
+                        "variant": null,
+                        "singleton": false,
+                        "scope": "inclusion-initial",
+                        "origin": "initial"
+                      },
+                      "componentSource": {
+                        "module": "current",
+                        "span": {
+                          "offset": 2731,
+                          "length": 16,
+                          "line": 102,
+                          "col": 1
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            "overlays": []
+          }
+        },
+        "actions": {
+          "items": [
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "current",
+                  "component": "Workspace",
+                  "variant": "NoDocument"
+                },
+                "source": {
+                  "module": "current",
+                  "span": {
+                    "offset": 324,
+                    "length": 42,
+                    "line": 7,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "198ce78eef9fa825c76722dbcc4873694cbeb2e243a00adce14352487f806145"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "current",
+                  "component": "Workspace",
+                  "variant": "NoDocument"
+                },
+                "source": {
+                  "module": "current",
+                  "span": {
+                    "offset": 367,
+                    "length": 92,
+                    "line": 8,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "63582c9cb0ccd0f14d16bb837a431d02ef6f933a760935aa7190e7248c3b8ca3"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "current",
+                  "component": "Workspace",
+                  "variant": "NoDocument"
+                },
+                "source": {
+                  "module": "current",
+                  "span": {
+                    "offset": 460,
+                    "length": 81,
+                    "line": 9,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "fa7258b796d908274a87fd6422df49dc626b51090b2da32d22a6a15d8ebffd39"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "current",
+                  "component": "Workspace",
+                  "variant": "NoDocument"
+                },
+                "source": {
+                  "module": "current",
+                  "span": {
+                    "offset": 542,
+                    "length": 57,
+                    "line": 10,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "f3ee99ca8e1b1f22e4faf3f02cc4f4bde8ae59792906c7eb6728c08809c3438a"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "variant",
+                "host": {
+                  "module": "current",
+                  "component": "Workspace",
+                  "variant": "NoDocument"
+                },
+                "source": {
+                  "module": "current",
+                  "span": {
+                    "offset": 825,
+                    "length": 47,
+                    "line": 18,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "808d91491f6a42a4d2ef346c86c22d4a39b1e96c6f7f69d7f31f3e05d869be02"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "variant",
+                "host": {
+                  "module": "current",
+                  "component": "Workspace",
+                  "variant": "NoDocument"
+                },
+                "source": {
+                  "module": "current",
+                  "span": {
+                    "offset": 873,
+                    "length": 54,
+                    "line": 19,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "215734f4d0f9464ed523792bbcf7af210abf5579767d5cdfc519ac247d9836f0"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "current",
+                  "component": "NormalizedEdges",
+                  "variant": null
+                },
+                "source": {
+                  "module": "current",
+                  "span": {
+                    "offset": 2286,
+                    "length": 32,
+                    "line": 69,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [
+                    0,
+                    1,
+                    2
+                  ],
+                  "source": {
+                    "module": "current",
+                    "span": {
+                      "offset": 999,
+                      "length": 15,
+                      "line": 23,
+                      "col": 1
+                    }
+                  }
+                },
+                "definitionDigest": "6c4c17d69c1120ca875097abfadd17ee63d246b1f310075b922b32fe960a5d4e"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            }
+          ],
+          "back": {
+            "enabled": false,
+            "reason": "no-return-location"
+          }
+        }
+      },
+      "timeline": [
+        {
+          "resultIndex": null,
+          "source": null,
+          "kind": "transition",
+          "label": "起動",
+          "location": {
+            "module": "current",
+            "component": "Workspace",
+            "variant": "Editing"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 0,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 672,
+              "length": 36,
+              "line": 15,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "show(NormalizedEdges)",
+          "location": {
+            "module": "current",
+            "component": "Workspace",
+            "variant": "Editing"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 1,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 1595,
+              "length": 82,
+              "line": 47,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "effect: Move source cursor to node definition and focus source editor",
+          "location": {
+            "module": "current",
+            "component": "Workspace",
+            "variant": "Editing"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 2,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 1533,
+              "length": 39,
+              "line": 44,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(DiagramView)",
+          "location": {
+            "module": "current",
+            "component": "Workspace",
+            "variant": "Editing"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 3,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 1898,
+              "length": 39,
+              "line": 53,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(DiagramView)",
+          "location": {
+            "module": "current",
+            "component": "Workspace",
+            "variant": "Editing"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 4,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 460,
+              "length": 81,
+              "line": 9,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "hide(NormalizedEdges)",
+          "location": {
+            "module": "current",
+            "component": "Workspace",
+            "variant": "Editing"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 5,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 460,
+              "length": 81,
+              "line": 9,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "hide(NodePanel)",
+          "location": {
+            "module": "current",
+            "component": "Workspace",
+            "variant": "Editing"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 5,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 2,
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 460,
+              "length": 81,
+              "line": 9,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "goto → Workspace / NoDocument",
+          "location": {
+            "module": "current",
+            "component": "Workspace",
+            "variant": "NoDocument"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 5,
+            "observation": 2
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 825,
+              "length": 47,
+              "line": 18,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "effect: No active document so nothing happens",
+          "location": {
+            "module": "current",
+            "component": "Workspace",
+            "variant": "NoDocument"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 6,
+            "observation": 0
+          }
+        }
+      ],
+      "cursor": {
+        "step": 6,
+        "observation": 0
+      }
+    },
+    "digest": "213489a2f2a718c44ba6b95aa072e3576323e2b879d9f682c93a014e161d6b1e"
+  }
+}

@@ -1,0 +1,837 @@
+{
+  "format": "shitae-scenario",
+  "formatVersion": 1,
+  "protocolVersion": 1,
+  "model": {
+    "engineVersion": "8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db",
+    "modelId": "ebbb77243346378d50a8e06ec362b2912480065ce70741c423827be91a74c8dc",
+    "entryModule": "trial-values",
+    "sourceBasis": "source-bytes",
+    "manifest": [
+      {
+        "module": "trial-values",
+        "sourceSha256": "44ca013a4a411c60dbfd4e50bf84777693cc2211620ba5885fb67768675b954c"
+      }
+    ]
+  },
+  "initialDigest": "3d4156708e16f4e30408f3a55e80e39ad2bc876f72e7f072effb4b47eb0e5b75",
+  "steps": [
+    {
+      "step": 1,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "trial-values",
+            "component": "Screen",
+            "variant": "Start"
+          },
+          "source": {
+            "module": "trial-values",
+            "span": {
+              "offset": 38,
+              "length": 77,
+              "line": 5,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "99660bcaabc1669d940bc48c9153c935fc4dc5384f47e9e46cca7765c9963da3"
+        },
+        "branch": {
+          "label": "yes",
+          "results": [
+            {
+              "resultIndex": 1,
+              "source": {
+                "module": "trial-values",
+                "span": {
+                  "offset": 38,
+                  "length": 77,
+                  "line": 5,
+                  "col": 1
+                }
+              }
+            },
+            {
+              "resultIndex": 2,
+              "source": {
+                "module": "trial-values",
+                "span": {
+                  "offset": 38,
+                  "length": 77,
+                  "line": 5,
+                  "col": 1
+                }
+              }
+            },
+            {
+              "resultIndex": 3,
+              "source": {
+                "module": "trial-values",
+                "span": {
+                  "offset": 38,
+                  "length": 77,
+                  "line": 5,
+                  "col": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      "afterDigest": "f5b60758dcaadfc630cca4ef9c438c6b27c06a9dd8a6f0093ed37e4fdcc340d0",
+      "observations": [
+        {
+          "viewDigest": "883fd224887ec520302a9efc60b66dfe19295e0a21b8fce25a6dcf35e3a8ffd2"
+        },
+        {
+          "viewDigest": "6fad9b8e2fd458ef1c3c2d682ce4a2a45e4c9108871a259318325c43d426e37f"
+        },
+        {
+          "viewDigest": "314cd502740d25efad0a602c6c57adfa26de76e79cfd27f503ea749290e0f4ca"
+        },
+        {
+          "viewDigest": "b244558189f77a673ca446b58859db4944c0e4e36f552cec6389f96b242e39c1"
+        }
+      ],
+      "output": {
+        "effects": [
+          {
+            "resultIndex": 0,
+            "source": {
+              "module": "trial-values",
+              "span": {
+                "offset": 38,
+                "length": 77,
+                "line": 5,
+                "col": 1
+              }
+            },
+            "text": "pre-effect"
+          }
+        ],
+        "diagnostics": [],
+        "changed": [
+          "frames",
+          "overlays",
+          "sharedVariants",
+          "origins"
+        ]
+      },
+      "outputDigest": "41e3b18c890ec38dc6d1956fad2cd33db613739b1fc5eb88e47ea2cff987fca3"
+    },
+    {
+      "step": 2,
+      "command": {
+        "kind": "setTestVariant",
+        "module": "trial-values",
+        "component": "Card",
+        "variant": "Ready"
+      },
+      "afterDigest": "32df6de942d1aa0399705e2b083c81bdef8420aa1cd553f92e0021f685917df0",
+      "observations": [
+        {
+          "viewDigest": "2820ad84b14bf2615b1491511ab27495b9f24fb3b7a9ceb364626bb7b6510be6"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "testVariants"
+        ]
+      },
+      "outputDigest": "fd54384cc71351e493b4a3f3f614d442861d0d70004877674a5c351479dcb11a"
+    },
+    {
+      "step": 3,
+      "command": {
+        "kind": "seek",
+        "target": {
+          "step": 1,
+          "observation": 1
+        }
+      },
+      "afterDigest": "9bb8b3b99e6a3c3473efbcea28f20288caa34deb26a6809ab14d2b660101d657",
+      "observations": [],
+      "output": null,
+      "outputDigest": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    }
+  ],
+  "final": {
+    "view": {
+      "view": {
+        "location": {
+          "module": "trial-values",
+          "component": "Screen",
+          "variant": "Start"
+        },
+        "state": {
+          "frames": [
+            {
+              "id": 0,
+              "parentId": null,
+              "stack": [
+                {
+                  "module": "trial-values",
+                  "component": "Screen",
+                  "variant": "Start",
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                }
+              ],
+              "barrier": false,
+              "beginsSession": null,
+              "origin": "root"
+            }
+          ],
+          "activeFrameId": 0,
+          "nextFrameId": 1,
+          "activePath": [
+            0
+          ],
+          "overlays": [],
+          "sharedVariants": [
+            {
+              "module": "trial-values",
+              "component": "Badge",
+              "variant": "On",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            }
+          ],
+          "testVariants": [],
+          "componentValues": [
+            {
+              "module": "trial-values",
+              "component": "Badge",
+              "variant": "On",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "trial-values",
+              "component": "Card",
+              "variant": "Idle",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "trial-values",
+              "component": "Screen",
+              "variant": "Start",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            }
+          ],
+          "gateTargets": [
+            {
+              "module": "trial-values",
+              "component": "Badge",
+              "variant": "On",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl",
+              "variants": [
+                "Off",
+                "On"
+              ]
+            },
+            {
+              "module": "trial-values",
+              "component": "Card",
+              "variant": "Idle",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial",
+              "variants": [
+                "Idle",
+                "Ready"
+              ]
+            }
+          ],
+          "inclusion": {
+            "main": {
+              "module": "trial-values",
+              "component": "Screen",
+              "root": "main",
+              "variant": "Start",
+              "singleton": false,
+              "scope": "frame-location",
+              "origin": "initial",
+              "source": {
+                "module": "trial-values",
+                "span": {
+                  "offset": 0,
+                  "length": 8,
+                  "line": 1,
+                  "col": 1
+                }
+              },
+              "children": [
+                {
+                  "name": "a",
+                  "root": "main",
+                  "path": [
+                    0
+                  ],
+                  "source": {
+                    "module": "trial-values",
+                    "span": {
+                      "offset": 9,
+                      "length": 7,
+                      "line": 2,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "trial-values",
+                    "component": "Card"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": "Idle",
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  "componentSource": {
+                    "module": "trial-values",
+                    "span": {
+                      "offset": 282,
+                      "length": 6,
+                      "line": 13,
+                      "col": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "name": "label",
+                      "root": "main",
+                      "path": [
+                        0,
+                        0
+                      ],
+                      "source": {
+                        "module": "trial-values",
+                        "span": {
+                          "offset": 297,
+                          "length": 5,
+                          "line": 15,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "trial-values",
+                        "component": "label"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "name": "b",
+                  "root": "main",
+                  "path": [
+                    1
+                  ],
+                  "source": {
+                    "module": "trial-values",
+                    "span": {
+                      "offset": 17,
+                      "length": 7,
+                      "line": 3,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "trial-values",
+                    "component": "Card"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": "Idle",
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  "componentSource": {
+                    "module": "trial-values",
+                    "span": {
+                      "offset": 282,
+                      "length": 6,
+                      "line": 13,
+                      "col": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "name": "label",
+                      "root": "main",
+                      "path": [
+                        1,
+                        0
+                      ],
+                      "source": {
+                        "module": "trial-values",
+                        "span": {
+                          "offset": 297,
+                          "length": 5,
+                          "line": 15,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "trial-values",
+                        "component": "label"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "name": "badge",
+                  "root": "main",
+                  "path": [
+                    2
+                  ],
+                  "source": {
+                    "module": "trial-values",
+                    "span": {
+                      "offset": 25,
+                      "length": 12,
+                      "line": 4,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "trial-values",
+                    "component": "Badge"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": "On",
+                    "singleton": true,
+                    "scope": "singleton-shared",
+                    "origin": "dsl"
+                  },
+                  "componentSource": {
+                    "module": "trial-values",
+                    "span": {
+                      "offset": 320,
+                      "length": 8,
+                      "line": 19,
+                      "col": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "name": "signal",
+                      "root": "main",
+                      "path": [
+                        2,
+                        0
+                      ],
+                      "source": {
+                        "module": "trial-values",
+                        "span": {
+                          "offset": 342,
+                          "length": 6,
+                          "line": 22,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "trial-values",
+                        "component": "signal"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            "overlays": []
+          }
+        },
+        "actions": {
+          "items": [
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "trial-values",
+                  "component": "Screen",
+                  "variant": "Start"
+                },
+                "source": {
+                  "module": "trial-values",
+                  "span": {
+                    "offset": 38,
+                    "length": 77,
+                    "line": 5,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "99660bcaabc1669d940bc48c9153c935fc4dc5384f47e9e46cca7765c9963da3"
+              },
+              "branches": [
+                {
+                  "label": "yes",
+                  "results": [
+                    {
+                      "resultIndex": 1,
+                      "source": {
+                        "module": "trial-values",
+                        "span": {
+                          "offset": 38,
+                          "length": 77,
+                          "line": 5,
+                          "col": 1
+                        }
+                      }
+                    },
+                    {
+                      "resultIndex": 2,
+                      "source": {
+                        "module": "trial-values",
+                        "span": {
+                          "offset": 38,
+                          "length": 77,
+                          "line": 5,
+                          "col": 1
+                        }
+                      }
+                    },
+                    {
+                      "resultIndex": 3,
+                      "source": {
+                        "module": "trial-values",
+                        "span": {
+                          "offset": 38,
+                          "length": 77,
+                          "line": 5,
+                          "col": 1
+                        }
+                      }
+                    }
+                  ]
+                }
+              ],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "trial-values",
+                  "component": "Screen",
+                  "variant": "Start"
+                },
+                "source": {
+                  "module": "trial-values",
+                  "span": {
+                    "offset": 116,
+                    "length": 41,
+                    "line": 6,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "fd896308f15ef57a81d6f484fcb1a4afe0a4849cf229cf9ac9d994412cd7eb5f"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": {
+                "kind": "member",
+                "name": "signal",
+                "module": "trial-values",
+                "targetComponent": "Badge",
+                "value": {
+                  "variant": "On",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                "unresolved": false,
+                "enabled": true
+              }
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "trial-values",
+                  "component": "Screen",
+                  "variant": "Start"
+                },
+                "source": {
+                  "module": "trial-values",
+                  "span": {
+                    "offset": 158,
+                    "length": 36,
+                    "line": 7,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "5a87d6e653648ef4b522322347c2b1c9110102de07b0a2da7f4f4e6b1690bcc8"
+              },
+              "branches": [],
+              "enabled": false,
+              "gate": {
+                "kind": "member",
+                "name": "signal",
+                "module": "trial-values",
+                "targetComponent": "Card",
+                "value": {
+                  "variant": "Idle",
+                  "singleton": false,
+                  "scope": "inclusion-initial",
+                  "origin": "initial"
+                },
+                "unresolved": false,
+                "enabled": false
+              }
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "trial-values",
+                  "component": "Screen",
+                  "variant": "Start"
+                },
+                "source": {
+                  "module": "trial-values",
+                  "span": {
+                    "offset": 195,
+                    "length": 32,
+                    "line": 8,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "c7f5ed2104e39c9efe83ff29073779bccdca00aab1e9d2d05f6b5bb99debe458"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "trial-values",
+                  "component": "Screen",
+                  "variant": "Start"
+                },
+                "source": {
+                  "module": "trial-values",
+                  "span": {
+                    "offset": 228,
+                    "length": 32,
+                    "line": 9,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "866a38b1be8d68af72e43b656d57d0234b39b6c7a4d0be22c0b3db0eee2804cf"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            }
+          ],
+          "back": {
+            "enabled": false,
+            "reason": "no-return-location"
+          }
+        }
+      },
+      "timeline": [
+        {
+          "resultIndex": null,
+          "source": null,
+          "kind": "transition",
+          "label": "起動",
+          "location": {
+            "module": "trial-values",
+            "component": "Screen",
+            "variant": "Start"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 0,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "trial-values",
+            "span": {
+              "offset": 38,
+              "length": 77,
+              "line": 5,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "effect: pre-effect",
+          "location": {
+            "module": "trial-values",
+            "component": "Screen",
+            "variant": "Start"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 1,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "trial-values",
+            "span": {
+              "offset": 38,
+              "length": 77,
+              "line": 5,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(Badge)",
+          "location": {
+            "module": "trial-values",
+            "component": "Screen",
+            "variant": "Start"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 1,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 2,
+          "source": {
+            "module": "trial-values",
+            "span": {
+              "offset": 38,
+              "length": 77,
+              "line": 5,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "show(Badge)",
+          "location": {
+            "module": "trial-values",
+            "component": "Screen",
+            "variant": "Start"
+          },
+          "ghost": true,
+          "ref": {
+            "step": 1,
+            "observation": 2
+          }
+        },
+        {
+          "resultIndex": 3,
+          "source": {
+            "module": "trial-values",
+            "span": {
+              "offset": 38,
+              "length": 77,
+              "line": 5,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "goto → Screen / Changed",
+          "location": {
+            "module": "trial-values",
+            "component": "Screen",
+            "variant": "Changed"
+          },
+          "ghost": true,
+          "ref": {
+            "step": 1,
+            "observation": 3
+          }
+        },
+        {
+          "resultIndex": null,
+          "source": null,
+          "kind": "event",
+          "label": "manual-test(Card##Ready)",
+          "location": {
+            "module": "trial-values",
+            "component": "Screen",
+            "variant": "Changed"
+          },
+          "ghost": true,
+          "ref": {
+            "step": 2,
+            "observation": 0
+          }
+        }
+      ],
+      "cursor": {
+        "step": 1,
+        "observation": 1
+      }
+    },
+    "digest": "9bb8b3b99e6a3c3473efbcea28f20288caa34deb26a6809ab14d2b660101d657"
+  }
+}

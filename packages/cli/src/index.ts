@@ -6,7 +6,7 @@ import { resolveProject } from '@shitae/resolver';
 import { check } from '@shitae/checker';
 import { toMermaid } from '@shitae/transpiler-mermaid';
 import { toSimulator } from '@shitae/simulator';
-import { Session, type ModelMetadata } from '@shitae/session';
+import { Session, ScenarioError, replayScenario, type ModelMetadata } from '@shitae/session';
 import { serveSession } from './session.js';
 import { loadModel } from './model.js';
 import type { SimulatorConfig } from '@shitae/simulator';
@@ -120,7 +120,17 @@ if (command === 'check') {
     process.exit(1);
   }
   try {
-    const session = new Session(documents, entryModule, modulePaths, modelMetadata);
+    const args = process.argv.slice(4);
+    if (args.length !== 0 && (args.length !== 2 || args[0] !== '--replay' || !args[1] || args[1].startsWith('--'))) {
+      throw new Error('Usage: shitae session <file> [--replay <scenario.json>]');
+    }
+    let saved: unknown;
+    if (args.length) {
+      const text = readFileSync(resolvePath(args[1]!), 'utf8');
+      try { saved = JSON.parse(text); } catch { throw new ScenarioError('SCENARIO_FORMAT', 'Invalid scenario JSON'); }
+    }
+    const session = args.length ? await replayScenario({ documents, entryModule, files: modulePaths, metadata: modelMetadata }, saved)
+      : new Session(documents, entryModule, modulePaths, modelMetadata);
     await serveSession(session);
   } catch (error) {
     process.stderr.write(`Error: ${error instanceof Error ? error.message : String(error)}\n`);

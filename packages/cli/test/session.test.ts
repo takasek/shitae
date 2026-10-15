@@ -19,8 +19,8 @@ function fixture(files: Record<string, string> = { 'main.shitae': MODEL }) {
   }
   return join(dir, 'main.shitae');
 }
-function start(file: string) {
-  const child: ChildProcessWithoutNullStreams = spawn(process.execPath, [CLI, 'session', file]);
+function start(file: string, args: string[] = []) {
+  const child: ChildProcessWithoutNullStreams = spawn(process.execPath, [CLI, 'session', file, ...args]);
   cleanup.push(() => { if (child.exitCode == null) child.kill(); });
   let stderr = '';
   child.stderr.setEncoding('utf8'); child.stderr.on('data', (s) => { stderr += s; });
@@ -36,6 +36,47 @@ function start(file: string) {
 }
 
 describe('shitae session persistent JSON Lines', () => {
+  it('exports, exits, reloads in a different process/directory and continues with fresh handles', async () => {
+    const file = fixture(); const first = start(file);
+    const a = (await first.request({ id: 1, command: 'query', select: ['actions'] })).data.actions.items[0];
+    await first.request({ id: 2, command: 'dispatch', handle: a.handle, branch: a.branches[1].id });
+    const before = await first.request({ id: 3, command: 'query', select: ['state'] });
+    const exported = await first.request({ id: 4, command: 'exportScenario' });
+    expect(exported.ok).toBe(true);
+    const sidecar = join(dirname(file), 'saved.scenario.json');
+    writeFileSync(sidecar, JSON.stringify(exported.scenario));
+    expect(await first.finish()).toMatchObject({ code: 0, stderr: '' });
+    expect(first.child.exitCode).toBe(0);
+    const second = start(fixture(), ['--replay', sidecar]);
+    expect(second.child.pid).not.toBe(first.child.pid);
+    const after = await second.request({ id: 1, command: 'query', select: ['state'] });
+    expect(after.ok).toBe(true);
+    expect(after.summary.location).toEqual(before.summary.location);
+    expect(after.data.state.frames).toEqual(before.data.state.frames);
+    expect((await second.request({ id: 2, command: 'exportScenario' })).scenario).toEqual(exported.scenario);
+    expect(await second.request({ id: 3, command: 'dispatch', handle: a.handle })).toMatchObject({ ok: false, error: { code: 'UNKNOWN_HANDLE' } });
+    const b = (await second.request({ id: 4, command: 'query', select: ['actions'] })).data.actions.items[0];
+    expect((await second.request({ id: 5, command: 'dispatch', handle: b.handle, branch: b.branches[0].id })).summary.location.component).toBe('Done');
+    expect((await second.request({ id: 6, command: 'exportScenario' })).scenario.steps).toHaveLength(2);
+    expect(await second.finish()).toMatchObject({ code: 0, stderr: '' });
+  });
+
+  it('replay startup rejects mismatched model, malformed sidecar and unsupported arguments without stdout', async () => {
+    const file = fixture(); const first = start(file);
+    const out = await first.request({ id: 1, command: 'exportScenario' });
+    expect(out.ok).toBe(true);
+    await first.finish();
+    const sidecar = join(dirname(file), 'saved.scenario.json'); writeFileSync(sidecar, JSON.stringify(out.scenario));
+    const changed = fixture({ 'main.shitae': MODEL + '// changed\n' });
+    const mismatch = await start(changed, ['--replay', sidecar]).finish();
+    expect(mismatch).toMatchObject({ code: 1, rest: { done: true } }); expect(mismatch.stderr).toContain('MODEL_MISMATCH');
+    writeFileSync(sidecar, '{broken');
+    const malformed = await start(file, ['--replay', sidecar]).finish();
+    expect(malformed).toMatchObject({ code: 1, rest: { done: true } }); expect(malformed.stderr).toContain('SCENARIO_FORMAT');
+    for (const args of [['--replay'], ['--wat'], ['--replay', sidecar, 'extra']]) {
+      expect(await start(file, args).finish()).toMatchObject({ code: 1, rest: { done: true } });
+    }
+  });
   it('canonicalizes real files instead of basenames, coalesces aliases and keeps identity after relocation', async () => {
     const files = {
       'main.shitae': 'import left/part as l\nimport right/part as r\nimport alias as a\n# Home\n> Left -> goto(l::Left)\n> Right -> goto(r::Right)\n',
