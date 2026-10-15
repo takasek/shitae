@@ -1,0 +1,23 @@
+{
+  "parentContractCommit": "5b075552b95ebff1bd022e7085758ab65e2d6295",
+  "scope": "contract documentation only; no production or fixture changes",
+  "checks": {
+    "jsonLineExamples": 10,
+    "jsonSyntax": "pass",
+    "querySelectionExamples": "pass",
+    "localMarkdownLinks": "pass",
+    "diffCheck": "pass"
+  },
+  "independentReview": {
+    "unresolvedActionableFindings": 0,
+    "record": "evidence/independent-review.md",
+    "resolvedFinding": "G01 now covers accepted operations with observations, reset, rejected commands, and no-observation no-ops separately"
+  },
+  "testsRerun": false,
+  "proofLimits": [
+    "Session/API/CLI/GUI remain unimplemented",
+    "Actual response byte sizes have not been measured",
+    "History pagination and observation query execution have not been tested",
+    "CLI/GUI integration and browser comparison remain unverified"
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "stage": "Session details and manual trials",
+  "red": {
+    "newDetails": {
+      "failed": 4,
+      "passed": 9
+    },
+    "initialInclusionProjection": {
+      "failed": 1,
+      "passed": 12
+    },
+    "reviewCounterexamples": {
+      "failed": 2,
+      "passed": 12
+    },
+    "cliDetails": {
+      "failed": 1,
+      "passed": 4
+    }
+  },
+  "green": {
+    "session": 14,
+    "cli": 24,
+    "typecheck": [
+      "session",
+      "cli"
+    ]
+  },
+  "independentReview": {
+    "model": "gpt-6-astra",
+    "findings": [
+      "overlay initial origin inconsistent",
+      "history.limit null accepted"
+    ],
+    "fixedAndRechecked": true,
+    "remainingFindings": 0
+  },
+  "limits": [
+    "metadata and canonical loader pending",
+    "GUI and browser pending",
+    "full saved-model re-dogfooding pending"
+  ]
+}

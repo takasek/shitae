@@ -1,0 +1,569 @@
+{
+  "scope": "Real Codex In-app Browser over temporary loopback HTTP and persistent public CLI",
+  "sourceCommit": "cd7fb9c",
+  "method": {
+    "evaluator": "primary agent, familiar with prior models; not blind",
+    "goals": "saved-model workflows for normalization, input recovery, save branch, document switching, review/cancel",
+    "selection": "CLI inventory plus cached handle/branch, browser visible DOM locators; no direct browser Session calls",
+    "time": "timestamps include interleaved tool inspection and logging; not a speed benchmark",
+    "setupAdjustments": {
+      "cliClientRuntimeCorrections": 2,
+      "browserSummaryRoleSelectorCorrections": 1,
+      "serverPsCheckSandboxEscalation": 1
+    }
+  },
+  "G02": {
+    "passed": true,
+    "loadedPages": 8,
+    "server": {
+      "bind": "127.0.0.1",
+      "port": 51289,
+      "pid": 80554,
+      "serves": "eight whitelisted generated HTML only",
+      "started": true,
+      "stopped": true,
+      "afterStopConnectEx": 61,
+      "lifecycleEvidence": "server-lifecycle.json"
+    },
+    "operationAfterServerStop": true,
+    "externalAssetUrls": 0,
+    "localFaviconRequests": 1,
+    "consoleWarningsErrors": 0
+  },
+  "G03": {
+    "passed": true,
+    "checks": [
+      "default off",
+      "Space toggle on/off",
+      "focused checkbox retained",
+      "inclusion fold retained",
+      "history/operation handles unchanged by display",
+      "keyboard Card dropdown restores focus to new select",
+      "included ordinary trials separate from actual overlay",
+      "singleton manual/DSL origin seek restore",
+      "inline/unresolved leaves have no fake variants"
+    ]
+  },
+  "D02": {
+    "passedWithinScope": true,
+    "models": [
+      {
+        "model": "sol/current",
+        "cliPid": 82764,
+        "attempts": 6,
+        "accepted": 6,
+        "expectedGuardRejections": 0,
+        "completed": true,
+        "modelTextExtraReadsDuringRun": 0,
+        "sourceReadMeasurement": "manual tool-call ledger; excludes loader and prior familiarity",
+        "actionIdentificationFailures": 0,
+        "branchErrors": 0,
+        "actionsQueries": 7,
+        "summaryQueries": 6,
+        "stateQueries": 1,
+        "requestCount": 20,
+        "wireInputUtf8Bytes": 1047,
+        "wireOutputUtf8Bytes": 90778,
+        "manualHandleBranchCopyBytes": 0,
+        "copyMeasurement": "handles/branch IDs kept in client memory and serialized; no manual text copying",
+        "cliExitCode": 0,
+        "cliStderr": "",
+        "operations": [
+          {
+            "action": "Normalize",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "current",
+              "component": "Workspace",
+              "variant": "Editing"
+            }
+          },
+          {
+            "action": "NodeDoubleClick",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "current",
+              "component": "Workspace",
+              "variant": "Editing"
+            }
+          },
+          {
+            "action": "ParseError",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "current",
+              "component": "Workspace",
+              "variant": "Editing"
+            }
+          },
+          {
+            "action": "ValidInput",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "current",
+              "component": "Workspace",
+              "variant": "Editing"
+            }
+          },
+          {
+            "action": "CloseLastDocument",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "current",
+              "component": "Workspace",
+              "variant": "NoDocument"
+            }
+          },
+          {
+            "action": "Save",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "current",
+              "component": "Workspace",
+              "variant": "NoDocument"
+            }
+          }
+        ]
+      },
+      {
+        "model": "sol/proposed",
+        "cliPid": 84208,
+        "attempts": 13,
+        "accepted": 12,
+        "expectedGuardRejections": 1,
+        "completed": true,
+        "modelTextExtraReadsDuringRun": 0,
+        "sourceReadMeasurement": "manual tool-call ledger; excludes loader and prior familiarity",
+        "actionIdentificationFailures": 0,
+        "branchErrors": 0,
+        "actionsQueries": 15,
+        "summaryQueries": 13,
+        "stateQueries": 1,
+        "requestCount": 42,
+        "wireInputUtf8Bytes": 2218,
+        "wireOutputUtf8Bytes": 154718,
+        "manualHandleBranchCopyBytes": 0,
+        "copyMeasurement": "handles/branch IDs kept in client memory and serialized; no manual text copying",
+        "cliExitCode": 0,
+        "cliStderr": "",
+        "operations": [
+          {
+            "action": "SourceOnly",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "proposed",
+              "component": "Workspace",
+              "variant": "Source"
+            }
+          },
+          {
+            "action": "DiagramOnly",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "proposed",
+              "component": "Workspace",
+              "variant": "Diagram"
+            }
+          },
+          {
+            "action": "NodeDoubleClick(DiagramView.graph?)",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "proposed",
+              "component": "Workspace",
+              "variant": "Split"
+            }
+          },
+          {
+            "action": "Conflict",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "proposed",
+              "component": "Workspace",
+              "variant": "Split"
+            }
+          },
+          {
+            "action": "Review",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "proposed",
+              "component": "VersionReview",
+              "variant": null
+            }
+          },
+          {
+            "action": "KeepEditing",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "proposed",
+              "component": "Workspace",
+              "variant": "Split"
+            }
+          },
+          {
+            "action": "ParseError",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "proposed",
+              "component": "Workspace",
+              "variant": "Split"
+            }
+          },
+          {
+            "action": "DiagramOnly",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "proposed",
+              "component": "Workspace",
+              "variant": "Diagram"
+            }
+          },
+          {
+            "action": "NodeDoubleClick(DiagramView.graph?)",
+            "branch": null,
+            "accepted": false,
+            "error": "DISABLED_ACTION",
+            "location": null
+          },
+          {
+            "action": "ValidInput",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "proposed",
+              "component": "Workspace",
+              "variant": "Diagram"
+            }
+          },
+          {
+            "action": "NodeDoubleClick(DiagramView.graph?)",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "proposed",
+              "component": "Workspace",
+              "variant": "Split"
+            }
+          },
+          {
+            "action": "CloseLastDocument",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "proposed",
+              "component": "Workspace",
+              "variant": "NoDocument"
+            }
+          },
+          {
+            "action": "NewDocument(StartActions.New?)",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "proposed",
+              "component": "Workspace",
+              "variant": "Source"
+            }
+          }
+        ]
+      },
+      {
+        "model": "astra/current",
+        "cliPid": 85787,
+        "attempts": 6,
+        "accepted": 6,
+        "expectedGuardRejections": 0,
+        "completed": true,
+        "modelTextExtraReadsDuringRun": 0,
+        "sourceReadMeasurement": "manual tool-call ledger; excludes loader and prior familiarity",
+        "actionIdentificationFailures": 0,
+        "branchErrors": 0,
+        "actionsQueries": 7,
+        "summaryQueries": 6,
+        "stateQueries": 1,
+        "requestCount": 20,
+        "wireInputUtf8Bytes": 1061,
+        "wireOutputUtf8Bytes": 45165,
+        "manualHandleBranchCopyBytes": 0,
+        "copyMeasurement": "handles/branch IDs kept in client memory and serialized; no manual text copying",
+        "cliExitCode": 0,
+        "cliStderr": "",
+        "operations": [
+          {
+            "action": "開く(開始ボタン)",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "current",
+              "component": "文書A",
+              "variant": "保存済"
+            }
+          },
+          {
+            "action": "編集",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "current",
+              "component": "文書A",
+              "variant": "未保存"
+            }
+          },
+          {
+            "action": "保存",
+            "branch": "成功",
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "current",
+              "component": "文書A",
+              "variant": "保存済"
+            }
+          },
+          {
+            "action": "切替(B)",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "current",
+              "component": "文書B",
+              "variant": "保存済"
+            }
+          },
+          {
+            "action": "編集",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "current",
+              "component": "文書B",
+              "variant": "未保存"
+            }
+          },
+          {
+            "action": "切替(A)",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "current",
+              "component": "文書A",
+              "variant": "保存済"
+            }
+          }
+        ]
+      },
+      {
+        "model": "astra/proposed",
+        "cliPid": 85987,
+        "attempts": 10,
+        "accepted": 10,
+        "expectedGuardRejections": 0,
+        "completed": true,
+        "modelTextExtraReadsDuringRun": 0,
+        "sourceReadMeasurement": "manual tool-call ledger; excludes loader and prior familiarity",
+        "actionIdentificationFailures": 0,
+        "branchErrors": 0,
+        "actionsQueries": 11,
+        "summaryQueries": 10,
+        "stateQueries": 1,
+        "requestCount": 32,
+        "wireInputUtf8Bytes": 1702,
+        "wireOutputUtf8Bytes": 91718,
+        "manualHandleBranchCopyBytes": 0,
+        "copyMeasurement": "handles/branch IDs kept in client memory and serialized; no manual text copying",
+        "cliExitCode": 0,
+        "cliStderr": "",
+        "operations": [
+          {
+            "action": "開く(開始ボタン)",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "proposed",
+              "component": "文書A",
+              "variant": null
+            }
+          },
+          {
+            "action": "編集",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "proposed",
+              "component": "文書A",
+              "variant": null
+            }
+          },
+          {
+            "action": "保存",
+            "branch": "成功",
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "proposed",
+              "component": "文書A",
+              "variant": null
+            }
+          },
+          {
+            "action": "切替(B)",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "proposed",
+              "component": "文書B",
+              "variant": null
+            }
+          },
+          {
+            "action": "編集",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "proposed",
+              "component": "文書B",
+              "variant": null
+            }
+          },
+          {
+            "action": "切替(A)",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "proposed",
+              "component": "文書A",
+              "variant": null
+            }
+          },
+          {
+            "action": "図のみ",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "proposed",
+              "component": "文書A",
+              "variant": null
+            }
+          },
+          {
+            "action": "ノードからソースへ",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "proposed",
+              "component": "文書A",
+              "variant": null
+            }
+          },
+          {
+            "action": "外部変更確認",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "proposed",
+              "component": "比較",
+              "variant": null
+            }
+          },
+          {
+            "action": "取消(KeepEditing)",
+            "branch": null,
+            "accepted": true,
+            "error": null,
+            "location": {
+              "module": "proposed",
+              "component": "文書A",
+              "variant": null
+            }
+          }
+        ]
+      }
+    ],
+    "totalAttempts": 35,
+    "acceptedActionsPerInterface": 34,
+    "expectedGuardChecksPerInterface": 1,
+    "unexpectedActionIdentificationFailures": 0,
+    "unexpectedBranchErrors": 0,
+    "totalWireInputUtf8Bytes": 6028,
+    "totalWireOutputUtf8Bytes": 382379,
+    "totalRequests": 114,
+    "wireByQueryKind": {
+      "query/actions": {
+        "requests": 40,
+        "outputBytes": 290500
+      },
+      "dispatch": {
+        "requests": 35,
+        "outputBytes": 13291
+      },
+      "query/default": {
+        "requests": 35,
+        "outputBytes": 7326
+      },
+      "query/state": {
+        "requests": 4,
+        "outputBytes": 71262
+      }
+    }
+  },
+  "limits": [
+    "One familiar agent and fixed goals, not a novice-user or controlled timing study",
+    "Cua tool/client setup errors are separated from product errors",
+    "No actual disk save or editor-focus effect is performed",
+    "Tested one macOS in-app browser, not all browsers or assistive technologies",
+    "Asset inventory and stopped-server operation, not an OS-wide network capture"
+  ],
+  "postEvaluationFix": {
+    "commit": "7cb02aa",
+    "scope": "history label destination variant only",
+    "browser": "post-label-browser.json",
+    "regression": "post-label-regression.json",
+    "validation": "post-label-validation.json"
+  }
+}

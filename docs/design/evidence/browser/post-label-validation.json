@@ -1,0 +1,32 @@
+{
+  "stage": "restore effective destination variant in history labels",
+  "engineVersion": "fc676dd2f142cf0e7b38d4bc505f2a944bbe9fbf932e449b67b44d1420435806",
+  "tdd": {
+    "red": {
+      "failed": 1,
+      "passed": 18,
+      "expected": "goto → Screen / Changed",
+      "received": "goto → Screen"
+    },
+    "greenSessionTests": 19
+  },
+  "validation": {
+    "session": 19,
+    "cli": 25,
+    "simulator": 223,
+    "build": "passed",
+    "typecheck": "passed",
+    "publicCliGuiRegression": {
+      "steps": 54,
+      "renderedActions": 48,
+      "rejections": 2,
+      "observationComparisons": 70
+    },
+    "realBrowser": "post-label-browser.json"
+  },
+  "independentReview": {
+    "model": "gpt-6-astra",
+    "sessionTests": 19,
+    "unresolvedFindings": 0
+  }
+}

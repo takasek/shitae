@@ -1,0 +1,38 @@
+[
+  {
+    "model": "sol/current",
+    "requests": 20,
+    "actionsQueries": 7,
+    "beforeActionsBytes": 69146,
+    "afterActionsBytes": 18780,
+    "inputBytes": 1047,
+    "outputBytes": 40412
+  },
+  {
+    "model": "sol/proposed",
+    "requests": 42,
+    "actionsQueries": 15,
+    "beforeActionsBytes": 124950,
+    "afterActionsBytes": 33379,
+    "inputBytes": 2218,
+    "outputBytes": 63147
+  },
+  {
+    "model": "astra/current",
+    "requests": 20,
+    "actionsQueries": 7,
+    "beforeActionsBytes": 25865,
+    "afterActionsBytes": 8174,
+    "inputBytes": 1061,
+    "outputBytes": 27474
+  },
+  {
+    "model": "astra/proposed",
+    "requests": 32,
+    "actionsQueries": 11,
+    "beforeActionsBytes": 70539,
+    "afterActionsBytes": 20978,
+    "inputBytes": 1702,
+    "outputBytes": 42157
+  }
+]

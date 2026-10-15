@@ -1,0 +1,162 @@
+{
+  "stage": "Common Session GUI and metadata integration",
+  "engineVersion": "ce299a2b45cb70d24babf48ed0c4099331fb1d49c1bb365240fe0be5656a453f",
+  "tdd": {
+    "metadataRed": {
+      "failedSuites": 1,
+      "passedExistingTests": 14,
+      "reason": "Model preparation API absent"
+    },
+    "canonicalCliRed": {
+      "failed": 1,
+      "passed": 24
+    },
+    "guiRed": {
+      "failed": 4,
+      "passed": 218,
+      "note": "Switch fixture was subsequently corrected to mandatory named session; switch semantics also have independent runtime/Session oracles"
+    },
+    "focusMissingRestoreMutant": {
+      "failed": 1,
+      "normalPassed": 1
+    }
+  },
+  "validation": {
+    "build": "passed",
+    "typecheck": "passed",
+    "fullSuite": {
+      "parser": 246,
+      "resolver": 37,
+      "runtime": 97,
+      "transpiler-xstate": 35,
+      "checker": 29,
+      "session": 18,
+      "transpiler-mermaid": 20,
+      "simulator": 223,
+      "cli": 25
+    },
+    "fullSuiteTotal": 730,
+    "postReviewTargetedSession": 18,
+    "postReviewTargetedFocus": 1
+  },
+  "publicCliGui": {
+    "steps": 54,
+    "renderedActions": 48,
+    "rejections": 2,
+    "observationComparisons": 70,
+    "cliRequests": 287
+  },
+  "compactBytes": [
+    {
+      "inclusions": 0,
+      "modules": 1,
+      "frames": 1,
+      "activePathDepth": 1,
+      "dormantFrames": 0,
+      "totalStackEntries": 2,
+      "history": 2,
+      "dispatchUtf8Bytes": 325,
+      "summaryUtf8Bytes": 196,
+      "defaultKeys": [
+        "id",
+        "ok",
+        "protocolVersion",
+        "revision",
+        "summary"
+      ]
+    },
+    {
+      "inclusions": 330,
+      "modules": 31,
+      "frames": 101,
+      "activePathDepth": 2,
+      "dormantFrames": 99,
+      "totalStackEntries": 102,
+      "history": 103,
+      "dispatchUtf8Bytes": 341,
+      "summaryUtf8Bytes": 206,
+      "defaultKeys": [
+        "id",
+        "ok",
+        "protocolVersion",
+        "revision",
+        "summary"
+      ]
+    }
+  ],
+  "independentReview": {
+    "model": "gpt-6-astra",
+    "details": {
+      "productionFindings": 2,
+      "fixedAndRechecked": 2
+    },
+    "metadata": {
+      "unresolvedFindings": 0
+    },
+    "gui": {
+      "executionFindings": 0,
+      "testFindings": 1,
+      "fixedAndRechecked": 1
+    },
+    "acceptanceEvidence": {
+      "gaps": 2,
+      "fixedAndRechecked": 2
+    },
+    "unresolvedActionableFindings": 0
+  },
+  "browser": {
+    "status": "passed within documented scope",
+    "priorFileAttempt": {
+      "status": "unverified",
+      "attempt": "file URL of generated standalone HTML",
+      "toolResult": "Browser URL policy permits http/https and rejected file protocol; no workaround attempted",
+      "pending": [
+        "G02 actual browser display/offline operations",
+        "G03 actual browser keyboard/focus/fold",
+        "D02 browser-inclusive user evaluation"
+      ]
+    },
+    "transport": "loopback HTTP",
+    "gates": [
+      "G02",
+      "G03",
+      "D02"
+    ],
+    "evidence": "browser/evaluation.json",
+    "report": "../session-browser-evaluation.md",
+    "independentReview": "gpt-6-astra; evidence gap fixed and rechecked"
+  },
+  "proofLimits": [
+    "Node VM and DOM mocks are distinct from real browser evidence",
+    "Saved model traces are fixed functional regression, not a measured time/usability improvement",
+    "Effect text does not perform real I/O or focus",
+    "D02 is one familiar agent with fixed goals, not a controlled timing or novice usability study",
+    "One macOS in-app browser; no all-browser or assistive-technology guarantee",
+    "file protocol remains unverified; checked distribution path is loopback HTTP"
+  ],
+  "postBrowserFix": {
+    "commit": "7cb02aa",
+    "engineVersion": "fc676dd2f142cf0e7b38d4bc505f2a944bbe9fbf932e449b67b44d1420435806",
+    "validation": "browser/post-label-validation.json",
+    "note": "Earlier engine/fullSuite fields remain historical; subsequent target tests 19+25+223, build and typecheck passed"
+  },
+  "compactActionInventory": {
+    "baseCommit": "f6887ec",
+    "engineVersion": "6eeaddc5012170138186bd98d7bcc7332a0bcb87f68d63f162acb3935fd16a92",
+    "evidence": "compact-actions/validation.json",
+    "report": "../session-compact-actions.md",
+    "independentRelatedTests": 270,
+    "unresolvedActionableFindings": 0,
+    "commit": "7e08011"
+  },
+  "prAcceptance": {
+    "base": "e985f4e",
+    "fullTestRunHead": "b8f8660",
+    "fullTests": 734,
+    "finalUiSimulatorTests": 224,
+    "evidence": "acceptance/validation.json",
+    "report": "../session-acceptance.md",
+    "uiFixCommit": "0f06ddb",
+    "independentReview": "passed; no unresolved acceptance blocker"
+  }
+}

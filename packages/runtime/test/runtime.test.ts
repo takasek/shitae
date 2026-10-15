@@ -34,7 +34,7 @@ const navComp = (name: string, variant?: string, module?: string): NavTarget => 
   variant: variant ?? null,
 });
 
-const navVar = (name: string): NavTarget => ({ kind: 'variant', name });
+const navVar = (name: string): NavTarget => ({ kind: 'variant', module: null, name });
 
 const tr = (
   word: Transition['word'],
@@ -431,23 +431,36 @@ describe('T1: タブ慣用句（present anchor + switch 兄弟）', () => {
     expect(childrenOf(s1, f1).map((f) => f.id).sort()).toEqual([f2, f3].sort());
   });
 
-  // ADR-0008 補正: タブ内 push の中から switch しても、新タブは push フレームの
-  // 子ではなく anchor(present) の子になり、exit(@reading) の道連れにならない。
-  it('present anchor 直下で push してから switch — 新タブは anchor の子（道連れ回避）', () => {
+  it('switch 製祖先がない場合は現在の push フレームの子にする（SPEC）', () => {
     let s = initialState(loc('起動'));
     ({ state: s } = reduce(s, tr('present', navComp('ホーム'), { name: 'tabHome' })));
     const anchor = s.activeFrameId;
     ({ state: s } = reduce(s, tr('push', navComp('記事'), { name: 'reading' })));
+    const reading = s.activeFrameId;
     ({ state: s } = reduce(s, tr('switch', navComp('検索'), { name: 'tabSearch' })));
     const search = s.activeFrameId;
-    // 検索は記事(push)ではなく anchor(present ホーム)の子
-    expect(frameById(s, search).parentId).toBe(anchor);
+    expect(frameById(s, search).parentId).toBe(reading);
 
-    // exit(@reading): 記事だけ消え、検索タブは生存
     ({ state: s } = reduce(s, tr('exit', undefined, { name: 'reading' })));
-    expect(s.frames.some((f) => f.beginsSession?.name === 'tabSearch')).toBe(true);
+    expect(s.frames.some((f) => f.beginsSession?.name === 'tabSearch')).toBe(false);
     expect(s.frames.some((f) => f.beginsSession?.name === 'reading')).toBe(false);
-    expect(activeLocation(s)).toEqual(loc('検索'));
+    expect(s.activeFrameId).toBe(anchor);
+    expect(activeLocation(s)).toEqual(loc('ホーム'));
+  });
+
+  it('present が介在しても最も近い switch 製祖先の兄弟を作り、遠隔 exit で残る', () => {
+    let s = initialState(loc('起動'));
+    s = reduce(s, tr('present', navComp('ホーム'), { name: 'home' })).state;
+    const anchor = s.activeFrameId;
+    s = reduce(s, tr('switch', navComp('検索'), { name: 'search' })).state;
+    s = reduce(s, tr('present', navComp('確認'), { name: 'modal' })).state;
+    s = reduce(s, tr('switch', navComp('設定'), { name: 'settings' })).state;
+    const settings = s.activeFrameId;
+    expect(frameById(s, settings).parentId).toBe(anchor);
+    s = reduce(s, tr('exit', undefined, { name: 'modal' })).state;
+    expect(s.activeFrameId).toBe(settings);
+    expect(activeLocation(s)).toEqual(loc('設定'));
+    expect(s.frames.some((f) => f.beginsSession?.name === 'modal')).toBe(false);
   });
 });
 

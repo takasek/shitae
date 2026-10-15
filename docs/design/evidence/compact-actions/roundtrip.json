@@ -1,0 +1,478 @@
+{
+  "source": "/Users/m5/works/shitae/.worktrees/issue-18-session/docs/design/session-fixtures/trial-values.shitae",
+  "pid": 4164,
+  "at": "2026-10-14T08:08:08.425Z",
+  "exchanges": [
+    {
+      "request": {
+        "id": "a1",
+        "command": "query",
+        "select": [
+          "actions"
+        ]
+      },
+      "response": {
+        "id": "a1",
+        "ok": true,
+        "protocolVersion": 1,
+        "revision": 0,
+        "summary": {
+          "location": {
+            "module": "trial-values",
+            "component": "Screen",
+            "variant": "Start"
+          },
+          "cursorObservationId": 1,
+          "latestObservationId": 1,
+          "observationCount": 1
+        },
+        "data": {
+          "actions": {
+            "items": [
+              {
+                "handle": "1e23b45a-19ca-4278-9a2a-00b3333eece8:0:0",
+                "actionText": "choose",
+                "scope": "component",
+                "placement": {
+                  "root": "main",
+                  "path": []
+                },
+                "host": {
+                  "module": "trial-values",
+                  "component": "Screen",
+                  "variant": "Start"
+                },
+                "enabled": true,
+                "branches": [
+                  {
+                    "id": "b0",
+                    "label": "yes"
+                  }
+                ]
+              },
+              {
+                "handle": "1e23b45a-19ca-4278-9a2a-00b3333eece8:0:1",
+                "actionText": "gate(badge.signal?)",
+                "scope": "component",
+                "placement": {
+                  "root": "main",
+                  "path": []
+                },
+                "host": {
+                  "module": "trial-values",
+                  "component": "Screen",
+                  "variant": "Start"
+                },
+                "enabled": false,
+                "branches": []
+              },
+              {
+                "handle": "1e23b45a-19ca-4278-9a2a-00b3333eece8:0:2",
+                "actionText": "gate(a.signal?)",
+                "scope": "component",
+                "placement": {
+                  "root": "main",
+                  "path": []
+                },
+                "host": {
+                  "module": "trial-values",
+                  "component": "Screen",
+                  "variant": "Start"
+                },
+                "enabled": false,
+                "branches": []
+              },
+              {
+                "handle": "1e23b45a-19ca-4278-9a2a-00b3333eece8:0:3",
+                "actionText": "open-card",
+                "scope": "component",
+                "placement": {
+                  "root": "main",
+                  "path": []
+                },
+                "host": {
+                  "module": "trial-values",
+                  "component": "Screen",
+                  "variant": "Start"
+                },
+                "enabled": true,
+                "branches": []
+              },
+              {
+                "handle": "1e23b45a-19ca-4278-9a2a-00b3333eece8:0:4",
+                "actionText": "show-card",
+                "scope": "component",
+                "placement": {
+                  "root": "main",
+                  "path": []
+                },
+                "host": {
+                  "module": "trial-values",
+                  "component": "Screen",
+                  "variant": "Start"
+                },
+                "enabled": true,
+                "branches": []
+              }
+            ],
+            "controls": {
+              "back": {
+                "handle": "1e23b45a-19ca-4278-9a2a-00b3333eece8:0:back",
+                "enabled": false
+              }
+            }
+          }
+        }
+      },
+      "inputBytes": 51,
+      "outputBytes": 1566
+    },
+    {
+      "request": {
+        "id": "x1",
+        "command": "query",
+        "select": [
+          "action"
+        ],
+        "handle": "1e23b45a-19ca-4278-9a2a-00b3333eece8:0:0"
+      },
+      "response": {
+        "id": "x1",
+        "ok": true,
+        "protocolVersion": 1,
+        "revision": 0,
+        "summary": {
+          "location": {
+            "module": "trial-values",
+            "component": "Screen",
+            "variant": "Start"
+          },
+          "cursorObservationId": 1,
+          "latestObservationId": 1,
+          "observationCount": 1
+        },
+        "data": {
+          "action": {
+            "handle": "1e23b45a-19ca-4278-9a2a-00b3333eece8:0:0",
+            "action": {
+              "text": "choose",
+              "target": null,
+              "span": {
+                "offset": 38,
+                "length": 77,
+                "line": 5,
+                "col": 1
+              }
+            },
+            "actionText": "choose",
+            "scope": "component",
+            "source": {
+              "module": "trial-values",
+              "file": "/Users/m5/works/shitae/.worktrees/issue-18-session/docs/design/session-fixtures/trial-values.shitae",
+              "span": {
+                "offset": 38,
+                "length": 77,
+                "line": 5,
+                "col": 1
+              }
+            },
+            "placement": {
+              "root": "main",
+              "path": [],
+              "source": null
+            },
+            "host": {
+              "module": "trial-values",
+              "component": "Screen",
+              "variant": "Start"
+            },
+            "enabled": true,
+            "gate": null,
+            "prelude": [
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "trial-values",
+                  "file": "/Users/m5/works/shitae/.worktrees/issue-18-session/docs/design/session-fixtures/trial-values.shitae",
+                  "span": {
+                    "offset": 38,
+                    "length": 77,
+                    "line": 5,
+                    "col": 1
+                  }
+                }
+              }
+            ],
+            "branches": [
+              {
+                "id": "b0",
+                "label": "yes",
+                "results": [
+                  {
+                    "resultIndex": 1,
+                    "source": {
+                      "module": "trial-values",
+                      "file": "/Users/m5/works/shitae/.worktrees/issue-18-session/docs/design/session-fixtures/trial-values.shitae",
+                      "span": {
+                        "offset": 38,
+                        "length": 77,
+                        "line": 5,
+                        "col": 1
+                      }
+                    }
+                  },
+                  {
+                    "resultIndex": 2,
+                    "source": {
+                      "module": "trial-values",
+                      "file": "/Users/m5/works/shitae/.worktrees/issue-18-session/docs/design/session-fixtures/trial-values.shitae",
+                      "span": {
+                        "offset": 38,
+                        "length": 77,
+                        "line": 5,
+                        "col": 1
+                      }
+                    }
+                  },
+                  {
+                    "resultIndex": 3,
+                    "source": {
+                      "module": "trial-values",
+                      "file": "/Users/m5/works/shitae/.worktrees/issue-18-session/docs/design/session-fixtures/trial-values.shitae",
+                      "span": {
+                        "offset": 38,
+                        "length": 77,
+                        "line": 5,
+                        "col": 1
+                      }
+                    }
+                  }
+                ]
+              }
+            ],
+            "definition": {
+              "action": {
+                "text": "choose",
+                "target": null,
+                "span": {
+                  "offset": 38,
+                  "length": 77,
+                  "line": 5,
+                  "col": 1
+                }
+              },
+              "results": [
+                {
+                  "label": null,
+                  "body": {
+                    "kind": "effect",
+                    "text": "pre-effect",
+                    "span": {
+                      "offset": 38,
+                      "length": 77,
+                      "line": 5,
+                      "col": 1
+                    }
+                  },
+                  "span": {
+                    "offset": 38,
+                    "length": 77,
+                    "line": 5,
+                    "col": 1
+                  }
+                },
+                {
+                  "label": "yes",
+                  "body": {
+                    "kind": "state",
+                    "verb": "set",
+                    "target": {
+                      "module": null,
+                      "name": "Badge",
+                      "variant": "On"
+                    },
+                    "span": {
+                      "offset": 38,
+                      "length": 77,
+                      "line": 5,
+                      "col": 1
+                    }
+                  },
+                  "span": {
+                    "offset": 38,
+                    "length": 77,
+                    "line": 5,
+                    "col": 1
+                  }
+                },
+                {
+                  "label": null,
+                  "body": {
+                    "kind": "overlay",
+                    "verb": "show",
+                    "target": {
+                      "module": null,
+                      "name": "Badge",
+                      "variant": null
+                    },
+                    "span": {
+                      "offset": 38,
+                      "length": 77,
+                      "line": 5,
+                      "col": 1
+                    }
+                  },
+                  "span": {
+                    "offset": 38,
+                    "length": 77,
+                    "line": 5,
+                    "col": 1
+                  }
+                },
+                {
+                  "label": null,
+                  "body": {
+                    "kind": "transition",
+                    "word": "goto",
+                    "target": {
+                      "kind": "variant",
+                      "module": null,
+                      "name": "Changed"
+                    },
+                    "session": null,
+                    "span": {
+                      "offset": 38,
+                      "length": 77,
+                      "line": 5,
+                      "col": 1
+                    }
+                  },
+                  "span": {
+                    "offset": 38,
+                    "length": 77,
+                    "line": 5,
+                    "col": 1
+                  }
+                }
+              ],
+              "span": {
+                "offset": 38,
+                "length": 77,
+                "line": 5,
+                "col": 1
+              }
+            }
+          }
+        }
+      },
+      "inputBytes": 102,
+      "outputBytes": 2651
+    },
+    {
+      "request": {
+        "id": "d1",
+        "command": "dispatch",
+        "handle": "1e23b45a-19ca-4278-9a2a-00b3333eece8:0:0",
+        "branch": "b0"
+      },
+      "response": {
+        "id": "d1",
+        "ok": true,
+        "protocolVersion": 1,
+        "revision": 1,
+        "summary": {
+          "location": {
+            "module": "trial-values",
+            "component": "Screen",
+            "variant": "Changed"
+          },
+          "cursorObservationId": 5,
+          "latestObservationId": 5,
+          "observationCount": 5
+        },
+        "receipt": {
+          "operationId": 1,
+          "changed": [
+            "frames",
+            "overlays",
+            "sharedVariants",
+            "origins"
+          ],
+          "observations": {
+            "count": 4,
+            "firstId": 2,
+            "lastId": 5
+          },
+          "effects": [
+            {
+              "resultIndex": 0,
+              "source": {
+                "module": "trial-values",
+                "file": "/Users/m5/works/shitae/.worktrees/issue-18-session/docs/design/session-fixtures/trial-values.shitae",
+                "span": {
+                  "offset": 38,
+                  "length": 77,
+                  "line": 5,
+                  "col": 1
+                }
+              },
+              "text": "pre-effect"
+            }
+          ],
+          "diagnostics": []
+        }
+      },
+      "inputBytes": 99,
+      "outputBytes": 612
+    },
+    {
+      "request": {
+        "id": "q1",
+        "command": "query"
+      },
+      "response": {
+        "id": "q1",
+        "ok": true,
+        "protocolVersion": 1,
+        "revision": 1,
+        "summary": {
+          "location": {
+            "module": "trial-values",
+            "component": "Screen",
+            "variant": "Changed"
+          },
+          "cursorObservationId": 5,
+          "latestObservationId": 5,
+          "observationCount": 5
+        }
+      },
+      "inputBytes": 30,
+      "outputBytes": 214
+    },
+    {
+      "request": {
+        "id": "x2",
+        "command": "query",
+        "select": [
+          "action"
+        ],
+        "handle": "1e23b45a-19ca-4278-9a2a-00b3333eece8:0:0"
+      },
+      "response": {
+        "id": "x2",
+        "ok": false,
+        "protocolVersion": 1,
+        "error": {
+          "code": "STALE_HANDLE",
+          "message": "Query actions again"
+        },
+        "revision": 1
+      },
+      "inputBytes": 102,
+      "outputBytes": 120
+    }
+  ],
+  "exitCode": 0,
+  "stderr": "",
+  "sourceCommit": "7e08011"
+}

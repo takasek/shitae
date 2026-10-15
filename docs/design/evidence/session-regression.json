@@ -1,0 +1,1243 @@
+{
+  "environment": "Node VM of generated GUI and public persistent CLI; not a real browser",
+  "legacyBaseline": "0d0d814",
+  "comparisons": [
+    {
+      "label": "frame tree switch/exit",
+      "steps": 10,
+      "renderedActions": 10,
+      "rejections": 0,
+      "observationComparisons": 10,
+      "cliRequests": 51,
+      "modelId": "8cda702eccce7ff63a61e9111e18e23f4408e16095c3c3d273cbf0d22f550c18"
+    },
+    {
+      "label": "snapshot/manual/branch/reset",
+      "steps": 9,
+      "renderedActions": 4,
+      "rejections": 1,
+      "observationComparisons": 11,
+      "cliRequests": 42,
+      "modelId": "09844e23302d3214b33aac4d370c76b479855039dc4ffb93c844f1a4ead85060"
+    },
+    {
+      "label": "sol/current",
+      "steps": 6,
+      "renderedActions": 6,
+      "rejections": 0,
+      "observationComparisons": 8,
+      "cliRequests": 34,
+      "modelId": "c465bef332cbc4ad23a6975d7126fe8ff9c21372663bb1f390979fbaa28a206f"
+    },
+    {
+      "label": "sol/proposed",
+      "steps": 13,
+      "renderedActions": 12,
+      "rejections": 1,
+      "observationComparisons": 21,
+      "cliRequests": 74,
+      "modelId": "aaf867ce7379fa4640b3c2941f1296d6cbd6f74c5352d2f5014e041420b56264"
+    },
+    {
+      "label": "astra/current",
+      "steps": 6,
+      "renderedActions": 6,
+      "rejections": 0,
+      "observationComparisons": 8,
+      "cliRequests": 33,
+      "modelId": "ecf8621b1a3da7142acb7f5767ab248379419bd165eb2cc008324a08825cb4d0"
+    },
+    {
+      "label": "astra/proposed",
+      "steps": 10,
+      "renderedActions": 10,
+      "rejections": 0,
+      "observationComparisons": 12,
+      "cliRequests": 53,
+      "modelId": "e0232b1b5438852d85f1db03ccdb6e730b5afee6a5a0e5c57db9efe62ba5d0d3"
+    }
+  ],
+  "savedModels": [
+    {
+      "name": "sol/current",
+      "authorModelChanged": false,
+      "fixedFixtureLoads": 1,
+      "steps": 6,
+      "unexpectedActionIdentificationFailures": 0,
+      "unexpectedBranchErrors": 0
+    },
+    {
+      "name": "sol/proposed",
+      "authorModelChanged": false,
+      "fixedFixtureLoads": 1,
+      "steps": 13,
+      "unexpectedActionIdentificationFailures": 0,
+      "unexpectedBranchErrors": 0
+    },
+    {
+      "name": "astra/current",
+      "authorModelChanged": false,
+      "fixedFixtureLoads": 1,
+      "steps": 6,
+      "unexpectedActionIdentificationFailures": 0,
+      "unexpectedBranchErrors": 0
+    },
+    {
+      "name": "astra/proposed",
+      "authorModelChanged": false,
+      "fixedFixtureLoads": 1,
+      "steps": 10,
+      "unexpectedActionIdentificationFailures": 0,
+      "unexpectedBranchErrors": 0
+    }
+  ],
+  "legacyComparisons": [
+    {
+      "label": "frame tree switch/exit",
+      "action": "home",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "switch-contexts",
+        "component": "Home",
+        "variant": null
+      },
+      "newLocation": {
+        "module": "switch-contexts",
+        "component": "Home",
+        "variant": null
+      },
+      "oldStack": [
+        "Entry",
+        "Home"
+      ],
+      "newStack": [
+        "Entry",
+        "Home"
+      ]
+    },
+    {
+      "label": "frame tree switch/exit",
+      "action": "detail",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "switch-contexts",
+        "component": "Detail",
+        "variant": null
+      },
+      "newLocation": {
+        "module": "switch-contexts",
+        "component": "Detail",
+        "variant": null
+      },
+      "oldStack": [
+        "Entry",
+        "Home",
+        "Detail"
+      ],
+      "newStack": [
+        "Entry",
+        "Home",
+        "Detail"
+      ]
+    },
+    {
+      "label": "frame tree switch/exit",
+      "action": "b",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "switch-contexts",
+        "component": "B",
+        "variant": null
+      },
+      "newLocation": {
+        "module": "switch-contexts",
+        "component": "B",
+        "variant": null
+      },
+      "oldStack": [
+        "Entry",
+        "Home",
+        "Detail",
+        "B"
+      ],
+      "newStack": [
+        "Entry",
+        "Home",
+        "Detail",
+        "B"
+      ]
+    },
+    {
+      "label": "frame tree switch/exit",
+      "action": "modal",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "switch-contexts",
+        "component": "Modal",
+        "variant": null
+      },
+      "newLocation": {
+        "module": "switch-contexts",
+        "component": "Modal",
+        "variant": null
+      },
+      "oldStack": [
+        "Entry",
+        "Home",
+        "Detail",
+        "B",
+        "Modal"
+      ],
+      "newStack": [
+        "Entry",
+        "Home",
+        "Detail",
+        "B",
+        "Modal"
+      ]
+    },
+    {
+      "label": "frame tree switch/exit",
+      "action": "c",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": false,
+      "oldLocation": {
+        "module": "switch-contexts",
+        "component": "C",
+        "variant": null
+      },
+      "newLocation": {
+        "module": "switch-contexts",
+        "component": "C",
+        "variant": null
+      },
+      "oldStack": [
+        "Entry",
+        "Home",
+        "Detail",
+        "B",
+        "Modal",
+        "C"
+      ],
+      "newStack": [
+        "Entry",
+        "Home",
+        "Detail",
+        "C"
+      ]
+    },
+    {
+      "label": "frame tree switch/exit",
+      "action": "close-reading",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "switch-contexts",
+        "component": "Home",
+        "variant": null
+      },
+      "newLocation": {
+        "module": "switch-contexts",
+        "component": "Home",
+        "variant": null
+      },
+      "oldStack": [
+        "Entry",
+        "Home"
+      ],
+      "newStack": [
+        "Entry",
+        "Home"
+      ]
+    },
+    {
+      "label": "frame tree switch/exit",
+      "action": "resume-b",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "switch-contexts",
+        "component": "B",
+        "variant": null
+      },
+      "newLocation": {
+        "module": "switch-contexts",
+        "component": "B",
+        "variant": null
+      },
+      "oldStack": [
+        "Entry",
+        "Home",
+        "B"
+      ],
+      "newStack": [
+        "Entry",
+        "Home",
+        "B"
+      ]
+    },
+    {
+      "label": "frame tree switch/exit",
+      "action": "push-detail",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "switch-contexts",
+        "component": "Detail",
+        "variant": null
+      },
+      "newLocation": {
+        "module": "switch-contexts",
+        "component": "Detail",
+        "variant": null
+      },
+      "oldStack": [
+        "Entry",
+        "Home",
+        "B",
+        "Detail"
+      ],
+      "newStack": [
+        "Entry",
+        "Home",
+        "B",
+        "Detail"
+      ]
+    },
+    {
+      "label": "frame tree switch/exit",
+      "action": "back",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "switch-contexts",
+        "component": "B",
+        "variant": null
+      },
+      "newLocation": {
+        "module": "switch-contexts",
+        "component": "B",
+        "variant": null
+      },
+      "oldStack": [
+        "Entry",
+        "Home",
+        "B"
+      ],
+      "newStack": [
+        "Entry",
+        "Home",
+        "B"
+      ]
+    },
+    {
+      "label": "frame tree switch/exit",
+      "action": "close-modal",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "switch-contexts",
+        "component": "B",
+        "variant": null
+      },
+      "newLocation": {
+        "module": "switch-contexts",
+        "component": "B",
+        "variant": null
+      },
+      "oldStack": [
+        "Entry",
+        "Home",
+        "B"
+      ],
+      "newStack": [
+        "Entry",
+        "Home",
+        "B"
+      ]
+    },
+    {
+      "label": "sol/current",
+      "action": "Normalize",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "current",
+        "component": "Workspace",
+        "variant": "Editing"
+      },
+      "newLocation": {
+        "module": "current",
+        "component": "Workspace",
+        "variant": "Editing"
+      },
+      "oldStack": [
+        "Workspace"
+      ],
+      "newStack": [
+        "Workspace"
+      ]
+    },
+    {
+      "label": "sol/current",
+      "action": "NodeDoubleClick",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "current",
+        "component": "Workspace",
+        "variant": "Editing"
+      },
+      "newLocation": {
+        "module": "current",
+        "component": "Workspace",
+        "variant": "Editing"
+      },
+      "oldStack": [
+        "Workspace"
+      ],
+      "newStack": [
+        "Workspace"
+      ]
+    },
+    {
+      "label": "sol/current",
+      "action": "ParseError",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "current",
+        "component": "Workspace",
+        "variant": "Editing"
+      },
+      "newLocation": {
+        "module": "current",
+        "component": "Workspace",
+        "variant": "Editing"
+      },
+      "oldStack": [
+        "Workspace"
+      ],
+      "newStack": [
+        "Workspace"
+      ]
+    },
+    {
+      "label": "sol/current",
+      "action": "ValidInput",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "current",
+        "component": "Workspace",
+        "variant": "Editing"
+      },
+      "newLocation": {
+        "module": "current",
+        "component": "Workspace",
+        "variant": "Editing"
+      },
+      "oldStack": [
+        "Workspace"
+      ],
+      "newStack": [
+        "Workspace"
+      ]
+    },
+    {
+      "label": "sol/current",
+      "action": "CloseLastDocument",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "current",
+        "component": "Workspace",
+        "variant": "NoDocument"
+      },
+      "newLocation": {
+        "module": "current",
+        "component": "Workspace",
+        "variant": "NoDocument"
+      },
+      "oldStack": [
+        "Workspace"
+      ],
+      "newStack": [
+        "Workspace"
+      ]
+    },
+    {
+      "label": "sol/current",
+      "action": "Save",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "current",
+        "component": "Workspace",
+        "variant": "NoDocument"
+      },
+      "newLocation": {
+        "module": "current",
+        "component": "Workspace",
+        "variant": "NoDocument"
+      },
+      "oldStack": [
+        "Workspace"
+      ],
+      "newStack": [
+        "Workspace"
+      ]
+    },
+    {
+      "label": "sol/proposed",
+      "action": "SourceOnly",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "proposed",
+        "component": "Workspace",
+        "variant": "Source"
+      },
+      "newLocation": {
+        "module": "proposed",
+        "component": "Workspace",
+        "variant": "Source"
+      },
+      "oldStack": [
+        "Workspace"
+      ],
+      "newStack": [
+        "Workspace"
+      ]
+    },
+    {
+      "label": "sol/proposed",
+      "action": "DiagramOnly",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "proposed",
+        "component": "Workspace",
+        "variant": "Diagram"
+      },
+      "newLocation": {
+        "module": "proposed",
+        "component": "Workspace",
+        "variant": "Diagram"
+      },
+      "oldStack": [
+        "Workspace"
+      ],
+      "newStack": [
+        "Workspace"
+      ]
+    },
+    {
+      "label": "sol/proposed",
+      "action": "NodeDoubleClick",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "proposed",
+        "component": "Workspace",
+        "variant": "Split"
+      },
+      "newLocation": {
+        "module": "proposed",
+        "component": "Workspace",
+        "variant": "Split"
+      },
+      "oldStack": [
+        "Workspace"
+      ],
+      "newStack": [
+        "Workspace"
+      ]
+    },
+    {
+      "label": "sol/proposed",
+      "action": "Conflict",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "proposed",
+        "component": "Workspace",
+        "variant": "Split"
+      },
+      "newLocation": {
+        "module": "proposed",
+        "component": "Workspace",
+        "variant": "Split"
+      },
+      "oldStack": [
+        "Workspace"
+      ],
+      "newStack": [
+        "Workspace"
+      ]
+    },
+    {
+      "label": "sol/proposed",
+      "action": "Review",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "proposed",
+        "component": "VersionReview",
+        "variant": null
+      },
+      "newLocation": {
+        "module": "proposed",
+        "component": "VersionReview",
+        "variant": null
+      },
+      "oldStack": [
+        "Workspace",
+        "VersionReview"
+      ],
+      "newStack": [
+        "Workspace",
+        "VersionReview"
+      ]
+    },
+    {
+      "label": "sol/proposed",
+      "action": "KeepEditing",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "proposed",
+        "component": "Workspace",
+        "variant": "Split"
+      },
+      "newLocation": {
+        "module": "proposed",
+        "component": "Workspace",
+        "variant": "Split"
+      },
+      "oldStack": [
+        "Workspace"
+      ],
+      "newStack": [
+        "Workspace"
+      ]
+    },
+    {
+      "label": "sol/proposed",
+      "action": "ParseError",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "proposed",
+        "component": "Workspace",
+        "variant": "Split"
+      },
+      "newLocation": {
+        "module": "proposed",
+        "component": "Workspace",
+        "variant": "Split"
+      },
+      "oldStack": [
+        "Workspace"
+      ],
+      "newStack": [
+        "Workspace"
+      ]
+    },
+    {
+      "label": "sol/proposed",
+      "action": "DiagramOnly",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "proposed",
+        "component": "Workspace",
+        "variant": "Diagram"
+      },
+      "newLocation": {
+        "module": "proposed",
+        "component": "Workspace",
+        "variant": "Diagram"
+      },
+      "oldStack": [
+        "Workspace"
+      ],
+      "newStack": [
+        "Workspace"
+      ]
+    },
+    {
+      "label": "sol/proposed",
+      "action": "ValidInput",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "proposed",
+        "component": "Workspace",
+        "variant": "Diagram"
+      },
+      "newLocation": {
+        "module": "proposed",
+        "component": "Workspace",
+        "variant": "Diagram"
+      },
+      "oldStack": [
+        "Workspace"
+      ],
+      "newStack": [
+        "Workspace"
+      ]
+    },
+    {
+      "label": "sol/proposed",
+      "action": "NodeDoubleClick",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "proposed",
+        "component": "Workspace",
+        "variant": "Split"
+      },
+      "newLocation": {
+        "module": "proposed",
+        "component": "Workspace",
+        "variant": "Split"
+      },
+      "oldStack": [
+        "Workspace"
+      ],
+      "newStack": [
+        "Workspace"
+      ]
+    },
+    {
+      "label": "sol/proposed",
+      "action": "CloseLastDocument",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "proposed",
+        "component": "Workspace",
+        "variant": "NoDocument"
+      },
+      "newLocation": {
+        "module": "proposed",
+        "component": "Workspace",
+        "variant": "NoDocument"
+      },
+      "oldStack": [
+        "Workspace"
+      ],
+      "newStack": [
+        "Workspace"
+      ]
+    },
+    {
+      "label": "sol/proposed",
+      "action": "NewDocument",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "proposed",
+        "component": "Workspace",
+        "variant": "Source"
+      },
+      "newLocation": {
+        "module": "proposed",
+        "component": "Workspace",
+        "variant": "Source"
+      },
+      "oldStack": [
+        "Workspace"
+      ],
+      "newStack": [
+        "Workspace"
+      ]
+    },
+    {
+      "label": "astra/current",
+      "action": "開く",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "current",
+        "component": "文書A",
+        "variant": "保存済"
+      },
+      "newLocation": {
+        "module": "current",
+        "component": "文書A",
+        "variant": "保存済"
+      },
+      "oldStack": [
+        "開始",
+        "文書A"
+      ],
+      "newStack": [
+        "開始",
+        "文書A"
+      ]
+    },
+    {
+      "label": "astra/current",
+      "action": "編集",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "current",
+        "component": "文書A",
+        "variant": "未保存"
+      },
+      "newLocation": {
+        "module": "current",
+        "component": "文書A",
+        "variant": "未保存"
+      },
+      "oldStack": [
+        "開始",
+        "文書A"
+      ],
+      "newStack": [
+        "開始",
+        "文書A"
+      ]
+    },
+    {
+      "label": "astra/current",
+      "action": "保存",
+      "branch": "成功",
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "current",
+        "component": "文書A",
+        "variant": "保存済"
+      },
+      "newLocation": {
+        "module": "current",
+        "component": "文書A",
+        "variant": "保存済"
+      },
+      "oldStack": [
+        "開始",
+        "文書A"
+      ],
+      "newStack": [
+        "開始",
+        "文書A"
+      ]
+    },
+    {
+      "label": "astra/current",
+      "action": "切替",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "current",
+        "component": "文書B",
+        "variant": "保存済"
+      },
+      "newLocation": {
+        "module": "current",
+        "component": "文書B",
+        "variant": "保存済"
+      },
+      "oldStack": [
+        "開始",
+        "文書A",
+        "文書B"
+      ],
+      "newStack": [
+        "開始",
+        "文書A",
+        "文書B"
+      ]
+    },
+    {
+      "label": "astra/current",
+      "action": "編集",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "current",
+        "component": "文書B",
+        "variant": "未保存"
+      },
+      "newLocation": {
+        "module": "current",
+        "component": "文書B",
+        "variant": "未保存"
+      },
+      "oldStack": [
+        "開始",
+        "文書A",
+        "文書B"
+      ],
+      "newStack": [
+        "開始",
+        "文書A",
+        "文書B"
+      ]
+    },
+    {
+      "label": "astra/current",
+      "action": "切替",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "current",
+        "component": "文書A",
+        "variant": "保存済"
+      },
+      "newLocation": {
+        "module": "current",
+        "component": "文書A",
+        "variant": "保存済"
+      },
+      "oldStack": [
+        "開始",
+        "文書A"
+      ],
+      "newStack": [
+        "開始",
+        "文書A"
+      ]
+    },
+    {
+      "label": "astra/proposed",
+      "action": "開く",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "proposed",
+        "component": "文書A",
+        "variant": null
+      },
+      "newLocation": {
+        "module": "proposed",
+        "component": "文書A",
+        "variant": null
+      },
+      "oldStack": [
+        "開始",
+        "文書A"
+      ],
+      "newStack": [
+        "開始",
+        "文書A"
+      ]
+    },
+    {
+      "label": "astra/proposed",
+      "action": "編集",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "proposed",
+        "component": "文書A",
+        "variant": null
+      },
+      "newLocation": {
+        "module": "proposed",
+        "component": "文書A",
+        "variant": null
+      },
+      "oldStack": [
+        "開始",
+        "文書A"
+      ],
+      "newStack": [
+        "開始",
+        "文書A"
+      ]
+    },
+    {
+      "label": "astra/proposed",
+      "action": "保存",
+      "branch": "成功",
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "proposed",
+        "component": "文書A",
+        "variant": null
+      },
+      "newLocation": {
+        "module": "proposed",
+        "component": "文書A",
+        "variant": null
+      },
+      "oldStack": [
+        "開始",
+        "文書A"
+      ],
+      "newStack": [
+        "開始",
+        "文書A"
+      ]
+    },
+    {
+      "label": "astra/proposed",
+      "action": "切替",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "proposed",
+        "component": "文書B",
+        "variant": null
+      },
+      "newLocation": {
+        "module": "proposed",
+        "component": "文書B",
+        "variant": null
+      },
+      "oldStack": [
+        "開始",
+        "文書A",
+        "文書B"
+      ],
+      "newStack": [
+        "開始",
+        "文書A",
+        "文書B"
+      ]
+    },
+    {
+      "label": "astra/proposed",
+      "action": "編集",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "proposed",
+        "component": "文書B",
+        "variant": null
+      },
+      "newLocation": {
+        "module": "proposed",
+        "component": "文書B",
+        "variant": null
+      },
+      "oldStack": [
+        "開始",
+        "文書A",
+        "文書B"
+      ],
+      "newStack": [
+        "開始",
+        "文書A",
+        "文書B"
+      ]
+    },
+    {
+      "label": "astra/proposed",
+      "action": "切替",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "proposed",
+        "component": "文書A",
+        "variant": null
+      },
+      "newLocation": {
+        "module": "proposed",
+        "component": "文書A",
+        "variant": null
+      },
+      "oldStack": [
+        "開始",
+        "文書A"
+      ],
+      "newStack": [
+        "開始",
+        "文書A"
+      ]
+    },
+    {
+      "label": "astra/proposed",
+      "action": "図のみ",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "proposed",
+        "component": "文書A",
+        "variant": null
+      },
+      "newLocation": {
+        "module": "proposed",
+        "component": "文書A",
+        "variant": null
+      },
+      "oldStack": [
+        "開始",
+        "文書A"
+      ],
+      "newStack": [
+        "開始",
+        "文書A"
+      ]
+    },
+    {
+      "label": "astra/proposed",
+      "action": "ノードからソースへ",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "proposed",
+        "component": "文書A",
+        "variant": null
+      },
+      "newLocation": {
+        "module": "proposed",
+        "component": "文書A",
+        "variant": null
+      },
+      "oldStack": [
+        "開始",
+        "文書A"
+      ],
+      "newStack": [
+        "開始",
+        "文書A"
+      ]
+    },
+    {
+      "label": "astra/proposed",
+      "action": "外部変更確認",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "proposed",
+        "component": "比較",
+        "variant": null
+      },
+      "newLocation": {
+        "module": "proposed",
+        "component": "比較",
+        "variant": null
+      },
+      "oldStack": [
+        "開始",
+        "文書A",
+        "比較"
+      ],
+      "newStack": [
+        "開始",
+        "文書A",
+        "比較"
+      ]
+    },
+    {
+      "label": "astra/proposed",
+      "action": "取消",
+      "branch": null,
+      "locationEqual": true,
+      "activePathEqual": true,
+      "oldLocation": {
+        "module": "proposed",
+        "component": "文書A",
+        "variant": null
+      },
+      "newLocation": {
+        "module": "proposed",
+        "component": "文書A",
+        "variant": null
+      },
+      "oldStack": [
+        "開始",
+        "文書A"
+      ],
+      "newStack": [
+        "開始",
+        "文書A"
+      ]
+    }
+  ],
+  "compactBytes": [
+    {
+      "inclusions": 0,
+      "modules": 1,
+      "frames": 1,
+      "activePathDepth": 1,
+      "dormantFrames": 0,
+      "totalStackEntries": 2,
+      "history": 2,
+      "dispatchUtf8Bytes": 325,
+      "summaryUtf8Bytes": 196,
+      "defaultKeys": [
+        "id",
+        "ok",
+        "protocolVersion",
+        "revision",
+        "summary"
+      ]
+    },
+    {
+      "inclusions": 330,
+      "modules": 31,
+      "frames": 101,
+      "activePathDepth": 2,
+      "dormantFrames": 99,
+      "totalStackEntries": 102,
+      "history": 103,
+      "dispatchUtf8Bytes": 341,
+      "summaryUtf8Bytes": 206,
+      "defaultKeys": [
+        "id",
+        "ok",
+        "protocolVersion",
+        "revision",
+        "summary"
+      ]
+    }
+  ],
+  "proofLimits": [
+    "No disk/network/focus effect is executed",
+    "Real browser blocked by file URL policy",
+    "No timing/usability benefit measured"
+  ]
+}

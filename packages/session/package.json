@@ -1,0 +1,27 @@
+{
+  "name": "@shitae/session",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.js",
+    "./model": "./dist/model.js"
+  },
+  "scripts": {
+    "build": "node scripts/build-engine.mjs && tsc",
+    "typecheck": "tsc -p tsconfig.test.json",
+    "test": "vitest run",
+    "pretest": "node scripts/build-engine.mjs"
+  },
+  "dependencies": {
+    "@shitae/ast": "workspace:*",
+    "@shitae/resolver": "workspace:*",
+    "@shitae/runtime": "workspace:*"
+  },
+  "devDependencies": {
+    "@shitae/parser": "workspace:*",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.3",
+    "@types/node": "^22.15.30"
+  }
+}

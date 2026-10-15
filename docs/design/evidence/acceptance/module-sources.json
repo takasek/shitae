@@ -1,0 +1,14 @@
+[
+  [
+    "main",
+    "import left as l\nimport right as r\n# Home\none: l::Card\ntwo: r::Card\nCard\nPlain\n# Card\n## Local\nbody\n# Plain\nbody\n"
+  ],
+  [
+    "left",
+    "# Card\n## Left\nbody\n"
+  ],
+  [
+    "right",
+    "# Card\n## Right\nbody\n"
+  ]
+]

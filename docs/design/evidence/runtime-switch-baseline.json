@@ -1,0 +1,36 @@
+{
+  "baselineCommit": "e985f4ee58ab76339df5b0f59144e1f1a5da91c8",
+  "expectedSource": "docs/SPEC.md:434 and docs/adr/0008-switch-sibling-rule-nearest-switch-ancestor.md",
+  "observations": [
+    {
+      "id": "anchor-push-parent",
+      "actual": "home",
+      "expected": "reading",
+      "matchesSpec": false,
+      "tree": "F0[root,no-barrier,-]{Entry}\n  F1[present,barrier,@home]{Home}\n    F2[push,no-barrier,@reading]{Detail}\n    F3*[switch,barrier,@b]{B}"
+    },
+    {
+      "id": "anchor-push-exit-location",
+      "actual": "B",
+      "expected": "Home",
+      "matchesSpec": false,
+      "tree": "F0[root,no-barrier,-]{Entry}\n  F1[present,barrier,@home]{Home}\n    F3*[switch,barrier,@b]{B}"
+    },
+    {
+      "id": "switch-present-parent",
+      "actual": "modal",
+      "expected": "home",
+      "matchesSpec": false,
+      "tree": "F0[root,no-barrier,-]{Entry}\n  F1[present,barrier,@home]{Home}\n    F2[switch,barrier,@b]{B}\n      F3[present,barrier,@modal]{Modal}\n        F4*[switch,barrier,@c]{C}"
+    },
+    {
+      "id": "switch-present-exit-location",
+      "actual": "B",
+      "expected": "C",
+      "matchesSpec": false,
+      "tree": "F0[root,no-barrier,-]{Entry}\n  F1[present,barrier,@home]{Home}\n    F2*[switch,barrier,@b]{B}"
+    }
+  ],
+  "matches": 0,
+  "total": 4
+}

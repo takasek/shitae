@@ -63,8 +63,11 @@ make build
 
 node packages/cli/dist/index.js check    <file.shitae>   # 診断
 node packages/cli/dist/index.js mermaid  <file.shitae>   # フロー図（Mermaid）
+node packages/cli/dist/index.js session  <file.shitae>   # 同じ process で操作を照会・実行
 make simulate FILE=<file.shitae>                          # ブラウザで歩ける simulator
 ```
+
+`session` は JSON Lines で操作一覧を照会し、分岐を選んで実行し、現在地を確認できる。通常応答は小さな summary と今回の receipt、操作一覧は選択に必要な情報に絞る。action/state/metadata/history/observation の詳細は必要なときだけ照会する。setTestVariant/reset と、同じ Session を使う GUI も提供する。[使用方法・CLI/ブラウザの実測](docs/design/session-usage.md) を参照。
 
 ## ドキュメント
 

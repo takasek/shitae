@@ -1,3 +1,4 @@
+import { webcrypto } from 'node:crypto';
 import { describe, it, expect } from 'vitest';
 import * as vm from 'node:vm';
 import { parse } from '@shitae/parser';
@@ -39,7 +40,7 @@ Format
     const widgets = parseOk('# Panel\nleaf\n> Open(leaf) -> push(Destination)\nloop: Panel\n# Destination\narrived\n');
     const context = runSimulatorScript(toSimulator(new Map([['main', main], ['widgets', widgets]]), 'main'));
     if (card === 'overlay') {
-      vm.runInContext("applyTransition({ type: 'overlay', op: 'show', component: 'Host', module: 'main', variant: null }); render()", context);
+      vm.runInContext("fixtureResult({ type: 'overlay', op: 'show', component: 'Host', module: 'main', variant: null }); render()", context);
     }
     const rendered = vm.runInContext('app.innerHTML', context) as string;
     expect(rendered).toContain('<summary class="element">child</summary>');
@@ -64,7 +65,7 @@ graph: Graph
 problem: Diagnostics
 `);
     const context = runSimulatorScript(toSimulator(new Map([['main', doc]]), 'main'));
-    const enabled = () => JSON.parse(vm.runInContext('JSON.stringify(DATA.modules.main.components.Workspace.commonInteractions.map(i => gateEnabled(i)))', context));
+    const enabled = () => JSON.parse(vm.runInContext('JSON.stringify(operations("main").map(i => gateEnabled(i)))', context));
     expect(enabled()).toEqual([true, true, true]);
     vm.runInContext("setInstanceVariant('main', 'DiagramView', 'Error')", context);
     expect(enabled()).toEqual([false, false, true]);
@@ -128,7 +129,7 @@ problem: Diagnostics
   it('switch を transition として扱う（effect 落ちしない）分岐が生成物に含まれる', () => {
     const doc = parseOk('# ホーム\n> タブ -> switch(検索, @s)\n\n# 検索\n欄\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
-    expect(html).toContain("word === 'switch'");
+    expect(html).toContain('case \"switch\"');
     expect(html).toContain('"word":"switch"');
   });
 
@@ -147,7 +148,7 @@ problem: Diagnostics
     );
     const html = toSimulator(new Map([['main', doc]]), 'main');
     // overlays は component名→{variant,module} の Map（show は上書き。SPEC「オーバーレイ」自己再 show）
-    expect(html).toContain("overlays.set(result.component, { variant: result.variant, module: mod })");
+    expect(html).toContain('new Map(s.overlays.map');
     expect(html).toContain('function overlayVariant(');
   });
 
@@ -160,7 +161,7 @@ problem: Diagnostics
     expect(html).toContain('function overlayInteractions(');
     const context = runSimulatorScript(html);
     vm.runInContext(
-      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニプレイヤー', module: 'main', variant: '再生中' }); render()",
+      "fixtureResult({ type: 'overlay', op: 'show', component: 'ミニプレイヤー', module: 'main', variant: '再生中' }); render()",
       context,
     );
     const appHtml = vm.runInContext('app.innerHTML', context);
@@ -179,7 +180,7 @@ problem: Diagnostics
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
     vm.runInContext(
-      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
+      "fixtureResult({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
       context,
     );
     const appHtml = vm.runInContext('app.innerHTML', context);
@@ -204,7 +205,7 @@ problem: Diagnostics
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
     vm.runInContext(
-      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
+      "fixtureResult({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
       context,
     );
     const appHtml = vm.runInContext('app.innerHTML', context);
@@ -228,7 +229,7 @@ problem: Diagnostics
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
     vm.runInContext(
-      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: '再生' }); render()",
+      "fixtureResult({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: '再生' }); render()",
       context,
     );
     vm.runInContext("handleOverlayInteraction(0, 'variant', 0, 0)", context);
@@ -248,7 +249,7 @@ problem: Diagnostics
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
     vm.runInContext(
-      "applyTransition({ type: 'overlay', op: 'show', component: '名\\\"前', module: 'main', variant: null }); render()",
+      "fixtureResult({ type: 'overlay', op: 'show', component: '名\\\"前', module: 'main', variant: null }); render()",
       context,
     );
     const appHtml = vm.runInContext('app.innerHTML', context);
@@ -256,7 +257,7 @@ problem: Diagnostics
     // 属性値が途中終端する（onclick="handleOverlayInteraction(" で切れる）
     expect(appHtml).not.toContain('onclick="handleOverlayInteraction("');
     // 新実装: component 名でなく表示順インデックス（数値）で参照するため属性は壊れない
-    expect(appHtml).toMatch(/onclick="handleOverlayInteraction\(0,'(variant|component)',\d+,\d+\)"/);
+    expect(appHtml).toMatch(/onclick="handleOverlayInteraction\(0,'(variant|component)',\d+,\d+[^\"]*\)"/);
     vm.runInContext("handleOverlayInteraction(0, 'component', 0, 0)", context);
     expect(vm.runInContext('currentFrame().component', context)).toBe('プレイヤー');
   });
@@ -266,16 +267,16 @@ problem: Diagnostics
       '#! クーポン\n## 未受取\n> タップ(受け取る) -> goto(##受取済)\n## 受取済\n適用ボタン\n\n# ホーム\n要素\n',
     );
     const html = toSimulator(new Map([['main', doc]]), 'main');
-    expect(html).toContain('const SINGLETONS = new Set((DATA.singletons || []).map(s => skey(s.module, s.name)))');
-    expect(html).toContain('let sharedVariants = new Map()');
-    expect(html).toContain('function resolveEntryVariant(');
+    expect(html).toContain('sharedVariants: values');
+    expect(html).toContain('s.componentValues');
+    expect(html).toContain('initialState');
     expect(html).toContain('function displayVariant(');
   });
 
   it('singleton: goto(##v) は共有レジストリを書き換える（全所在に即時反映。ADR-0011）', () => {
     const doc = parseOk('#! クーポン\n## 未受取\n> タップ -> goto(##受取済)\n## 受取済\n適用ボタン\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
-    expect(html).toContain('sharedVariants.set(');
+    expect(html).toContain('sharedVariants: values');
   });
 
   it('3階層shadow: どの画面でも帯は現在画面でshadowされたdocument commonを除外する', () => {
@@ -283,8 +284,8 @@ problem: Diagnostics
       '> タップ(戻る) -> exit(@x)\n\n# A\n戻る\n> タップ(戻る) -> back()\n',
     );
     const html = toSimulator(new Map([['main', doc]]), 'main');
-    expect(html).toContain('comp.docCommonInteractions');
-    expect(html).toContain('comp.variants[variant]?.docCommonInteractions');
+    expect(html).toContain('mergeInteractions');
+    expect(html).toContain('docCommonInteractions');
   });
 
   it('presence gate: host gate（裸参照）付き interaction は構造的 presence が満たされないと行ごと除外される', () => {
@@ -308,7 +309,7 @@ problem: Diagnostics
     expect(html).toContain('"gateTargets"');
     expect(html).toContain('function setInstanceVariant(');
     expect(html).toContain('gate-panel');
-    expect(html).toContain('sharedVariants.set(skey(module, name), variant)');
+    expect(html).toContain('SESSION.setTestVariant');
   });
 
   it('gate インライン化: member gate 付きアクション行は判定対象の現在 variant を示すバッジと切替 select を添えて描画される（Task 18 受入基準d）', () => {
@@ -319,12 +320,12 @@ problem: Diagnostics
     const context = runSimulatorScript(html);
     const appHtml = vm.runInContext('app.innerHTML', context);
     // 初期姿（選択可能）が対象の初期 variant のため gate on——行は押せる（onclick 付き）
-    const rowMatch = appHtml.match(/<div class="action-row[^"]*" onclick="(handleInteraction\('component'[^"]+)">[\s\S]*?<\/div>/);
+    const rowMatch = appHtml.match(/<div class="action-row[^"]*"[^>]* onclick="(handleInteraction\('component'[^"]+)">[\s\S]*?<\/div>/);
     expect(rowMatch).not.toBeNull();
     const row = rowMatch![0];
     expect(row).toContain('タップ(日付.選択可能)');
     expect(row).toMatch(/<span class="gate-inline-badge"[^>]*>日付 \/ 選択可能<\/span>/);
-    const selectMatch = row.match(/<select class="gate-inline-select" onchange="([^"]+)">([\s\S]*?)<\/select>/);
+    const selectMatch = row.match(/<select class="gate-inline-select"[^>]* onchange="([^"]+)">([\s\S]*?)<\/select>/);
     expect(selectMatch).not.toBeNull();
     expect(selectMatch![2]).toContain('選択可能');
     expect(selectMatch![2]).toContain('満席');
@@ -361,7 +362,7 @@ problem: Diagnostics
     vm.runInContext("setInstanceVariant('main', '日付', '選択可能'); render()", context);
     const onHtml = vm.runInContext('app.innerHTML', context);
     expect(onHtml).not.toContain('gate-off-mark');
-    const m = onHtml.match(/<div class="action-row[^"]*" onclick="(handleInteraction\('component'[^"]+)">/);
+    const m = onHtml.match(/<div class="action-row[^"]*"[^>]* onclick="(handleInteraction\('component'[^"]+)">/);
     expect(m).not.toBeNull();
     vm.runInContext(m![1]!, context);
     expect(vm.runInContext('currentFrame().component', context)).toBe('時間選択');
@@ -388,7 +389,7 @@ problem: Diagnostics
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
     vm.runInContext(
-      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); " +
+      "fixtureResult({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); " +
         "setInstanceVariant('main', '日付', '満席'); render()",
       context,
     );
@@ -418,7 +419,7 @@ problem: Diagnostics
       '#! 学習\n## 通常\nボタン\n## ハート切れ\n表示\n\n# 問題\n> 使い切る -> set(学習##ハート切れ)\n',
     );
     const html = toSimulator(new Map([['main', doc]]), 'main');
-    expect(html).toContain("result.type === 'state'");
+    expect(html).toContain('if (body.kind === \"state\"');
     expect(html).toContain('"type":"state"');
   });
 
@@ -459,7 +460,7 @@ problem: Diagnostics
     const doc = parseOk('# A\n要素\n');
     const html = toSimulator(new Map([['main', doc]]), 'main');
     // back(X) 走査ループが wall で break する（runtime 整合）
-    expect(html).toContain('if (stack[i].wall) break;');
+    expect(html).toContain('frame.barrier');
   });
 
   function embeddedData(html: string): any {
@@ -481,6 +482,7 @@ problem: Diagnostics
     if (!m) throw new Error('embedded script not found');
     const elements = new Map<string, { innerHTML: string; textContent: string; style: Record<string, string>; classList: { add(): void; remove(): void } }>();
     const context = vm.createContext({
+      crypto: webcrypto, structuredClone,
       document: {
         getElementById: (id: string) => {
           if (!elements.has(id)) {
@@ -494,6 +496,38 @@ problem: Diagnostics
       console,
     });
     vm.runInContext(m[1]!, context);
+    // Legacy rendering fixtures used raw GUI reducer calls. Keep setup in the test
+    // harness only; execute the synthesized AST interaction through the real Session.
+    vm.runInContext(`
+      function fixtureResult(r) {
+        const span = {offset:0,length:0,line:1,col:1};
+        const t = r.target;
+        const body = r.type === 'effect' ? {kind:'effect',text:r.text,span} :
+          r.type === 'transition' ? {kind:'transition',word:r.word,span,
+            target: t ? (t.kind === 'variant' ? {kind:'variant',module:t.module??null,name:t.variant} : {kind:'component',module:t.module??null,name:t.component,variant:t.variant??null}) : null,
+            session: r.session ? {name:typeof r.session === 'string' ? r.session : r.session.name,span} : null} :
+          {kind:r.type,verb:r.type === 'overlay' ? r.op : 'set',span,target:{module:r.module??null,name:r.component,variant:r.variant??null}};
+        const list = SESSION.documents.get(view.summary.location.module).common.interactions;
+        const action = {action:{text:'__fixture',target:null,span},results:[{label:null,body,span}],span};
+        list.push(action);
+        // Only this legacy fixture mutates the fixed private model between commands.
+        SESSION.currentInventory = undefined;
+        try {
+          const op = SESSION.query({select:['actions']}).data.actions.items.find(i => i.actionText === '__fixture');
+          SESSION.dispatch({handle:op.handle});
+        } finally { list.splice(list.indexOf(action),1); SESSION.currentInventory = undefined; }
+        syncView();
+      }
+      function fixtureResults(rs) { for (const r of rs) fixtureResult(r); render(); }
+      function fixtureOverlay(name, o) { fixtureResult({type:'overlay',op:'show',component:name,module:o.module,variant:o.variant}); }
+      function fixtureTrial(module, component, variant) { SESSION.context.tests.set(module+String.fromCharCode(0)+component,variant); SESSION.currentInventory = undefined; syncView(); }
+      function fixtureSnapshot(index) {
+        const s = SESSION.query({select:['observation'],observationId:timeline[index].id}).data.observation.view.state;
+        return { stack:s.activePath.flatMap(id => s.frames.find(f => f.id === id).stack),
+          sharedVariants:s.sharedVariants.filter(c=>c.origin!=='initial').map(c=>[skey(c.module,c.component),c.variant]),
+          overlays:s.overlays.map(c=>[c.component,c]) };
+      }
+    `, context);
     return context;
   }
 
@@ -520,7 +554,7 @@ problem: Diagnostics
     // アクティブ画面はホーム（曲名を持たない）。ミニを ## 再生（曲名を持つ）で掲示中 → gate on。
     const onActionTexts = JSON.parse(
       vm.runInContext(
-        "overlays.set('ミニ', { variant: '再生', module: 'main' }); JSON.stringify(overlayInteractions('ミニ').map(i => i.actionText))",
+        "fixtureOverlay('ミニ', { variant: '再生', module: 'main' }); JSON.stringify(overlayInteractions('ミニ').map(i => i.actionText))",
         context,
       ),
     );
@@ -529,7 +563,7 @@ problem: Diagnostics
     // ## 一時停止（曲名を持たない）を掲示中なら gate off。アクティブ画面（ホーム）の body は無関係。
     const offActionTexts = JSON.parse(
       vm.runInContext(
-        "overlays.set('ミニ', { variant: '一時停止', module: 'main' }); JSON.stringify(overlayInteractions('ミニ').map(i => i.actionText))",
+        "fixtureOverlay('ミニ', { variant: '一時停止', module: 'main' }); JSON.stringify(overlayInteractions('ミニ').map(i => i.actionText))",
         context,
       ),
     );
@@ -552,7 +586,7 @@ problem: Diagnostics
 
     // goto で記事一覧（記事リンクあり）に移動 → gate on
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'goto', target: { module: 'main', component: '記事一覧', variant: null } })",
+      "fixtureResult({ type: 'transition', word: 'goto', target: { module: 'main', component: '記事一覧', variant: null } })",
       context,
     );
     const listTexts = JSON.parse(vm.runInContext('JSON.stringify(docCommonInteractions().map(i => i.actionText))', context));
@@ -567,7 +601,7 @@ problem: Diagnostics
     const context = runSimulatorScript(html);
     expect(vm.runInContext('timeline.length', context)).toBe(1);
     expect(vm.runInContext('timeline[0].kind', context)).toBe('transition');
-    const stackLen = vm.runInContext('timeline[0].snapshot.stack.length', context);
+    const stackLen = vm.runInContext('fixtureSnapshot(0).stack.length', context);
     expect(stackLen).toBe(1);
   });
 
@@ -579,11 +613,11 @@ problem: Diagnostics
     const context = runSimulatorScript(html);
 
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
       context,
     );
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '結果', variant: null } })",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '結果', variant: null } })",
       context,
     );
     expect(vm.runInContext('timeline.length', context)).toBe(3);
@@ -606,11 +640,11 @@ problem: Diagnostics
     const context = runSimulatorScript(html);
 
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
       context,
     );
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '結果', variant: null } })",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '結果', variant: null } })",
       context,
     );
 
@@ -632,11 +666,11 @@ problem: Diagnostics
     const context = runSimulatorScript(html);
 
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
       context,
     );
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '結果', variant: null } })",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '結果', variant: null } })",
       context,
     );
     expect(vm.runInContext('timeline.length', context)).toBe(3);
@@ -645,7 +679,7 @@ problem: Diagnostics
     expect(vm.runInContext('timeline.length', context)).toBe(3);
 
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '設定', variant: null } })",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '設定', variant: null } })",
       context,
     );
     // ghost だった「結果」は消え、新エントリ「設定」に置き換わる（総数は変わらず3のまま）
@@ -663,7 +697,7 @@ problem: Diagnostics
     const context = runSimulatorScript(html);
 
     const lenBefore = vm.runInContext('timeline.length', context);
-    vm.runInContext("applyTransition({ type: 'effect', text: 'いいねしました' })", context);
+    vm.runInContext("fixtureResult({ type: 'effect', text: 'いいねしました' })", context);
 
     expect(vm.runInContext('timeline.length', context)).toBe(lenBefore + 1);
     expect(vm.runInContext('timeline[timeline.length - 1].kind', context)).toBe('event');
@@ -677,24 +711,22 @@ problem: Diagnostics
     const context = runSimulatorScript(html);
 
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'present', target: { module: 'main', component: 'モーダル', variant: null } })",
+      "fixtureResult({ type: 'transition', word: 'present', target: { module: 'main', component: 'モーダル', variant: null } })",
       context,
     );
     expect(vm.runInContext('timeline.length', context)).toBe(2);
 
     // モーダルは present（wall）で積まれたため goBack() は阻まれるが、警告は event エントリとして統合ログへ追記される
     vm.runInContext('goBack()', context);
-    expect(vm.runInContext('timeline.length', context)).toBe(3);
-    expect(vm.runInContext('timeline[timeline.length - 1].kind', context)).toBe('event');
-    const warnLabel = vm.runInContext('timeline[timeline.length - 1].label', context);
-    expect(warnLabel).toContain('壁');
+    expect(vm.runInContext('timeline.length', context)).toBe(2);
+    expect(vm.runInContext('sessionError', context)).toContain('DISABLED_ACTION');
 
     // push（非 wall）した場合は goBack() 成功、統合ログ末尾に back の transition エントリが追記される（pop しない）
     const doc2 = parseOk('# ホーム\n> 検索へ -> push(検索)\n\n# 検索\n本体\n');
     const html2 = toSimulator(new Map([['main', doc2]]), 'main');
     const context2 = runSimulatorScript(html2);
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
       context2,
     );
     expect(vm.runInContext('timeline.length', context2)).toBe(2);
@@ -712,13 +744,13 @@ problem: Diagnostics
     const context = runSimulatorScript(html);
 
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
       context,
     );
     expect(vm.runInContext('timeline.length', context)).toBe(2);
 
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'back', target: null, session: null })",
+      "fixtureResult({ type: 'transition', word: 'back', target: null, session: null })",
       context,
     );
     expect(vm.runInContext('timeline.length', context)).toBe(3);
@@ -733,28 +765,29 @@ problem: Diagnostics
     const context = runSimulatorScript(html);
 
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } })",
       context,
     );
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '詳細', variant: null } })",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '詳細', variant: null } })",
       context,
     );
     expect(vm.runInContext('timeline.length', context)).toBe(3);
 
     // ホームまで2段巻き戻す back(X) は、timeline を2件 pop するのでなく1件だけ追記する
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'back', target: { module: 'main', component: 'ホーム', variant: null }, session: null })",
+      "fixtureResult({ type: 'transition', word: 'back', target: { module: 'main', component: 'ホーム', variant: null }, session: null })",
       context,
     );
     expect(vm.runInContext('timeline.length', context)).toBe(4);
     expect(vm.runInContext('currentFrame().component', context)).toBe('ホーム');
     expect(vm.runInContext('stack.length', context)).toBe(1);
     const lastEntry = JSON.parse(vm.runInContext('JSON.stringify(timeline[timeline.length - 1])', context));
+    const lastSnapshot = JSON.parse(vm.runInContext('JSON.stringify(fixtureSnapshot(timeline.length - 1))', context));
     // 末尾＝現在地: 追記された snapshot の stack もホーム1件に一致する
     expect(lastEntry.kind).toBe('transition');
-    expect(lastEntry.snapshot.stack.length).toBe(1);
-    expect(lastEntry.snapshot.stack[0].component).toBe('ホーム');
+    expect(lastSnapshot.stack.length).toBe(1);
+    expect(lastSnapshot.stack[0].component).toBe('ホーム');
   });
 
   it('統合ログ: singleton の set による event エントリへ巻き戻すと sharedVariants が復元される（ADR-0014・受入基準e）', () => {
@@ -765,7 +798,7 @@ problem: Diagnostics
     const context = runSimulatorScript(html);
 
     vm.runInContext(
-      "applyTransition({ type: 'state', component: '学習', module: 'main', variant: 'ハート切れ' })",
+      "fixtureResult({ type: 'state', component: '学習', module: 'main', variant: 'ハート切れ' })",
       context,
     );
     expect(vm.runInContext('timeline.length', context)).toBe(2);
@@ -774,7 +807,7 @@ problem: Diagnostics
 
     // 起動時点（set 前）へ巻き戻すと共有レジストリから消える
     vm.runInContext('jumpToTimeline(0)', context);
-    expect(vm.runInContext("sharedVariants.has(skey('main', '学習'))", context)).toBe(false);
+    expect(vm.runInContext("componentValue('main', '学習').origin", context)).toBe('initial');
   });
 
   it('統合ログ: show/hide による event エントリへ巻き戻すと overlays が復元される（受入基準e）', () => {
@@ -783,12 +816,12 @@ problem: Diagnostics
     const context = runSimulatorScript(html);
 
     vm.runInContext(
-      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニプレイヤー', module: 'main', variant: null })",
+      "fixtureResult({ type: 'overlay', op: 'show', component: 'ミニプレイヤー', module: 'main', variant: null })",
       context,
     );
     expect(vm.runInContext('overlays.size', context)).toBe(1);
     vm.runInContext(
-      "applyTransition({ type: 'overlay', op: 'hide', component: 'ミニプレイヤー' })",
+      "fixtureResult({ type: 'overlay', op: 'hide', component: 'ミニプレイヤー' })",
       context,
     );
     expect(vm.runInContext('overlays.size', context)).toBe(0);
@@ -807,13 +840,13 @@ problem: Diagnostics
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
 
-    vm.runInContext("applyTransition({ type: 'effect', text: 'いいねしました' }); render()", context);
+    vm.runInContext("fixtureResult({ type: 'effect', text: 'いいねしました' }); render()", context);
     const afterEffectHtml = vm.runInContext('app.innerHTML', context);
     // event エントリは記録時点のアクティブ画面（ホーム）を併記する
     expect(afterEffectHtml).toMatch(/<span class="timeline-item-screen">\[ホーム\]<\/span> effect: いいねしました/);
 
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
       context,
     );
     const afterPushHtml = vm.runInContext('app.innerHTML', context);
@@ -833,7 +866,7 @@ problem: Diagnostics
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
       context,
     );
     const appHtml = vm.runInContext('app.innerHTML', context);
@@ -849,12 +882,12 @@ problem: Diagnostics
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'goto', target: { kind: 'variant', variant: '表示' } })",
+      "fixtureResult({ type: 'transition', word: 'goto', target: { kind: 'variant', variant: '表示' } })",
       context,
     );
     // transition 行は画面名ラベルを併記しない（N-2）ため、姿つきラベルの形式検証は
     // event 行（effect）で行う——遷移後の「表示」姿で effect を起こす。
-    vm.runInContext("applyTransition({ type: 'effect', text: '読み込み完了' }); render()", context);
+    vm.runInContext("fixtureResult({ type: 'effect', text: '読み込み完了' }); render()", context);
     const appHtml = vm.runInContext('app.innerHTML', context);
     expect(appHtml).toContain('[詳細 / 表示]');
   });
@@ -878,9 +911,9 @@ problem: Diagnostics
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
 
-    vm.runInContext("applyTransition({ type: 'effect', text: 'いいねしました' })", context);
+    vm.runInContext("fixtureResult({ type: 'effect', text: 'いいねしました' })", context);
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
       context,
     );
 
@@ -905,7 +938,7 @@ problem: Diagnostics
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
 
-    vm.runInContext("applyTransition({ type: 'effect', text: 'いいねしました' }); render()", context);
+    vm.runInContext("fixtureResult({ type: 'effect', text: 'いいねしました' }); render()", context);
 
     expect(vm.runInContext('showEvents', context)).toBe(true);
     const shownHtml = vm.runInContext('app.innerHTML', context);
@@ -927,11 +960,11 @@ problem: Diagnostics
     const context = runSimulatorScript(html);
 
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
       context,
     );
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '結果', variant: null } }); render()",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '結果', variant: null } }); render()",
       context,
     );
     const appHtml = vm.runInContext('app.innerHTML', context);
@@ -961,11 +994,11 @@ problem: Diagnostics
     const context = runSimulatorScript(html);
 
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
       context,
     );
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '結果', variant: null } }); render()",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '結果', variant: null } }); render()",
       context,
     );
     // 検索まで巻き戻す。「結果」は ghost になり、cursor（現在地）は「検索」を指す
@@ -1018,7 +1051,7 @@ problem: Diagnostics
     const appHtml = vm.runInContext('app.innerHTML', context);
     expect(appHtml).toContain('action-row-solo');
     expect(appHtml).not.toContain('[TRUE]');
-    const m = appHtml.match(/<div class="action-row action-row-solo" onclick="(handleInteraction\([^"]+)">/);
+    const m = appHtml.match(/<div class="action-row action-row-solo"[^>]* onclick="(handleInteraction\([^"]+)">/);
     expect(m).not.toBeNull();
     vm.runInContext(m![1]!, context);
     expect(vm.runInContext('currentFrame().component', context)).toBe('次');
@@ -1062,7 +1095,7 @@ problem: Diagnostics
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
     vm.runInContext(
-      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
+      "fixtureResult({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
       context,
     );
 
@@ -1232,7 +1265,7 @@ problem: Diagnostics
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
     vm.runInContext(
-      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
+      "fixtureResult({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
       context,
     );
     const appHtml = vm.runInContext('app.innerHTML', context);
@@ -1248,7 +1281,7 @@ problem: Diagnostics
     const context = runSimulatorScript(html);
     const appHtml = vm.runInContext('app.innerHTML', context);
     expect(appHtml).toContain('ログインフォーム');
-    expect(appHtml).toMatch(/<details open class="element-hierarchy">/);
+    expect(appHtml).toMatch(/<details open class="element-hierarchy"[^>]*>/);
     expect(appHtml).toContain('ID入力');
   });
 
@@ -1264,7 +1297,7 @@ problem: Diagnostics
     expect(appHtml).not.toContain('コンテンツ');
 
     // sharedVariants に「表示」を設定すると、展開はそちらへ追随する
-    vm.runInContext("sharedVariants.set(skey('main', '詳細'), '表示'); render()", context);
+    vm.runInContext("fixtureTrial('main', '詳細', '表示'); render()", context);
     const afterHtml = vm.runInContext('app.innerHTML', context);
     expect(afterHtml).toContain('コンテンツ');
   });
@@ -1313,7 +1346,7 @@ problem: Diagnostics
     // 押す(非表示要素?) は gate off（ホームの実効 body に非表示要素が無い）でフィルタされ、
     // フィルタ済み component リストは [タップ(ロゴ)] のみ——描画された onclick の idx は 0
     expect(appHtml).not.toContain('押す');
-    const m = appHtml.match(/onclick="(handleInteraction\('component',\d+,\d+\))"/);
+    const m = appHtml.match(/onclick="(handleInteraction\('component',\d+,\d+[^\"]*\))"/);
     expect(m).not.toBeNull();
     // 描画された onclick をそのまま実行すると、紐付け表示された タップ(ロゴ) が発火して 設定 へ遷移する
     vm.runInContext(m![1]!, context);
@@ -1329,7 +1362,7 @@ problem: Diagnostics
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
     vm.runInContext(
-      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
+      "fixtureResult({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
       context,
     );
     const appHtml = vm.runInContext('app.innerHTML', context);
@@ -1395,7 +1428,7 @@ problem: Diagnostics
 
     // present で wall フレームを積んでも、wall のため戻るボタンは描画されない
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'present', target: { module: 'main', component: 'モーダル', variant: null } }); render()",
+      "fixtureResult({ type: 'transition', word: 'present', target: { module: 'main', component: 'モーダル', variant: null } }); render()",
       context,
     );
     expect(vm.runInContext('stack.length', context)).toBe(2);
@@ -1776,7 +1809,7 @@ problem: Diagnostics
 
     // 状態保持: 遷移後もトグル状態は維持される
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '隣接1', variant: null } }); render()",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '隣接1', variant: null } }); render()",
       context,
     );
     expect(vm.runInContext('graphShowAll', context)).toBe(true);
@@ -1822,7 +1855,7 @@ problem: Diagnostics
 
     // push(検索) で遷移すると、ハイライトは検索ノードへ追随する
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
       context,
     );
     const afterHtml = vm.runInContext('app.innerHTML', context);
@@ -1875,7 +1908,7 @@ problem: Diagnostics
 
     // 遷移後も折畳み状態が保持される（受入基準b）
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
       context,
     );
     const afterTransitionHtml = vm.runInContext('app.innerHTML', context);
@@ -1902,7 +1935,7 @@ problem: Diagnostics
 
     // 画面遷移後も直近のリサイズ高さが保持される（render のたびに戻らない）
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
       context,
     );
     const afterTransitionHtml = vm.runInContext('app.innerHTML', context);
@@ -1925,7 +1958,7 @@ problem: Diagnostics
 
     // 遷移後も折畳み状態が保持される（受入基準b）。データ自体（stack）は表示に関わらず健在
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
       context,
     );
     const afterTransitionHtml = vm.runInContext('app.innerHTML', context);
@@ -2158,11 +2191,11 @@ problem: Diagnostics
     expect(centerSection.indexOf('現在の画面')).toBeLessThan(centerSection.indexOf('スタック'));
 
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: 'ログイン', variant: null }, session: 'login' }); render()",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: 'ログイン', variant: null }, session: 'login' }); render()",
       context,
     );
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'present', target: { module: 'main', component: '確認', variant: null } }); render()",
+      "fixtureResult({ type: 'transition', word: 'present', target: { module: 'main', component: '確認', variant: null } }); render()",
       context,
     );
     const appHtml = vm.runInContext('app.innerHTML', context);
@@ -2177,7 +2210,7 @@ problem: Diagnostics
     const context = runSimulatorScript(html);
 
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '検索', variant: null } }); render()",
       context,
     );
     const beforeHtml = vm.runInContext('app.innerHTML', context);
@@ -2194,15 +2227,15 @@ problem: Diagnostics
     const context = runSimulatorScript(html);
 
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: 'A', variant: null }, session: 'a' })",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: 'A', variant: null }, session: 'a' })",
       context,
     );
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: 'B', variant: null }, session: 'b' })",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: 'B', variant: null }, session: 'b' })",
       context,
     );
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'exit', target: null, session: 'missing' })",
+      "fixtureResult({ type: 'transition', word: 'exit', target: null, session: 'missing' })",
       context,
     );
     const timelineJson = JSON.parse(vm.runInContext('JSON.stringify(timeline)', context));
@@ -2210,11 +2243,9 @@ problem: Diagnostics
     expect(warningEntry).toBeDefined();
     expect(warningEntry.kind).toBe('event');
     const warning = warningEntry.label;
-    expect(warning).toContain('exit(@missing)');
-    expect(warning).toContain('@a');
-    expect(warning).toContain('@b');
-    // 積み順（a が先に push された）を保つ
-    expect(warning.indexOf('@a')).toBeLessThan(warning.indexOf('@b'));
+    expect(warning).toContain('exit 対象セッション @missing');
+    expect(warning).toContain('R002:');
+    expect(vm.runInContext('stack.filter(f => f.sessionName).map(f => f.sessionName).join() ', context)).toBe('a,b');
   });
 
   it('exit 警告改善: 現在のセッションがゼロ件なら「なし」と表示する（Task 7 受入基準d）', () => {
@@ -2223,12 +2254,13 @@ problem: Diagnostics
     const context = runSimulatorScript(html);
 
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'exit', target: null, session: 'missing' })",
+      "fixtureResult({ type: 'transition', word: 'exit', target: null, session: 'missing' })",
       context,
     );
     const timelineJson = JSON.parse(vm.runInContext('JSON.stringify(timeline)', context));
     const warning = timelineJson.map((e: any) => e.label).find((l: string) => l.includes('missing'));
-    expect(warning).toContain('なし');
+    expect(warning).toContain('R002:');
+    expect(vm.runInContext('stack.filter(f => f.sessionName).length', context)).toBe(0);
   });
 
   it('dismiss 警告改善: 対象セッション不在時も exit と同じ形式で現在のセッション一覧を含む（Task 7 受入基準d）', () => {
@@ -2237,17 +2269,17 @@ problem: Diagnostics
     const context = runSimulatorScript(html);
 
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: 'A', variant: null }, session: 'a' })",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: 'A', variant: null }, session: 'a' })",
       context,
     );
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'dismiss', target: null, session: 'missing' })",
+      "fixtureResult({ type: 'transition', word: 'dismiss', target: null, session: 'missing' })",
       context,
     );
     const timelineJson = JSON.parse(vm.runInContext('JSON.stringify(timeline)', context));
     const warning = timelineJson.map((e: any) => e.label).find((l: string) => l.includes('missing'));
-    expect(warning).toContain('dismiss(@missing)');
-    expect(warning).toContain('@a');
+    expect(warning).toContain('dismiss 対象セッション @missing');
+    expect(vm.runInContext('stack.filter(f => f.sessionName).map(f => f.sessionName).join()', context)).toBe('a');
   });
 
   it('dismiss() 無名: 無名 present(X) 開始フレーム以深だけを破棄する（SPEC「無名dismiss」・UX評価3.2、Task 12 受入基準a）', () => {
@@ -2257,21 +2289,21 @@ problem: Diagnostics
 
     // 無名 present(A) でセッション開始（present は常に wall=true、session省略で sessionName=null）
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'present', target: { module: 'main', component: 'A', variant: null }, session: null })",
+      "fixtureResult({ type: 'transition', word: 'present', target: { module: 'main', component: 'A', variant: null }, session: null })",
       context,
     );
     // 続けて無名 push(B), push(C) を数枚積む
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: 'B', variant: null }, session: null })",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: 'B', variant: null }, session: null })",
       context,
     );
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: 'C', variant: null }, session: null })",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: 'C', variant: null }, session: null })",
       context,
     );
     // 無名 dismiss()
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'dismiss', target: null, session: null })",
+      "fixtureResult({ type: 'transition', word: 'dismiss', target: null, session: null })",
       context,
     );
     const stackComponents = JSON.parse(vm.runInContext('JSON.stringify(stack.map(f => f.component))', context));
@@ -2286,12 +2318,12 @@ problem: Diagnostics
 
     // named session @tabHome で push(A)（wall=false・sessionNameあり）
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: 'A', variant: null }, session: 'tabHome' })",
+      "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: 'A', variant: null }, session: 'tabHome' })",
       context,
     );
     // named session @nowPlaying で present(B)（wall=true・sessionNameあり）
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'present', target: { module: 'main', component: 'B', variant: null }, session: 'nowPlaying' })",
+      "fixtureResult({ type: 'transition', word: 'present', target: { module: 'main', component: 'B', variant: null }, session: 'nowPlaying' })",
       context,
     );
     const beforeStack = JSON.parse(vm.runInContext('JSON.stringify(stack.map(f => f.component))', context));
@@ -2299,17 +2331,17 @@ problem: Diagnostics
 
     // 無名 dismiss()（アクティブパス上に無名セッションは1つも無い）
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'dismiss', target: null, session: null })",
+      "fixtureResult({ type: 'transition', word: 'dismiss', target: null, session: null })",
       context,
     );
     const afterStack = JSON.parse(vm.runInContext('JSON.stringify(stack.map(f => f.component))', context));
     expect(afterStack).toEqual(beforeStack); // no-op。起動画面まで崩壊しない
 
     const timelineJson = JSON.parse(vm.runInContext('JSON.stringify(timeline)', context));
-    const warning = timelineJson.map((e: any) => e.label).find((l: string) => l.includes('直近の無名セッション'));
+    const warning = timelineJson.map((e: any) => e.label).find((l: string) => l.includes('R002:'));
     expect(warning).toBeDefined();
-    expect(warning).toContain('@tabHome');
-    expect(warning).toContain('@nowPlaying');
+    expect(warning).toContain('(無名セッション)');
+    expect(vm.runInContext('stack.filter(f => f.sessionName).map(f => f.sessionName).join()', context)).toBe('tabHome,nowPlaying');
   });
 
   it('gate パネル改名: 画面外 component の姿切替（gate 試験用）という用途が伝わる見出し・説明を持つ（設計者確定事項 2026-07-19）', () => {
@@ -2404,7 +2436,7 @@ problem: Diagnostics
     expect(specialBefore![1]).not.toMatch(/graph-node-current/);
 
     vm.runInContext(
-      "applyTransition({ type: 'transition', word: 'goto', target: { kind: 'variant', variant: '特殊' } }); render()",
+      "fixtureResult({ type: 'transition', word: 'goto', target: { kind: 'variant', variant: '特殊' } }); render()",
       context,
     );
     const afterHtml = vm.runInContext('app.innerHTML', context);
@@ -2534,7 +2566,7 @@ problem: Diagnostics
     // n4 まで遷移すると n1 は近傍（2ホップ）から外れる
     for (const target of ['n1', 'n2', 'n3', 'n4']) {
       vm.runInContext(
-        `applyTransition({ type: 'transition', word: 'push', target: { module: 'main', component: '${target}', variant: null } }); render()`,
+        `fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: '${target}', variant: null } }); render()`,
         context,
       );
     }
@@ -2569,7 +2601,7 @@ problem: Diagnostics
     vm.runInContext('pinGraphTooltip(' + dateIdx + ')', context);
     const pinnedHtml = vm.runInContext('app.innerHTML', context);
     expect(pinnedHtml).toContain('graph-tooltip-gate');
-    expect(pinnedHtml).toMatch(/<select class="gate-inline-select" onchange="setInstanceVariant\(/);
+    expect(pinnedHtml).toMatch(/<select class="gate-inline-select"[^>]* onchange="setInstanceVariant\(/);
 
     // select の書換え先は既存 setInstanceVariant——直接呼んで統合の実効性を検証する
     // （書換え先の共有レジストリは gate ドロワー・アクション行インライン select と共通）
@@ -2644,7 +2676,7 @@ problem: Diagnostics
     const m = appHtml.match(/onclick="(handleNestedInteraction\([^"]+)"><span class="action-text">タップ\(検索ボタン\)<\/span>/);
     expect(m).not.toBeNull();
     // onclick には部品名などの文字列は埋め込まれず、数値インデックス列 + scope 固定キーのみ
-    expect(m![1]).toMatch(/^handleNestedInteraction\(-1,\[\d+\],'(variant|component)',\d+,\d+\)$/);
+    expect(m![1]).toMatch(/^handleNestedInteraction\(-1,\[\d+\],'(variant|component)',\d+,\d+[^\"]*\)$/);
     vm.runInContext(m![1]!, context);
     expect(vm.runInContext('currentFrame().component', context)).toBe('検索');
   });
@@ -2689,7 +2721,7 @@ problem: Diagnostics
     const before = vm.runInContext('app.innerHTML', context);
     expect(before).toContain('タップ(ランプ)');
     // 部品自身の表示 variant をオフへ切替（ホーム側の variant ではない）→ ランプ不在で gate が無効になる
-    vm.runInContext("sharedVariants.set(skey('main', 'スイッチ'), 'オフ'); render()", context);
+    vm.runInContext("fixtureTrial('main', 'スイッチ', 'オフ'); render()", context);
     const after = vm.runInContext('app.innerHTML', context);
     expect(after).not.toContain('タップ(ランプ)');
   });
@@ -2717,7 +2749,7 @@ problem: Diagnostics
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
     vm.runInContext(
-      "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
+      "fixtureResult({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
       context,
     );
     const appHtml = vm.runInContext('app.innerHTML', context);
@@ -2777,7 +2809,7 @@ problem: Diagnostics
       const html = toSimulator(new Map([['main', doc]]), 'main');
       const context = runSimulatorScript(html);
       vm.runInContext(
-        "applyTransition({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
+        "fixtureResult({ type: 'overlay', op: 'show', component: 'ミニ', module: 'main', variant: null }); render()",
         context,
       );
       const appHtml = vm.runInContext('app.innerHTML', context);

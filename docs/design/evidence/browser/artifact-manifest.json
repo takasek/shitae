@@ -1,0 +1,66 @@
+[
+  {
+    "name": "trials",
+    "source": "/Users/m5/works/shitae/.worktrees/issue-18-session/docs/design/session-fixtures/trial-values.shitae",
+    "modelId": "09844e23302d3214b33aac4d370c76b479855039dc4ffb93c844f1a4ead85060",
+    "engineVersion": "ce299a2b45cb70d24babf48ed0c4099331fb1d49c1bb365240fe0be5656a453f",
+    "bytes": 149023,
+    "htmlSha256": "221ff64ff29bef66424bde80ea7a50bfbc3f42f7b7d9ca46d988549c29a445dc"
+  },
+  {
+    "name": "switch",
+    "source": "/Users/m5/works/shitae/.worktrees/issue-18-session/docs/design/session-fixtures/switch-contexts.shitae",
+    "modelId": "8cda702eccce7ff63a61e9111e18e23f4408e16095c3c3d273cbf0d22f550c18",
+    "engineVersion": "ce299a2b45cb70d24babf48ed0c4099331fb1d49c1bb365240fe0be5656a453f",
+    "bytes": 162721,
+    "htmlSha256": "c8916dfd6c0cd54efe216b42f47725ec89c8ab4e4d224d5f073bcb947cc51054"
+  },
+  {
+    "name": "back",
+    "source": "/Users/m5/works/shitae/.worktrees/issue-18-session/docs/design/session-fixtures/builtin-back.shitae",
+    "modelId": "8c026d78a5c9369bcfb5f25ea51967fe865003b2ecea700b9b6e033ca6219f8f",
+    "engineVersion": "ce299a2b45cb70d24babf48ed0c4099331fb1d49c1bb365240fe0be5656a453f",
+    "bytes": 139934,
+    "htmlSha256": "9653dd4f9fc0396284ca425b4d292226f6172356e14697ff649b78ad88b323c0"
+  },
+  {
+    "name": "inline",
+    "source": "/Users/m5/works/shitae/.worktrees/issue-18-session/docs/dogfooding/2026-10-13-standalone/astra/models/inline-repro.shitae",
+    "modelId": "013dd2f448e460e0bfac637e6e71aaece9b8885db8d80baaa28d7beaf1052bc0",
+    "engineVersion": "ce299a2b45cb70d24babf48ed0c4099331fb1d49c1bb365240fe0be5656a453f",
+    "bytes": 140777,
+    "htmlSha256": "9e1fdb30989654f54783a513891ab63d2986a531785efb6f9fa46641b8ba7cc8"
+  },
+  {
+    "name": "sol-current",
+    "source": "/Users/m5/works/shitae/.worktrees/issue-18-session/docs/dogfooding/2026-10-13-standalone/sol/models/current.shitae",
+    "modelId": "c465bef332cbc4ad23a6975d7126fe8ff9c21372663bb1f390979fbaa28a206f",
+    "engineVersion": "ce299a2b45cb70d24babf48ed0c4099331fb1d49c1bb365240fe0be5656a453f",
+    "bytes": 176476,
+    "htmlSha256": "39c9ec943e8cf77d907e75c00738ab83fe07c580476b1858593dad065573fb92"
+  },
+  {
+    "name": "sol-proposed",
+    "source": "/Users/m5/works/shitae/.worktrees/issue-18-session/docs/dogfooding/2026-10-13-standalone/sol/models/proposed.shitae",
+    "modelId": "aaf867ce7379fa4640b3c2941f1296d6cbd6f74c5352d2f5014e041420b56264",
+    "engineVersion": "ce299a2b45cb70d24babf48ed0c4099331fb1d49c1bb365240fe0be5656a453f",
+    "bytes": 194341,
+    "htmlSha256": "fc564bd9125d290f9578cbea4774754d6ee2904f864bceda9d0a468292241515"
+  },
+  {
+    "name": "astra-current",
+    "source": "/Users/m5/works/shitae/.worktrees/issue-18-session/docs/dogfooding/2026-10-13-standalone/astra/models/current.shitae",
+    "modelId": "ecf8621b1a3da7142acb7f5767ab248379419bd165eb2cc008324a08825cb4d0",
+    "engineVersion": "ce299a2b45cb70d24babf48ed0c4099331fb1d49c1bb365240fe0be5656a453f",
+    "bytes": 167675,
+    "htmlSha256": "73c55c4608bc5be4057ce6a14b14d7cade49147fb0ac913548f385790c2a7e68"
+  },
+  {
+    "name": "astra-proposed",
+    "source": "/Users/m5/works/shitae/.worktrees/issue-18-session/docs/dogfooding/2026-10-13-standalone/astra/models/proposed.shitae",
+    "modelId": "e0232b1b5438852d85f1db03ccdb6e730b5afee6a5a0e5c57db9efe62ba5d0d3",
+    "engineVersion": "ce299a2b45cb70d24babf48ed0c4099331fb1d49c1bb365240fe0be5656a453f",
+    "bytes": 175858,
+    "htmlSha256": "fe0a9aa00de333afbae687fe3832b68584b9c01589590b9ae822d029f69304d0"
+  }
+]
