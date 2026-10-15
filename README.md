@@ -57,14 +57,46 @@ shitae は条件式もデータもレイアウトも、意図的に持たない�
 
 ## 使い方
 
-```bash
-pnpm install
-make build
+リポジトリのルートで、lockfile に固定された依存を準備し、各 package を build する。
 
-node packages/cli/dist/index.js check    <file.shitae>   # 診断
-node packages/cli/dist/index.js mermaid  <file.shitae>   # フロー図（Mermaid）
-node packages/cli/dist/index.js session  <file.shitae>   # 同じ process で操作を照会・実行
-make simulate FILE=<file.shitae>                          # ブラウザで歩ける simulator
+```bash
+pnpm install --frozen-lockfile
+pnpm -r build
+```
+
+### 検査して、二つのモデルをブラウザで開く
+
+まず `check` でモデルと全 import 先を検査する。ここでは単一ファイルの EC と、module 分割されたスマートホームを使う。
+
+```bash
+node packages/cli/dist/index.js check docs/examples/ecommerce.shitae
+node packages/cli/dist/index.js check docs/examples/smarthome/main.shitae
+```
+
+診断は標準エラー出力に出る。`[warning]` だけなら終了コードは 0、`[error]` があれば 1 になる。診断がなければ何も表示しない。error は直してから次へ進み、warning は内容を確認する。`simulate` の生成成功は、この `check` による全 import 先の検査を通ったことを意味しない。
+
+`simulate` は HTML を標準出力へ書く。比較用には毎回新しい保存先を作り、モデルごとに名前を付ける。次は macOS の例（各 `open` は生成コマンドが成功した場合だけ実行する）。
+
+```bash
+sim_dir="$(mktemp -d "${TMPDIR:-/tmp}/shitae-sim.XXXXXX")"
+node packages/cli/dist/index.js simulate docs/examples/ecommerce.shitae > "$sim_dir/ecommerce.html" &&
+  open "$sim_dir/ecommerce.html"
+node packages/cli/dist/index.js simulate docs/examples/smarthome/main.shitae > "$sim_dir/smarthome.html" &&
+  open "$sim_dir/smarthome.html"
+git rev-parse HEAD > "$sim_dir/shitae-revision.txt"
+```
+
+ブラウザで EC／スマートホームの画面名を確認してから操作すると、二つを取り違えずに比較できる。macOS 以外では、保存した HTML をブラウザで開く。`make simulate FILE=docs/examples/ecommerce.shitae` は build・生成・macOS でのブラウザ起動をまとめた入口で、毎回 `/tmp/shitae-sim.html` を上書きする。
+
+### 共有する
+
+閲覧する相手には生成済み HTML を渡せばよく、Node.js や元の `.shitae` は不要。編集・再生成する相手には、元モデルと全参照 module を相対配置を保って渡す。隣に `<モデル名>.simconfig.json` を置いている場合はそれも含める。どちらにも生成元の処理系版（上の `shitae-revision.txt` に保存した commit SHA）を添える。
+
+### 図示・操作の照会
+
+```bash
+node packages/cli/dist/index.js mermaid <file.shitae>  # フロー図（Mermaid）
+node packages/cli/dist/index.js session <file.shitae>  # 同じ process で操作を照会・実行
 ```
 
 `session` は JSON Lines で操作一覧を照会し、分岐を選んで実行し、現在地を確認できる。通常応答は小さな summary と今回の receipt、操作一覧は選択に必要な情報に絞る。action/state/metadata/history/observation の詳細は必要なときだけ照会する。setTestVariant/reset と、同じ Session を使う GUI も提供する。[使用方法・CLI/ブラウザの実測](docs/design/session-usage.md) を参照。
