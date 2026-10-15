@@ -1,6 +1,6 @@
 import { createInterface } from 'node:readline';
 import { once } from 'node:events';
-import { Session, SessionError, type QueryOptions } from '@shitae/session';
+import { Session, SessionError, ScenarioError, type QueryOptions } from '@shitae/session';
 
 function invalid(message: string): never { throw new SessionError('INVALID_REQUEST', message); }
 function fields(request: Record<string, unknown>, allowed: string[]) {
@@ -39,12 +39,15 @@ export async function serveSession(session: Session): Promise<void> {
         fields(request, ['id', 'command', 'module', 'component', 'variant']);
         if (typeof request.module !== 'string' || typeof request.component !== 'string' || typeof request.variant !== 'string') invalid('module/component/variant must be strings');
         result = session.setTestVariant({ module: request.module, component: request.component, variant: request.variant });
+      } else if (request.command === 'exportScenario') {
+        fields(request, ['id', 'command']);
+        result = { ...session.query(), scenario: await session.exportScenario() };
       } else {
         throw new SessionError('UNKNOWN_COMMAND', 'Unknown command');
       }
       response = { id, ok: true, protocolVersion: 1, ...result };
     } catch (error) {
-      if (!(error instanceof SessionError)) throw error;
+      if (!(error instanceof SessionError) && !(error instanceof ScenarioError)) throw error;
       response = { id, ok: false, protocolVersion: 1, error: { code: error.code, message: error.message.slice(error.code.length + 2) }, revision: session.query().revision };
     }
     if (!process.stdout.write(JSON.stringify(response) + '\n')) await once(process.stdout, 'drain');
