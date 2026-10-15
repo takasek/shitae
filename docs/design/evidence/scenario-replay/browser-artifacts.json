@@ -1,0 +1,30 @@
+{
+  "previewDirectory": "/var/folders/9_/4tpbkqtx4736th9prcgtb0yh0000gn/T/shitae-11-browser-rp6hb1oy",
+  "artifacts": [
+    {
+      "name": "trial",
+      "source": "docs/design/session-fixtures/trial-values.shitae",
+      "htmlSha256": "c3d44d5108a2cbe901d89a75ef190ca5973e2d8803e21bae9b2d5eca6228d497",
+      "bytes": 179865
+    },
+    {
+      "name": "sol",
+      "source": "docs/dogfooding/2026-10-13-standalone/sol/models/proposed.shitae",
+      "htmlSha256": "e8585395f09f6c954d02d9cf979a667e3e231b6385ecf4b4c60b1d68f4ca0c8d",
+      "bytes": 225183
+    },
+    {
+      "name": "astra",
+      "source": "docs/dogfooding/2026-10-13-standalone/astra/models/proposed.shitae",
+      "htmlSha256": "7e80089ac417dc6c1b1850782835d97bf3dceed532981294ccf211ac9eb4d262",
+      "bytes": 206700
+    }
+  ],
+  "server": {
+    "bind": "127.0.0.1",
+    "port": 63101,
+    "stoppedBy": "Ctrl-C on owned exec session",
+    "exitCode": 0,
+    "afterStopConnectEx": 61
+  }
+}

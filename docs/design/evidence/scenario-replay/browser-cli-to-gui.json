@@ -1,0 +1,10 @@
+{
+  "url": "http://127.0.0.1:63101/sol.html",
+  "sidecar": "sol-proposed.scenario.json",
+  "observed": {
+    "screen": "現在の画面初期状態へシナリオを保存 シナリオを読み込む シナリオを読み込みました（12操作を照合）アクティブな frame の表示（本体）と掲示中カード アクションを表示 部品の状態を表示画面外 component の姿切替（gate 試験用）今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。Workspace## SourcenavigationfolderfilesrecenttabsDocumentTabnamestatecloseidentitynamecontextdocumentsaveformatNormalizeviewsourcetextmarkersstatusstateSplitvariant固有DiagramOnlyvariant固有CloseLastDocumentcomponent commonOpenDocumentcomponent commonParseErrorcomponent commonValidInputcomponent common",
+    "status": "シナリオを読み込みました（12操作を照合）",
+    "timelineCount": 22
+  },
+  "console": []
+}

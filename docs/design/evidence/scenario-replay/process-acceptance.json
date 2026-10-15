@@ -1,0 +1,527 @@
+{
+  "date": "2026-10-15T13:08:01.016Z",
+  "node": "v26.5.0",
+  "engineVersion": "8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db",
+  "cases": 4,
+  "requests": 114,
+  "dispatches": 35,
+  "accepted": 34,
+  "runs": [
+    {
+      "name": "sol/current",
+      "source": "docs/dogfooding/2026-10-13-standalone/sol/models/current.shitae",
+      "relocatedSource": "/var/folders/9_/4tpbkqtx4736th9prcgtb0yh0000gn/T/shitae-11-process-NGs6BT/sol-current/current.shitae",
+      "model": {
+        "engineVersion": "8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db",
+        "modelId": "1e15f0c81f68cdd6dc4cd5d9c4b4361641aeda629c893a710907fa147eec5deb",
+        "entryModule": "current",
+        "sourceBasis": "source-bytes",
+        "manifest": [
+          {
+            "module": "current",
+            "sourceSha256": "4e0ae2bbac9557df599a2282b421beaac65dce4d33c36ef3c37f50e5c1a943da"
+          }
+        ]
+      },
+      "requests": 20,
+      "dispatches": 6,
+      "accepted": 6,
+      "journalSteps": 6,
+      "observations": 8,
+      "sidecar": "sol-current.scenario.json",
+      "sidecarBytes": 59789,
+      "sidecarSha256": "5a9fd1de82f7dddd015b8640387d59f0574a5d7dc8ad3ef18331d93867de209b",
+      "initialDigest": "ec461ba01ec903e0089f9606d873d29bb57e384259c95b97d813cc8d2f7e450d",
+      "finalDigest": "213489a2f2a718c44ba6b95aa072e3576323e2b879d9f682c93a014e161d6b1e",
+      "route": [
+        {
+          "accepted": true,
+          "location": {
+            "module": "current",
+            "component": "Workspace",
+            "variant": "Editing"
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "current",
+            "component": "Workspace",
+            "variant": "Editing"
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "current",
+            "component": "Workspace",
+            "variant": "Editing"
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "current",
+            "component": "Workspace",
+            "variant": "Editing"
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "current",
+            "component": "Workspace",
+            "variant": "NoDocument"
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "current",
+            "component": "Workspace",
+            "variant": "NoDocument"
+          },
+          "error": null
+        }
+      ],
+      "first": {
+        "pid": 28423,
+        "startedAt": "2026-10-15T13:08:00.528Z",
+        "endedAt": "2026-10-15T13:08:00.584Z",
+        "exitCode": 0,
+        "signal": null,
+        "stderr": ""
+      },
+      "second": {
+        "pid": 28424,
+        "startedAt": "2026-10-15T13:08:00.584Z",
+        "endedAt": "2026-10-15T13:08:00.647Z",
+        "exitCode": 0,
+        "signal": null,
+        "stderr": ""
+      },
+      "finalLocation": {
+        "module": "current",
+        "component": "Workspace",
+        "variant": "NoDocument"
+      },
+      "allRecordedStepsAndOutputsEqual": true
+    },
+    {
+      "name": "sol/proposed",
+      "source": "docs/dogfooding/2026-10-13-standalone/sol/models/proposed.shitae",
+      "relocatedSource": "/var/folders/9_/4tpbkqtx4736th9prcgtb0yh0000gn/T/shitae-11-process-NGs6BT/sol-proposed/proposed.shitae",
+      "model": {
+        "engineVersion": "8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db",
+        "modelId": "833ac19bae9f33fc60a26239a655442eda3c6f349ad725b6302fa800d75fa9da",
+        "entryModule": "proposed",
+        "sourceBasis": "source-bytes",
+        "manifest": [
+          {
+            "module": "proposed",
+            "sourceSha256": "acc1cd09372ee07d350ae9cdb0283fd7080fa7f53263dc53cb1bf5cc166edc3b"
+          }
+        ]
+      },
+      "requests": 42,
+      "dispatches": 13,
+      "accepted": 12,
+      "journalSteps": 12,
+      "observations": 21,
+      "sidecar": "sol-proposed.scenario.json",
+      "sidecarBytes": 80340,
+      "sidecarSha256": "4e9d5e02ccf1869bffb5b799456d9aef9ece1a5e852de6f5cf08347fe248aa13",
+      "initialDigest": "4251ecb4e4571707823ca9db72d2fdcadd08f7eb54d2b510046ac257fb40e220",
+      "finalDigest": "7c8ba23ede3d49fa5b85b3f7a4115d838e8c1e306aa9fa1ac7514b4c1e311cd7",
+      "route": [
+        {
+          "accepted": true,
+          "location": {
+            "module": "proposed",
+            "component": "Workspace",
+            "variant": "Source"
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "proposed",
+            "component": "Workspace",
+            "variant": "Diagram"
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "proposed",
+            "component": "Workspace",
+            "variant": "Split"
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "proposed",
+            "component": "Workspace",
+            "variant": "Split"
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "proposed",
+            "component": "VersionReview",
+            "variant": null
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "proposed",
+            "component": "Workspace",
+            "variant": "Split"
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "proposed",
+            "component": "Workspace",
+            "variant": "Split"
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "proposed",
+            "component": "Workspace",
+            "variant": "Diagram"
+          },
+          "error": null
+        },
+        {
+          "accepted": false,
+          "location": null,
+          "error": "DISABLED_ACTION"
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "proposed",
+            "component": "Workspace",
+            "variant": "Diagram"
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "proposed",
+            "component": "Workspace",
+            "variant": "Split"
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "proposed",
+            "component": "Workspace",
+            "variant": "NoDocument"
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "proposed",
+            "component": "Workspace",
+            "variant": "Source"
+          },
+          "error": null
+        }
+      ],
+      "first": {
+        "pid": 28425,
+        "startedAt": "2026-10-15T13:08:00.647Z",
+        "endedAt": "2026-10-15T13:08:00.714Z",
+        "exitCode": 0,
+        "signal": null,
+        "stderr": ""
+      },
+      "second": {
+        "pid": 28427,
+        "startedAt": "2026-10-15T13:08:00.714Z",
+        "endedAt": "2026-10-15T13:08:00.795Z",
+        "exitCode": 0,
+        "signal": null,
+        "stderr": ""
+      },
+      "finalLocation": {
+        "module": "proposed",
+        "component": "Workspace",
+        "variant": "Source"
+      },
+      "allRecordedStepsAndOutputsEqual": true
+    },
+    {
+      "name": "astra/current",
+      "source": "docs/dogfooding/2026-10-13-standalone/astra/models/current.shitae",
+      "relocatedSource": "/var/folders/9_/4tpbkqtx4736th9prcgtb0yh0000gn/T/shitae-11-process-NGs6BT/astra-current/current.shitae",
+      "model": {
+        "engineVersion": "8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db",
+        "modelId": "55e16f9a25e41b9658dfab22738735694ab90a04c60b23bb32e9de3bec5ee8c0",
+        "entryModule": "current",
+        "sourceBasis": "source-bytes",
+        "manifest": [
+          {
+            "module": "current",
+            "sourceSha256": "05c29e9748933be7d8dd14f912a4a6c630b195bcec65fedc69d93778949baf7f"
+          }
+        ]
+      },
+      "requests": 20,
+      "dispatches": 6,
+      "accepted": 6,
+      "journalSteps": 6,
+      "observations": 8,
+      "sidecar": "astra-current.scenario.json",
+      "sidecarBytes": 53997,
+      "sidecarSha256": "fd0538ac1f2e294a9a4b2acb66dad127a95c05abc59ac3dffa694d79d59e8ee2",
+      "initialDigest": "b5f12f0928298c540d93c12fd1e8d940aabf95ac9347707a0c86cfa05e66c61f",
+      "finalDigest": "ed8dd85e46424a9cf91863f5713180ec9511788531fca624ae329694488aa8cb",
+      "route": [
+        {
+          "accepted": true,
+          "location": {
+            "module": "current",
+            "component": "文書A",
+            "variant": "保存済"
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "current",
+            "component": "文書A",
+            "variant": "未保存"
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "current",
+            "component": "文書A",
+            "variant": "保存済"
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "current",
+            "component": "文書B",
+            "variant": "保存済"
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "current",
+            "component": "文書B",
+            "variant": "未保存"
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "current",
+            "component": "文書A",
+            "variant": "保存済"
+          },
+          "error": null
+        }
+      ],
+      "first": {
+        "pid": 28429,
+        "startedAt": "2026-10-15T13:08:00.795Z",
+        "endedAt": "2026-10-15T13:08:00.845Z",
+        "exitCode": 0,
+        "signal": null,
+        "stderr": ""
+      },
+      "second": {
+        "pid": 28430,
+        "startedAt": "2026-10-15T13:08:00.845Z",
+        "endedAt": "2026-10-15T13:08:00.899Z",
+        "exitCode": 0,
+        "signal": null,
+        "stderr": ""
+      },
+      "finalLocation": {
+        "module": "current",
+        "component": "文書A",
+        "variant": "保存済"
+      },
+      "allRecordedStepsAndOutputsEqual": true
+    },
+    {
+      "name": "astra/proposed",
+      "source": "docs/dogfooding/2026-10-13-standalone/astra/models/proposed.shitae",
+      "relocatedSource": "/var/folders/9_/4tpbkqtx4736th9prcgtb0yh0000gn/T/shitae-11-process-NGs6BT/astra-proposed/proposed.shitae",
+      "model": {
+        "engineVersion": "8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db",
+        "modelId": "a0014f35103a4f09d8355c496e8c5378b3922d3730964e2ae266123e05c3da81",
+        "entryModule": "proposed",
+        "sourceBasis": "source-bytes",
+        "manifest": [
+          {
+            "module": "proposed",
+            "sourceSha256": "4df483ee831379ef3a52988950985072717e3cdba5a7e86181fad62568b8810a"
+          }
+        ]
+      },
+      "requests": 32,
+      "dispatches": 10,
+      "accepted": 10,
+      "journalSteps": 10,
+      "observations": 12,
+      "sidecar": "astra-proposed.scenario.json",
+      "sidecarBytes": 64733,
+      "sidecarSha256": "30cbda66cbf547d558f8d47407dcbb1d630f7fd758e97dc918dcd5f883201bfd",
+      "initialDigest": "42412e451bc37a3c9b3e1cadb6e3c03ca4da3d5ae8e349f4792be7d0261d157a",
+      "finalDigest": "bbf1fd427bb7ae58321b9f38d2dd14505ad353f18e464ca0c2d8f72e5f330b11",
+      "route": [
+        {
+          "accepted": true,
+          "location": {
+            "module": "proposed",
+            "component": "文書A",
+            "variant": null
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "proposed",
+            "component": "文書A",
+            "variant": null
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "proposed",
+            "component": "文書A",
+            "variant": null
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "proposed",
+            "component": "文書B",
+            "variant": null
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "proposed",
+            "component": "文書B",
+            "variant": null
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "proposed",
+            "component": "文書A",
+            "variant": null
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "proposed",
+            "component": "文書A",
+            "variant": null
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "proposed",
+            "component": "文書A",
+            "variant": null
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "proposed",
+            "component": "比較",
+            "variant": null
+          },
+          "error": null
+        },
+        {
+          "accepted": true,
+          "location": {
+            "module": "proposed",
+            "component": "文書A",
+            "variant": null
+          },
+          "error": null
+        }
+      ],
+      "first": {
+        "pid": 28431,
+        "startedAt": "2026-10-15T13:08:00.899Z",
+        "endedAt": "2026-10-15T13:08:00.954Z",
+        "exitCode": 0,
+        "signal": null,
+        "stderr": ""
+      },
+      "second": {
+        "pid": 28432,
+        "startedAt": "2026-10-15T13:08:00.954Z",
+        "endedAt": "2026-10-15T13:08:01.015Z",
+        "exitCode": 0,
+        "signal": null,
+        "stderr": ""
+      },
+      "finalLocation": {
+        "module": "proposed",
+        "component": "文書A",
+        "variant": null
+      },
+      "allRecordedStepsAndOutputsEqual": true
+    }
+  ],
+  "proof": "Each A exited with code 0 before B was spawned; model bytes relocated; exported scenario equality checks every saved step, observation/output and final projection."
+}

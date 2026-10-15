@@ -1,0 +1,217 @@
+{
+  "date": "2026-10-15",
+  "tdd": [
+    {
+      "phase": "session-red",
+      "logSha256": "477e0155ae527ee31d95e5326cde15eb0638400b0cfdf1a5bfc52831ad684dc1",
+      "summaries": [
+        "⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯",
+        "Test Files  1 failed | 4 passed (5)",
+        "Tests  7 failed | 22 passed (29)",
+        "Start at  21:55:45",
+        "Duration  378ms (transform 126ms, setup 0ms, collect 345ms, tests 220ms, environment 0ms, prepare 178ms)"
+      ],
+      "failures": [
+        "FAIL  test/scenario.test.ts > versioned scenario journal > replays branches, trial scope/origin, mid-result seek, ghost branching, reset and accepted no-op",
+        "TypeError: s.exportScenario is not a function",
+        "FAIL  test/scenario.test.ts > versioned scenario journal > does not record queries, export or rejected commands; saved values are detached",
+        "TypeError: s.exportScenario is not a function",
+        "FAIL  test/scenario.test.ts > versioned scenario journal > distinguishes repeated placements and built-in back from DSL back",
+        "TypeError: s.exportScenario is not a function",
+        "FAIL  test/scenario.test.ts > versioned scenario journal > refuses metadata-less/AST-only exports and mismatched engine or any source byte before replay",
+        "TypeError: make(...).exportScenario is not a function",
+        "FAIL  test/scenario.test.ts > versioned scenario journal > rejects malformed/unknown schema and never repairs a missing action/branch",
+        "TypeError: s.exportScenario is not a function",
+        "FAIL  test/scenario.test.ts > versioned scenario journal > rejects the first altered intermediate/output/checkpoint even when the final location matches",
+        "TypeError: s.exportScenario is not a function",
+        "FAIL  test/scenario.test.ts > versioned scenario journal > rejects seek references into discarded ghosts/reset epochs and forward/no-observation steps",
+        "TypeError: s.exportScenario is not a function"
+      ]
+    },
+    {
+      "phase": "session-first-green",
+      "logSha256": "bc29f62c5db912f158288f8ee9cb94d10ae61b1813040e21b0a6ceb7c2a37036",
+      "summaries": [
+        "Test Files  5 passed (5)",
+        "Tests  29 passed (29)",
+        "Start at  21:58:07",
+        "Duration  418ms (transform 138ms, setup 0ms, collect 409ms, tests 334ms, environment 0ms, prepare 194ms)"
+      ],
+      "failures": []
+    },
+    {
+      "phase": "cli-red",
+      "logSha256": "a1e5a150012b8a43550e2f8146ae8a5c60fad6d963e4623499bda2e66f2ebd5d",
+      "summaries": [
+        "⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯",
+        "Test Files  1 failed | 2 passed (3)",
+        "Tests  2 failed | 25 passed (27)",
+        "Start at  21:59:35",
+        "Duration  839ms (transform 49ms, setup 0ms, collect 81ms, tests 1.51s, environment 0ms, prepare 89ms)"
+      ],
+      "failures": [
+        "FAIL  test/session.test.ts > shitae session persistent JSON Lines > exports, exits, reloads in a different process/directory and continues with fresh handles",
+        "AssertionError: expected false to be true // Object.is equality",
+        "FAIL  test/session.test.ts > shitae session persistent JSON Lines > replay startup rejects mismatched model, malformed sidecar and unsupported arguments without stdout",
+        "AssertionError: expected false to be true // Object.is equality"
+      ]
+    },
+    {
+      "phase": "cli-green",
+      "logSha256": "d184cd5664f527c8770732dc4b31eb34e1c52928e3b67b31d500ee0673ead6ed",
+      "summaries": [
+        "Test Files  3 passed (3)",
+        "Tests  27 passed (27)",
+        "Start at  22:00:11",
+        "Duration  864ms (transform 45ms, setup 0ms, collect 75ms, tests 1.82s, environment 0ms, prepare 76ms)"
+      ],
+      "failures": []
+    },
+    {
+      "phase": "gui-red",
+      "logSha256": "cb1335eadd047a575df1d5ee4a9808c90059f6b06eeb8d0b5921433abcfa4370",
+      "summaries": [
+        "⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯",
+        "Test Files  1 failed (1)",
+        "Tests  3 failed (3)",
+        "Start at  22:00:59",
+        "Duration  226ms (transform 63ms, setup 0ms, collect 78ms, tests 17ms, environment 0ms, prepare 28ms)"
+      ],
+      "failures": [
+        "FAIL  test/scenario-ui.test.ts > scenario GUI import/export > downloads one sidecar, imports into another generated page, preserves mid-result ghost and rejects old clicks",
+        "ReferenceError: buildScenarioJson is not defined",
+        "FAIL  test/scenario-ui.test.ts > scenario GUI import/export > keeps the live Session and its handles on invalid/foreign imports, and accepts CLI/library output",
+        "ReferenceError: loadScenarioText is not defined",
+        "FAIL  test/scenario-ui.test.ts > scenario GUI import/export > reports AST-only export as unsupported without fabricating source-byte identity",
+        "ReferenceError: saveScenario is not defined"
+      ]
+    },
+    {
+      "phase": "review-red",
+      "logSha256": "5a3a6366e022d1eac79c6bcb24f9777dd235a16f2d6480ea5d68e41d267a0d29",
+      "summaries": [
+        "⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯",
+        "Test Files  1 failed | 4 passed (5)",
+        "Tests  2 failed | 29 passed (31)",
+        "Start at  22:02:18",
+        "Duration  387ms (transform 128ms, setup 0ms, collect 369ms, tests 331ms, environment 0ms, prepare 152ms)"
+      ],
+      "failures": [
+        "FAIL  test/scenario.test.ts > versioned scenario journal > validates the complete final projection before executing any saved command",
+        "AssertionError: expected [Function] to throw error including 'SCENARIO_FORMAT' but got 'SCENARIO_FINAL_MISMATCH at step 1: Ex…'",
+        "FAIL  test/scenario.test.ts > versioned scenario journal > reports the first differing path with its actual expected and replayed values",
+        "AssertionError: expected 'SCENARIO_RESULT_MISMATCH at step 1: E…' to contain 'output.effects[0].text'"
+      ]
+    },
+    {
+      "phase": "boundary-red",
+      "logSha256": "770e248b5f66c2bf8faf32b728aa6b55b73e200ebe3fcda764a639dd1a00ee0c",
+      "summaries": [
+        "⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯",
+        "Test Files  1 failed | 4 passed (5)",
+        "Tests  2 failed | 30 passed (32)",
+        "Start at  22:05:12",
+        "Duration  453ms (transform 156ms, setup 0ms, collect 429ms, tests 336ms, environment 0ms, prepare 221ms)"
+      ],
+      "failures": [
+        "FAIL  test/scenario.test.ts > versioned scenario journal > validates the complete final projection before executing any saved command",
+        "AssertionError: expected [Function] to throw error including 'SCENARIO_FORMAT' but got 'SCENARIO_FINAL_MISMATCH at step 1: fi…'",
+        "FAIL  test/scenario.test.ts > versioned scenario journal > fails export explicitly when recording hashes fail instead of saving a partial journal",
+        "AssertionError: expected [Function] to throw error including 'SCENARIO_RECORDING' but got 'injected hash failure'"
+      ]
+    },
+    {
+      "phase": "session-final",
+      "logSha256": "3769ab1b6b57ce0d1d94cf4fe1676c8bc1318d43493eff84e99de57000df57bc",
+      "summaries": [
+        "Test Files  5 passed (5)",
+        "Tests  32 passed (32)",
+        "Start at  22:05:36",
+        "Duration  384ms (transform 124ms, setup 0ms, collect 360ms, tests 330ms, environment 0ms, prepare 153ms)"
+      ],
+      "failures": []
+    },
+    {
+      "phase": "gui-race-red",
+      "logSha256": "e082e8dbd242d5c21d270cb5743a72c4b9c0e42986ca28e6a2d2eb41a4b3a9a1",
+      "summaries": [
+        "⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯",
+        "Test Files  1 failed (1)",
+        "Tests  1 failed | 3 passed (4)",
+        "Start at  22:12:48",
+        "Duration  364ms (transform 144ms, setup 0ms, collect 167ms, tests 53ms, environment 0ms, prepare 34ms)"
+      ],
+      "failures": [
+        "FAIL  test/scenario-ui.test.ts > scenario GUI import/export > locks from the start of file reading through replay, rejects older/newer overlap and unlocks on read failure",
+        "AssertionError: expected false to be true // Object.is equality"
+      ]
+    },
+    {
+      "phase": "gui-final",
+      "logSha256": "31c85f8b926f6131c5e7a8cb427e5000edb23ad94eddff706c69aa0a9eaaa296",
+      "summaries": [
+        "Test Files  5 passed (5)",
+        "Tests  228 passed (228)",
+        "Start at  22:13:02",
+        "Duration  624ms (transform 171ms, setup 0ms, collect 443ms, tests 506ms, environment 0ms, prepare 160ms)"
+      ],
+      "failures": []
+    }
+  ],
+  "fullRun": {
+    "exitCode": 0,
+    "packages": [
+      {
+        "package": "packages/parser",
+        "passed": 246
+      },
+      {
+        "package": "packages/runtime",
+        "passed": 97
+      },
+      {
+        "package": "packages/resolver",
+        "passed": 37
+      },
+      {
+        "package": "packages/transpiler-xstate",
+        "passed": 35
+      },
+      {
+        "package": "packages/checker",
+        "passed": 29
+      },
+      {
+        "package": "packages/transpiler-mermaid",
+        "passed": 20
+      },
+      {
+        "package": "packages/session",
+        "passed": 32
+      },
+      {
+        "package": "packages/simulator",
+        "passed": 227
+      },
+      {
+        "package": "packages/cli",
+        "passed": 27
+      }
+    ],
+    "passed": 750
+  },
+  "afterGuiRaceFix": {
+    "simulator": 228,
+    "scenarioGui": 4,
+    "typecheck": "passed"
+  },
+  "currentSuiteTotal": {
+    "unchangedPreviouslyPassed": 523,
+    "changedPackagePassed": 228,
+    "sum": 751,
+    "singleFinalFullRun": false
+  },
+  "build": "all packages passed before final GUI-only change; simulator dependency build passed after that change",
+  "typecheck": "all packages passed before final GUI-only change; simulator typecheck passed after that change",
+  "independentReview": "core and integration findings resolved; see independent-review.md"
+}

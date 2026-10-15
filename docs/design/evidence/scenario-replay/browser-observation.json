@@ -1,0 +1,47 @@
+{
+  "url": "http://127.0.0.1:63101/trial.html",
+  "steps": [
+    "choose [yes]",
+    "Card trial Ready",
+    "seek set(Badge)",
+    "download scenario",
+    "reload page",
+    "choose downloaded file",
+    "3 commands verified, Screen/Start Badge/On DSL and three ghosts restored",
+    "unknown formatVersion 99 rejected",
+    "live controls and timeline preserved",
+    "open-card after rejection"
+  ],
+  "restoredGhostCount": 3,
+  "invalidImportPreservedControlsAndTimeline": true,
+  "continued": {
+    "screen": "現在の画面初期状態へシナリオを保存 シナリオを読み込む アクティブな frame の表示（本体）と掲示中カード アクションを表示 部品の状態を表示画面外 component の姿切替（gate 試験用）今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。Card## Ready画面の値 · DSLsignalアクションなし← 戻る",
+    "timeline": [
+      {
+        "classes": "timeline-item timeline-item-transition current",
+        "text": "push → Card / Ready"
+      },
+      {
+        "classes": "timeline-item timeline-item-event",
+        "text": "[Screen / Start] set(Badge)"
+      },
+      {
+        "classes": "timeline-item timeline-item-event",
+        "text": "[Screen / Start] effect: pre-effect"
+      },
+      {
+        "classes": "timeline-item timeline-item-transition",
+        "text": "起動"
+      }
+    ]
+  },
+  "console": [],
+  "afterServerStopped": {
+    "screen": "現在の画面初期状態へシナリオを保存 シナリオを読み込む アクティブな frame の表示（本体）と掲示中カード アクションを表示 部品の状態を表示画面外 component の姿切替（gate 試験用）今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。Screen## Start画面の値 · 初期a → Card · ##Idle · 包含の初期値 · 初期gate(a.signal)Card / IdleIdleReadygate off で無効component commonlabelb → Card · ##Idle · 包含の初期値 · 初期labelbadge → Badge · ##On · 共有 (singleton) · DSLgate(badge.signal)Badge / OnOffOncomponent commonsignalchoosecomponent common[yes]open-cardcomponent commonshow-cardcomponent common",
+    "timelineCount": 5
+  },
+  "screenshots": {
+    "browser-restored.jpg": "After successful import, state annotations were manually enabled before capture. The screenshot does not prove presentation-setting persistence.",
+    "browser-rejected.jpg": "Same manually enabled annotations, after rejecting unknown formatVersion."
+  }
+}

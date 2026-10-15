@@ -1,6 +1,6 @@
-# #11: モデル版付きシナリオの保存・照合・再生（設計案）
+# #11: モデル版付きシナリオの保存・照合・再生
 
-2026-10-15。状態は設計レビュー用の提案で、実装済み契約ではない。調査基準は main の `da4457a229aba9a80004fae0e611f68d7827ef56`（[PR #20](https://github.com/takasek/shitae/pull/20) のマージ）。言語仕様・実行意味は変更しない。[独立レビューと文書検証](evidence/scenario-replay-design-review.md) を完了した。実装へ進む前に、この保存単位と厳密照合方式を設計者が確認する。
+2026-10-15に設計者が方針を承認し、formatVersion 1として実装した契約。調査基準は main の `da4457a229aba9a80004fae0e611f68d7827ef56`（[PR #20](https://github.com/takasek/shitae/pull/20) のマージ）。言語仕様・実行意味は変更しない。[設計時の独立レビュー](evidence/scenario-replay-design-review.md) と [実装の受入・レビュー記録](scenario-replay-acceptance.md) を分けて記録する。
 
 ## 1. 事実確認と残った目的
 
@@ -110,11 +110,11 @@ StateViewの `componentValues / sharedVariants / testVariants / gateTargets` と
 
 結果照合で失敗するまで隔離Session内では前のstepを実行済みだが、失敗Sessionは公開・継続・保存の対象にしない。再生effectも検証結果が成功するまで通常のlive実行出力として表示しない。既存Sessionの状態・履歴・revision・handleは成功失敗とも変更しない。成功後の切替時に旧画面のhandleを持ち越さない。
 
-exportは一コマンドの途中で割り込まず、直前commandの完了点を保存する。CLIの通常JSON応答にはjournal全量を混ぜず明示exportで返す。ファイル出力時は同一directoryの一時ファイルへ完全に書いた後に置換し、失敗時は既存ファイルを保つ。GUIでは明示ダウンロード＋ファイル選択を最小入口とし、既存simconfig保存とボタン/保存先を区別する。自動上書き・クラウド送信を追加しない。
+exportは一コマンドの途中で割り込まず、直前commandの完了点を保存する。CLIの通常JSON応答にはjournal全量を混ぜず明示exportで返す。CLI応答の `scenario` をファイルへ保存するのは呼出clientの責務で、直接書くclientは同一directoryの一時ファイルへ完全に書いた後に置換し、失敗時は既存ファイルを保つ。GUIでは完全なJSONからの明示ダウンロード＋ファイル選択を入口とし、既存simconfig保存とボタン/保存先を区別する。自動上書き・クラウド送信を追加しない。
 
-## 8. 実装の最小入口と順序
+## 8. 実装の入口
 
-API名は提案であり、この文書で既存CLIに使えると案内しない。
+`exportScenario()` と `replayScenario(...)` は非同期APIで、呼出側はawaitする。SHA-256はNode/ブラウザ共通のWebCryptoを使う。既存commandは同期のまま観測値を取り込み、export時にはその呼出境界までのhash完了を待つ。[使い方](session-usage.md#シナリオの保存と別processでの再生) に公開CLI/GUIの入口を記載する。
 
 1. Session共通境界に `exportScenario()` と、準備済みモデル＋保存物から新Sessionを返す `replayScenario(...)` を追加する。journal・descriptor・投影は一か所が所有し、runtime reducerは再利用する。
 2. CLIは明示export要求と `session <model> --replay <scenario>` の起動入口を追加する。replay成功後だけ通常JSON Linesを受け付け、失敗はstderr＋非0終了。新processでの実受入を先に通す。
@@ -140,9 +140,9 @@ productionコードは以下の失敗テストを先に作ってから実装す�
 
 R01が中心受入。保存物・モデルhash・engine・両processの終了/起動と比較結果を残す。R04–R08にはSPECに基づき再生実装から独立に定めた状態期待を併用し、記録と再生が同じバグを持つだけの一致を正しさとしない。既存のruntime/Session受入を再利用し、変更した境界の反例を追加する。
 
-## 10. 設計確認事項と対象外
+## 10. 採用した方針と対象外
 
-設計者への提案は、(a) source bytesとengineの完全一致を要求するローカルsidecar、(b) snapshot復元ではなく受理コマンドの初期状態からの再生、(c) 結果途中・ghost・reset前も含むjournal、(d) 不一致時は停止して新Sessionを公開しない方式、の四点。承認後に実装へ進む。
+採用したのは、(a) source bytesとengineの完全一致を要求するローカルsidecar、(b) snapshot復元ではなく受理コマンドの初期状態からの再生、(c) 結果途中・ghost・reset前も含むjournal、(d) 不一致時は停止して新Sessionを公開しない方式、の四点。
 
 daemon/MCP、別のruntime、条件の自動評価、期待値DSL、版migration、シナリオ編集UI、モデル自動取得、クラウド保存、実I/O、DOM/画像の同梱、fold/focus/表示設定の永続化、汎用デバッガは対象外。
 
@@ -150,5 +150,5 @@ daemon/MCP、別のruntime、条件の自動評価、期待値DSL、版migration
 
 - [Sessionの型・操作列挙・履歴・コマンド](../../packages/session/src/index.ts)、[StateView](../../packages/session/src/views.ts)：handleはSession UUID/revisionに依存し、resetでtimelineを消し、observe時にghostを破棄する。
 - [metadata生成](../../packages/session/src/model.ts)、[engine生成](../../packages/session/scripts/build-engine.mjs)、[CLI loader](../../packages/cli/src/model.ts)：sourceBasis、全module、正準module、engineを含む既存identityを使用する。
-- [CLI protocol](../../packages/cli/src/session.ts)、[使い方](session-usage.md)：現在の公開commandはquery/dispatch/reset/setTestVariant。export/importと公開seekは実装されていない。
+- [CLI protocol](../../packages/cli/src/session.ts)、[使い方](session-usage.md)：公開commandはquery/dispatch/reset/setTestVariant/exportScenario。読込はsessionの起動引数で行う。公開seekは追加していない。
 - [共通Sessionの契約](session-contract.md)、[受入と残件](session-acceptance.md)、[実ブラウザ評価](session-browser-evaluation.md)：既存機能と保存・引継ぎに残る不足を区別する。

@@ -51,6 +51,35 @@ member gate の定義済み試験対象は、state の `gateTargets` を照会�
 
 通常 Card の試験値は包含と member gate に作用し、frame と overlay の実値は上書きしない。singleton の試験値は共有値に作用する。値の scope と origin は state に明記し、DSL の同値書込みでも由来を DSL へ更新する。reset は初期状態と履歴に戻す。seek は GUI・内部 API 専用で、CLI command には公開しない。CLI でも保持中の ghost と結果途中を read-only で照会できる。
 
+## シナリオの保存と別processでの再生
+
+操作後、同じprocessへ明示exportを送る。
+
+```json
+{"id":"save","command":"exportScenario"}
+```
+
+成功応答の `scenario` 部分をUTF-8 JSONで `<任意名>.scenario.json` に保存する。応答外枠のid/ok/summary等は含めない。通常query/dispatch応答にはシナリオ全量を追加しない。既存ファイルへ保存するclientは一時ファイルへ完全に書いてから置換する。processを終了した後、同じモデル一式と保存物を指定して起動する。
+
+```sh
+node packages/cli/dist/index.js session docs/design/session-fixtures/trial-values.shitae --replay trial-values.scenario.json
+```
+
+起動中に全操作・分岐・観測・出力・最終状態を新Sessionで照合し、成功後に通常のJSON Linesを受け付ける。失敗はstderrと非0終了で伝え、部分的に再生したSessionでは操作を継続できない。再開後はactions queryで新しいhandleを得る。モデルを別directoryへ移せるが、entryの名前、参照moduleと全source bytes、engineVersionの一致が必要。空白だけのモデル変更も黙って補正しない。
+
+GUIでは「シナリオを保存」で同じ形式をダウンロードし、「シナリオを読み込む」でファイルを選ぶ。読込失敗時は現在のSessionを保つ。成功時だけ新Sessionに切り替え、照合した操作数を表示する。読取開始から照合終了までは後続読込と実行操作を排他する。CLIで保存したものをGUIへ渡すことも、GUIで保存したものをCLIの起動へ渡すこともできる。
+
+記録は起動からの受理操作、条件選択、手動試験、reset、結果途中のseekを含む。reset前や破棄したghostの経路も保存し、保存時のcursorとghostを再現する。query/拒否/表示設定は記録しない。DOM・画像・モデル本文は同梱せず、表示checkbox・fold/focus・graph設定は復元対象に含めない。自由文effectは保存やfocusの実処理にはならない。
+
+ライブラリではsource-byte metadata付きの準備済みモデルを使い、両APIをawaitする。
+
+```js
+const saved = await session.exportScenario();
+const restored = await replayScenario({ documents, entryModule, files, metadata }, saved);
+```
+
+metadataなし／AST-onlyのSessionでは `SCENARIO_UNSUPPORTED`。`replayScenario` が失敗した場合は新Sessionを返さない。[保存契約](scenario-replay-contract.md) と [process間・実ブラウザの受入記録](scenario-replay-acceptance.md) を参照。
+
 ## GUI
 
 ```sh

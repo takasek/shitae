@@ -1,0 +1,17 @@
+{
+  "source": "browser-trial.scenario.json",
+  "cliPid": 85063,
+  "startedAt": "2026-10-15T13:19:08.876913+00:00",
+  "endedAt": "2026-10-15T13:19:08.927500+00:00",
+  "exitCode": 0,
+  "stderr": "",
+  "steps": 3,
+  "fullScenarioEqual": true,
+  "location": {
+    "module": "trial-values",
+    "component": "Screen",
+    "variant": "Start"
+  },
+  "ghosts": 3,
+  "engineVersion": "8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db"
+}
