@@ -5,6 +5,10 @@ import type { ComponentValue, HistoryItem, InclusionNode, InclusionRoot, Observa
 export type * from './views.js';
 import type { ModelMetadata } from './metadata.js';
 export type { ModelMetadata } from './metadata.js';
+import { ScenarioJournal, ScenarioError, branchDescriptor, rawOperation, detailDescriptor, validateScenario, checkModel, scenarioEqual, scenarioDifference,
+  type Scenario, type PreparedScenarioModel, type RawView, type RawCheckpoint, type ScenarioCommand } from './scenario.js';
+export { ScenarioError } from './scenario.js';
+export type { Scenario, ScenarioStep, ScenarioCommand, PreparedScenarioModel } from './scenario.js';
 
 export interface Source { module: string; file: string | null; span: Span }
 export interface Summary {
@@ -91,6 +95,7 @@ export class Session {
   private nextObservationId = 1;
   private observations: Observation[] = [];
   private currentInventory: { revision: number; context: Context; value: Inventory } | undefined;
+  private journal: ScenarioJournal | undefined;
 
   constructor(documents: Map<string, Document>, private readonly entryModule: string, files = new Map<string, string>(), metadata: ModelMetadata | null = null) {
     this.documents = structuredClone(documents);
@@ -100,6 +105,30 @@ export class Session {
     if (!entry) fail('INVALID_MODEL', 'Entry component is missing');
     this.context = this.initialContext();
     this.observe('transition', '起動', null, null);
+    if (this.metadata?.sourceBasis === 'source-bytes') {
+      this.journal = new ScenarioJournal(this.metadata, this.observations[0]!.id, this.scenarioCheckpoint());
+    }
+  }
+  private scenarioView(context = this.context): RawView {
+    const inventory = this.inventory(context);
+    return { location: this.location(context), state: this.projectState(context), actions: {
+      items: inventory.entries.map(e => ({ operation: rawOperation(e.operation, e.interaction),
+        branches: e.operation.branches.map(branchDescriptor), enabled: e.operation.enabled, gate: e.operation.gate })),
+      back: { enabled: inventory.actions.controls.back.enabled, reason: inventory.actions.controls.back.reason },
+    } };
+  }
+  private scenarioCheckpoint(): RawCheckpoint {
+    return { view: this.scenarioView(), timeline: this.observations.map((_, i) => this.historyItem(i)),
+      cursor: this.observations[this.cursor]!.id };
+  }
+  private recordScenario(command: Parameters<ScenarioJournal['record']>[0], start: number, receipt?: Receipt) {
+    if (!this.journal) return;
+    this.journal.record(command, this.observations.filter(o => o.id >= start).map(o => ({ id: o.id, view: this.scenarioView(o.context) })),
+      this.scenarioCheckpoint(), receipt);
+  }
+  async exportScenario(): Promise<Scenario> {
+    if (!this.journal) throw new ScenarioError('SCENARIO_UNSUPPORTED', 'Source-byte model metadata is required');
+    return this.journal.export(this.scenarioCheckpoint());
   }
   private initialContext(): Context {
     const entry = this.documents.get(this.entryModule)!.components[0]!;
@@ -389,17 +418,22 @@ export class Session {
   }
   seek(observationId: number): Query {
     const index = this.observationIndex(observationId);
+    const target = this.journal?.ref(observationId);
     this.context = structuredClone(this.observations[index]!.context); this.cursor = index; this.revision++;
+    if (target) this.recordScenario({ kind: 'seek', target }, this.nextObservationId);
     return this.query();
   }
   reset(): Query {
+    const start = this.nextObservationId;
     this.context = this.initialContext(); this.observations = []; this.cursor = -1; this.revision++;
     this.observe('transition', '起動', null, null);
+    this.recordScenario({ kind: 'reset' }, start);
     return this.query();
   }
   setTestVariant(request: { module: string; component: string; variant: string }): Query & { receipt: Receipt } {
     const target = this.gateTargets().find((c) => c.module === request.module && c.component === request.component);
     if (!target || !target.variants.includes(request.variant)) fail('INVALID_REQUEST', 'Unknown trial target or variant');
+    const start = this.nextObservationId;
     const before = this.comparable(); const operationId = ++this.operationId;
     const key = singletonKey(request.module, request.component);
     if (target.singleton) {
@@ -409,8 +443,10 @@ export class Session {
     this.observe('event', `manual-test(${request.component}##${request.variant})`, operationId, null);
     this.revision++;
     const after = this.comparable();
-    return { ...this.query(), receipt: { operationId, changed: (Object.keys(before) as Array<keyof typeof before>).filter((k) => !same(before[k], after[k])),
-      observations: { count: 1, firstId: this.observations[this.cursor]!.id, lastId: this.observations[this.cursor]!.id }, effects: [], diagnostics: [] } };
+    const receipt: Receipt = { operationId, changed: (Object.keys(before) as Array<keyof typeof before>).filter((k) => !same(before[k], after[k])),
+      observations: { count: 1, firstId: this.observations[this.cursor]!.id, lastId: this.observations[this.cursor]!.id }, effects: [], diagnostics: [] };
+    this.recordScenario({ kind: 'setTestVariant', module: request.module, component: request.component, variant: request.variant }, start, receipt);
+    return { ...this.query(), receipt };
   }
   private markDslOrigin(body: Exclude<Result['body'], { kind: 'effect' }>, module: string) {
     let target: Location | null = null;
@@ -483,6 +519,66 @@ export class Session {
     const added = this.observations.filter((o) => o.id >= observationStart);
     receipt.observations = { count: added.length, firstId: added[0]?.id ?? null, lastId: added[added.length - 1]?.id ?? null };
     this.revision++;
+    this.recordScenario({ kind: 'dispatch', operation: back ? { kind: 'control', name: 'back' } : rawOperation(entry!.operation, entry!.interaction),
+      branch: branch ? branchDescriptor(branch) : null }, observationStart, receipt);
     return structuredClone({ revision: this.revision, summary: this.summary(), receipt });
   }
+}
+
+/** Replay into a private new Session. No caller-owned Session is mutated or exposed on failure. */
+export async function replayScenario(prepared: PreparedScenarioModel, value: unknown): Promise<Session> {
+  const saved = validateScenario(value);
+  checkModel(prepared, saved);
+  const session = new Session(prepared.documents, prepared.entryModule, prepared.files, prepared.metadata);
+  const initial = await session.exportScenario();
+  if (initial.initialDigest !== saved.initialDigest) throw new ScenarioError('SCENARIO_RESULT_MISMATCH', `Initial digest expected ${saved.initialDigest}; actual ${initial.initialDigest}`, 0);
+  const observations = new Map<string, number>([[JSON.stringify({ step: 0, observation: 0 }), session.query().summary.cursorObservationId]]);
+  for (const step of saved.steps) {
+    const command: ScenarioCommand = step.command;
+    const priorIds = new Set<number>();
+    let after: number | undefined;
+    do {
+      const page = session.query({ select: ['history'], history: { limit: 100, ...(after === undefined ? {} : { after }) } }).data!.history!;
+      page.items.forEach(o => priorIds.add(o.id)); after = page.nextAfter ?? undefined;
+    } while (after !== undefined);
+    try {
+      if (command.kind === 'dispatch') {
+        const actions = session.query({ select: ['actions'] }).data!.actions!;
+        const details = [...actions.items.map(a => a.handle), actions.controls.back.handle].map(handle => session.query({ select: ['action'], handle }).data!.action!);
+        const matches = [];
+        for (const detail of details) if (scenarioEqual(await detailDescriptor(detail), command.operation)) matches.push(detail);
+        if (matches.length !== 1) throw new ScenarioError('ACTION_MISMATCH', `Expected one candidate; actual ${matches.length}`, step.step);
+        const detail = matches[0]!;
+        if (!detail.enabled) throw new ScenarioError('DISABLED_ACTION', 'Saved operation is disabled', step.step);
+        const branches = 'branches' in detail ? detail.branches : [];
+        const branch = command.branch === null ? undefined : branches.find(b => scenarioEqual(branchDescriptor(b), command.branch));
+        if ((branches.length > 0 && !branch) || (command.branch !== null && !branch)) throw new ScenarioError('BRANCH_MISMATCH', 'Saved branch does not match', step.step);
+        session.dispatch({ handle: detail.handle, ...(branch ? { branch: branch.id } : {}) });
+      } else if (command.kind === 'setTestVariant') session.setTestVariant(command);
+      else if (command.kind === 'reset') session.reset();
+      else {
+        const id = observations.get(JSON.stringify(command.target));
+        if (command.target.step >= step.step || id === undefined || !priorIds.has(id)) throw new ScenarioError('SCENARIO_REFERENCE', 'Observation is forward, absent or no longer retained', step.step);
+        session.seek(id);
+      }
+    } catch (e) {
+      if (e instanceof ScenarioError) throw e;
+      if (e instanceof SessionError) throw new ScenarioError(e.code, e.message, step.step);
+      throw e;
+    }
+    // Map newly generated observations in actual timeline order, not by resultIndex.
+    let cursor: number | undefined, ordinal = 0;
+    do {
+      const page = session.query({ select: ['history'], history: { limit: 100, ...(cursor === undefined ? {} : { after: cursor }) } }).data!.history!;
+      for (const item of page.items) if (!priorIds.has(item.id)) observations.set(JSON.stringify({ step: step.step, observation: ordinal++ }), item.id);
+      cursor = page.nextAfter ?? undefined;
+    } while (cursor !== undefined);
+    const actual = (await session.exportScenario()).steps.at(-1)!;
+    const difference = scenarioDifference(step, actual);
+    if (difference) throw new ScenarioError('SCENARIO_RESULT_MISMATCH', difference, step.step);
+  }
+  const actual = await session.exportScenario();
+  const difference = scenarioDifference(saved.final, actual.final, 'final');
+  if (difference) throw new ScenarioError('SCENARIO_FINAL_MISMATCH', difference, saved.steps.length);
+  return session;
 }
