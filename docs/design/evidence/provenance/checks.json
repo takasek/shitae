@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-16",
+  "base": "7a0a958",
+  "implementation": "4d53ac4",
+  "tests": {
+    "command": "pnpm -r test",
+    "status": 0,
+    "total": 759,
+    "packages": {
+      "parser": 246,
+      "runtime": 97,
+      "resolver": 37,
+      "transpiler-mermaid": 20,
+      "transpiler-xstate": 35,
+      "checker": 29,
+      "session": 36,
+      "simulator": 230,
+      "cli": 29
+    }
+  },
+  "typecheck": {
+    "command": "pnpm -r typecheck",
+    "status": 0
+  },
+  "build": {
+    "command": "pnpm -r build",
+    "status": 0
+  },
+  "fixtures": {
+    "mainModels": 4,
+    "parseAndReferenceErrors": 0,
+    "intentionalWarnings": [
+      "W106 in audio v1/v2"
+    ]
+  },
+  "eventToggleRegression": {
+    "red": {
+      "total": 6,
+      "failed": 1,
+      "reason": "noncurrent event completion destination remains visible"
+    },
+    "green": {
+      "total": 6,
+      "failed": 0
+    },
+    "simulatorTypecheck": 0
+  },
+  "followUpImplementation": "3c0e155"
+}

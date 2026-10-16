@@ -27,6 +27,43 @@ function gui(source = SOURCE, astOnly = false) {
     load: (text: string) => { ctx.scenarioText = text; return run('loadScenarioText(scenarioText)'); } };
 }
 describe('scenario GUI import/export', () => {
+  it('hides noncurrent event destinations when events are hidden, while keeping the operation and the current point readable', () => {
+    const g = gui();
+    g.run("setInstanceVariant('main','Card','Ready')");
+    g.run("handleInteraction('component',0,0)");
+    const before = g.query();
+    expect(g.app.innerHTML).toContain('完了点: manual-test(Card##Ready)');
+    g.run('toggleShowEvents()');
+    expect(g.app.innerHTML).not.toContain('完了点: manual-test(Card##Ready)');
+    expect(g.app.innerHTML).toContain('手動試験 main::Card##Ready');
+    expect(g.query()).toEqual(before);
+    g.run("setInstanceVariant('main','Card','Idle')");
+    expect(g.app.innerHTML).toContain('完了点: manual-test(Card##Idle)');
+  });
+
+  it('groups journal operations, exposes only retained points as destinations and exports readable review without mutation', async () => {
+    const g = gui(); g.run("handleInteraction('component',0,0)");
+    expect(g.app.innerHTML).toContain('操作来歴');
+    expect(g.app.innerHTML).toContain('Choose / 条件: ok');
+    g.run('toggleProvenanceStep(1)');
+    expect(g.app.innerHTML).toContain('結果1 / 観測1');
+    g.run('jumpToTimeline(1)');
+    expect(g.app.innerHTML).toContain('ghost 2観測点');
+    g.run("setInstanceVariant('main','Card','Ready')");
+    expect(g.app.innerHTML).toContain('分岐・破棄 2観測点');
+    expect(g.app.innerHTML).not.toMatch(/seekProvenancePoint\(4[,)]/);
+    const before = await g.run('buildScenarioJson()');
+    g.run('toggleReview()'); expect(g.app.innerHTML).toContain('版をまたぐ自動再生');
+    g.run('saveReview()');
+    expect(g.downloads.at(-1)!.name).toBe('main.review.txt');
+    const text = await g.downloads.at(-1)!.blob.text();
+    expect(text).toContain('Choose'); expect(text).toContain('巻戻し/やり直し先'); expect(text).toContain('破棄 2観測点');
+    expect(await g.run('buildScenarioJson()')).toBe(before);
+    const restored = gui(); await restored.load(before);
+    expect(restored.app.innerHTML).toContain('Choose / 条件: ok');
+    expect(restored.app.innerHTML).toContain('分岐・破棄 2観測点');
+  });
+
   it('downloads one sidecar, imports into another generated page, preserves mid-result ghost and rejects old clicks', async () => {
     const a = gui();
     a.run("handleInteraction('component',0,0)");

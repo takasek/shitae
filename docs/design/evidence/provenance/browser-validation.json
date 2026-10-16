@@ -1,0 +1,39 @@
+{
+  "browserReadonlyExportBytesEqual": true,
+  "browserReviewEqualsSeparateCli": true,
+  "browserToCliFullExportEqual": true,
+  "engineVersion": "d1da8a79f16a60edf786945aedac938d20fd52673d4c22fcb227145050744503",
+  "summary": {
+    "available": true,
+    "reason": null,
+    "steps": {
+      "dispatch": 3,
+      "seek": 3,
+      "reset": 0,
+      "setTestVariant": 0
+    },
+    "resultCount": 7,
+    "observations": {
+      "retained": 6,
+      "ghost": 0,
+      "discarded": 2
+    },
+    "cursor": {
+      "id": 8,
+      "ref": {
+        "step": 4,
+        "observation": 1
+      },
+      "resultPosition": 1,
+      "ordinal": 0,
+      "kind": "transition",
+      "label": "goto → 予約 / 別日程",
+      "location": {
+        "module": "main",
+        "component": "予約",
+        "variant": "別日程"
+      },
+      "actionText": "日程変更"
+    }
+  }
+}

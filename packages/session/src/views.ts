@@ -38,4 +38,6 @@ export interface QueryOptions {
   history?: { after?: number; limit?: number; operationId?: number };
   observationId?: number;
   handle?: string;
+  provenance?: { after?: number; limit?: number };
+  step?: number;
 }

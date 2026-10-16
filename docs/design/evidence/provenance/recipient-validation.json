@@ -1,0 +1,118 @@
+{
+  "audio": [
+    {
+      "version": "v1",
+      "fullExportEqual": true,
+      "summary": {
+        "available": true,
+        "reason": null,
+        "steps": {
+          "dispatch": 5,
+          "seek": 0,
+          "reset": 1,
+          "setTestVariant": 1
+        },
+        "resultCount": 7,
+        "observations": {
+          "retained": 7,
+          "ghost": 0,
+          "discarded": 3
+        },
+        "cursor": {
+          "id": 10,
+          "ref": {
+            "step": 7,
+            "observation": 1
+          },
+          "resultPosition": 1,
+          "ordinal": 0,
+          "kind": "transition",
+          "label": "push → 詳細",
+          "location": {
+            "module": "main",
+            "component": "詳細",
+            "variant": null
+          },
+          "actionText": "再生"
+        }
+      }
+    },
+    {
+      "version": "v2",
+      "fullExportEqual": true,
+      "summary": {
+        "available": true,
+        "reason": null,
+        "steps": {
+          "dispatch": 5,
+          "seek": 0,
+          "reset": 1,
+          "setTestVariant": 1
+        },
+        "resultCount": 6,
+        "observations": {
+          "retained": 6,
+          "ghost": 0,
+          "discarded": 3
+        },
+        "cursor": {
+          "id": 9,
+          "ref": {
+            "step": 7,
+            "observation": 0
+          },
+          "resultPosition": 0,
+          "ordinal": 0,
+          "kind": "event",
+          "label": "set(プレイヤー)",
+          "location": {
+            "module": "main",
+            "component": "ライブラリ",
+            "variant": null
+          },
+          "actionText": "停止"
+        }
+      }
+    }
+  ],
+  "tickets": [
+    {
+      "version": "v1",
+      "fullExportEqual": true,
+      "sameLogicalContinuationAsAuthorBrowser": true,
+      "summary": {
+        "available": true,
+        "reason": null,
+        "steps": {
+          "dispatch": 3,
+          "seek": 3,
+          "reset": 0,
+          "setTestVariant": 0
+        },
+        "resultCount": 7,
+        "observations": {
+          "retained": 6,
+          "ghost": 0,
+          "discarded": 2
+        },
+        "cursor": {
+          "id": 8,
+          "ref": {
+            "step": 4,
+            "observation": 1
+          },
+          "resultPosition": 1,
+          "ordinal": 0,
+          "kind": "transition",
+          "label": "goto → 予約 / 別日程",
+          "location": {
+            "module": "main",
+            "component": "予約",
+            "variant": "別日程"
+          },
+          "actionText": "日程変更"
+        }
+      }
+    }
+  ]
+}

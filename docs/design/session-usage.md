@@ -51,6 +51,8 @@ member gate の定義済み試験対象は、state の `gateTargets` を照会�
 
 通常 Card の試験値は包含と member gate に作用し、frame と overlay の実値は上書きしない。singleton の試験値は共有値に作用する。値の scope と origin は state に明記し、DSL の同値書込みでも由来を DSL へ更新する。reset は初期状態と履歴に戻す。seek は GUI・内部 API 専用で、CLI command には公開しない。CLI でも保持中の ghost と結果途中を read-only で照会できる。
 
+操作名・条件・巻戻し・破棄済み経路を含む読取専用の照会と、変更後モデルで参照する手順の書出しは [操作来歴の使い方](session-provenance.md) を参照。
+
 ## シナリオの保存と別processでの再生
 
 操作後、同じprocessへ明示exportを送る。
