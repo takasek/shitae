@@ -51,3 +51,5 @@ python3 -m http.server 8766 --bind 127.0.0.1 --directory docs/dogfooding/2026-10
 製品コード、SPEC、既存ガイド、原モデル、旧証拠の変更なし。issue作成・更新、commit、push、PR作成なし。[最終検証](evidence/final-verification.json)に原本hash一致と差分境界を記録する。評価専用worktreeは成果物を保持するため残している。
 
 報告・証拠は別コンテキストの [独立レビュー](evidence/independent-review.md) を実施済み。
+
+評価後の追加依頼により、記録のPR化と課題の起票を行った。評価時の書込み範囲と公開後の区別、判断の補足は [公開追補](publication.md) を参照。

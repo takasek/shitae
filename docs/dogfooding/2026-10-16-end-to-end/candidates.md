@@ -11,3 +11,5 @@
 照合は [GitHub読取結果](evidence/issues.json)（8件、全件CLOSED）と固定版の履歴、旧 [候補表](../2026-10-13-standalone/candidates.md)、現行session-usageを使った。#8出力、#9inline、#10alias gate、#13singletonガイド、#18共通Session、#12入れ子状態表示、#19README入口、#11保存再生は実装済み。W103は旧候補表でも保留で、今回のSol proposedでも31件だが、意図した空部品の警告として確認して継続できた。警告一律抑制やleaf構文は勧めない。
 
 この評価だけで人間一般の使いやすさ、既存利用者の速度改善、任意規模の共有作業の優先度を決定しない。初見作成agent一名と独立受取agent一名の観察である。
+
+評価後の依頼を受け、利便性2件（[#23](https://github.com/takasek/shitae/issues/23)、[#24](https://github.com/takasek/shitae/issues/24)）とモデル改善1件（[#25](https://github.com/takasek/shitae/issues/25)）を起票した。「機能追加を急がない」は不足が解消したという意味ではなく、言語機能や大きな基盤の追加を先行する証拠が少ないという判断である。[公開追補](publication.md)。

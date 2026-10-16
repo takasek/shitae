@@ -117,3 +117,5 @@ scenarioのreset前保存は公開契約と既存回帰テストを参照し理�
 最終差分・原本hash・固定版は [final-verification.json](evidence/final-verification.json)で確認する。成果物は本ディレクトリに分離し、原モデル・旧証拠・製品コードを変更していない。外部書込み・commit/push/PR作成も行っていない。
 
 独立レビューでは、実装会話を引き継がない別agentが報告と一次証拠を照合し、全8 scenarioを公開CLIの別processで再生、6件のexportと保存物の一致、モデル不一致拒否を確認した。修正必須の指摘なし。画像・保存DOMの照合と、レビュアー自身による実ブラウザ再操作を混同しない。[独立レビュー記録](evidence/independent-review.md)。
+
+評価後、ユーザーの追加依頼で記録のPR化と3課題の起票を行った。機能追加を急がない判断の意味、公開範囲の変更と課題対応表は [公開追補](publication.md) に記録した。評価時の証拠と検証結果は保持している。
