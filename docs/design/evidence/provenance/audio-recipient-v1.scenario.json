@@ -1,0 +1,710 @@
+{
+  "format": "shitae-scenario",
+  "formatVersion": 1,
+  "protocolVersion": 1,
+  "model": {
+    "engineVersion": "d1da8a79f16a60edf786945aedac938d20fd52673d4c22fcb227145050744503",
+    "modelId": "e2ed28eb587fe85b732550abed01ce181dedd74dd073ef8c6f4c86fca3a38c8e",
+    "entryModule": "main",
+    "sourceBasis": "source-bytes",
+    "manifest": [
+      {
+        "module": "main",
+        "sourceSha256": "1dcc7e5047894e3e29d4e37ee5fe9609a1d8d3ea6b7ca9bba595e75e28840ffd"
+      },
+      {
+        "module": "player",
+        "sourceSha256": "26ba63aa4a9e738301264f6e13d479225fed34cf601342a50fb361348446c9d1"
+      }
+    ]
+  },
+  "initialDigest": "169bc57913d596c3ff4b4e5359193035737e6ac6a4f8e2b9421cd289b277bdab",
+  "steps": [
+    {
+      "step": 1,
+      "command": {
+        "kind": "setTestVariant",
+        "module": "player",
+        "component": "プレイヤー",
+        "variant": "再生中"
+      },
+      "afterDigest": "5bbebf0f17fa79981499a8e9f31f4e6d1c4a04a9932924556a54858b438708db",
+      "observations": [
+        {
+          "viewDigest": "253938781e853270c833b7d867fa4e920b960521b1ddf012cc438478a31a9636"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "sharedVariants",
+          "origins"
+        ]
+      },
+      "outputDigest": "e4686d3267f5aa16ab06a44c78ece53960fa308798890cd999c892ca41cb04db"
+    },
+    {
+      "step": 2,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "main",
+            "component": "ライブラリ",
+            "variant": null
+          },
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 92,
+              "length": 25,
+              "line": 7,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "57768319f5b7c90a93d3934b8a5cdd81c9fd5b7788c0420a85e7e7562adc7e18"
+        },
+        "branch": null
+      },
+      "afterDigest": "b1bbb1f77478c2c4e2167d5393e738a9c8f016329b902674c690312008c1e51a",
+      "observations": [
+        {
+          "viewDigest": "253938781e853270c833b7d867fa4e920b960521b1ddf012cc438478a31a9636"
+        }
+      ],
+      "output": {
+        "effects": [
+          {
+            "resultIndex": 0,
+            "source": {
+              "module": "main",
+              "span": {
+                "offset": 92,
+                "length": 25,
+                "line": 7,
+                "col": 1
+              }
+            },
+            "text": "操作を確認した"
+          }
+        ],
+        "diagnostics": [],
+        "changed": []
+      },
+      "outputDigest": "92a8a2b800a8d7dd399cdb0967abc6ffa0004366d4b943720564cdabfd02a18a"
+    },
+    {
+      "step": 3,
+      "command": {
+        "kind": "reset"
+      },
+      "afterDigest": "700bbc839f2d14f09fa96ed6281df3d7146d02820a82694dd53c233fb7e7403e",
+      "observations": [
+        {
+          "viewDigest": "dfb3185135b467741a60ce9d72221cd523c61a534e72ed983bb708e2903be464"
+        }
+      ],
+      "output": null,
+      "outputDigest": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    {
+      "step": 4,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "main",
+            "component": "ライブラリ",
+            "variant": null
+          },
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 53,
+              "length": 38,
+              "line": 6,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "edd9e96df5ce51c24fcb178c5fc35927a863b0981e83a561da4614e884bcc8fb"
+        },
+        "branch": null
+      },
+      "afterDigest": "351336aed999bc3a87d60a85db0d65b80154c73df9204aa5052ad981fafa526b",
+      "observations": [
+        {
+          "viewDigest": "6b5489741704607fc65350b61ade2fc821c30f7391a3f29fe69cd272fa5a00ab"
+        },
+        {
+          "viewDigest": "8ad4cea1d34858d0e6a946e5ce2838bb95f0d3c7abc8060961f98d0a466bd0dc"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames",
+          "overlays",
+          "sharedVariants",
+          "origins"
+        ]
+      },
+      "outputDigest": "620a3acc58bf103715bc9c137f3c55b29381a94b789770ce9da8cd5d7ce3cae3"
+    },
+    {
+      "step": 5,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "control",
+          "name": "back"
+        },
+        "branch": null
+      },
+      "afterDigest": "77f13977457e2a06c59158991993b91c99b5b12f43169f86d8fd6dac6bcc9ccb",
+      "observations": [
+        {
+          "viewDigest": "6b5489741704607fc65350b61ade2fc821c30f7391a3f29fe69cd272fa5a00ab"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 6,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "player",
+            "component": "プレイヤー",
+            "variant": "再生中"
+          },
+          "source": {
+            "module": "player",
+            "span": {
+              "offset": 9,
+              "length": 23,
+              "line": 2,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "overlay:プレイヤー",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "9add3cc9c543ba2af818cc865e2c40ab1a4b73aff7042c133c0a53c97060b6cd"
+        },
+        "branch": null
+      },
+      "afterDigest": "5d02fd519e3851d190174712a793452d6152539b31a5b831c601d4f9fec72fc6",
+      "observations": [
+        {
+          "viewDigest": "0fd2cdb93d3700e89802eab925d95a1abab8800fd187766e8acefdee7fac1d8e"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "sharedVariants"
+        ]
+      },
+      "outputDigest": "af7b49febd8c9b14cb20197629e4a31a977ed40c7dbe80d518db2b6964686948"
+    },
+    {
+      "step": 7,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "main",
+            "component": "ライブラリ",
+            "variant": null
+          },
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 53,
+              "length": 38,
+              "line": 6,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "edd9e96df5ce51c24fcb178c5fc35927a863b0981e83a561da4614e884bcc8fb"
+        },
+        "branch": null
+      },
+      "afterDigest": "c3629b83266c69be8362ba1da9e213ad19ba0c0538f1a95462397cb30518b34d",
+      "observations": [
+        {
+          "viewDigest": "6b5489741704607fc65350b61ade2fc821c30f7391a3f29fe69cd272fa5a00ab"
+        },
+        {
+          "viewDigest": "8ad4cea1d34858d0e6a946e5ce2838bb95f0d3c7abc8060961f98d0a466bd0dc"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames",
+          "sharedVariants"
+        ]
+      },
+      "outputDigest": "190b05f17767928ee2767909e00985a86d7bdbd6cf98ff9339b809dd25330de6"
+    }
+  ],
+  "final": {
+    "view": {
+      "view": {
+        "location": {
+          "module": "main",
+          "component": "詳細",
+          "variant": null
+        },
+        "state": {
+          "frames": [
+            {
+              "id": 0,
+              "parentId": null,
+              "stack": [
+                {
+                  "module": "main",
+                  "component": "ライブラリ",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                },
+                {
+                  "module": "main",
+                  "component": "詳細",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                }
+              ],
+              "barrier": false,
+              "beginsSession": null,
+              "origin": "root"
+            }
+          ],
+          "activeFrameId": 0,
+          "nextFrameId": 1,
+          "activePath": [
+            0
+          ],
+          "overlays": [
+            {
+              "module": "player",
+              "component": "プレイヤー",
+              "variant": "再生中",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            }
+          ],
+          "sharedVariants": [
+            {
+              "module": "player",
+              "component": "プレイヤー",
+              "variant": "再生中",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            }
+          ],
+          "testVariants": [],
+          "componentValues": [
+            {
+              "module": "main",
+              "component": "ライブラリ",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "main",
+              "component": "詳細",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "player",
+              "component": "プレイヤー",
+              "variant": "再生中",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            }
+          ],
+          "gateTargets": [
+            {
+              "module": "player",
+              "component": "プレイヤー",
+              "variant": "再生中",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl",
+              "variants": [
+                "停止中",
+                "再生中"
+              ]
+            }
+          ],
+          "inclusion": {
+            "main": {
+              "module": "main",
+              "component": "詳細",
+              "root": "main",
+              "variant": null,
+              "singleton": false,
+              "scope": "frame-location",
+              "origin": "initial",
+              "source": {
+                "module": "main",
+                "span": {
+                  "offset": 119,
+                  "length": 4,
+                  "line": 9,
+                  "col": 1
+                }
+              },
+              "children": [
+                {
+                  "name": "曲の詳細",
+                  "root": "main",
+                  "path": [
+                    0
+                  ],
+                  "source": {
+                    "module": "main",
+                    "span": {
+                      "offset": 124,
+                      "length": 4,
+                      "line": 10,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "main",
+                    "component": "曲の詳細"
+                  },
+                  "kind": "unresolved",
+                  "children": []
+                }
+              ]
+            },
+            "overlays": [
+              {
+                "module": "player",
+                "component": "プレイヤー",
+                "root": "overlay:プレイヤー",
+                "variant": "再生中",
+                "singleton": true,
+                "scope": "singleton-shared",
+                "origin": "dsl",
+                "source": {
+                  "module": "player",
+                  "span": {
+                    "offset": 0,
+                    "length": 8,
+                    "line": 1,
+                    "col": 1
+                  }
+                },
+                "children": [
+                  {
+                    "name": "操作可能",
+                    "root": "overlay:プレイヤー",
+                    "path": [
+                      0
+                    ],
+                    "source": {
+                      "module": "player",
+                      "span": {
+                        "offset": 53,
+                        "length": 4,
+                        "line": 6,
+                        "col": 1
+                      }
+                    },
+                    "collection": false,
+                    "reference": {
+                      "module": "player",
+                      "component": "操作可能"
+                    },
+                    "kind": "unresolved",
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "actions": {
+          "items": [
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "main",
+                  "component": "詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "main",
+                  "span": {
+                    "offset": 129,
+                    "length": 14,
+                    "line": 11,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "4ebc5fbbb6349c4f8f0ae5a585886f5f65a2a782fc57f9cd6badb4d165e1efb9"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "player",
+                  "component": "プレイヤー",
+                  "variant": "再生中"
+                },
+                "source": {
+                  "module": "player",
+                  "span": {
+                    "offset": 9,
+                    "length": 23,
+                    "line": 2,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "overlay:プレイヤー",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "9add3cc9c543ba2af818cc865e2c40ab1a4b73aff7042c133c0a53c97060b6cd"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            }
+          ],
+          "back": {
+            "enabled": true,
+            "reason": null
+          }
+        }
+      },
+      "timeline": [
+        {
+          "resultIndex": null,
+          "source": null,
+          "kind": "transition",
+          "label": "起動",
+          "location": {
+            "module": "main",
+            "component": "ライブラリ",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 3,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 53,
+              "length": 38,
+              "line": 6,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "show(プレイヤー)",
+          "location": {
+            "module": "main",
+            "component": "ライブラリ",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 4,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 53,
+              "length": 38,
+              "line": 6,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "push → 詳細",
+          "location": {
+            "module": "main",
+            "component": "詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 4,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": null,
+          "source": null,
+          "kind": "transition",
+          "label": "back → ライブラリ",
+          "location": {
+            "module": "main",
+            "component": "ライブラリ",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 5,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "player",
+            "span": {
+              "offset": 9,
+              "length": 23,
+              "line": 2,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(プレイヤー)",
+          "location": {
+            "module": "main",
+            "component": "ライブラリ",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 6,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 53,
+              "length": 38,
+              "line": 6,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "show(プレイヤー)",
+          "location": {
+            "module": "main",
+            "component": "ライブラリ",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 7,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 53,
+              "length": 38,
+              "line": 6,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "push → 詳細",
+          "location": {
+            "module": "main",
+            "component": "詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 7,
+            "observation": 1
+          }
+        }
+      ],
+      "cursor": {
+        "step": 7,
+        "observation": 1
+      }
+    },
+    "digest": "c3629b83266c69be8362ba1da9e213ad19ba0c0538f1a95462397cb30518b34d"
+  }
+}

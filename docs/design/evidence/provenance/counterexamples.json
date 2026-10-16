@@ -1,0 +1,20 @@
+{
+  "mutants": [
+    {
+      "name": "ghost-as-retained",
+      "status": 1,
+      "assertionFailure": true
+    },
+    {
+      "name": "discarded-as-ghost",
+      "status": 1,
+      "assertionFailure": true
+    },
+    {
+      "name": "observation-ordinal-collapsed",
+      "status": 1,
+      "assertionFailure": true
+    }
+  ],
+  "restoredBaseline": "4 passed"
+}
