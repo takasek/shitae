@@ -7,10 +7,10 @@ import { Session, replayScenario } from '@shitae/session';
 import { toSimulator } from '../src/simulator.js';
 
 const SOURCE = '# Home\ncard: Card\n> Choose -> before ; [ok] show(Card##Ready) ; goto(##Changed)\n> Check(card.signal?) -> checked\n## Start\n## Changed\n# Card\n## Idle\nx\n## Ready\nsignal\n';
-function gui(source = SOURCE, astOnly = false) {
+function gui(source = SOURCE, astOnly = false, engine?: string) {
   const parsed = parse(source); expect(parsed.diagnostics.filter(d => d.severity === 'error')).toEqual([]);
   const documents = new Map([['main', parsed.document]]), files = new Map([['main', '/gui/main.shitae']]);
-  const metadata = createMetadata(documents, 'main', files, new Map([['main', new TextEncoder().encode(source)]]));
+  const metadata = createMetadata(documents, 'main', files, new Map([['main', new TextEncoder().encode(source)]]), engine);
   const html = toSimulator(documents, 'main', undefined, astOnly ? undefined : { files, metadata });
   const app = { innerHTML: '' }, downloads: Array<{ name: string; blob: Blob }> = [];
   const blobs = new Map<string, Blob>(); let count = 0;
@@ -27,6 +27,63 @@ function gui(source = SOURCE, astOnly = false) {
     load: (text: string) => { ctx.scenarioText = text; return run('loadScenarioText(scenarioText)'); } };
 }
 describe('scenario GUI import/export', () => {
+  it('identifies same-entry artifacts by model and engine without claiming shortened IDs guarantee equality', async () => {
+    const pages = [gui(), gui(SOURCE + ' \n'), gui(SOURCE, false, 'f'.repeat(64))];
+    const names = [];
+    for (const g of pages) {
+      const m = g.prepared.metadata;
+      expect(g.app.innerHTML).toContain('model ' + m.modelId.slice(0, 12));
+      expect(g.app.innerHTML).toContain('engine ' + m.engineVersion.slice(0, 12));
+      expect(g.app.innerHTML).toContain('短縮IDは対応付けの補助');
+      expect(g.app.innerHTML).toContain('遷移マップの分割設定も渡すならsimconfig');
+      expect(g.app.innerHTML).toContain(m.modelId);
+      expect(g.app.innerHTML).toContain(m.engineVersion);
+      await g.run('saveScenario()');
+      expect(g.downloads[0]!.name).toBe(`main.${m.modelId.slice(0, 12)}.${m.engineVersion.slice(0, 12)}.scenario.json`);
+      names.push(g.downloads[0]!.name);
+    }
+    expect(new Set(names).size).toBe(3);
+    const a = pages[0]!, before = a.query(), saved = await a.run('buildScenarioJson()');
+    await a.load(await pages[2]!.run('buildScenarioJson()'));
+    expect(a.app.innerHTML).toContain('モデルは未照合');
+    expect(a.app.innerHTML).toContain('完全な期待/実際の識別情報');
+    expect(a.query()).toEqual(before);
+    expect(await a.run('buildScenarioJson()')).toBe(saved);
+    const collision = JSON.parse(saved);
+    collision.model.modelId = collision.model.modelId.slice(0, 12) + '0'.repeat(52);
+    await a.load(JSON.stringify(collision));
+    expect(a.app.innerHTML).toContain('MODEL_MISMATCH');
+    expect(a.query()).toEqual(before);
+    expect(a.app.innerHTML.indexOf('次の行動')).toBeLessThan(a.app.innerHTML.indexOf('完全な期待/実際の識別情報'));
+    a.run("handleInteraction('component',0,0)");
+    expect(a.query().summary.location.variant).toBe('Changed');
+  });
+
+  it('explains the complete journal before save and after load while preserving display settings', async () => {
+    const g = gui();
+    g.run("handleInteraction('component',0,0)");
+    g.run('jumpToTimeline(1)');
+    g.run("setInstanceVariant('main','Card','Ready')");
+    g.run('resetSession()');
+    g.run("handleInteraction('component',0,0)");
+    g.run('jumpToTimeline(1)');
+    const text = await g.run('buildScenarioJson()');
+    expect(JSON.parse(text).steps.map((s: any) => s.command.kind)).toEqual(['dispatch', 'seek', 'setTestVariant', 'reset', 'dispatch', 'seek']);
+    const counts = 'dispatch 2件 / seek 2件 / reset 1件 / 手動試験 1件';
+    expect(g.app.innerHTML).toContain(counts);
+    expect(g.app.innerHTML).toContain('条件選択はdispatchの内訳として操作来歴');
+    expect(g.app.innerHTML).toContain('破棄経路・reset前');
+    expect(g.app.innerHTML).toContain('モデル本文・DOM・表示設定は含みません');
+    expect(g.app.innerHTML).toContain('ghost 2観測点');
+    expect(g.app.innerHTML).toContain('破棄済み 5観測点');
+    const restored = gui(); restored.run('toggleShowEvents(); toggleShowActions(); toggleShowStates()');
+    await restored.load(text);
+    expect(restored.run('[showEvents,showActions,showStates]')).toEqual([false, false, true]);
+    expect(restored.app.innerHTML).toContain('シナリオを読み込みました（' + counts + 'を照合）');
+    expect(restored.app.innerHTML).not.toContain('6操作');
+    expect(await restored.run('buildScenarioJson()')).toBe(text);
+  });
+
   it('hides noncurrent event destinations when events are hidden, while keeping the operation and the current point readable', () => {
     const g = gui();
     g.run("setInstanceVariant('main','Card','Ready')");
@@ -73,7 +130,7 @@ describe('scenario GUI import/export', () => {
     const text = await a.run('buildScenarioJson()');
     expect(a.query()).toEqual(sourceBefore);
     await a.run('saveScenario()');
-    expect(a.downloads).toHaveLength(1); expect(a.downloads[0]!.name).toBe('main.scenario.json');
+    expect(a.downloads).toHaveLength(1); expect(a.downloads[0]!.name).toBe(`main.${a.prepared.metadata.modelId.slice(0, 12)}.${a.prepared.metadata.engineVersion.slice(0, 12)}.scenario.json`);
     expect(await a.downloads[0]!.blob.text()).toBe(text);
     const b = gui(); const oldClick = b.app.innerHTML.match(/onclick="(handleInteraction[^\"]+)"/)![1]!;
     await b.load(text);

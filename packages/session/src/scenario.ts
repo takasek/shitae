@@ -35,8 +35,14 @@ export interface Scenario {
 export interface PreparedScenarioModel {
   documents: Map<string, Document>; entryModule: string; files?: Map<string, string>; metadata: ModelMetadata | null;
 }
+/** Read-only diagnostic data; never persisted in the scenario or digest projection. */
+export interface IdentityDiagnostic {
+  reasons: string[]; nextActions: string[]; modelChecked: boolean;
+  expected: PortableModel; actual: PortableModel;
+}
 export class ScenarioError extends Error {
-  constructor(public readonly code: string, message: string, public readonly step: number | null = null) {
+  constructor(public readonly code: string, message: string, public readonly step: number | null = null,
+    public readonly diagnostic?: IdentityDiagnostic) {
     super(`${code}${step === null ? '' : ` at step ${step}`}: ${message}`);
   }
 }
@@ -310,10 +316,35 @@ export function validateScenario(value: unknown): Scenario {
 
 export function checkModel(prepared: PreparedScenarioModel, saved: Scenario) {
   const current = portableModel(prepared.metadata);
-  if (current.engineVersion !== saved.model.engineVersion) fail('ENGINE_MISMATCH', `Expected ${saved.model.engineVersion}; actual ${current.engineVersion}`);
+  if (current.engineVersion !== saved.model.engineVersion) identityMismatch('ENGINE_MISMATCH', saved.model, current);
   if (!same(current, { ...saved.model, manifest: sorted(saved.model.manifest) })) {
-    fail('MODEL_MISMATCH', `Expected ${canonical(saved.model)}; actual ${canonical(current)}`);
+    identityMismatch('MODEL_MISMATCH', saved.model, current);
   }
+}
+function identityMismatch(code: 'ENGINE_MISMATCH' | 'MODEL_MISMATCH', expected: PortableModel, actual: PortableModel): never {
+  const reasons: string[] = [];
+  const modelChecked = code !== 'ENGINE_MISMATCH';
+  if (!modelChecked) reasons.push('処理系が異なります。モデルは未照合です。');
+  else {
+    if (expected.entryModule !== actual.entryModule) reasons.push(`エントリが異なります: ${expected.entryModule} → ${actual.entryModule}`);
+    const before = new Map(expected.manifest.map(m => [m.module, m.sourceSha256]));
+    const now = new Map(actual.manifest.map(m => [m.module, m.sourceSha256]));
+    const added = [...now.keys()].filter(m => !before.has(m));
+    const missing = [...before.keys()].filter(m => !now.has(m));
+    const changed = [...before.keys()].filter(m => now.has(m) && before.get(m) !== now.get(m));
+    if (added.length) reasons.push('現在のモデルで追加されたmodule: ' + added.join(', '));
+    if (missing.length) reasons.push('現在のモデルで不足するmodule: ' + missing.join(', '));
+    if (changed.length) reasons.push('source bytesが異なるmodule: ' + changed.join(', ') + '（空白・コメントも照合対象）');
+    if (!reasons.length) reasons.push('modelIdが異なります。完全な識別情報を確認してください。');
+  }
+  const nextActions = [
+    '完全一致する保存時のHTMLが残っていれば、そのHTMLとscenarioの組で再開してください。任意の古いHTMLでは再開できません。',
+    'CLIでの再開には、対応する元モデル一式と処理系が必要です。engineのhashだけからcommitは特定できません。',
+    '変更後のモデル・処理系で検討する場合は新しく記録してください。旧版の検討手順は人が選び直すための参照に使えます。',
+  ];
+  const diagnostic = structuredClone({ reasons, nextActions, modelChecked, expected, actual });
+  throw new ScenarioError(code, reasons.join('\n') + '\n次の行動:\n' + nextActions.join('\n') +
+    `\n詳細: Expected ${canonical(expected)}; actual ${canonical(actual)}`, null, diagnostic);
 }
 export { same as scenarioEqual };
 

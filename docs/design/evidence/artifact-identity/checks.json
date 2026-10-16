@@ -1,0 +1,29 @@
+{
+  "tests": {
+    "packages/parser": 246,
+    "packages/resolver": 37,
+    "packages/runtime": 97,
+    "packages/transpiler-xstate": 35,
+    "packages/transpiler-mermaid": 20,
+    "packages/checker": 29,
+    "packages/session": 37,
+    "packages/simulator": 232,
+    "packages/cli": 30
+  },
+  "totalPassed": 763,
+  "fullTypecheckPassed": true,
+  "fullBuildPassed": true,
+  "afterReviewWordingChange": {
+    "simulatorBuild": "passed",
+    "scenarioGuiTests": 8
+  },
+  "afterCounterexamplesRestored": {
+    "scenarioTests": 11,
+    "scenarioGuiTests": 8
+  },
+  "productionRed": {
+    "session": "new identity reason missing",
+    "gui": "identity/counts/filename missing",
+    "cli": "source difference reason missing"
+  }
+}

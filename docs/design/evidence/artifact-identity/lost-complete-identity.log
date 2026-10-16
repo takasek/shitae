@@ -1,0 +1,46 @@
+
+ RUN  v3.2.4 /private/tmp/shitae-issue24-20261016-01a14372/packages/session
+
+ ❯ test/scenario.test.ts (11 tests | 1 failed) 148ms
+   × versioned scenario journal > explains actual identity differences before full details and retains both complete identities 8ms
+     → expected undefined to be 'different-engine' // Object.is equality
+   ✓ versioned scenario journal > replays branches, trial scope/origin, mid-result seek, ghost branching, reset and accepted no-op 23ms
+   ✓ versioned scenario journal > does not record queries, export or rejected commands; saved values are detached 3ms
+   ✓ versioned scenario journal > distinguishes repeated placements and built-in back from DSL back 4ms
+   ✓ versioned scenario journal > refuses metadata-less/AST-only exports and mismatched engine or any source byte before replay 2ms
+   ✓ versioned scenario journal > rejects malformed/unknown schema and never repairs a missing action/branch 6ms
+   ✓ versioned scenario journal > rejects the first altered intermediate/output/checkpoint even when the final location matches 11ms
+   ✓ versioned scenario journal > validates the complete final projection before executing any saved command 5ms
+   ✓ versioned scenario journal > fails export explicitly when recording hashes fail instead of saving a partial journal 1ms
+   ✓ versioned scenario journal > reports the first differing path with its actual expected and replayed values 30ms
+   ✓ versioned scenario journal > rejects seek references into discarded ghosts/reset epochs and forward/no-observation steps 52ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  15:52:56
+   Duration  350ms (transform 55ms, setup 0ms, collect 68ms, tests 148ms, environment 0ms, prepare 26ms)
+
+undefined
+/private/tmp/shitae-issue24-20261016-01a14372/packages/session:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: vitest run test/scenario.test.ts
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/scenario.test.ts > versioned scenario journal > explains actual identity differences before full details and retains both complete identities
+AssertionError: expected undefined to be 'different-engine' // Object.is equality
+
+- Expected:
+"different-engine"
+
++ Received:
+undefined
+
+ ❯ test/scenario.test.ts:71:53
+     69|       expect(error.message).toContain('新しく記録');
+     70|       expect(error.diagnostic.expected).toEqual(saved.model);
+     71|       expect(error.diagnostic.actual.engineVersion).toBe(p.metadata.en…
+       |                                                     ^
+     72|       expect(error.diagnostic.actual.manifest).toEqual(p.metadata.mani…
+     73|       expect(error.diagnostic.modelChecked).toBe(p !== engine);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯

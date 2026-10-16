@@ -44,6 +44,36 @@ const state = (s: Session) => s.query({ select: ['state'] }).data!.state!;
 const clone = <T>(x: T): T => structuredClone(x);
 
 describe('versioned scenario journal', () => {
+  it('explains actual identity differences before full details and retains both complete identities', async () => {
+    const saved = await make().exportScenario();
+    const cases: Array<[ReturnType<typeof prepared>, string[]]> = [];
+    const engine = prepared(MODEL, false, '/one', 'different-engine');
+    cases.push([engine, ['処理系が異なります', 'モデルは未照合']]);
+    const entry = prepared(); entry.metadata.entryModule = entry.entryModule = 'other';
+    cases.push([entry, ['エントリが異なります: main → other']]);
+    const modules = prepared(); modules.metadata.manifest = modules.metadata.manifest.filter(m => m.module !== 'other');
+    modules.metadata.manifest.push({ module: 'added', sourceSha256: 'c'.repeat(64), file: null });
+    cases.push([modules, ['現在のモデルで追加されたmodule: added', '現在のモデルで不足するmodule: other']]);
+    const reference = prepared(); reference.metadata.manifest.find(m => m.module === 'other')!.sourceSha256 = 'b'.repeat(64);
+    cases.push([reference, ['source bytesが異なるmodule: other']]);
+    cases.push([prepared(MODEL + ' \n'), ['source bytesが異なるmodule: main', '空白・コメントも照合対象']]);
+    for (const [p, reasons] of cases) {
+      let error: any;
+      try { await replayScenario(p, saved); } catch (e) { error = e; }
+      expect(error).toBeDefined();
+      expect(error.code).toBe(p === engine ? 'ENGINE_MISMATCH' : 'MODEL_MISMATCH');
+      for (const reason of reasons) expect(error.message).toContain(reason);
+      expect(error.message.indexOf('次の行動')).toBeLessThan(error.message.indexOf('Expected'));
+      expect(error.message).toContain('完全一致する保存時のHTML');
+      expect(error.message).toContain('元モデル一式と処理系');
+      expect(error.message).toContain('新しく記録');
+      expect(error.diagnostic.expected).toEqual(saved.model);
+      expect(error.diagnostic.actual.engineVersion).toBe(p.metadata.engineVersion);
+      expect(error.diagnostic.actual.manifest).toEqual(p.metadata.manifest.map(({ module, sourceSha256 }) => ({ module, sourceSha256 })).sort((a, b) => a.module.localeCompare(b.module)));
+      expect(error.diagnostic.modelChecked).toBe(p !== engine);
+    }
+  });
+
   it('replays branches, trial scope/origin, mid-result seek, ghost branching, reset and accepted no-op', async () => {
     const s = make();
     s.setTestVariant({ module: 'main', component: 'Badge', variant: 'On' });
