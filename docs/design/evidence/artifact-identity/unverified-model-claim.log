@@ -1,0 +1,51 @@
+
+ RUN  v3.2.4 /private/tmp/shitae-issue24-20261016-01a14372/packages/session
+
+ ❯ test/scenario.test.ts (11 tests | 1 failed) 99ms
+   × versioned scenario journal > explains actual identity differences before full details and retains both complete identities 10ms
+     → expected 'ENGINE_MISMATCH: modelIdが異なります。完全な識別情…' to contain '処理系が異なります'
+   ✓ versioned scenario journal > replays branches, trial scope/origin, mid-result seek, ghost branching, reset and accepted no-op 25ms
+   ✓ versioned scenario journal > does not record queries, export or rejected commands; saved values are detached 4ms
+   ✓ versioned scenario journal > distinguishes repeated placements and built-in back from DSL back 4ms
+   ✓ versioned scenario journal > refuses metadata-less/AST-only exports and mismatched engine or any source byte before replay 2ms
+   ✓ versioned scenario journal > rejects malformed/unknown schema and never repairs a missing action/branch 6ms
+   ✓ versioned scenario journal > rejects the first altered intermediate/output/checkpoint even when the final location matches 12ms
+   ✓ versioned scenario journal > validates the complete final projection before executing any saved command 5ms
+   ✓ versioned scenario journal > fails export explicitly when recording hashes fail instead of saving a partial journal 1ms
+   ✓ versioned scenario journal > reports the first differing path with its actual expected and replayed values 11ms
+   ✓ versioned scenario journal > rejects seek references into discarded ghosts/reset epochs and forward/no-observation steps 20ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  15:52:55
+   Duration  337ms (transform 68ms, setup 0ms, collect 79ms, tests 99ms, environment 0ms, prepare 35ms)
+
+undefined
+/private/tmp/shitae-issue24-20261016-01a14372/packages/session:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: vitest run test/scenario.test.ts
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/scenario.test.ts > versioned scenario journal > explains actual identity differences before full details and retains both complete identities
+AssertionError: expected 'ENGINE_MISMATCH: modelIdが異なります。完全な識別情…' to contain '処理系が異なります'
+
+- Expected
++ Received
+
+- 処理系が異なります
++ ENGINE_MISMATCH: modelIdが異なります。完全な識別情報を確認してください。
++ 次の行動:
++ 完全一致する保存時のHTMLが残っていれば、そのHTMLとscenarioの組で再開してください。任意の古いHTMLでは再開できません。
++ CLIでの再開には、対応する元モデル一式と処理系が必要です。engineのhashだけからcommitは特定できません。
++ 変更後のモデル・処理系で検討する場合は新しく記録してください。旧版の検討手順は人が選び直すための参照に使えます。
++ 詳細: Expected {"engineVersion":"278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116","entryModule":"main","manifest":[{"module":"main","sourceSha256":"7f4a06c65760fa9b3997935ad1c05ca6b02aa22416a55cf49a5a1b6f1465592f"},{"module":"other","sourceSha256":"11a97a60a31e1b4b18e542ab6fe982e4d9f842961c60e5c6f755a3f271b0c92b"}],"modelId":"6e9d5592ceacc381202ddacbe2e92ae67cf57897d72571eb91629f75ad913dc8","sourceBasis":"source-bytes"}; actual {"engineVersion":"different-engine","entryModule":"main","manifest":[{"module":"main","sourceSha256":"7f4a06c65760fa9b3997935ad1c05ca6b02aa22416a55cf49a5a1b6f1465592f"},{"module":"other","sourceSha256":"11a97a60a31e1b4b18e542ab6fe982e4d9f842961c60e5c6f755a3f271b0c92b"}],"modelId":"21931e0362c4dbf3917f6351f21c8f3b58ab8d42c5215575e88cbb647a226f6b","sourceBasis":"source-bytes"}
+
+ ❯ test/scenario.test.ts:65:59
+     63|       expect(error).toBeDefined();
+     64|       expect(error.code).toBe(p === engine ? 'ENGINE_MISMATCH' : 'MODE…
+     65|       for (const reason of reasons) expect(error.message).toContain(re…
+       |                                                           ^
+     66|       expect(error.message.indexOf('次の行動')).toBeLessThan(error.message…
+     67|       expect(error.message).toContain('完全一致する保存時のHTML');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯

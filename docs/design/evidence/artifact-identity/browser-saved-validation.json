@@ -1,0 +1,39 @@
+{
+  "separateCliProcess": true,
+  "exactScenarioEqual": true,
+  "modelId": "4c6b0b46fa7fc6356537ae0f0e337b92641295ce6fcb50b64448f839299fa257",
+  "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+  "summary": {
+    "available": true,
+    "reason": null,
+    "steps": {
+      "dispatch": 1,
+      "seek": 0,
+      "reset": 0,
+      "setTestVariant": 0
+    },
+    "resultCount": 2,
+    "observations": {
+      "retained": 3,
+      "ghost": 0,
+      "discarded": 0
+    },
+    "cursor": {
+      "id": 3,
+      "ref": {
+        "step": 1,
+        "observation": 1
+      },
+      "resultPosition": 1,
+      "ordinal": 0,
+      "kind": "transition",
+      "label": "present → 確認",
+      "location": {
+        "module": "main",
+        "component": "確認",
+        "variant": null
+      },
+      "actionText": "予約する"
+    }
+  }
+}

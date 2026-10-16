@@ -1,0 +1,39 @@
+{
+  "separateCliProcess": true,
+  "exactScenarioEqual": true,
+  "modelId": "bf4eafb726e79771ec71bb8323e1ba1dbfa8f1f8f1d07c520f26816a3dd880a5",
+  "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+  "summary": {
+    "available": true,
+    "reason": null,
+    "steps": {
+      "dispatch": 5,
+      "seek": 0,
+      "reset": 1,
+      "setTestVariant": 1
+    },
+    "resultCount": 7,
+    "observations": {
+      "retained": 7,
+      "ghost": 0,
+      "discarded": 3
+    },
+    "cursor": {
+      "id": 10,
+      "ref": {
+        "step": 7,
+        "observation": 1
+      },
+      "resultPosition": 1,
+      "ordinal": 0,
+      "kind": "transition",
+      "label": "push → 詳細",
+      "location": {
+        "module": "main",
+        "component": "詳細",
+        "variant": null
+      },
+      "actionText": "再生"
+    }
+  }
+}

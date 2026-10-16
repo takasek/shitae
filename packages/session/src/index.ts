@@ -10,7 +10,7 @@ export type { ModelMetadata } from './metadata.js';
 import { ScenarioJournal, ScenarioError, branchDescriptor, rawOperation, detailDescriptor, validateScenario, checkModel, scenarioEqual, scenarioDifference,
   type Scenario, type PreparedScenarioModel, type RawView, type RawCheckpoint, type ScenarioCommand } from './scenario.js';
 export { ScenarioError } from './scenario.js';
-export type { Scenario, ScenarioStep, ScenarioCommand, PreparedScenarioModel } from './scenario.js';
+export type { Scenario, ScenarioStep, ScenarioCommand, PreparedScenarioModel, IdentityDiagnostic } from './scenario.js';
 
 export interface Source { module: string; file: string | null; span: Span }
 export interface Summary {

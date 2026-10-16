@@ -1,0 +1,17 @@
+[
+  {
+    "name": "unverified-model-claim",
+    "exitCode": 1,
+    "detectedByAssertion": true
+  },
+  {
+    "name": "lost-complete-identity",
+    "exitCode": 1,
+    "detectedByAssertion": true
+  },
+  {
+    "name": "mixed-step-counts",
+    "exitCode": 1,
+    "detectedByAssertion": true
+  }
+]

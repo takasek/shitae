@@ -46,7 +46,8 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
    固定高500px相当となり、薄い画面で死んだ空白・濃い画面で掲示中カードの見切れを生んだ
    （UX round4 §3-1）。下段（スタック・マップ）を content 分の高さ（auto、マップ自身の
    max-height cap は維持）に縮め、上段（現在の画面）が残り高さを占める可変領域（1fr）に
-   することで両方を解消する（設計者確定 2026-07-21）。 */
+   することで両方を解消する（設計者確定 2026-07-21）。版・保存情報と診断を追加した後も
+   上段で操作を続けられるよう、下段全体は最大40vhとして独立スクロールを維持する。 */
 .pane-center { background: #f5f5f5; padding: 0; overflow: hidden; display: grid; grid-template-rows: minmax(0, 1fr) auto; }
 .pane-title { font-size: 13px; font-weight: 700; color: #333; margin-bottom: 2px; }
 summary.pane-title { cursor: pointer; }
@@ -55,7 +56,7 @@ summary.pane-title { cursor: pointer; }
 .screen-section { display: flex; flex-direction: column; overflow-y: auto; min-height: 0; padding: 16px 16px 8px; }
 /* スタック（.stack-section）と遷移マップ（.graph-section）を1つのスクロール領域にまとめる
    （Task 14）——どちらも折畳み可能な <details> なので、開閉状態によらず縦積みで自然にスクロールする。 */
-.lower-section { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; min-height: 0; padding: 8px 16px 16px; }
+.lower-section { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; min-height: 0; max-height: 40vh; padding: 8px 16px 16px; }
 .stack-section { border-top: 1px solid #e0e0e0; padding-top: 8px; }
 .graph-section { border-top: 1px solid #e0e0e0; padding-top: 8px; }
 .stack-list { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #333; margin-top: 6px; }
@@ -75,6 +76,13 @@ summary.pane-title { cursor: pointer; }
 .provenance-marker { border-left: 3px solid #777; padding-left: 7px; font-size: 12px; }
 .provenance-step .timeline-item { display: block; text-align: left; margin: 5px 0; border: 0; border-radius: 4px; }
 .review-text { width: 100%; box-sizing: border-box; font: inherit; font-size: 12px; }
+.scenario-controls { margin: 8px 0 12px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 12px; }
+.artifact-identity { font-weight: 600; overflow-wrap: anywhere; }
+.scenario-scope { margin: 8px 0; line-height: 1.6; }
+.identity-details { margin: 6px 0; }
+.identity-details summary { cursor: pointer; }
+.identity-details pre { white-space: pre-wrap; overflow-wrap: anywhere; margin: 6px 0; }
+[role="alert"] { white-space: pre-wrap; overflow-wrap: anywhere; color: #a02020; margin-bottom: 10px; }
 .timeline-toggle { display: flex; align-items: center; gap: 4px; margin-bottom: 6px; font-size: 11px; color: #666; }
 .action-toggle { display: flex; align-items: center; gap: 4px; margin-bottom: 8px; font-size: 11px; color: #666; }
 .screen { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
@@ -1249,7 +1257,7 @@ function render() {
         '<div class="pane-title">現在の画面</div>' +
         '<button onclick="resetSession()">初期状態へ</button>' +
         scenarioControls() +
-        (sessionError ? '<p role="alert">' + esc(sessionError) + '</p>' : '') +
+        scenarioError() +
         '<div class="pane-desc">アクティブな frame の表示（本体）と掲示中カード</div>' +
         '<label class="action-toggle"><input type="checkbox" ' + (showActions ? 'checked' : '') + ' onchange="toggleShowActions()"> アクションを表示</label>' +
         '<label class="action-toggle"><input type="checkbox" ' + (showStates ? 'checked' : '') + ' onchange="toggleShowStates()"> 部品の状態を表示</label>' +

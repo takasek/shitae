@@ -1,0 +1,54 @@
+
+ RUN  v3.2.4 /private/tmp/shitae-issue24-20261016-01a14372/packages/simulator
+
+ ❯ test/scenario-ui.test.ts (8 tests | 1 failed) 104ms
+   ✓ scenario GUI import/export > identifies same-entry artifacts by model and engine without claiming shortened IDs guarantee equality 28ms
+   × scenario GUI import/export > explains the complete journal before save and after load while preserving display settings 12ms
+     → expected '<aside class="pane pane-trace"><div c…' to contain 'dispatch 2件 / seek 2件 / reset 1件 / 手動…'
+   ✓ scenario GUI import/export > hides noncurrent event destinations when events are hidden, while keeping the operation and the current point readable 4ms
+   ✓ scenario GUI import/export > groups journal operations, exposes only retained points as destinations and exports readable review without mutation 14ms
+   ✓ scenario GUI import/export > downloads one sidecar, imports into another generated page, preserves mid-result ghost and rejects old clicks 19ms
+   ✓ scenario GUI import/export > keeps the live Session and its handles on invalid/foreign imports, and accepts CLI/library output 11ms
+   ✓ scenario GUI import/export > reports AST-only export as unsupported without fabricating source-byte identity 5ms
+   ✓ scenario GUI import/export > locks from the start of file reading through replay, rejects older/newer overlap and unlocks on read failure 10ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  15:52:57
+   Duration  318ms (transform 71ms, setup 0ms, collect 89ms, tests 104ms, environment 0ms, prepare 23ms)
+
+undefined
+/private/tmp/shitae-issue24-20261016-01a14372/packages/simulator:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: vitest run test/scenario-ui.test.ts
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/scenario-ui.test.ts > scenario GUI import/export > explains the complete journal before save and after load while preserving display settings
+AssertionError: expected '<aside class="pane pane-trace"><div c…' to contain 'dispatch 2件 / seek 2件 / reset 1件 / 手動…'
+
+- Expected
++ Received
+
+- dispatch 2件 / seek 2件 / reset 1件 / 手動試験 1件
++ <aside class="pane pane-trace"><div class="pane-title">操作来歴（統合ログ）</div><div class="pane-desc">ナビゲーション履歴。実行された遷移の列を操作ごとに表示します。新しい記録が上。操作を展開すると結果と観測点を確認できます。完了点や途中の観測点を選ぶと巻戻し・やり直しできます。破棄済みの観測点へは移動できません。</div><label class="timeline-toggle"><input type="checkbox" checked onchange="toggleShowEvents()"> イベントを表示</label><p class="pane-desc">現在地: Choose / 記録5 / 観測1 / Home / Start</p><p class="pane-desc">現在まで 2観測点 / ghost 2観測点 / 破棄済み 5観測点。記録には破棄経路・reset前・手動試験も含まれます。</p><div class="provenance-step"><button class="provenance-heading" aria-expanded="false" onclick="toggleProvenanceStep(6)">6. 巻戻し/やり直し</button><div class="pane-desc">main::Home / Changed</div><div class="pane-desc">0結果 / 0観測点 · 現在まで 0観測点 / ghost 0観測点 / 破棄済み 0観測点</div><p class="provenance-marker">巻戻し/やり直し先: Choose / 記録5 / 観測1 / 結果1 / effect: before</p></div><div class="provenance-step"><button class="provenance-heading" aria-expanded="false" onclick="toggleProvenanceStep(5)">5. Choose / 条件: ok</button><div class="pane-desc">main::Home / Start / 配置 main[]</div><div class="pane-desc">3結果 / 3観測点 · 現在まで 1観測点 / ghost 2観測点 / 破棄済み 0観測点</div><button class="timeline-item timeline-item-transition ghost" onclick="seekProvenancePoint(9)">完了点: goto → Home / Changed <small>Home / Changed / ghost</small></button></div><div class="provenance-step"><button class="provenance-heading" aria-expanded="false" onclick="toggleProvenanceStep(4)">4. 初期状態へ</button><div class="pane-desc">main::Home / Start</div><div class="pane-desc">0結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点</div><p class="provenance-marker">分岐・破棄 3観測点（記録0 / 観測1、記録1 / 観測1、記録3 / 観測1）</p><button class="timeline-item timeline-item-transition" onclick="seekProvenancePoint(6)">完了点: 起動 <small>Home / Start</small></button></div><div class="provenance-step"><button class="provenance-heading" aria-expanded="false" onclick="toggleProvenanceStep(3)">3. 手動試験 main::Card##Ready</button><div class="pane-desc">main::Home / Start</div><div class="pane-desc">0結果 / 1観測点 · 現在まで 0観測点 / ghost 0観測点 / 破棄済み 1観測点</div><p class="provenance-marker">分岐・破棄 2観測点（記録1 / 観測2、記録1 / 観測3）</p></div><div class="provenance-step"><button class="provenance-heading" aria-expanded="false" onclick="toggleProvenanceStep(2)">2. 巻戻し/やり直し</button><div class="pane-desc">main::Home / Changed</div><div class="pane-desc">0結果 / 0観測点 · 現在まで 0観測点 / ghost 0観測点 / 破棄済み 0観測点</div><p class="provenance-marker">巻戻し/やり直し先: Choose / 記録1 / 観測1 / 結果1 / effect: before</p></div><div class="provenance-step"><button class="provenance-heading" aria-expanded="false" onclick="toggleProvenanceStep(1)">1. Choose / 条件: ok</button><div class="pane-desc">main::Home / Start / 配置 main[]</div><div class="pane-desc">3結果 / 3観測点 · 現在まで 0観測点 / ghost 0観測点 / 破棄済み 3観測点</div><p class="pane-desc">完了点は破棄済み</p></div><p><button onclick="toggleReview()" aria-expanded="false">検討手順を表示</button> <button onclick="saveReview()">検討手順を書出し</button></p></aside><main class="pane pane-center"><section class="screen-section"><div class="pane-title">現在の画面</div><button onclick="resetSession()">初期状態へ</button><div class="scenario-controls"><p class="artifact-identity">このHTML: main · model 5882b7c3d37a · engine 278103a97da5</p><details class="identity-details"><summary>版の詳細・共有するもの</summary><p>短縮IDは対応付けの補助です。読込時は完全な識別情報で厳密に照合します。</p><pre>{
++   &quot;engineVersion&quot;: &quot;278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116&quot;,
++   &quot;modelId&quot;: &quot;5882b7c3d37a46ea845bbd3a8f0dc2b136e46f4eb5c67c24b302b60f38e28a24&quot;,
++   &quot;entryModule&quot;: &quot;main&quot;,
++   &quot;sourceBasis&quot;: &quot;source-bytes&quot;,
++   &quot;manifest&quot;: [
++     {
++       &quot;module&quot;: &quot;main&quot;,
++       &quot;sourceSha256&quot;: &quot;d13d01c00f7d5a43b8702f013e1d14196a0fc016ff1fbd91e2459152e43798ed&quot;
++     }
++   ]
++ }</pre><p>再開には、このHTMLと完全一致するscenarioの組を渡してください。編集・再生成やCLIでの再開には全モデル・参照moduleと対応する処理系が必要です。遷移マップの分割設定も渡すならsimconfigを添えてください。</p></details><p class="scenario-scope">保存範囲: dispatch 6件 / seek 2件 / reset 1件 / 手動試験 1件。条件選択はdispatchの内訳として操作来歴に表示します。破棄経路・reset前・ghost・手動試験も含む全記録を保存します。モデル本文・DOM・表示設定は含みません。読込後も現在の表示設定を使います。</p><button data-focus-key="save-scenario" onclick="saveScenario()">シナリオを保存</button> <label>シナリオを読み込む <input data-focus-key="load-scenario" type="file" accept=".scenario.json,application/json" onchange="loadScenarioFile(this)"></label></div><div class="pane-desc">アクティブな frame の表示（本体）と掲示中カード</div><label class="action-toggle"><input type="checkbox" checked onchange="toggleShowActions()"> アクションを表示</label><label class="action-toggle"><input type="checkbox"  onchange="toggleShowStates()"> 部品の状態を表示</label><div class="gate-toggle-block"><button class="gate-drawer-toggle" onclick="toggleGatePanel()">画面外 component の姿切替（gate 試験用）</button><p class="gate-panel-desc">今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。</p></div><div class="screen"><div class="screen-title">Home</div><div class="variant-label">## Start</div><div class="elements"><details open class="element-hierarchy" data-state-key="main:main:7:0"><summary class="element">card</summary><div class="action-list element-actions"><div class="action-row action-row-disabled action-row-solo" data-focus-key="main::main:80"><span class="action-text">Check(card.signal)</span><span class="gate-inline-badge" title="member gate 判定対象: Card.signal">Card / Idle</span><select class="gate-inline-select" data-focus-key="main::main:80:gate" onclick="event.stopPropagation()" onchange="setInstanceVariant(&quot;main&quot;, &quot;Card&quot;, this.value)"><option value="Idle" selected>Idle</option><option value="Ready">Ready</option></select><span class="gate-off-mark">gate off で無効</span><span class="scope-badge" title="この component のどの姿でも共通して有効な操作">component common</span></div></div><div class="element-children"><div class="elements"><div class="element">x</div></div></div></details></div><div class="action-list action-flat"><div class="action-row"><span class="action-text">Choose</span><span class="scope-badge" title="この component のどの姿でも共通して有効な操作">component common</span><span class="action-choices"><button class="choice-chip" data-focus-key="main::main:18:b0" onclick="handleInteraction('component',0,0, 'a3a9bda3-bebe-4f0e-b1c3-362dada3c78c:6:0', 'b0')">[ok]</button></span></div></div></div></section><div class="lower-section"><details open class="stack-section" ontoggle="stackPanelOpen = this.open"><summary class="pane-title" title="スタック — 今積み重なっている画面。プッシュダウン構成として読める">スタック</summary><div class="pane-desc">今積み重なっている画面。プッシュダウン構成として読める。上が現在地</div><div class="stack-list"><div class="stack-item stack-item-current">Home / Start</div></div></details><details open class="graph-section" ontoggle="mapPanelOpen = this.open"><summary class="pane-title" title="遷移マップ — 画面間の遷移関係（表示のみ。状態遷移図として読める）">遷移マップ</summary><div class="pane-desc">画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。</div><button class="graph-save-btn" onclick="saveGraphConfig()">設定を保存</button><label class="graph-scope-toggle"><input type="checkbox"  onchange="toggleGraphShowAll()"> 全体を見る</label><div class="graph-map-scroll"><svg class="graph-svg" width="352" height="76"><defs><marker id="graph-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z"></path></marker></defs><g class="graph-node graph-node-current" onmouseenter="showNodeTooltip(0,16,48)" onmouseleave="hideNodeTooltip()" onclick="pinGraphTooltip(0)"><rect x="16" y="16" width="120" height="28" rx="4"></rect><text x="76" y="34" text-anchor="middle">Home</text></g><g class="graph-node" onmouseenter="showNodeTooltip(1,176,48)" onmouseleave="hideNodeTooltip()" onclick="pinGraphTooltip(1)"><rect x="176" y="16" width="120" height="28" rx="4"></rect><text x="236" y="34" text-anchor="middle">Card</text></g></svg><div id="graph-tooltip" class="graph-tooltip"></div></div></details></div></main>
+
+ ❯ test/scenario-ui.test.ts:73:29
+     71|     expect(JSON.parse(text).steps.map((s: any) => s.command.kind)).toE…
+     72|     const counts = 'dispatch 2件 / seek 2件 / reset 1件 / 手動試験 1件';
+     73|     expect(g.app.innerHTML).toContain(counts);
+       |                             ^
+     74|     expect(g.app.innerHTML).toContain('条件選択はdispatchの内訳として操作来歴');
+     75|     expect(g.app.innerHTML).toContain('破棄経路・reset前');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯

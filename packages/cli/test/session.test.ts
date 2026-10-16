@@ -38,6 +38,29 @@ function start(file: string, args: string[] = []) {
 }
 
 describe('shitae session persistent JSON Lines', () => {
+  it('names actual entry, added/missing modules and reference-only source changes on replay failure', async () => {
+    const main = 'import part as p\n# Home\ncard: p::Card\n', part = '# Card\nx\n';
+    const original = fixture({ 'main.shitae': main, 'part.shitae': part });
+    const p = loadModel(original), s = new Session(p.documents, p.entryModule, p.modulePaths, p.metadata);
+    const sidecar = join(dirname(original), 'saved.scenario.json'); writeFileSync(sidecar, JSON.stringify(await s.exportScenario()));
+    const entry = fixture({ 'main.shitae': main, 'alternate.shitae': main, 'part.shitae': part });
+    const cases: Array<[string, string]> = [
+      [join(dirname(entry), 'alternate.shitae'), 'エントリが異なります: main → alternate'],
+      [fixture({ 'main.shitae': main, 'part.shitae': part + ' \n' }), 'source bytesが異なるmodule: part'],
+      [fixture({ 'main.shitae': main + '\n' }), '現在のモデルで不足するmodule: part'],
+      [fixture({ 'main.shitae': 'import added as a\n' + main, 'part.shitae': part, 'added.shitae': '# Extra\nx\n' }), '現在のモデルで追加されたmodule: added'],
+    ];
+    // The missing-module case must still be a valid model, so remove the import as well.
+    writeFileSync(cases[2]![0], '# Home\nx\n');
+    for (const [file, reason] of cases) {
+      const result = await start(file, ['--replay', sidecar]).finish();
+      expect(result).toMatchObject({ code: 1, rest: { done: true } });
+      expect(result.stderr).toContain('MODEL_MISMATCH');
+      expect(result.stderr).toContain(reason);
+      expect(result.stderr).toContain('新しく記録');
+    }
+  });
+
   it('reconstructs discarded/reset and split-result provenance in a different process, including placements, modules, overlays and builtin back', async () => {
     const file = fixture({
       'main.shitae': 'import card as c\n# Home\none: c::Card\ntwo: c::Card\n> Open -> show(c::Card) ; push(c::Card)\n> Check(two.signal?) -> checked\n',
@@ -119,6 +142,16 @@ describe('shitae session persistent JSON Lines', () => {
     const changed = fixture({ 'main.shitae': MODEL + '// changed\n' });
     const mismatch = await start(changed, ['--replay', sidecar]).finish();
     expect(mismatch).toMatchObject({ code: 1, rest: { done: true } }); expect(mismatch.stderr).toContain('MODEL_MISMATCH');
+    expect(mismatch.stderr).toContain('source bytesが異なるmodule: main');
+    expect(mismatch.stderr.indexOf('次の行動')).toBeLessThan(mismatch.stderr.indexOf('Expected'));
+    expect(mismatch.stderr).toContain('元モデル一式と処理系');
+    const engineScenario = structuredClone(out.scenario); engineScenario.model.engineVersion = 'older-engine';
+    writeFileSync(sidecar, JSON.stringify(engineScenario));
+    const engineMismatch = await start(file, ['--replay', sidecar]).finish();
+    expect(engineMismatch).toMatchObject({ code: 1, rest: { done: true } });
+    expect(engineMismatch.stderr).toContain('ENGINE_MISMATCH');
+    expect(engineMismatch.stderr).toContain('モデルは未照合');
+    expect(engineMismatch.stderr).toContain(out.scenario.model.modelId);
     writeFileSync(sidecar, '{broken');
     const malformed = await start(file, ['--replay', sidecar]).finish();
     expect(malformed).toMatchObject({ code: 1, rest: { done: true } }); expect(malformed.stderr).toContain('SCENARIO_FORMAT');

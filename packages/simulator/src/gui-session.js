@@ -3,6 +3,7 @@ let SESSION = new Shitae.Session(new Map(MODEL.documents), MODEL.entryModule, ne
 let view, stack, overlays, sharedVariants, GATE_TARGETS, timeline, cursor, componentNameCounts;
 let showEvents = true, showActions = true, showStates = false, sessionError = '';
 let scenarioBusy = false, scenarioNotice = '';
+let scenarioErrorDetails = null;
 let provenanceOpen = new Set(), reviewOpen = false;
 function toggleProvenanceStep(step) { if (provenanceOpen.has(step)) provenanceOpen.delete(step); else provenanceOpen.add(step); render(); }
 function toggleReview() { reviewOpen = !reviewOpen; render(); }
@@ -59,21 +60,31 @@ function renderProvenance(fallback) {
   return html;
 }
 async function buildScenarioJson() { return JSON.stringify(await SESSION.exportScenario(), null, 2) + '\n'; }
+function scenarioFileName() {
+  const m = MODEL.metadata;
+  const entry = MODEL.entryModule.split('/').at(-1).replace(/[^\p{L}\p{N}._-]/gu, '_');
+  return entry + '.' + m.modelId.slice(0, 12) + '.' + m.engineVersion.slice(0, 12) + '.scenario.json';
+}
+function scenarioCounts() {
+  const s = SESSION.query({ select: ['provenanceSummary'] }).data.provenanceSummary;
+  if (!s.available) return '記録の要約は利用できません';
+  return 'dispatch ' + s.steps.dispatch + '件 / seek ' + s.steps.seek + '件 / reset ' + s.steps.reset + '件 / 手動試験 ' + s.steps.setTestVariant + '件';
+}
 async function saveScenario() {
   if (scenarioBusy) return;
   try {
     const text = await buildScenarioJson();
     const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
     const link = document.createElement('a');
-    link.href = url; link.download = MODEL.entryModule + '.scenario.json'; link.click(); link.remove();
+    link.href = url; link.download = scenarioFileName(); link.click(); link.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    sessionError = ''; scenarioNotice = 'シナリオの保存ファイルを作成しました';
+    sessionError = ''; scenarioErrorDetails = null; scenarioNotice = 'シナリオの保存ファイルを作成しました';
   } catch (e) { sessionError = e.message; scenarioNotice = ''; }
   render();
 }
 async function replaceScenario(readText) {
   if (scenarioBusy) return;
-  scenarioBusy = true; scenarioNotice = ''; sessionError = ''; render();
+  scenarioBusy = true; scenarioNotice = ''; sessionError = ''; scenarioErrorDetails = null; render();
   try {
     const text = await readText();
     let saved;
@@ -82,8 +93,11 @@ async function replaceScenario(readText) {
       files: new Map(MODEL.files), metadata: MODEL.metadata }, saved);
     SESSION = next;
     provenanceOpen = new Set(); reviewOpen = false;
-    scenarioNotice = 'シナリオを読み込みました（' + saved.steps.length + '操作を照合）';
-  } catch (e) { sessionError = e.message; }
+    scenarioNotice = 'シナリオを読み込みました（' + scenarioCounts() + 'を照合）';
+  } catch (e) {
+    scenarioErrorDetails = e.diagnostic ?? null;
+    sessionError = e.diagnostic ? e.code + ': ' + e.diagnostic.reasons.join('\n') + '\n次の行動:\n' + e.diagnostic.nextActions.join('\n') : e.message;
+  }
   finally { scenarioBusy = false; render(); }
 }
 async function loadScenarioText(text) { return replaceScenario(() => Promise.resolve(text)); }
@@ -94,10 +108,21 @@ async function loadScenarioFile(input) {
   return replaceScenario(() => file.text());
 }
 function scenarioControls() {
+  const m = MODEL.metadata;
+  const identity = { engineVersion: m.engineVersion, modelId: m.modelId, entryModule: m.entryModule, sourceBasis: m.sourceBasis,
+    manifest: m.manifest.map(({ module, sourceSha256 }) => ({ module, sourceSha256 })) };
   return '<div class="scenario-controls">' +
+    '<p class="artifact-identity">このHTML: ' + esc(m.entryModule) + ' · model ' + esc(m.modelId.slice(0, 12)) + ' · engine ' + esc(m.engineVersion.slice(0, 12)) + '</p>' +
+    '<details class="identity-details"><summary>版の詳細・共有するもの</summary><p>短縮IDは対応付けの補助です。読込時は完全な識別情報で厳密に照合します。</p><pre>' + esc(JSON.stringify(identity, null, 2)) + '</pre>' +
+    '<p>再開には、このHTMLと完全一致するscenarioの組を渡してください。編集・再生成やCLIでの再開には全モデル・参照moduleと対応する処理系が必要です。遷移マップの分割設定も渡すならsimconfigを添えてください。</p></details>' +
+    '<p class="scenario-scope">保存範囲: ' + esc(scenarioCounts()) + '。条件選択はdispatchの内訳として操作来歴に表示します。破棄経路・reset前・ghost・手動試験も含む全記録を保存します。モデル本文・DOM・表示設定は含みません。読込後も現在の表示設定を使います。</p>' +
     '<button data-focus-key="save-scenario" onclick="saveScenario()"' + (scenarioBusy ? ' disabled' : '') + '>シナリオを保存</button> ' +
     '<label>シナリオを読み込む <input data-focus-key="load-scenario" type="file" accept=".scenario.json,application/json" onchange="loadScenarioFile(this)"' + (scenarioBusy ? ' disabled' : '') + '></label>' +
     (scenarioBusy ? '<p role="status">シナリオを照合しています</p>' : scenarioNotice ? '<p role="status">' + esc(scenarioNotice) + '</p>' : '') + '</div>';
+}
+function scenarioError() {
+  return (sessionError ? '<p role="alert">' + esc(sessionError) + '</p>' : '') +
+    (scenarioErrorDetails ? '<details class="identity-details"><summary>完全な期待/実際の識別情報</summary><pre>' + esc(JSON.stringify(scenarioErrorDetails, null, 2)) + '</pre></details>' : '');
 }
 function skey(module, component) { return JSON.stringify([module, component]); }
 function componentValue(module, component) { return view.data.state.componentValues.find(c => c.module === module && c.component === component); }
@@ -136,6 +161,7 @@ function currentLocationLabel() { return locationLabel(view.summary.location); }
 function command(run) {
   if (scenarioBusy) return;
   scenarioNotice = '';
+  scenarioErrorDetails = null;
   try { run(); sessionError = ''; } catch (e) {
     if (!(e instanceof Shitae.SessionError)) throw e;
     sessionError = e.message;
