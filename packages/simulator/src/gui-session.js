@@ -40,7 +40,7 @@ function renderProvenance(fallback) {
     if (item.discarded.length) body += '<p class="provenance-marker">分岐・破棄 ' + item.discarded.length + '観測点（' + esc(item.discarded.map(pointRef).join('、')) + '）</p>';
     if (item.completionObservationId !== null) {
       const p = timeline.find(p => p.id === item.completionObservationId);
-      if (p) body += pointButton({ ...p, current: p.id === view.summary.cursorObservationId, status: p.ghost ? 'ghost' : 'retained' }, '完了点: ');
+      if (p && (showEvents || p.kind !== 'event' || p.id === view.summary.cursorObservationId)) body += pointButton({ ...p, current: p.id === view.summary.cursorObservationId, status: p.ghost ? 'ghost' : 'retained' }, '完了点: ');
     } else if (item.kind === 'dispatch') body += '<p class="pane-desc">' + (item.observationCount ? '完了点は破棄済み' : '観測なし（移動先なし）') + '</p>';
     if (open) {
       const d = SESSION.query({ select: ['provenanceStep'], step: item.step }).data.provenanceStep;

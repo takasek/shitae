@@ -27,6 +27,20 @@ function gui(source = SOURCE, astOnly = false) {
     load: (text: string) => { ctx.scenarioText = text; return run('loadScenarioText(scenarioText)'); } };
 }
 describe('scenario GUI import/export', () => {
+  it('hides noncurrent event destinations when events are hidden, while keeping the operation and the current point readable', () => {
+    const g = gui();
+    g.run("setInstanceVariant('main','Card','Ready')");
+    g.run("handleInteraction('component',0,0)");
+    const before = g.query();
+    expect(g.app.innerHTML).toContain('完了点: manual-test(Card##Ready)');
+    g.run('toggleShowEvents()');
+    expect(g.app.innerHTML).not.toContain('完了点: manual-test(Card##Ready)');
+    expect(g.app.innerHTML).toContain('手動試験 main::Card##Ready');
+    expect(g.query()).toEqual(before);
+    g.run("setInstanceVariant('main','Card','Idle')");
+    expect(g.app.innerHTML).toContain('完了点: manual-test(Card##Idle)');
+  });
+
   it('groups journal operations, exposes only retained points as destinations and exports readable review without mutation', async () => {
     const g = gui(); g.run("handleInteraction('component',0,0)");
     expect(g.app.innerHTML).toContain('操作来歴');
