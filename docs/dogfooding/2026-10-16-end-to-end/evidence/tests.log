@@ -1,0 +1,124 @@
+Scope: 10 of 11 workspace projects
+packages/parser test$ vitest run
+packages/parser test:  RUN  v3.2.4 /private/tmp/shitae-e2e-20261016-01a1424a/packages/parser
+packages/parser test:  ✓ test/lexer.test.ts (37 tests) 3ms
+packages/parser test:  ✓ test/integration.test.ts (36 tests) 14ms
+packages/parser test:  ✓ test/parser.test.ts (173 tests) 17ms
+packages/parser test:  Test Files  3 passed (3)
+packages/parser test:       Tests  246 passed (246)
+packages/parser test:    Start at  10:22:05
+packages/parser test:    Duration  247ms (transform 90ms, setup 0ms, collect 162ms, tests 34ms, environment 0ms, prepare 97ms)
+packages/parser test: Done
+packages/resolver test$ vitest run
+packages/runtime test$ vitest run
+packages/runtime test:  RUN  v3.2.4 /private/tmp/shitae-e2e-20261016-01a1424a/packages/runtime
+packages/resolver test:  RUN  v3.2.4 /private/tmp/shitae-e2e-20261016-01a1424a/packages/resolver
+packages/runtime test:  ✓ test/runtime.test.ts (97 tests) 7ms
+packages/resolver test:  ✓ test/resolver.test.ts (37 tests) 5ms
+packages/runtime test:  Test Files  1 passed (1)
+packages/runtime test:       Tests  97 passed (97)
+packages/runtime test:    Start at  10:22:06
+packages/runtime test:    Duration  318ms (transform 42ms, setup 0ms, collect 45ms, tests 7ms, environment 0ms, prepare 36ms)
+packages/resolver test:  Test Files  1 passed (1)
+packages/resolver test:       Tests  37 passed (37)
+packages/resolver test:    Start at  10:22:06
+packages/resolver test:    Duration  325ms (transform 41ms, setup 0ms, collect 48ms, tests 5ms, environment 0ms, prepare 31ms)
+packages/runtime test: Done
+packages/resolver test: Done
+packages/checker test$ vitest run
+packages/session pretest$ node scripts/build-engine.mjs
+packages/transpiler-xstate test$ vitest run
+packages/transpiler-mermaid test$ vitest run
+packages/session pretest: Done
+packages/session test$ vitest run
+packages/transpiler-xstate test:  RUN  v3.2.4 /private/tmp/shitae-e2e-20261016-01a1424a/packages/transpiler-xstate
+packages/transpiler-mermaid test:  RUN  v3.2.4 /private/tmp/shitae-e2e-20261016-01a1424a/packages/transpiler-mermaid
+packages/checker test:  RUN  v3.2.4 /private/tmp/shitae-e2e-20261016-01a1424a/packages/checker
+packages/session test:  RUN  v3.2.4 /private/tmp/shitae-e2e-20261016-01a1424a/packages/session
+packages/transpiler-mermaid test:  ✓ test/mermaid.test.ts (20 tests) 18ms
+packages/transpiler-mermaid test:  Test Files  1 passed (1)
+packages/transpiler-mermaid test:       Tests  20 passed (20)
+packages/transpiler-mermaid test:    Start at  10:22:06
+packages/transpiler-mermaid test:    Duration  639ms (transform 75ms, setup 0ms, collect 91ms, tests 18ms, environment 0ms, prepare 164ms)
+packages/transpiler-xstate test:  ✓ test/integration.test.ts (11 tests) 6ms
+packages/transpiler-xstate test:  ✓ test/transpiler.test.ts (24 tests) 13ms
+packages/checker test:  ✓ test/checker.test.ts (29 tests) 14ms
+packages/transpiler-xstate test:  Test Files  2 passed (2)
+packages/transpiler-xstate test:       Tests  35 passed (35)
+packages/transpiler-xstate test:    Start at  10:22:06
+packages/transpiler-xstate test:    Duration  681ms (transform 148ms, setup 0ms, collect 361ms, tests 19ms, environment 0ms, prepare 271ms)
+packages/checker test:  Test Files  1 passed (1)
+packages/checker test:       Tests  29 passed (29)
+packages/checker test:    Start at  10:22:06
+packages/checker test:    Duration  676ms (transform 103ms, setup 0ms, collect 111ms, tests 14ms, environment 0ms, prepare 69ms)
+packages/transpiler-mermaid test: Done
+packages/checker test: Done
+packages/transpiler-xstate test: Done
+packages/session test:  ✓ test/model.test.ts (1 test) 6ms
+packages/session test:  ✓ test/history.test.ts (6 tests) 14ms
+packages/session test:  ✓ test/session.test.ts (12 tests) 29ms
+packages/session test:  ✓ test/scenario.test.ts (10 tests) 127ms
+packages/session test:  ✓ test/acceptance.test.ts (3 tests) 183ms
+packages/session test:  Test Files  5 passed (5)
+packages/session test:       Tests  32 passed (32)
+packages/session test:    Start at  10:22:06
+packages/session test:    Duration  665ms (transform 217ms, setup 0ms, collect 613ms, tests 358ms, environment 1ms, prepare 291ms)
+packages/session test: Done
+packages/simulator pretest$ pnpm --filter "@shitae/simulator..." build
+packages/simulator pretest: Scope: 6 of 11 workspace projects
+packages/simulator pretest: ../ast build$ tsc
+packages/simulator pretest: ../ast build: Done
+packages/simulator pretest: ../parser build$ tsc
+packages/simulator pretest: ../parser build: Done
+packages/simulator pretest: ../resolver build$ tsc
+packages/simulator pretest: ../runtime build$ tsc
+packages/simulator pretest: ../resolver build: Done
+packages/simulator pretest: ../runtime build: Done
+packages/simulator pretest: ../session build$ node scripts/build-engine.mjs && tsc
+packages/simulator pretest: ../session build: Done
+packages/simulator pretest: . build$ node scripts/build-browser.mjs && tsc
+packages/simulator pretest: . build: Done
+packages/simulator pretest: Done
+packages/simulator test$ vitest run
+packages/simulator test:  RUN  v3.2.4 /private/tmp/shitae-e2e-20261016-01a1424a/packages/simulator
+packages/simulator test:  ✓ test/presentation.test.ts (1 test) 9ms
+packages/simulator test:  ✓ test/extract.test.ts (75 tests) 15ms
+packages/simulator test:  ✓ test/session-ui.test.ts (5 tests) 32ms
+packages/simulator test:  ✓ test/scenario-ui.test.ts (4 tests) 70ms
+packages/simulator test:  ✓ test/simulator.test.ts (143 tests) 385ms
+packages/simulator test:  Test Files  5 passed (5)
+packages/simulator test:       Tests  228 passed (228)
+packages/simulator test:    Start at  10:22:09
+packages/simulator test:    Duration  624ms (transform 180ms, setup 0ms, collect 479ms, tests 511ms, environment 0ms, prepare 172ms)
+packages/simulator test: Done
+packages/cli pretest$ pnpm --filter "@shitae/cli..." build
+packages/cli pretest: Scope: 9 of 11 workspace projects
+packages/cli pretest: ../ast build$ tsc
+packages/cli pretest: ../ast build: Done
+packages/cli pretest: ../parser build$ tsc
+packages/cli pretest: ../parser build: Done
+packages/cli pretest: ../resolver build$ tsc
+packages/cli pretest: ../runtime build$ tsc
+packages/cli pretest: ../resolver build: Done
+packages/cli pretest: ../runtime build: Done
+packages/cli pretest: ../transpiler-mermaid build$ tsc
+packages/cli pretest: ../checker build$ tsc
+packages/cli pretest: ../session build$ node scripts/build-engine.mjs && tsc
+packages/cli pretest: ../transpiler-mermaid build: Done
+packages/cli pretest: ../checker build: Done
+packages/cli pretest: ../session build: Done
+packages/cli pretest: ../simulator build$ node scripts/build-browser.mjs && tsc
+packages/cli pretest: ../simulator build: Done
+packages/cli pretest: . build$ tsc
+packages/cli pretest: . build: Done
+packages/cli pretest: Done
+packages/cli test$ vitest run
+packages/cli test:  RUN  v2.1.9 /private/tmp/shitae-e2e-20261016-01a1424a/packages/cli
+packages/cli test:  ✓ test/stdout.test.ts (2 tests) 427ms
+packages/cli test:  ✓ test/session.test.ts (8 tests) 653ms
+packages/cli test:  ✓ test/cli.test.ts (17 tests) 686ms
+packages/cli test:  Test Files  3 passed (3)
+packages/cli test:       Tests  27 passed (27)
+packages/cli test:    Start at  10:22:12
+packages/cli test:    Duration  849ms (transform 48ms, setup 0ms, collect 79ms, tests 1.77s, environment 0ms, prepare 92ms)
+packages/cli test: Done

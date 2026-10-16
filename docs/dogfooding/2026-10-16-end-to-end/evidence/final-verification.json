@@ -1,0 +1,17 @@
+{
+  "commit": "bbd99d4a772e9a74532840c6656477699abfb054",
+  "oldFilesChecked": 33,
+  "oldHashMismatches": [],
+  "trackedDiffPaths": [],
+  "statusOutsideOutput": [],
+  "newFiles": 109,
+  "gitNewFileCount": 109,
+  "missingLocalLinks": [],
+  "jsonFilesParsed": 23,
+  "originalSolCopyIdentical": true,
+  "testCount": 751,
+  "scenarioCount": 8,
+  "independentReview": "evidence/independent-review.md",
+  "httpServerProcessExit": 0,
+  "httpListenerRemaining": false
+}

@@ -1,0 +1,226 @@
+[
+  {
+    "model": "docs/dogfooding/2026-10-13-standalone/reproductions/alias-member.shitae",
+    "metadata": {
+      "engineVersion": "8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db",
+      "entryModule": "alias-member",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "alias-member",
+          "sourceSha256": "a66d49a3866cac39b7085e98f0fc66b251042b9b7d630c09de2bc4101cb8af7e",
+          "file": "/private/tmp/shitae-e2e-20261016-01a1424a/docs/dogfooding/2026-10-13-standalone/reproductions/alias-member.shitae"
+        }
+      ],
+      "modelId": "0c513e7c0a6100853f823bcbbeeb19af1d58b672e51b86e21f44cf29d6a07dc8"
+    }
+  },
+  {
+    "model": "docs/dogfooding/2026-10-13-standalone/astra/models/current.shitae",
+    "metadata": {
+      "engineVersion": "8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db",
+      "entryModule": "current",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "current",
+          "sourceSha256": "05c29e9748933be7d8dd14f912a4a6c630b195bcec65fedc69d93778949baf7f",
+          "file": "/private/tmp/shitae-e2e-20261016-01a1424a/docs/dogfooding/2026-10-13-standalone/astra/models/current.shitae"
+        }
+      ],
+      "modelId": "55e16f9a25e41b9658dfab22738735694ab90a04c60b23bb32e9de3bec5ee8c0"
+    }
+  },
+  {
+    "model": "docs/dogfooding/2026-10-13-standalone/astra/models/proposed.shitae",
+    "metadata": {
+      "engineVersion": "8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db",
+      "entryModule": "proposed",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "proposed",
+          "sourceSha256": "4df483ee831379ef3a52988950985072717e3cdba5a7e86181fad62568b8810a",
+          "file": "/private/tmp/shitae-e2e-20261016-01a1424a/docs/dogfooding/2026-10-13-standalone/astra/models/proposed.shitae"
+        }
+      ],
+      "modelId": "a0014f35103a4f09d8355c496e8c5378b3922d3730964e2ae266123e05c3da81"
+    }
+  },
+  {
+    "model": "docs/dogfooding/2026-10-13-standalone/astra/models/inline-repro.shitae",
+    "metadata": {
+      "engineVersion": "8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db",
+      "entryModule": "inline-repro",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "inline-repro",
+          "sourceSha256": "b92d43daee3f9fe4ff5654e4061262cb64c58a1c9063b69bfa12c26bb4e354ab",
+          "file": "/private/tmp/shitae-e2e-20261016-01a1424a/docs/dogfooding/2026-10-13-standalone/astra/models/inline-repro.shitae"
+        }
+      ],
+      "modelId": "f31f8e3c05bfb23e3ce14b832cd9e50915645462b07ab753ea85e9546e4543fc"
+    }
+  },
+  {
+    "model": "docs/dogfooding/2026-10-13-standalone/sol/models/recovery.shitae",
+    "metadata": {
+      "engineVersion": "8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db",
+      "entryModule": "recovery",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "recovery",
+          "sourceSha256": "8357da6b4d9241e44d9e028668f100ec82485e61b25f545852ea0c9bb5a92ae4",
+          "file": "/private/tmp/shitae-e2e-20261016-01a1424a/docs/dogfooding/2026-10-13-standalone/sol/models/recovery.shitae"
+        }
+      ],
+      "modelId": "d5c8a707a59b5898e457ffd5050853985822c8b03700a675785dc225bea9b2e1"
+    }
+  },
+  {
+    "model": "docs/dogfooding/2026-10-13-standalone/sol/models/current.shitae",
+    "metadata": {
+      "engineVersion": "8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db",
+      "entryModule": "current",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "current",
+          "sourceSha256": "4e0ae2bbac9557df599a2282b421beaac65dce4d33c36ef3c37f50e5c1a943da",
+          "file": "/private/tmp/shitae-e2e-20261016-01a1424a/docs/dogfooding/2026-10-13-standalone/sol/models/current.shitae"
+        }
+      ],
+      "modelId": "1e15f0c81f68cdd6dc4cd5d9c4b4361641aeda629c893a710907fa147eec5deb"
+    }
+  },
+  {
+    "model": "docs/dogfooding/2026-10-13-standalone/sol/models/proposed.shitae",
+    "metadata": {
+      "engineVersion": "8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db",
+      "entryModule": "proposed",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "proposed",
+          "sourceSha256": "acc1cd09372ee07d350ae9cdb0283fd7080fa7f53263dc53cb1bf5cc166edc3b",
+          "file": "/private/tmp/shitae-e2e-20261016-01a1424a/docs/dogfooding/2026-10-13-standalone/sol/models/proposed.shitae"
+        }
+      ],
+      "modelId": "833ac19bae9f33fc60a26239a655442eda3c6f349ad725b6302fa800d75fa9da"
+    }
+  },
+  {
+    "model": "docs/dogfooding/2026-10-16-end-to-end/models/fresh-library-v2.shitae",
+    "metadata": {
+      "engineVersion": "8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db",
+      "entryModule": "fresh-library-v2",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "fresh-library-v2",
+          "sourceSha256": "72355b9d9c7b59c1d9810af6cbafcd123bcb53c7fd851b4233f0ad88dcb5045e",
+          "file": "/private/tmp/shitae-e2e-20261016-01a1424a/docs/dogfooding/2026-10-16-end-to-end/models/fresh-library-v2.shitae"
+        }
+      ],
+      "modelId": "dd0eda04e40c2ce3dc0e49e19900e8ce711d92b4e8cab5a868a88c242687c593"
+    }
+  },
+  {
+    "model": "docs/dogfooding/2026-10-16-end-to-end/models/fresh-library-v1.shitae",
+    "metadata": {
+      "engineVersion": "8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db",
+      "entryModule": "fresh-library-v1",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "fresh-library-v1",
+          "sourceSha256": "cedba759b21598a5feec02a2a347fa730cbbc1ce7bd64614299557ed78ebbb7c",
+          "file": "/private/tmp/shitae-e2e-20261016-01a1424a/docs/dogfooding/2026-10-16-end-to-end/models/fresh-library-v1.shitae"
+        }
+      ],
+      "modelId": "596496daa68f5a7b7873bc2171ab04f9fa7d4129f5e540bbda569362c8784fa9"
+    }
+  },
+  {
+    "model": "docs/dogfooding/2026-10-16-end-to-end/models/sol-source-cancel/proposed.shitae",
+    "metadata": {
+      "engineVersion": "8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db",
+      "entryModule": "proposed",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "proposed",
+          "sourceSha256": "324503d269bbcbb480fc732f6041d4283466227cd40f6007f6b6b9822e74085c",
+          "file": "/private/tmp/shitae-e2e-20261016-01a1424a/docs/dogfooding/2026-10-16-end-to-end/models/sol-source-cancel/proposed.shitae"
+        }
+      ],
+      "modelId": "f1f557a359d5b01ea94f57802dcbdcb2047151069faf2045207bad1b73ac5ecb"
+    }
+  },
+  {
+    "model": "docs/dogfooding/2026-10-16-end-to-end/models/sol-original/proposed.shitae",
+    "metadata": {
+      "engineVersion": "8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db",
+      "entryModule": "proposed",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "proposed",
+          "sourceSha256": "acc1cd09372ee07d350ae9cdb0283fd7080fa7f53263dc53cb1bf5cc166edc3b",
+          "file": "/private/tmp/shitae-e2e-20261016-01a1424a/docs/dogfooding/2026-10-16-end-to-end/models/sol-original/proposed.shitae"
+        }
+      ],
+      "modelId": "833ac19bae9f33fc60a26239a655442eda3c6f349ad725b6302fa800d75fa9da"
+    }
+  },
+  {
+    "model": "docs/dogfooding/2026-10-16-end-to-end/models/diagnostic-corrected.shitae",
+    "metadata": {
+      "engineVersion": "8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db",
+      "entryModule": "diagnostic-corrected",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "diagnostic-corrected",
+          "sourceSha256": "b718c32b35acd87c1720b0d8e0eb62c18a758f0dde6c7906e8610f02bdb3cef7",
+          "file": "/private/tmp/shitae-e2e-20261016-01a1424a/docs/dogfooding/2026-10-16-end-to-end/models/diagnostic-corrected.shitae"
+        }
+      ],
+      "modelId": "5cc0c96b68c48dea6c648b4a99f1de885d421ac9f1801d3d9afd4c10f56aca62"
+    }
+  },
+  {
+    "model": "docs/dogfooding/2026-10-16-end-to-end/models/diagnostic-probe.shitae",
+    "metadata": {
+      "engineVersion": "8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db",
+      "entryModule": "diagnostic-probe",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "diagnostic-probe",
+          "sourceSha256": "53200ae08c0652539b778fde1aef8ae8a5e11173d0e9b59aa82dacca2aa7d6f3",
+          "file": "/private/tmp/shitae-e2e-20261016-01a1424a/docs/dogfooding/2026-10-16-end-to-end/models/diagnostic-probe.shitae"
+        }
+      ],
+      "modelId": "32d1acf34d1d379c7d062e3f22dcc24295d1e441ea2d2b65fa6e221a288f4efd"
+    }
+  },
+  {
+    "model": "docs/dogfooding/2026-10-16-end-to-end/evidence/handoff-model/proposed.shitae",
+    "metadata": {
+      "engineVersion": "8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db",
+      "entryModule": "proposed",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "proposed",
+          "sourceSha256": "acc1cd09372ee07d350ae9cdb0283fd7080fa7f53263dc53cb1bf5cc166edc3b",
+          "file": "/private/tmp/shitae-e2e-20261016-01a1424a/docs/dogfooding/2026-10-16-end-to-end/evidence/handoff-model/proposed.shitae"
+        }
+      ],
+      "modelId": "833ac19bae9f33fc60a26239a655442eda3c6f349ad725b6302fa800d75fa9da"
+    }
+  }
+]

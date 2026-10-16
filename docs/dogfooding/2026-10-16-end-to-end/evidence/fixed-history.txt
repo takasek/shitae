@@ -1,0 +1,40 @@
+bbd99d4a772e9a74532840c6656477699abfb054 Merge pull request #22 from takasek/codex/issue-11-replay-design
+4f728334842b445e438ccde507f4fc6bd982c034 docs: record scenario replay usage and cross-process acceptance
+d807d7f38de0b3d0a1b9c59bf83d239ec911a58c feat(simulator): save and load scenarios through an isolated session
+d26d2f41de96bfb1e2d474676155e83fc8267ad6 feat(cli): export scenarios and replay before serving a new session
+15df3abc36814b06ed423188651d06b30f65c0dd feat(session): record and strictly replay versioned scenarios
+008dbe42c36933cfcbbef11aceea84000d5c9086 Merge pull request #21 from takasek/codex/issue-19-readme
+b47e24358e141a68488a1ff3d3824f10c216df05 docs: propose versioned scenario replay contract
+59b25f643e59cc2c36e3359ae2316696f2913df6 docs: explain model checks and HTML sharing
+da4457a229aba9a80004fae0e611f68d7827ef56 Merge pull request #20 from takasek/codex/issue-18-session
+8e367435f6180111b3d4dae2bdf83305fb702cb7 docs(session): verify issue 18 acceptance before PR
+0f06ddbe707690a929b7bb307bc7c15c716929bd fix(simulator): distinguish component modules in state labels
+b8f86603dc06414ac3803b1c38a1d6991dacd6fe docs(session): record compact action contract and response measurements
+7e0801193dd82328fa45e26415229bbd7efaca68 feat(session): split compact inventory from action details
+f6887ec39758d41ed1df8014210cac38e4b5e0d4 docs(session): record browser validation and agent workflow evaluation
+7cb02aaecbc03ff51aa0ab1ed0c8a58fb3b13b09 fix(session): retain destination variants in timeline labels
+cd7fb9c9a83a723212857b7e096b7671a8211683 feat(simulator): share session execution and model identity with CLI
+7cf86ec76bcc65fbbe973c3884c8dbb9f8f39a48 test(session): cover frame subtrees and compact responses at scale
+0cde4ec0938b18d70fd2ddbca23d64f0794fc172 feat(session): add detailed observations and manual trials
+0d0d8146f0827e0e08462b2b2bb2b173a2338c03 feat(session): add persistent CLI action dispatch roundtrip
+5f97f293e6785527d261828376ffdf513dd413a2 fix(runtime): follow nearest switch ancestor through present frames
+2fb8a9cf248a675733cd9481b838d1db4737a76c docs: relax simulator single-file packaging requirement
+818ce95830dc6b6fefbd00f48b8f4eed9e902ac9 docs: make session responses compact by default
+5b075552b95ebff1bd022e7085758ab65e2d6295 docs: propose common session contract for issue 18
+e985f4ee58ab76339df5b0f59144e1f1a5da91c8 Merge pull request #17 from takasek/codex/simulator-alias-inline
+3844800d3ee3a0804fd8c5f7ce9f97ff5000d1ce fix(simulator): retain and render inline component children
+e92e543d5ac374f9f525f51c85a2a748f6c3bfed fix(simulator): resolve member gate aliases within their source body
+1487bbf6bde0cb38d32ed5e219f907050b74d487 Merge pull request #16 from takasek/codex/issue-8-cli-output
+9f47b1fb670fe7388f076156ca4c592070a4c9be fix(cli): let simulate stdout finish before exiting
+57e6deed5bd87fa39b8bc3a06839bdbacba81a78 Merge pull request #15 from takasek/codex/issue-13-singleton-guide
+4b5624037614fbec16d77b5f6f3e48755e733175 docs: add singleton and set guidance to AI guide
+ce5eb4578f1eab692db512845198a17a43acea9e Merge pull request #14 from takasek/codex/dogfooding-reports-20261013
+efcd2d9eb48559473d456629660629c917b2e5fb docs: record dogfooding issue mapping and publication checks
+6f212d056f9c7dbf72b1c255a7542b8107d26d64 docs: archive standalone dogfooding reports and reproductions
+a3ebaedbd5d452c99093a949bbaf94508da43ab4 docs: make AGENTS.md the shared source and import it from .claude/CLAUDE.md
+95531a40fba5446c0e19eaa423b0b1bf786692fc Merge pull request #5 from takasek/simulator-observability-ui
+333f02b45d03bb1a9ea8a827dc28b5835698757a feat(simulator): 遷移マップ高さのツマミ調整を追加
+e203eca01b8d9c81d98c58f680bd7215462b88c0 fix(simulator): アクション表示オン時に外部イベントセクションを既定で開く
+ac3fbf56012f80ae51ddcbaba5aaa06b73ce8bce fix(simulator): gateドロワーがhost gate保持画面で「参照先なし」と誤誘導するのを直す
+5f647d7a59bf0bc14a6a30d097fc274cc465ef15 fix(simulator): 中央ペイン上下1fr/1fr均等割りをauto/1fr逆転に変更
+81b7d404ada41d7cd216caa11f7608347068edc8 fix(simulator): gateドロワーの閉じるボタンが2行に折り返す見た目を直す

@@ -1,0 +1,137 @@
+- complementary:
+  - generic "統合ログ — 実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は ghost として残ります": 統合ログ
+  - generic: ナビゲーション履歴。実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は薄く（ghost）表示され、再クリックでやり直せます。新しいものが上
+  - checkbox "イベントを表示" [checked]
+  - text: イベントを表示
+  - generic: "[Workspace / Diagram] set(DiagramView)"
+  - text: ›
+  - generic: "[Workspace / Diagram] set(DocumentStatus)"
+  - text: ›
+  - generic: goto → Workspace / Diagram
+  - text: ›
+  - generic: dismiss → Workspace / Split
+  - text: ›
+  - generic: present → VersionReview
+  - text: ›
+  - generic: "[Workspace / Split] hide(RecoveryNotice)"
+  - text: ›
+  - generic: "[Workspace / Split] show(RecoveryNotice)"
+  - text: ›
+  - generic: "[Workspace / Split] set(DocumentStatus)"
+  - text: ›
+  - generic: 起動
+- main:
+  - generic: 現在の画面
+  - button "初期状態へ"
+  - button "シナリオを保存"
+  - text: シナリオを読み込む
+  - button "シナリオを読み込む"
+  - generic: アクティブな frame の表示（本体）と掲示中カード
+  - checkbox "アクションを表示" [checked]
+  - text: アクションを表示
+  - checkbox "部品の状態を表示" [checked]
+  - text: 部品の状態を表示
+  - button "画面外 component の姿切替（gate 試験用）"
+  - paragraph: 今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。
+  - generic: Workspace
+  - generic: "## Diagram"
+  - generic: 画面の値 · DSL
+  - generic "navigation → Navigation · variantなし · 包含の初期値 · 初期":
+    - text: navigation
+    - generic: → Navigation · variantなし · 包含の初期値 · 初期
+  - generic "folder → FolderIdentity · variantなし · 包含の初期値 · 初期":
+    - text: folder
+    - generic: → FolderIdentity · variantなし · 包含の初期値 · 初期
+  - generic "files → FileTree · variantなし · 包含の初期値 · 初期":
+    - text: files
+    - generic: → FileTree · variantなし · 包含の初期値 · 初期
+  - generic "recent → RecentTargets · variantなし · 包含の初期値 · 初期":
+    - text: recent
+    - generic: → RecentTargets · variantなし · 包含の初期値 · 初期
+  - generic "tabs → DocumentTabs · variantなし · 包含の初期値 · 初期":
+    - text: tabs
+    - generic: → DocumentTabs · variantなし · 包含の初期値 · 初期
+  - generic "DocumentTab · variantなし · 包含の初期値 · 初期":
+    - text: DocumentTab
+    - generic: · variantなし · 包含の初期値 · 初期
+  - generic "name → FileName · variantなし · 包含の初期値 · 初期":
+    - text: name
+    - generic: → FileName · variantなし · 包含の初期値 · 初期
+  - generic "state → DocumentStateText · variantなし · 包含の初期値 · 初期":
+    - text: state
+    - generic: → DocumentStateText · variantなし · 包含の初期値 · 初期
+  - generic "close → Close · variantなし · 包含の初期値 · 初期":
+    - text: close
+    - generic: → Close · variantなし · 包含の初期値 · 初期
+  - generic "identity → DocumentIdentity · variantなし · 包含の初期値 · 初期":
+    - text: identity
+    - generic: → DocumentIdentity · variantなし · 包含の初期値 · 初期
+  - generic "name → FileName · variantなし · 包含の初期値 · 初期":
+    - text: name
+    - generic: → FileName · variantなし · 包含の初期値 · 初期
+  - generic "context → ParentFolder · variantなし · 包含の初期値 · 初期":
+    - text: context
+    - generic: → ParentFolder · variantなし · 包含の初期値 · 初期
+  - generic "document → DocumentCommands · variantなし · 包含の初期値 · 初期":
+    - text: document
+    - generic: → DocumentCommands · variantなし · 包含の初期値 · 初期
+  - generic "save → Save · variantなし · 包含の初期値 · 初期":
+    - text: save
+    - generic: → Save · variantなし · 包含の初期値 · 初期
+  - generic "format → FormatMenu · variantなし · 包含の初期値 · 初期":
+    - text: format
+    - generic: → FormatMenu · variantなし · 包含の初期値 · 初期
+  - generic "Normalize → NormalizeAction · variantなし · 包含の初期値 · 初期":
+    - text: Normalize
+    - generic: → NormalizeAction · variantなし · 包含の初期値 · 初期
+  - generic "view → ViewModes · variantなし · 包含の初期値 · 初期":
+    - text: view
+    - generic: → ViewModes · variantなし · 包含の初期値 · 初期
+  - 'generic "diagram → DiagramView · ##Error · 共有 (singleton) · DSL"':
+    - text: diagram
+    - generic: "→ DiagramView · ##Error · 共有 (singleton) · DSL"
+  - generic "problem → Diagnostics · variantなし · 包含の初期値 · 初期":
+    - text: problem
+    - generic: → Diagnostics · variantなし · 包含の初期値 · 初期
+  - 'generic "status → DocumentStatus · ##Invalid · 共有 (singleton) · DSL"':
+    - text: status
+    - generic: "→ DocumentStatus · ##Invalid · 共有 (singleton) · DSL"
+  - generic "state → DiagramUnavailable · variantなし · 包含の初期値 · 初期":
+    - text: state
+    - generic: → DiagramUnavailable · variantなし · 包含の初期値 · 初期
+  - generic "problems → Diagnostics · variantなし · 包含の初期値 · 初期":
+    - text: problems
+    - generic: → Diagnostics · variantなし · 包含の初期値 · 初期
+  - button "Split variant固有":
+    - generic: Split
+    - generic "この姿（variant）でだけ有効な操作": variant固有
+  - button "SourceOnly variant固有":
+    - generic: SourceOnly
+    - generic "この姿（variant）でだけ有効な操作": variant固有
+  - generic: NodeDoubleClick(DiagramView.graph)
+  - 'generic "member gate 判定対象: DiagramView.graph"': DiagramView / Error
+  - combobox:
+    - option "Ready"
+    - option "Error" [selected]
+  - generic: gate off で無効
+  - generic "この姿（variant）でだけ有効な操作": variant固有
+  - button "CloseLastDocument component common":
+    - generic: CloseLastDocument
+    - generic "この component のどの姿でも共通して有効な操作": component common
+  - button "OpenDocument component common":
+    - generic: OpenDocument
+    - generic "この component のどの姿でも共通して有効な操作": component common
+  - button "ParseError component common" [active]:
+    - generic: ParseError
+    - generic "この component のどの姿でも共通して有効な操作": component common
+  - button "ValidInput component common":
+    - generic: ValidInput
+    - generic "この component のどの姿でも共通して有効な操作": component common
+  - generic "スタック"
+  - generic: 今積み重なっている画面。プッシュダウン構成として読める。上が現在地
+  - generic: Workspace / Diagram
+  - generic "遷移マップ"
+  - generic: 画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。
+  - button "設定を保存"
+  - checkbox "全体を見る"
+  - text: 全体を見る
