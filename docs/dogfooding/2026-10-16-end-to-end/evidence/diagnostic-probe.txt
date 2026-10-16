@@ -1,0 +1,6 @@
+check exit=1
+/private/tmp/shitae-e2e-20261016-01a1424a/docs/dogfooding/2026-10-16-end-to-end/models/diagnostic-probe.shitae:3: [error] E030: set(Status##Done) の 'Status' は singleton ではない（インスタンス独立のため書き込み先が定まらない。#! にするか遷移で書き換える。「singleton component」参照）
+
+simulate exit=0, bytes=171142, terminated=True
+
+corrected #! Status: check exit=0

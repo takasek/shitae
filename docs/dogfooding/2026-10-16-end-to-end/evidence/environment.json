@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-16",
+  "timezone": "Asia/Tokyo",
+  "commit": "bbd99d4a772e9a74532840c6656477699abfb054",
+  "os": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434\n",
+  "kernel": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "node": "v26.5.0",
+  "pnpm": "10.33.2",
+  "lockSha256": "7913c3d67f06c818f70e61a07eb14a798956431a5dcdf2fcfbd36010066b6bf8",
+  "engineVersion": "8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db",
+  "browser": "Codex In-app Browser; userAgent Chrome/155.0.0.0, DOM at browser-environment.txt",
+  "evaluators": {
+    "parent": "Codex root agent; historical context known; CLI/GUI execution and synthesis",
+    "author": "fresh_author; fork_turns=none; README/AI_GUIDE and own model only before authoring",
+    "recipient": "handoff_recipient; fork_turns=none; brief/shared assets and public docs; no author conversation"
+  },
+  "versionPolicy": "Same fixed source and lockfile throughout. pnpm test pretests rebuilt unchanged sources; metadata and embedded HTML identities still match the same engine. No fetch/pull/processor source edits during replay."
+}

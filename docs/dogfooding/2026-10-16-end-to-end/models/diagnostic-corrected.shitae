@@ -1,0 +1,8 @@
+// 検査と生成の区別だけを確認する意図的な誤り。実利用モデルではない。
+# Start
+> Change -> set(Status##Done)
+#! Status
+## New
+Text
+## Done
+Text

@@ -1,0 +1,51 @@
+[
+  {
+    "model": "docs/dogfooding/2026-10-13-standalone/astra/models/current.shitae",
+    "checkExit": 0,
+    "generationExit": 0,
+    "htmlBytes": 198487,
+    "htmlTerminated": true
+  },
+  {
+    "model": "docs/dogfooding/2026-10-13-standalone/astra/models/inline-repro.shitae",
+    "checkExit": 0,
+    "generationExit": 0,
+    "htmlBytes": 171589,
+    "htmlTerminated": true
+  },
+  {
+    "model": "docs/dogfooding/2026-10-13-standalone/astra/models/proposed.shitae",
+    "checkExit": 0,
+    "generationExit": 0,
+    "htmlBytes": 206670,
+    "htmlTerminated": true
+  },
+  {
+    "model": "docs/dogfooding/2026-10-13-standalone/reproductions/alias-member.shitae",
+    "checkExit": 0,
+    "generationExit": 0,
+    "htmlBytes": 173199,
+    "htmlTerminated": true
+  },
+  {
+    "model": "docs/dogfooding/2026-10-13-standalone/sol/models/current.shitae",
+    "checkExit": 0,
+    "generationExit": 0,
+    "htmlBytes": 207288,
+    "htmlTerminated": true
+  },
+  {
+    "model": "docs/dogfooding/2026-10-13-standalone/sol/models/proposed.shitae",
+    "checkExit": 0,
+    "generationExit": 0,
+    "htmlBytes": 225153,
+    "htmlTerminated": true
+  },
+  {
+    "model": "docs/dogfooding/2026-10-13-standalone/sol/models/recovery.shitae",
+    "checkExit": 0,
+    "generationExit": 0,
+    "htmlBytes": 191159,
+    "htmlTerminated": true
+  }
+]
