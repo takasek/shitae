@@ -3,6 +3,61 @@ let SESSION = new Shitae.Session(new Map(MODEL.documents), MODEL.entryModule, ne
 let view, stack, overlays, sharedVariants, GATE_TARGETS, timeline, cursor, componentNameCounts;
 let showEvents = true, showActions = true, showStates = false, sessionError = '';
 let scenarioBusy = false, scenarioNotice = '';
+let provenanceOpen = new Set(), reviewOpen = false;
+function toggleProvenanceStep(step) { if (provenanceOpen.has(step)) provenanceOpen.delete(step); else provenanceOpen.add(step); render(); }
+function toggleReview() { reviewOpen = !reviewOpen; render(); }
+function seekProvenancePoint(id) {
+  // Revalidate against the current retained timeline, including after imports/reset.
+  if (timeline.some(p => p.id === id)) command(() => SESSION.seek(id));
+}
+function saveReview() {
+  const review = SESSION.query({ select: ['review'] }).data.review;
+  if (!review.available) return;
+  const url = URL.createObjectURL(new Blob([review.text], { type: 'text/plain;charset=utf-8' }));
+  const link = document.createElement('a');
+  link.href = url; link.download = MODEL.entryModule + '.review.txt'; link.click(); link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+function pointRef(ref) { return '記録' + ref.step + ' / 観測' + (ref.observation + 1); }
+function provenanceCounts(counts) { return '現在まで ' + counts.retained + '観測点 / ghost ' + counts.ghost + '観測点 / 破棄済み ' + counts.discarded + '観測点'; }
+function renderProvenance(fallback) {
+  const summary = SESSION.query({ select: ['provenanceSummary'] }).data.provenanceSummary;
+  if (!summary.available) return '<p>操作来歴を利用できません: ' + esc(summary.reason) + '</p><div class="timeline-log">' + fallback + '</div>';
+  const items = []; let after;
+  do {
+    const page = SESSION.query({ select: ['provenance'], provenance: { limit: 100, ...(after === undefined ? {} : { after }) } }).data.provenance;
+    items.push(...page.items); after = page.nextAfter;
+  } while (after !== null);
+  const pointButton = (p, extra = '') => '<button class="timeline-item timeline-item-' + p.kind + (p.current ? ' current' : '') + (p.status === 'ghost' ? ' ghost' : '') + '" onclick="seekProvenancePoint(' + p.id + ')">' + esc(extra + p.label) + ' <small>' + esc(locationLabel(p.location)) + (p.current ? ' / 現在地' : p.status === 'ghost' ? ' / ghost' : '') + '</small></button>';
+  let html = '<p class="pane-desc">現在地: ' + esc(summary.cursor.actionText + ' / ' + pointRef(summary.cursor.ref) + ' / ' + locationLabel(summary.cursor.location)) + '</p>';
+  html += '<p class="pane-desc">' + esc(provenanceCounts(summary.observations)) + '。記録には破棄経路・reset前・手動試験も含まれます。</p>';
+  html += items.reverse().map(item => {
+    const open = provenanceOpen.has(item.step);
+    let body = '<div class="provenance-step"><button class="provenance-heading" aria-expanded="' + open + '" onclick="toggleProvenanceStep(' + item.step + ')">' + item.step + '. ' + esc(item.actionText + (item.branch === null ? '' : ' / 条件: ' + item.branch)) + '</button>';
+    body += '<div class="pane-desc">' + esc((item.host.module ?? '') + '::' + locationLabel(item.host) + (item.placement ? ' / 配置 ' + item.placement.root + '[' + item.placement.path.join('.') + ']' : '')) + '</div>';
+    body += '<div class="pane-desc">' + item.resultCount + '結果 / ' + item.observationCount + '観測点 · ' + esc(provenanceCounts(item.counts)) + '</div>';
+    if (item.target) body += '<p class="provenance-marker">巻戻し/やり直し先: ' + esc(item.target.actionText + ' / ' + pointRef(item.target.ref) + (item.target.resultPosition === null ? '' : ' / 結果' + (item.target.resultPosition + 1)) + ' / ' + item.target.label) + '</p>';
+    if (item.discarded.length) body += '<p class="provenance-marker">分岐・破棄 ' + item.discarded.length + '観測点（' + esc(item.discarded.map(pointRef).join('、')) + '）</p>';
+    if (item.completionObservationId !== null) {
+      const p = timeline.find(p => p.id === item.completionObservationId);
+      if (p) body += pointButton({ ...p, current: p.id === view.summary.cursorObservationId, status: p.ghost ? 'ghost' : 'retained' }, '完了点: ');
+    } else if (item.kind === 'dispatch') body += '<p class="pane-desc">' + (item.observationCount ? '完了点は破棄済み' : '観測なし（移動先なし）') + '</p>';
+    if (open) {
+      const d = SESSION.query({ select: ['provenanceStep'], step: item.step }).data.provenanceStep;
+      for (const r of d.results) body += '<p class="pane-desc">結果' + (r.position + 1) + ': ' + esc(r.label) + ' · ' + esc(provenanceCounts(r.counts)) + (r.observations.length ? '' : ' / 観測なし') + '</p>';
+      for (const p of d.observations) {
+        if (!p.seekable || (p.kind === 'event' && !showEvents && !p.current)) continue;
+        body += pointButton(p, (p.resultPosition === null ? '' : '結果' + (p.resultPosition + 1) + ' / ') + '観測' + (p.ordinal + 1) + (p.id === d.completionObservationId ? '（完了点）: ' : '（途中）: '));
+      }
+    }
+    return body + '</div>';
+  }).join('');
+  const initial = timeline.find(p => p.id === 1);
+  if (initial) html += pointButton({ ...initial, current: initial.id === view.summary.cursorObservationId, status: initial.ghost ? 'ghost' : 'retained' }, '起点: ');
+  html += '<p><button onclick="toggleReview()" aria-expanded="' + reviewOpen + '">検討手順を表示</button> <button onclick="saveReview()">検討手順を書出し</button></p>';
+  if (reviewOpen) html += '<label>変更後モデルと見比べる検討手順<textarea class="review-text" readonly rows="14">' + esc(SESSION.query({ select: ['review'] }).data.review.text) + '</textarea></label>';
+  return html;
+}
 async function buildScenarioJson() { return JSON.stringify(await SESSION.exportScenario(), null, 2) + '\n'; }
 async function saveScenario() {
   if (scenarioBusy) return;
@@ -26,6 +81,7 @@ async function replaceScenario(readText) {
     const next = await Shitae.replayScenario({ documents: new Map(MODEL.documents), entryModule: MODEL.entryModule,
       files: new Map(MODEL.files), metadata: MODEL.metadata }, saved);
     SESSION = next;
+    provenanceOpen = new Set(); reviewOpen = false;
     scenarioNotice = 'シナリオを読み込みました（' + saved.steps.length + '操作を照合）';
   } catch (e) { sessionError = e.message; }
   finally { scenarioBusy = false; render(); }

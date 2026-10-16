@@ -5,6 +5,8 @@ import { createInterface } from 'node:readline';
 import { mkdtempSync, writeFileSync, rmSync, mkdirSync, symlinkSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
+import { Session } from '@shitae/session';
+import { loadModel } from '../src/model.js';
 
 const CLI = join(import.meta.dirname, '../dist/index.js');
 const MODEL = '# Confirm\n> Purchase -> [Success] goto(Done) ; [Failure] goto(##Error)\n## Ready\nbutton\n## Error\nproblem\n# Done\nreceipt\n';
@@ -36,6 +38,53 @@ function start(file: string, args: string[] = []) {
 }
 
 describe('shitae session persistent JSON Lines', () => {
+  it('reconstructs discarded/reset and split-result provenance in a different process, including placements, modules, overlays and builtin back', async () => {
+    const file = fixture({
+      'main.shitae': 'import card as c\n# Home\none: c::Card\ntwo: c::Card\n> Open -> show(c::Card) ; push(c::Card)\n> Check(two.signal?) -> checked\n',
+      'card.shitae': '# Card\n> Loop -> push(Card, @flow)\n> Check(signal?) -> checked\n## Idle\nx\n## Ready\nsignal\n',
+    });
+    const p = loadModel(file), s = new Session(p.documents, p.entryModule, p.modulePaths, p.metadata);
+    const act = (text: string, path?: number[]) => {
+      const a = s.query({ select: ['actions'] }).data!.actions!.items.find(a => a.actionText === text && (!path || JSON.stringify(a.placement.path) === JSON.stringify(path)))!;
+      return s.dispatch({ handle: a.handle });
+    };
+    act('Loop', [1]); act('Loop');
+    const split = s.query({ select: ['history'], history: { operationId: 2 } }).data!.history!.items;
+    expect(split).toHaveLength(2); s.seek(split[0]!.id);
+    s.dispatch({ handle: s.query({ select: ['actions'] }).data!.actions!.controls.back.handle });
+    s.reset(); act('Open');
+    s.setTestVariant({ module: 'card', component: 'Card', variant: 'Ready' });
+    const current = s.query().summary.cursorObservationId;
+    s.seek(current - 1); s.seek(current);
+    const sidecar = join(dirname(file), 'saved.scenario.json'); writeFileSync(sidecar, JSON.stringify(await s.exportScenario()));
+    const next = start(file, ['--replay', sidecar]);
+    const select = ['provenanceSummary', 'provenance', 'review'];
+    expect((await next.request({ id: 'all', command: 'query', select })).data).toEqual(s.query({ select }).data);
+    for (let step = 1; step <= 9; step++) {
+      expect((await next.request({ id: step, command: 'query', select: ['provenanceStep'], step })).data).toEqual(s.query({ select: ['provenanceStep'], step }).data);
+    }
+    expect(s.query({ select: ['provenanceStep'], step: 1 }).data!.provenanceStep).toMatchObject({ host: { module: 'card' }, placement: { root: 'main', path: [1] } });
+    expect(s.query({ select: ['provenanceStep'], step: 4 }).data!.provenanceStep!.actionText).toBe('組込み back');
+    expect(await next.finish()).toMatchObject({ code: 0, stderr: '' });
+  });
+
+  it('queries readable provenance, summary, pages and details across separate replay processes', async () => {
+    const file = fixture(), first = start(file);
+    const a = (await first.request({ id: 1, command: 'query', select: ['actions'] })).data.actions.items[0];
+    await first.request({ id: 2, command: 'dispatch', handle: a.handle, branch: a.branches[1].id });
+    const query = { id: 3, command: 'query', select: ['provenanceSummary', 'provenance', 'provenanceStep', 'review'], provenance: { limit: 1 }, step: 1 };
+    const live = await first.request(query);
+    expect(live.ok).toBe(true); expect(live.data.provenanceStep).toMatchObject({ actionText: 'Purchase', branch: 'Failure' });
+    expect(live.data.review.text).toContain('条件: Failure');
+    const saved = (await first.request({ id: 4, command: 'exportScenario' })).scenario;
+    const sidecar = join(dirname(file), 'saved.scenario.json'); writeFileSync(sidecar, JSON.stringify(saved));
+    await first.finish();
+    const next = start(file, ['--replay', sidecar]);
+    expect((await next.request(query)).data).toEqual(live.data);
+    expect((await next.request({ id: 5, command: 'seek', observationId: 1 })).error.code).toBe('UNKNOWN_COMMAND');
+    expect(await next.finish()).toMatchObject({ code: 0, stderr: '' });
+  });
+
   it('exports, exits, reloads in a different process/directory and continues with fresh handles', async () => {
     const file = fixture(); const first = start(file);
     const a = (await first.request({ id: 1, command: 'query', select: ['actions'] })).data.actions.items[0];

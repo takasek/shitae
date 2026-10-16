@@ -4,6 +4,8 @@ import { activeFrame, activeLocation, initialState, reduce, singletonKey, type L
 import type { ComponentValue, HistoryItem, InclusionNode, InclusionRoot, ObservationView, QueryOptions, StateView, ValueOrigin, VariantValue } from './views.js';
 export type * from './views.js';
 import type { ModelMetadata } from './metadata.js';
+import { Provenance, provenanceAvailability, pointCounts, resultLabel, type StepRecord, type ProvenanceSummary, type ProvenancePage, type ProvenanceStep, type ReviewText } from './provenance.js';
+export type * from './provenance.js';
 export type { ModelMetadata } from './metadata.js';
 import { ScenarioJournal, ScenarioError, branchDescriptor, rawOperation, detailDescriptor, validateScenario, checkModel, scenarioEqual, scenarioDifference,
   type Scenario, type PreparedScenarioModel, type RawView, type RawCheckpoint, type ScenarioCommand } from './scenario.js';
@@ -53,6 +55,7 @@ export interface Actions {
 }
 export interface Query { revision: number; summary: Summary; data?: {
   actions?: Actions; action?: ActionDetail; state?: StateView; history?: { items: HistoryItem[]; nextAfter: number | null }; observation?: ObservationView; metadata?: ModelMetadata | null;
+  provenanceSummary?: ProvenanceSummary; provenance?: ProvenancePage; provenanceStep?: ProvenanceStep; review?: ReviewText;
 } }
 export interface Receipt {
   operationId: number;
@@ -96,6 +99,8 @@ export class Session {
   private observations: Observation[] = [];
   private currentInventory: { revision: number; context: Context; value: Inventory } | undefined;
   private journal: ScenarioJournal | undefined;
+  private provenance: Provenance | undefined;
+  private provenanceDraft: { record: Omit<StepRecord, 'observations' | 'discarded'>; priorIds: number[] } | undefined;
 
   constructor(documents: Map<string, Document>, private readonly entryModule: string, files = new Map<string, string>(), metadata: ModelMetadata | null = null) {
     this.documents = structuredClone(documents);
@@ -107,6 +112,8 @@ export class Session {
     this.observe('transition', '起動', null, null);
     if (this.metadata?.sourceBasis === 'source-bytes') {
       this.journal = new ScenarioJournal(this.metadata, this.observations[0]!.id, this.scenarioCheckpoint());
+      const o = this.observations[0]!;
+      this.provenance = new Provenance({ id: o.id, ref: { step: 0, observation: 0 }, resultPosition: null, ordinal: 0, kind: o.kind, label: o.label, location: this.location(o.context) });
     }
   }
   private scenarioView(context = this.context): RawView {
@@ -123,9 +130,32 @@ export class Session {
   }
   private recordScenario(command: Parameters<ScenarioJournal['record']>[0], start: number, receipt?: Receipt) {
     if (!this.journal) return;
+    const draft = this.provenanceDraft;
+    if (draft) {
+      const { record, priorIds } = draft;
+      const observations = this.observations.filter(o => o.id >= start).map((o, observation) => {
+        const result = record.results.find(r => r.observationIds.includes(o.id));
+        return { id: o.id, ref: { step: record.step, observation }, resultPosition: result?.position ?? null,
+          ordinal: result ? result.observationIds.indexOf(o.id) : observation, kind: o.kind, label: o.label, location: this.location(o.context) };
+      });
+      this.provenance!.record({ ...record, operationId: receipt?.operationId ?? null, observations,
+        discarded: priorIds.filter(id => !this.observations.some(o => o.id === id)).map(id => this.provenance!.locate(id).ref) });
+      this.provenanceDraft = undefined;
+    }
     this.journal.record(command, this.observations.filter(o => o.id >= start).map(o => ({ id: o.id, view: this.scenarioView(o.context) })),
       this.scenarioCheckpoint(), receipt);
   }
+  private beginProvenance(kind: StepRecord['kind'], actionText: string, operation?: Operation, branch: string | null = null, targetId?: number) {
+    if (!this.provenance) return;
+    this.provenanceDraft = { priorIds: this.observations.map(o => o.id), record: {
+      step: this.provenance.steps.length + 1, kind, operationId: null, actionText, branch,
+      host: structuredClone(operation?.host ?? this.location()),
+      placement: operation ? { root: operation.placement.root, path: [...operation.placement.path] } : null,
+      from: this.provenance.locate(this.observations[this.cursor]!.id).ref,
+      target: targetId === undefined ? null : this.provenance.locate(targetId), results: [],
+    } };
+  }
+  private retainedPoints() { return new Map(this.observations.map((o, i) => [o.id, i > this.cursor])); }
   async exportScenario(): Promise<Scenario> {
     if (!this.journal) throw new ScenarioError('SCENARIO_UNSUPPORTED', 'Source-byte model metadata is required');
     return this.journal.export(this.scenarioCheckpoint());
@@ -284,14 +314,33 @@ export class Session {
 
   query(options: QueryOptions = {}): Query {
     const select = options.select ?? [];
-    if (!Array.isArray(select) || select.some((s) => !['actions', 'action', 'state', 'history', 'observation', 'metadata'].includes(s)) || new Set(select).size !== select.length ||
-      Object.keys(options).some((k) => !['select', 'history', 'observationId', 'handle'].includes(k)) ||
+    if (!Array.isArray(select) || select.some((s) => !['actions', 'action', 'state', 'history', 'observation', 'metadata', 'provenanceSummary', 'provenance', 'provenanceStep', 'review'].includes(s)) || new Set(select).size !== select.length ||
+      Object.keys(options).some((k) => !['select', 'history', 'observationId', 'handle', 'provenance', 'step'].includes(k)) ||
+      (options.provenance !== undefined && !select.includes('provenance')) ||
+      (select.includes('provenanceStep') ? !Number.isSafeInteger(options.step) || options.step! < 1 : options.step !== undefined) ||
       (options.history !== undefined && !select.includes('history')) || (options.observationId !== undefined && !select.includes('observation')) ||
       (select.includes('action') ? typeof options.handle !== 'string' : options.handle !== undefined)) {
       fail('INVALID_REQUEST', 'Invalid query selection/options');
     }
     const data: NonNullable<Query['data']> = {};
     for (const s of select) {
+      if (s === 'provenanceSummary') data.provenanceSummary = this.provenance?.summary(this.retainedPoints(), this.summary().cursorObservationId) ?? {
+        ...provenanceAvailability(false), steps: { dispatch: 0, seek: 0, reset: 0, setTestVariant: 0 }, resultCount: 0, observations: pointCounts(), cursor: null,
+      };
+      if (s === 'provenance') {
+        const p = options.provenance === undefined ? {} : options.provenance, total = this.provenance?.steps.length ?? 0;
+        if (!p || typeof p !== 'object' || Array.isArray(p) || Object.keys(p).some(k => !['after', 'limit'].includes(k)) ||
+          (p.after !== undefined && (!Number.isSafeInteger(p.after) || p.after < 0 || p.after > total)) ||
+          (p.limit !== undefined && (!Number.isSafeInteger(p.limit) || p.limit < 1 || p.limit > 100))) fail('INVALID_REQUEST', 'Invalid provenance page');
+        const after = p.after ?? 0, end = Math.min(total, after + (p.limit ?? 20));
+        data.provenance = { ...provenanceAvailability(!!this.provenance), items: Array.from({ length: end - after }, (_, i) => this.provenance!.item(after + i + 1, this.retainedPoints(), this.summary().cursorObservationId)), nextAfter: end < total ? end : null };
+      }
+      if (s === 'provenanceStep') {
+        if (!this.provenance) fail('SCENARIO_UNSUPPORTED', 'Source-byte model metadata is required');
+        if (options.step! > this.provenance.steps.length) fail('INVALID_REQUEST', 'Unknown provenance step');
+        data.provenanceStep = this.provenance.detail(options.step!, this.retainedPoints(), this.summary().cursorObservationId);
+      }
+      if (s === 'review') data.review = this.provenance?.review(this.retainedPoints(), this.summary().cursorObservationId) ?? { ...provenanceAvailability(false), text: '' };
       if (s === 'metadata') data.metadata = this.metadata;
       if (s === 'actions') {
         const { actions } = this.inventory();
@@ -321,6 +370,8 @@ export class Session {
     this.observations = this.observations.slice(0, this.cursor + 1);
     this.observations.push({ id: this.nextObservationId++, operationId, result, kind, label, context: structuredClone(this.context) });
     this.cursor = this.observations.length - 1;
+    const draft = this.provenanceDraft?.record;
+    if (draft?.kind === 'dispatch') draft.results.at(-1)?.observationIds.push(this.observations[this.cursor]!.id);
   }
   private comparable() {
     return { frames: { frames: this.state.frames, activeFrameId: this.state.activeFrameId, nextFrameId: this.state.nextFrameId },
@@ -418,12 +469,14 @@ export class Session {
   }
   seek(observationId: number): Query {
     const index = this.observationIndex(observationId);
+    this.beginProvenance('seek', '巻戻し/やり直し', undefined, null, observationId);
     const target = this.journal?.ref(observationId);
     this.context = structuredClone(this.observations[index]!.context); this.cursor = index; this.revision++;
     if (target) this.recordScenario({ kind: 'seek', target }, this.nextObservationId);
     return this.query();
   }
   reset(): Query {
+    this.beginProvenance('reset', '初期状態へ');
     const start = this.nextObservationId;
     this.context = this.initialContext(); this.observations = []; this.cursor = -1; this.revision++;
     this.observe('transition', '起動', null, null);
@@ -433,6 +486,7 @@ export class Session {
   setTestVariant(request: { module: string; component: string; variant: string }): Query & { receipt: Receipt } {
     const target = this.gateTargets().find((c) => c.module === request.module && c.component === request.component);
     if (!target || !target.variants.includes(request.variant)) fail('INVALID_REQUEST', 'Unknown trial target or variant');
+    this.beginProvenance('setTestVariant', `手動試験 ${request.module}::${request.component}##${request.variant}`);
     const start = this.nextObservationId;
     const before = this.comparable(); const operationId = ++this.operationId;
     const key = singletonKey(request.module, request.component);
@@ -482,6 +536,7 @@ export class Session {
     if (branches.length && request.branch === undefined) fail('BRANCH_REQUIRED', 'Select a branch from the action query');
     const branch = branches.find((b) => b.id === request.branch);
     if (request.branch !== undefined && !branch) fail('INVALID_BRANCH', 'Unknown branch for this operation');
+    this.beginProvenance('dispatch', back ? '組込み back' : entry!.operation.actionText, entry?.operation, branch?.label ?? null);
     const before = this.comparable();
     const observationStart = this.nextObservationId;
     const operationId = ++this.operationId;
@@ -491,6 +546,10 @@ export class Session {
       : this.indexedResults(entry!.module, entry!.interaction).filter((r) => r.label == null || r.label === branch?.label);
     for (const r of results) {
       const body = r.result.body;
+      if (this.provenanceDraft) {
+        const list = this.provenanceDraft.record.results;
+        list.push({ position: list.length, resultIndex: r.resultIndex, source: r.source, label: resultLabel(body), observationIds: [] });
+      }
       const ref = r.source == null ? null : { resultIndex: r.resultIndex, source: r.source };
       if (body.kind === 'effect') {
         receipt.effects.push({ ...ref!, text: body.text });

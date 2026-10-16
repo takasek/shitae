@@ -70,6 +70,11 @@ summary.pane-title { cursor: pointer; }
 .timeline-item.current { background: #111; color: #fff; }
 .timeline-item.ghost { opacity: .4; }
 .timeline-item:hover { background: #ccc; }
+.provenance-step { border-bottom: 1px solid #ddd; padding: 10px 0; }
+.provenance-heading { display: block; width: 100%; text-align: left; font-size: 13px; font-weight: 600; padding: 7px; }
+.provenance-marker { border-left: 3px solid #777; padding-left: 7px; font-size: 12px; }
+.provenance-step .timeline-item { display: block; text-align: left; margin: 5px 0; border: 0; border-radius: 4px; }
+.review-text { width: 100%; box-sizing: border-box; font: inherit; font-size: 12px; }
 .timeline-toggle { display: flex; align-items: center; gap: 4px; margin-bottom: 6px; font-size: 11px; color: #666; }
 .action-toggle { display: flex; align-items: center; gap: 4px; margin-bottom: 8px; font-size: 11px; color: #666; }
 .screen { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
@@ -1234,10 +1239,10 @@ function render() {
   // 読み方を一言添える（用語は現状のまま。ADR-0022）。
   app.innerHTML =
     '<aside class="pane pane-trace">' +
-      '<div class="pane-title" title="統合ログ — 実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は ghost として残ります">統合ログ</div>' +
-      '<div class="pane-desc">ナビゲーション履歴。実行された遷移の列（効果・状態変更も出力として並ぶ）。クリックでその時点へ巻き戻し、以降は薄く（ghost）表示され、再クリックでやり直せます。新しいものが上</div>' +
+      '<div class="pane-title">操作来歴（統合ログ）</div>' +
+      '<div class="pane-desc">ナビゲーション履歴。実行された遷移の列を操作ごとに表示します。新しい記録が上。操作を展開すると結果と観測点を確認できます。完了点や途中の観測点を選ぶと巻戻し・やり直しできます。破棄済みの観測点へは移動できません。</div>' +
       '<label class="timeline-toggle"><input type="checkbox" ' + (showEvents ? 'checked' : '') + ' onchange="toggleShowEvents()"> イベントを表示</label>' +
-      '<div class="timeline-log">' + timelineHtml + '</div>' +
+      renderProvenance(timelineHtml) +
     '</aside>' +
     '<main class="pane pane-center">' +
       '<section class="screen-section">' +
