@@ -31,7 +31,7 @@ Issue [#25](https://github.com/takasek/shitae/issues/25) の受入条件から�
 | ParseError | 未解決のまま | 不正 | エラー | 掲示のまま | — |
 | ValidInput | **未解決のまま** | 妥当 | あり | 掲示のまま | — |
 
-構文が復帰しても競合は解決していない。保存済み Sol proposed はこの最後の行で競合を失うことが観察された（[評価報告](../../../dogfooding/2026-10-16-end-to-end/report.md)）。
+構文が復帰しても競合は解決していない。保存済み Sol proposed では、この組合せの後に通知は残るが状態は Valid と読めることが観察された（[評価報告](../../../dogfooding/2026-10-16-end-to-end/report.md)）。競合が失われるのは ParseError の行の時点で、`set(DocumentStatus##Invalid)` が Conflict を上書きする（この位置の記述はレビュー後に [original-check.json](original-check.json) に合わせて訂正した）。
 
 ### C2 比較を開いて取り消す
 
