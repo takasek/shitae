@@ -1,0 +1,183 @@
+{
+  "html": "/guide-example/split.html",
+  "steps": [
+    {
+      "label": "initial",
+      "view": [
+        "アクティブな frame の表示（本体）と掲示中カード",
+        "アクションを表示",
+        "部品の状態を表示",
+        "画面外 component の姿切替（gate 試験用）",
+        "",
+        "今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。",
+        "",
+        "編集画面",
+        "画面の値 · 初期",
+        "状態 → 文書状態 · variantなし · 包含の初期値 · 初期",
+        "構文欄 → 構文 · ##妥当 · 共有 (singleton) · 初期",
+        "競合欄 → 競合 · ##なし · 共有 (singleton) · 初期",
+        "構文エラー",
+        "component common",
+        "構文が直る",
+        "component common",
+        "外部で変更される",
+        "component common"
+      ],
+      "stack": [
+        "編集画面"
+      ]
+    },
+    {
+      "label": "外部で変更される",
+      "view": [
+        "アクティブな frame の表示（本体）と掲示中カード",
+        "アクションを表示",
+        "部品の状態を表示",
+        "画面外 component の姿切替（gate 試験用）",
+        "",
+        "今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。",
+        "",
+        "編集画面",
+        "画面の値 · 初期",
+        "状態 → 文書状態 · variantなし · 包含の初期値 · 初期",
+        "構文欄 → 構文 · ##妥当 · 共有 (singleton) · 初期",
+        "競合欄 → 競合 · ##あり · 共有 (singleton) · DSL",
+        "外部変更の表示",
+        "構文エラー",
+        "component common",
+        "構文が直る",
+        "component common",
+        "外部で変更される",
+        "component common",
+        "掲示中",
+        "競合通知",
+        "掲示の値 · 初期",
+        "比較する",
+        "component common"
+      ],
+      "stack": [
+        "編集画面"
+      ]
+    },
+    {
+      "label": "構文エラー",
+      "view": [
+        "アクティブな frame の表示（本体）と掲示中カード",
+        "アクションを表示",
+        "部品の状態を表示",
+        "画面外 component の姿切替（gate 試験用）",
+        "",
+        "今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。",
+        "",
+        "編集画面",
+        "画面の値 · 初期",
+        "状態 → 文書状態 · variantなし · 包含の初期値 · 初期",
+        "構文欄 → 構文 · ##不正 · 共有 (singleton) · DSL",
+        "エラー一覧",
+        "競合欄 → 競合 · ##あり · 共有 (singleton) · DSL",
+        "外部変更の表示",
+        "構文エラー",
+        "component common",
+        "構文が直る",
+        "component common",
+        "外部で変更される",
+        "component common",
+        "掲示中",
+        "競合通知",
+        "掲示の値 · 初期",
+        "比較する",
+        "component common"
+      ],
+      "stack": [
+        "編集画面"
+      ]
+    },
+    {
+      "label": "構文が直る",
+      "view": [
+        "アクティブな frame の表示（本体）と掲示中カード",
+        "アクションを表示",
+        "部品の状態を表示",
+        "画面外 component の姿切替（gate 試験用）",
+        "",
+        "今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。",
+        "",
+        "編集画面",
+        "画面の値 · 初期",
+        "状態 → 文書状態 · variantなし · 包含の初期値 · 初期",
+        "構文欄 → 構文 · ##妥当 · 共有 (singleton) · DSL",
+        "競合欄 → 競合 · ##あり · 共有 (singleton) · DSL",
+        "外部変更の表示",
+        "構文エラー",
+        "component common",
+        "構文が直る",
+        "component common",
+        "外部で変更される",
+        "component common",
+        "掲示中",
+        "競合通知",
+        "掲示の値 · 初期",
+        "比較する",
+        "component common"
+      ],
+      "stack": [
+        "編集画面"
+      ]
+    },
+    {
+      "label": "比較する",
+      "view": [
+        "アクティブな frame の表示（本体）と掲示中カード",
+        "アクションを表示",
+        "部品の状態を表示",
+        "画面外 component の姿切替（gate 試験用）",
+        "",
+        "今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。",
+        "",
+        "版の比較",
+        "画面の値 · 初期",
+        "取り消す",
+        "component common",
+        "別名で保存",
+        "component common",
+        "[成功]"
+      ],
+      "stack": [
+        "▌版の比較",
+        "編集画面"
+      ]
+    },
+    {
+      "label": "取り消す",
+      "view": [
+        "アクティブな frame の表示（本体）と掲示中カード",
+        "アクションを表示",
+        "部品の状態を表示",
+        "画面外 component の姿切替（gate 試験用）",
+        "",
+        "今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。",
+        "",
+        "編集画面",
+        "画面の値 · 初期",
+        "状態 → 文書状態 · variantなし · 包含の初期値 · 初期",
+        "構文欄 → 構文 · ##妥当 · 共有 (singleton) · DSL",
+        "競合欄 → 競合 · ##あり · 共有 (singleton) · DSL",
+        "外部変更の表示",
+        "構文エラー",
+        "component common",
+        "構文が直る",
+        "component common",
+        "外部で変更される",
+        "component common",
+        "掲示中",
+        "競合通知",
+        "掲示の値 · 初期",
+        "比較する",
+        "component common"
+      ],
+      "stack": [
+        "編集画面"
+      ]
+    }
+  ]
+}

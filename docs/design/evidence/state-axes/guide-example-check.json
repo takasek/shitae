@@ -1,0 +1,25 @@
+{
+  "guide": {
+    "checkWarnings": 0,
+    "failedCombos": [],
+    "combos": [
+      "C1",
+      "C2",
+      "C3-SaveCopy",
+      "C4"
+    ]
+  },
+  "merged": {
+    "checkWarnings": 0,
+    "failedCombos": [
+      "C1",
+      "C4"
+    ],
+    "combos": [
+      "C1",
+      "C2",
+      "C3-SaveCopy",
+      "C4"
+    ]
+  }
+}

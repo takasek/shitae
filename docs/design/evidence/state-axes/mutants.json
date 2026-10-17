@@ -1,0 +1,53 @@
+{
+  "mutants": [
+    {
+      "name": "valid-input-clears-conflict",
+      "failedCombos": [
+        "C1",
+        "C5"
+      ]
+    },
+    {
+      "name": "resolve-also-fixes-syntax",
+      "failedCombos": [
+        "C4"
+      ]
+    },
+    {
+      "name": "review-resolves-conflict",
+      "failedCombos": [
+        "C2",
+        "C3-SaveCopy",
+        "C3-ReplaceReviewedDisk",
+        "C3-UseDiskVersion",
+        "C3-DiskChangedAgain",
+        "C4"
+      ]
+    },
+    {
+      "name": "keep-editing-breaks-syntax",
+      "failedCombos": [
+        "C2"
+      ]
+    },
+    {
+      "name": "disk-changed-again-breaks-syntax",
+      "failedCombos": [
+        "C3-DiskChangedAgain"
+      ]
+    },
+    {
+      "name": "keep-editing-drops-notice",
+      "failedCombos": [
+        "C2"
+      ]
+    },
+    {
+      "name": "node-gate-ignores-diagram",
+      "failedCombos": [
+        "C5"
+      ]
+    }
+  ],
+  "baseline": "all combinations pass"
+}

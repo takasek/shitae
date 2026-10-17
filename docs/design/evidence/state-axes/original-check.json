@@ -1,0 +1,131 @@
+{
+  "model": "docs/dogfooding/2026-10-16-end-to-end/models/sol-original/proposed.shitae",
+  "profile": "original",
+  "combos": 8,
+  "failedCombos": [
+    "C1",
+    "C4",
+    "C5"
+  ],
+  "report": [
+    {
+      "combo": "C1",
+      "steps": [
+        "Conflict",
+        "ParseError",
+        "ValidInput"
+      ],
+      "mismatches": [
+        {
+          "step": "ParseError",
+          "aspect": "conflict",
+          "expected": true,
+          "actual": false
+        },
+        {
+          "step": "ValidInput",
+          "aspect": "conflict",
+          "expected": true,
+          "actual": false
+        }
+      ]
+    },
+    {
+      "combo": "C2",
+      "steps": [
+        "Conflict",
+        "Review",
+        "KeepEditing"
+      ],
+      "mismatches": []
+    },
+    {
+      "combo": "C3-SaveCopy",
+      "steps": [
+        "Conflict",
+        "Review",
+        "SaveCopy [Success]"
+      ],
+      "mismatches": []
+    },
+    {
+      "combo": "C3-ReplaceReviewedDisk",
+      "steps": [
+        "Conflict",
+        "Review",
+        "ReplaceReviewedDisk [ConfirmedFresh]"
+      ],
+      "mismatches": []
+    },
+    {
+      "combo": "C3-UseDiskVersion",
+      "steps": [
+        "Conflict",
+        "Review",
+        "UseDiskVersion [ConfirmedFresh]"
+      ],
+      "mismatches": []
+    },
+    {
+      "combo": "C3-DiskChangedAgain",
+      "steps": [
+        "Conflict",
+        "Review",
+        "DiskChangedAgain"
+      ],
+      "mismatches": []
+    },
+    {
+      "combo": "C4",
+      "steps": [
+        "ParseError",
+        "Conflict",
+        "Review",
+        "SaveCopy [Success]"
+      ],
+      "mismatches": [
+        {
+          "step": "Conflict",
+          "aspect": "syntax",
+          "expected": false,
+          "actual": true
+        },
+        {
+          "step": "Review",
+          "aspect": "syntax",
+          "expected": false,
+          "actual": true
+        },
+        {
+          "step": "SaveCopy",
+          "aspect": "syntax",
+          "expected": false,
+          "actual": true
+        }
+      ]
+    },
+    {
+      "combo": "C5",
+      "steps": [
+        "Conflict",
+        "DiagramOnly",
+        "ParseError",
+        "ValidInput"
+      ],
+      "mismatches": [
+        {
+          "step": "ParseError",
+          "aspect": "conflict",
+          "expected": true,
+          "actual": false
+        },
+        {
+          "step": "ValidInput",
+          "aspect": "conflict",
+          "expected": true,
+          "actual": false
+        }
+      ]
+    }
+  ]
+}
