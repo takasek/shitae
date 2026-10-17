@@ -103,7 +103,7 @@ const LOAD_SUMMARY_INLINE_LIMIT = 5;
 function loadSummaryHtml() {
   if (!loadSummary) return '';
   const total = loadSummary.reduce((n, g) => n + g.entries.length, 0);
-  if (total === 0) return '<p role="status">読込地点の表示中の部品にsingletonはありません</p>';
+  if (total === 0) return '<p role="status">読込地点の画面と操作条件に関係するsingletonはありません</p>';
   if (total <= LOAD_SUMMARY_INLINE_LIMIT) return '<p role="status">読込地点のsingleton: ' + esc(loadSummary.map(g => g.label + ': ' + g.entries.join(', ')).join(' / ')) + '</p>';
   return '<p role="status">読込地点のsingleton ' + total + '件（' + esc(loadSummary.map(g => g.label + ' ' + g.entries.length).join(' / ')) + '）</p>' +
     '<details data-state-key="load-singletons"><summary>読込地点のsingleton一覧</summary><ul>' +

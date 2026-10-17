@@ -67,7 +67,7 @@ const valueOf = (g: ReturnType<typeof gui>, module: string, component: string) =
 describe('singleton summary at the scenario load point', () => {
   it('says explicitly when no singleton is displayed, without listing undisplayed singletons', async () => {
     const { b } = await resumed(one(NONE), ["handleInteraction('component',0,0)"]);
-    expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読込地点の表示中の部品にsingletonはありません</p>');
+    expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読込地点の画面と操作条件に関係するsingletonはありません</p>');
     expect(b.app.innerHTML).not.toContain('Cart');
   });
 
