@@ -25,6 +25,18 @@
       ]
     },
     {
+      "name": "keep-editing-breaks-syntax",
+      "failedCombos": [
+        "C2"
+      ]
+    },
+    {
+      "name": "disk-changed-again-breaks-syntax",
+      "failedCombos": [
+        "C3-DiskChangedAgain"
+      ]
+    },
+    {
       "name": "keep-editing-drops-notice",
       "failedCombos": [
         "C2"

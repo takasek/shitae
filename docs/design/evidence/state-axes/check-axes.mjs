@@ -10,12 +10,13 @@ const root = resolve(import.meta.dirname, '../../../..');
 const cli = resolve(root, 'packages/cli/dist/index.js');
 
 const shared = (state, component) => state.sharedVariants.find((v) => v.component === component)?.variant;
-const sol = { notice: 'RecoveryNotice', review: 'VersionReview', diagram: (s) => shared(s, 'DiagramView') === 'Ready', ops: {}, skip: [] };
-// The AI_GUIDE example names the same events in Japanese and has no view modes, diagram node action, or the other resolve paths.
+const sol = { notice: 'RecoveryNotice', review: 'VersionReview', diagram: (s) => shared(s, 'DiagramView') === 'Ready', ops: {}, skip: [], ignore: [] };
+// The AI_GUIDE example names the same events in Japanese and has no diagram, view modes, node action, or the other resolve paths.
 const guide = {
-  notice: '競合通知', review: '版の比較', diagram: (s) => shared(s, '図') === '表示',
+  notice: '競合通知', review: '版の比較', diagram: () => null,
   ops: { Conflict: '外部で変更される', ParseError: '構文エラー', ValidInput: '構文が直る', Review: '比較する', KeepEditing: '取り消す', SaveCopy: '別名で保存', Success: '成功' },
   skip: ['C3-ReplaceReviewedDisk', 'C3-UseDiskVersion', 'C3-DiskChangedAgain', 'C5'],
+  ignore: ['diagram', 'node'],
 };
 const profiles = {
   // Saved Sol proposed: DocumentStatus holds syntax validity and conflict in one variant set.
@@ -43,6 +44,7 @@ const read = (profile, state, actions) => {
 
 // Each step names the operation and, where the result list is labelled, the branch label to choose. `expect` lists only the aspects expectations.md states for that row.
 const initial = { conflict: false, syntax: true, diagram: true, notice: false, review: false };
+// C3 starts from C2's Conflict and Review rows ("C2 の Review の後に").
 const combos = [
   ['C1', [
     ['Conflict', null, { conflict: true, notice: true }],
@@ -55,13 +57,13 @@ const combos = [
     ['KeepEditing', null, { conflict: true, notice: true, review: false }],
   ]],
   ...[['C3-SaveCopy', 'SaveCopy', 'Success'], ['C3-ReplaceReviewedDisk', 'ReplaceReviewedDisk', 'ConfirmedFresh'], ['C3-UseDiskVersion', 'UseDiskVersion', 'ConfirmedFresh']].map(([name, op, label]) => [name, [
-    ['Conflict', null, { conflict: true }],
-    ['Review', null, { conflict: true, review: true }],
+    ['Conflict', null, { conflict: true, notice: true }],
+    ['Review', null, { conflict: true, notice: false, review: true }],
     [op, label, { conflict: false, syntax: true, notice: false, review: false }],
   ]]),
   ['C3-DiskChangedAgain', [
-    ['Conflict', null, { conflict: true }],
-    ['Review', null, { conflict: true, review: true }],
+    ['Conflict', null, { conflict: true, notice: true }],
+    ['Review', null, { conflict: true, notice: false, review: true }],
     ['DiskChangedAgain', null, { conflict: true, notice: false, review: true }],
   ]],
   ['C4', [
@@ -77,6 +79,15 @@ const combos = [
     ['ValidInput', null, { conflict: true, diagram: true, node: true }],
   ]],
 ];
+
+// The columns of each table in expectations.md. A row's "—" keeps that column's previous value.
+const columns = {
+  C1: ['conflict', 'syntax', 'diagram', 'notice', 'review'],
+  C2: ['conflict', 'syntax', 'notice', 'review'],
+  C3: ['conflict', 'syntax', 'notice', 'review'],
+  C4: ['conflict', 'syntax', 'diagram'],
+  C5: ['conflict', 'diagram', 'node'],
+};
 
 const open = (model) => {
   const child = spawn(process.execPath, [cli, 'session', model], { cwd: root, stdio: ['pipe', 'pipe', 'inherit'] });
@@ -105,7 +116,10 @@ const run = async (model, profileName) => {
       return { reading: read(profile, r.data.state, r.data.actions), actions: r.data.actions.items };
     };
     let { reading, actions } = await look();
-    const mismatches = Object.entries(initial).filter(([k, v]) => reading[k] !== v).map(([k, v]) => ({ step: 'initial', aspect: k, expected: v, actual: reading[k] }));
+    const mismatches = Object.entries(initial).filter(([k, v]) => !profile.ignore.includes(k) && reading[k] !== v).map(([k, v]) => ({ step: 'initial', aspect: k, expected: v, actual: reading[k] }));
+    // "—" in expectations.md means "unchanged from the previous row", so every column of the combination's table is checked at every step: start from the initial values and apply each row's stated changes.
+    const tracked = columns[name.split('-')[0]].filter((k) => !profile.ignore.includes(k));
+    let expected = Object.fromEntries(tracked.filter((k) => k in initial).map((k) => [k, initial[k]]));
     for (const [op, label, expect] of steps) {
       const action = actions.find((a) => a.actionText === op || a.actionText.startsWith(`${op}(`));
       if (!action || !action.enabled) {
@@ -117,7 +131,8 @@ const run = async (model, profileName) => {
       const d = await session.send({ command: 'dispatch', handle: action.handle, ...(branch === undefined ? {} : { branch }) });
       if (!d.ok) throw new Error(`${name}: ${op} rejected ${JSON.stringify(d)}`);
       ({ reading, actions } = await look());
-      for (const [k, v] of Object.entries(expect)) if (reading[k] !== v) mismatches.push({ step: op, aspect: k, expected: v, actual: reading[k] });
+      expected = { ...expected, ...Object.fromEntries(Object.entries(expect).filter(([k]) => tracked.includes(k))) };
+      for (const [k, v] of Object.entries(expected)) if (reading[k] !== v) mismatches.push({ step: op, aspect: k, expected: v, actual: reading[k] });
     }
     session.close();
     report.push({ combo: name, steps: steps.map(([op, label]) => (label ? `${op} [${label}]` : op)), mismatches });

@@ -1,6 +1,6 @@
 // Confirms check-axes.mjs is not vacuous: each known way of merging the two axes back, or tying the notice/gate to the conflict, must fail the expected combination.
 // Usage: node check-mutants.mjs  (writes mutants.json next to this file)
-import { readFileSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdtempSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -12,6 +12,8 @@ const mutants = [
   ['valid-input-clears-conflict', '> ValidInput -> set(SyntaxStatus##Valid);', '> ValidInput -> set(SyntaxStatus##Valid); set(DiskStatus##InSync);', ['C1', 'C5']],
   ['resolve-also-fixes-syntax', 'dismiss(); hide(RecoveryNotice); set(DiskStatus##InSync)\n> ReplaceReviewedDisk', 'dismiss(); hide(RecoveryNotice); set(DiskStatus##InSync); set(SyntaxStatus##Valid)\n> ReplaceReviewedDisk', ['C4']],
   ['review-resolves-conflict', '> Review -> hide(RecoveryNotice);', '> Review -> hide(RecoveryNotice); set(DiskStatus##InSync);', ['C2', 'C3-SaveCopy', 'C3-ReplaceReviewedDisk', 'C3-UseDiskVersion', 'C3-DiskChangedAgain', 'C4']],
+  ['keep-editing-breaks-syntax', '> KeepEditing -> dismiss(); show(RecoveryNotice)', '> KeepEditing -> dismiss(); show(RecoveryNotice); set(SyntaxStatus##Invalid); set(DiagramView##Error)', ['C2']],
+  ['disk-changed-again-breaks-syntax', '> DiskChangedAgain -> Explain changed version;', '> DiskChangedAgain -> set(SyntaxStatus##Invalid); Explain changed version;', ['C3-DiskChangedAgain']],
   ['keep-editing-drops-notice', '> KeepEditing -> dismiss(); show(RecoveryNotice)', '> KeepEditing -> dismiss()', ['C2']],
   ['node-gate-ignores-diagram', '> NodeDoubleClick(DiagramView.graph?)', '> NodeDoubleClick(DiagramView.graph)', ['C5']],
 ];
@@ -22,9 +24,11 @@ try {
     assert.equal(source.split(from).length, 2, `Mutation must match exactly once: ${name}`);
     const model = join(dir, 'proposed.shitae');
     writeFileSync(model, source.replace(from, to));
-    const out = join(dir, 'result.json');
+    // A fresh file per mutant: a crash (no file written) must not reuse the previous mutant's result.
+    const out = join(dir, `${name}.json`);
     const run = spawnSync(process.execPath, [resolve(here, 'check-axes.mjs'), model, 'split', '--out', out], { encoding: 'utf8' });
-    assert.notEqual(run.status, 0, `Surviving mutation: ${name}\n${run.stdout}${run.stderr}`);
+    assert.equal(run.status, 1, `Surviving or crashed mutation: ${name} (status ${run.status})\n${run.stdout}${run.stderr}`);
+    assert(existsSync(out), `No result written for ${name}`);
     const failed = JSON.parse(readFileSync(out, 'utf8')).failedCombos;
     for (const combo of expectedFailures) assert(failed.includes(combo), `${name} should fail ${combo}, failed ${failed}`);
     evidence.push({ name, failedCombos: failed });
