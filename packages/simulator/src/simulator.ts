@@ -20,7 +20,7 @@ function displayFile(module: string, file: string): string {
   return file.endsWith('.shitae') ? module + '.shitae' : module;
 }
 
-function portableModel(documents: Map<string, Document>, entryModule: string, model?: { files: Map<string, string>; metadata: ModelMetadata }) {
+function embeddedModel(documents: Map<string, Document>, entryModule: string, model?: { files: Map<string, string>; metadata: ModelMetadata }) {
   if (!model) return { documents: [...documents], entryModule, files: [], metadata: createMetadata(documents, entryModule) };
   return {
     documents: [...documents], entryModule,
@@ -32,7 +32,7 @@ function portableModel(documents: Map<string, Document>, entryModule: string, mo
 function buildHtml(data: SimulatorData, documents: Map<string, Document>, entryModule: string, model?: { files: Map<string, string>; metadata: ModelMetadata }): string {
   const safeJson = (v: unknown) => JSON.stringify(v).replace(/</g, '\\u003c');
   const json = safeJson(data);
-  const modelJson = safeJson(portableModel(documents, entryModule, model));
+  const modelJson = safeJson(embeddedModel(documents, entryModule, model));
   const bundle = readFileSync(new URL('../dist/session-browser.js', import.meta.url), 'utf8');
   const sessionScript = readFileSync(new URL('./gui-session.js', import.meta.url), 'utf8');
   return `<!DOCTYPE html>
