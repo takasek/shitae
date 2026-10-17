@@ -1,0 +1,29 @@
+検討手順
+変更後モデルで人が選び直すための参照です。版をまたぐ自動再生や意味の一致を保証しません。目的・問い・期待は利用者が指定してください。
+現在地: proposed::Workspace##Split / 記録5 / 観測2 / KeepEditing
+保存範囲: 巻戻し・破棄済み経路・reset前・手動試験も含む全記録。
+1. Conflict / proposed::Workspace##Split / 配置: main[]
+  結果1: set(DocumentStatus##Conflict)
+  結果2: show(RecoveryNotice)
+  記録1 / 観測1 / 結果1: set(DocumentStatus) / proposed::Workspace##Split / 現在まで
+  記録1 / 観測2 / 結果2: show(RecoveryNotice) / proposed::Workspace##Split / 現在まで
+2. ParseError / proposed::Workspace##Split / 配置: main[]
+  結果1: set(DocumentStatus##Invalid)
+  結果2: set(DiagramView##Error)
+  記録2 / 観測1 / 結果1: set(DocumentStatus) / proposed::Workspace##Split / 現在まで
+  記録2 / 観測2 / 結果2: set(DiagramView) / proposed::Workspace##Split / 現在まで
+3. ValidInput / proposed::Workspace##Split / 配置: main[]
+  結果1: set(DocumentStatus##Valid)
+  結果2: set(DiagramView##Ready)
+  記録3 / 観測1 / 結果1: set(DocumentStatus) / proposed::Workspace##Split / 現在まで
+  記録3 / 観測2 / 結果2: set(DiagramView) / proposed::Workspace##Split / 現在まで
+4. Review / proposed::RecoveryNotice / 配置: overlay:RecoveryNotice[]
+  結果1: hide(RecoveryNotice)
+  結果2: present(VersionReview)
+  記録4 / 観測1 / 結果1: hide(RecoveryNotice) / proposed::Workspace##Split / 現在まで
+  記録4 / 観測2 / 結果2: present → VersionReview / proposed::VersionReview / 現在まで
+5. KeepEditing / proposed::VersionReview / 配置: main[]
+  結果1: dismiss()
+  結果2: show(RecoveryNotice)
+  記録5 / 観測1 / 結果1: dismiss → Workspace / Split / proposed::Workspace##Split / 現在まで
+  記録5 / 観測2 / 結果2: show(RecoveryNotice) / proposed::Workspace##Split / 現在まで / 現在地

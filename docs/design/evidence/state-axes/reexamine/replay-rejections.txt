@@ -1,0 +1,26 @@
+## replay sol-status-composition.scenario.json on docs/dogfooding/2026-10-16-end-to-end/models/sol-original/proposed.shitae
+Error: ENGINE_MISMATCH: 処理系が異なります。モデルは未照合です。
+次の行動:
+完全一致する保存時のHTMLが残っていれば、そのHTMLとscenarioの組で再開してください。任意の古いHTMLでは再開できません。
+CLIでの再開には、対応する元モデル一式と処理系が必要です。engineのhashだけからcommitは特定できません。
+変更後のモデル・処理系で検討する場合は新しく記録してください。旧版の検討手順は人が選び直すための参照に使えます。
+詳細: Expected {"engineVersion":"8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db","entryModule":"proposed","manifest":[{"module":"proposed","sourceSha256":"acc1cd09372ee07d350ae9cdb0283fd7080fa7f53263dc53cb1bf5cc166edc3b"}],"modelId":"833ac19bae9f33fc60a26239a655442eda3c6f349ad725b6302fa800d75fa9da","sourceBasis":"source-bytes"}; actual {"engineVersion":"278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116","entryModule":"proposed","manifest":[{"module":"proposed","sourceSha256":"acc1cd09372ee07d350ae9cdb0283fd7080fa7f53263dc53cb1bf5cc166edc3b"}],"modelId":"6ea6e57467bbff453b0aed74fc8e222ab07a99014557dfb23fb00d6e2c428fe5","sourceBasis":"source-bytes"}
+exit=1
+## replay sol-status-composition.scenario.json on docs/design/evidence/state-axes/model/proposed.shitae
+Error: ENGINE_MISMATCH: 処理系が異なります。モデルは未照合です。
+次の行動:
+完全一致する保存時のHTMLが残っていれば、そのHTMLとscenarioの組で再開してください。任意の古いHTMLでは再開できません。
+CLIでの再開には、対応する元モデル一式と処理系が必要です。engineのhashだけからcommitは特定できません。
+変更後のモデル・処理系で検討する場合は新しく記録してください。旧版の検討手順は人が選び直すための参照に使えます。
+詳細: Expected {"engineVersion":"8679f277b326f64507795d692a3db785158368fa94379ed58fe3127f18ffb8db","entryModule":"proposed","manifest":[{"module":"proposed","sourceSha256":"acc1cd09372ee07d350ae9cdb0283fd7080fa7f53263dc53cb1bf5cc166edc3b"}],"modelId":"833ac19bae9f33fc60a26239a655442eda3c6f349ad725b6302fa800d75fa9da","sourceBasis":"source-bytes"}; actual {"engineVersion":"278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116","entryModule":"proposed","manifest":[{"module":"proposed","sourceSha256":"fd841f9856f94f6f8ff9e037ec7b79b8882067f6bdc45aded0bf093876b4572b"}],"modelId":"47a959db2c5763c906c1f8165082bd90c4765db9778a49f80d3d1db5dd057eca","sourceBasis":"source-bytes"}
+exit=1
+## replay original.scenario.json on docs/dogfooding/2026-10-16-end-to-end/models/sol-original/proposed.shitae
+exit=0
+## replay original.scenario.json on docs/design/evidence/state-axes/model/proposed.shitae
+Error: MODEL_MISMATCH: source bytesが異なるmodule: proposed（空白・コメントも照合対象）
+次の行動:
+完全一致する保存時のHTMLが残っていれば、そのHTMLとscenarioの組で再開してください。任意の古いHTMLでは再開できません。
+CLIでの再開には、対応する元モデル一式と処理系が必要です。engineのhashだけからcommitは特定できません。
+変更後のモデル・処理系で検討する場合は新しく記録してください。旧版の検討手順は人が選び直すための参照に使えます。
+詳細: Expected {"engineVersion":"278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116","entryModule":"proposed","manifest":[{"module":"proposed","sourceSha256":"acc1cd09372ee07d350ae9cdb0283fd7080fa7f53263dc53cb1bf5cc166edc3b"}],"modelId":"6ea6e57467bbff453b0aed74fc8e222ab07a99014557dfb23fb00d6e2c428fe5","sourceBasis":"source-bytes"}; actual {"engineVersion":"278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116","entryModule":"proposed","manifest":[{"module":"proposed","sourceSha256":"fd841f9856f94f6f8ff9e037ec7b79b8882067f6bdc45aded0bf093876b4572b"}],"modelId":"47a959db2c5763c906c1f8165082bd90c4765db9778a49f80d3d1db5dd057eca","sourceBasis":"source-bytes"}
+exit=1
