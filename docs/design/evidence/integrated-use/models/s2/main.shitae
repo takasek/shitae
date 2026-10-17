@@ -1,0 +1,8 @@
+import catalog as catalog
+import checkout as checkout
+
+# 備品ポータル
+貸出案内
+> 備品を探す -> push(catalog::備品一覧)
+> 受取と返却 -> push(checkout::貸出窓口)
+

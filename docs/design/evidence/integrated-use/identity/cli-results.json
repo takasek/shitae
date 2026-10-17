@@ -1,0 +1,176 @@
+[
+  {
+    "name": "same",
+    "scenario": "original",
+    "status": 0,
+    "stderr": "",
+    "metadata": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "main",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "catalog",
+          "sourceSha256": "eb59b872a7711e6ba8712a517c46ab25f056ea5375a71e3ef82d2e54892db9e0",
+          "file": "/private/tmp/shitae-i27-20261018-identity-r1/same/catalog.shitae"
+        },
+        {
+          "module": "checkout",
+          "sourceSha256": "3a0f30033d7be4c79f2ee298f9d3e91b29d6f0e31b5ba29d4fbb07bafc141d74",
+          "file": "/private/tmp/shitae-i27-20261018-identity-r1/same/checkout.shitae"
+        },
+        {
+          "module": "main",
+          "sourceSha256": "6b7de61923c7629222dca1b0d7164c0da8ed1e2dc8f76da9ace2c4e9d2baaf26",
+          "file": "/private/tmp/shitae-i27-20261018-identity-r1/same/main.shitae"
+        }
+      ],
+      "modelId": "553b9c1c686f779415a88c1404424d3d9755dfad60c056a221d74e353b5395f5"
+    }
+  },
+  {
+    "name": "same",
+    "scenario": "engine",
+    "status": 1,
+    "stderr": "Error: ENGINE_MISMATCH: 処理系が異なります。モデルは未照合です。\n次の行動:\n完全一致する保存時のHTMLが残っていれば、そのHTMLとscenarioの組で再開してください。任意の古いHTMLでは再開できません。\nCLIでの再開には、対応する元モデル一式と処理系が必要です。engineのhashだけからcommitは特定できません。\n変更後のモデル・処理系で検討する場合は新しく記録してください。旧版の検討手順は人が選び直すための参照に使えます。\n詳細: Expected {\"engineVersion\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"entryModule\":\"main\",\"manifest\":[{\"module\":\"catalog\",\"sourceSha256\":\"eb59b872a7711e6ba8712a517c46ab25f056ea5375a71e3ef82d2e54892db9e0\"},{\"module\":\"checkout\",\"sourceSha256\":\"3a0f30033d7be4c79f2ee298f9d3e91b29d6f0e31b5ba29d4fbb07bafc141d74\"},{\"module\":\"main\",\"sourceSha256\":\"6b7de61923c7629222dca1b0d7164c0da8ed1e2dc8f76da9ace2c4e9d2baaf26\"}],\"modelId\":\"553b9c1c686f779415a88c1404424d3d9755dfad60c056a221d74e353b5395f5\",\"sourceBasis\":\"source-bytes\"}; actual {\"engineVersion\":\"278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116\",\"entryModule\":\"main\",\"manifest\":[{\"module\":\"catalog\",\"sourceSha256\":\"eb59b872a7711e6ba8712a517c46ab25f056ea5375a71e3ef82d2e54892db9e0\"},{\"module\":\"checkout\",\"sourceSha256\":\"3a0f30033d7be4c79f2ee298f9d3e91b29d6f0e31b5ba29d4fbb07bafc141d74\"},{\"module\":\"main\",\"sourceSha256\":\"6b7de61923c7629222dca1b0d7164c0da8ed1e2dc8f76da9ace2c4e9d2baaf26\"}],\"modelId\":\"553b9c1c686f779415a88c1404424d3d9755dfad60c056a221d74e353b5395f5\",\"sourceBasis\":\"source-bytes\"}\n",
+    "metadata": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "main",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "catalog",
+          "sourceSha256": "eb59b872a7711e6ba8712a517c46ab25f056ea5375a71e3ef82d2e54892db9e0",
+          "file": "/private/tmp/shitae-i27-20261018-identity-r1/same/catalog.shitae"
+        },
+        {
+          "module": "checkout",
+          "sourceSha256": "3a0f30033d7be4c79f2ee298f9d3e91b29d6f0e31b5ba29d4fbb07bafc141d74",
+          "file": "/private/tmp/shitae-i27-20261018-identity-r1/same/checkout.shitae"
+        },
+        {
+          "module": "main",
+          "sourceSha256": "6b7de61923c7629222dca1b0d7164c0da8ed1e2dc8f76da9ace2c4e9d2baaf26",
+          "file": "/private/tmp/shitae-i27-20261018-identity-r1/same/main.shitae"
+        }
+      ],
+      "modelId": "553b9c1c686f779415a88c1404424d3d9755dfad60c056a221d74e353b5395f5"
+    }
+  },
+  {
+    "name": "entry",
+    "scenario": "original",
+    "status": 1,
+    "stderr": "Error: MODEL_MISMATCH: エントリが異なります: main → alternate\n現在のモデルで追加されたmodule: alternate\n次の行動:\n完全一致する保存時のHTMLが残っていれば、そのHTMLとscenarioの組で再開してください。任意の古いHTMLでは再開できません。\nCLIでの再開には、対応する元モデル一式と処理系が必要です。engineのhashだけからcommitは特定できません。\n変更後のモデル・処理系で検討する場合は新しく記録してください。旧版の検討手順は人が選び直すための参照に使えます。\n詳細: Expected {\"engineVersion\":\"278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116\",\"entryModule\":\"main\",\"manifest\":[{\"module\":\"catalog\",\"sourceSha256\":\"eb59b872a7711e6ba8712a517c46ab25f056ea5375a71e3ef82d2e54892db9e0\"},{\"module\":\"checkout\",\"sourceSha256\":\"3a0f30033d7be4c79f2ee298f9d3e91b29d6f0e31b5ba29d4fbb07bafc141d74\"},{\"module\":\"main\",\"sourceSha256\":\"6b7de61923c7629222dca1b0d7164c0da8ed1e2dc8f76da9ace2c4e9d2baaf26\"}],\"modelId\":\"553b9c1c686f779415a88c1404424d3d9755dfad60c056a221d74e353b5395f5\",\"sourceBasis\":\"source-bytes\"}; actual {\"engineVersion\":\"278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116\",\"entryModule\":\"alternate\",\"manifest\":[{\"module\":\"alternate\",\"sourceSha256\":\"ef710732facfce78d4a5ff0bdd75388bf63cf9469e11956c879e09ddfb04ff95\"},{\"module\":\"catalog\",\"sourceSha256\":\"eb59b872a7711e6ba8712a517c46ab25f056ea5375a71e3ef82d2e54892db9e0\"},{\"module\":\"checkout\",\"sourceSha256\":\"3a0f30033d7be4c79f2ee298f9d3e91b29d6f0e31b5ba29d4fbb07bafc141d74\"},{\"module\":\"main\",\"sourceSha256\":\"6b7de61923c7629222dca1b0d7164c0da8ed1e2dc8f76da9ace2c4e9d2baaf26\"}],\"modelId\":\"ea6baba32860700a4dda0fe7f3f26259494537418f8b5ddcdc561290c32ef885\",\"sourceBasis\":\"source-bytes\"}\n",
+    "metadata": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "alternate",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "alternate",
+          "sourceSha256": "ef710732facfce78d4a5ff0bdd75388bf63cf9469e11956c879e09ddfb04ff95",
+          "file": "/private/tmp/shitae-i27-20261018-identity-r1/entry/alternate.shitae"
+        },
+        {
+          "module": "catalog",
+          "sourceSha256": "eb59b872a7711e6ba8712a517c46ab25f056ea5375a71e3ef82d2e54892db9e0",
+          "file": "/private/tmp/shitae-i27-20261018-identity-r1/entry/catalog.shitae"
+        },
+        {
+          "module": "checkout",
+          "sourceSha256": "3a0f30033d7be4c79f2ee298f9d3e91b29d6f0e31b5ba29d4fbb07bafc141d74",
+          "file": "/private/tmp/shitae-i27-20261018-identity-r1/entry/checkout.shitae"
+        },
+        {
+          "module": "main",
+          "sourceSha256": "6b7de61923c7629222dca1b0d7164c0da8ed1e2dc8f76da9ace2c4e9d2baaf26",
+          "file": "/private/tmp/shitae-i27-20261018-identity-r1/entry/main.shitae"
+        }
+      ],
+      "modelId": "ea6baba32860700a4dda0fe7f3f26259494537418f8b5ddcdc561290c32ef885"
+    }
+  },
+  {
+    "name": "module-added",
+    "scenario": "original",
+    "status": 1,
+    "stderr": "Error: MODEL_MISMATCH: 現在のモデルで追加されたmodule: extra\nsource bytesが異なるmodule: main（空白・コメントも照合対象）\n次の行動:\n完全一致する保存時のHTMLが残っていれば、そのHTMLとscenarioの組で再開してください。任意の古いHTMLでは再開できません。\nCLIでの再開には、対応する元モデル一式と処理系が必要です。engineのhashだけからcommitは特定できません。\n変更後のモデル・処理系で検討する場合は新しく記録してください。旧版の検討手順は人が選び直すための参照に使えます。\n詳細: Expected {\"engineVersion\":\"278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116\",\"entryModule\":\"main\",\"manifest\":[{\"module\":\"catalog\",\"sourceSha256\":\"eb59b872a7711e6ba8712a517c46ab25f056ea5375a71e3ef82d2e54892db9e0\"},{\"module\":\"checkout\",\"sourceSha256\":\"3a0f30033d7be4c79f2ee298f9d3e91b29d6f0e31b5ba29d4fbb07bafc141d74\"},{\"module\":\"main\",\"sourceSha256\":\"6b7de61923c7629222dca1b0d7164c0da8ed1e2dc8f76da9ace2c4e9d2baaf26\"}],\"modelId\":\"553b9c1c686f779415a88c1404424d3d9755dfad60c056a221d74e353b5395f5\",\"sourceBasis\":\"source-bytes\"}; actual {\"engineVersion\":\"278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116\",\"entryModule\":\"main\",\"manifest\":[{\"module\":\"catalog\",\"sourceSha256\":\"eb59b872a7711e6ba8712a517c46ab25f056ea5375a71e3ef82d2e54892db9e0\"},{\"module\":\"checkout\",\"sourceSha256\":\"3a0f30033d7be4c79f2ee298f9d3e91b29d6f0e31b5ba29d4fbb07bafc141d74\"},{\"module\":\"extra\",\"sourceSha256\":\"ad3a5c49724339c23774e0ee91f6f827baa0ab25e58fe85a896da2457aa5fa08\"},{\"module\":\"main\",\"sourceSha256\":\"26f0e60c5339281f3198024e7170820b2a1650acea133b9d699e50f03bc51c43\"}],\"modelId\":\"b5871b0c9ac126152c31bc2d582af9553bb218c4878c5508cadb86cb573f30b3\",\"sourceBasis\":\"source-bytes\"}\n",
+    "metadata": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "main",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "catalog",
+          "sourceSha256": "eb59b872a7711e6ba8712a517c46ab25f056ea5375a71e3ef82d2e54892db9e0",
+          "file": "/private/tmp/shitae-i27-20261018-identity-r1/module-added/catalog.shitae"
+        },
+        {
+          "module": "checkout",
+          "sourceSha256": "3a0f30033d7be4c79f2ee298f9d3e91b29d6f0e31b5ba29d4fbb07bafc141d74",
+          "file": "/private/tmp/shitae-i27-20261018-identity-r1/module-added/checkout.shitae"
+        },
+        {
+          "module": "extra",
+          "sourceSha256": "ad3a5c49724339c23774e0ee91f6f827baa0ab25e58fe85a896da2457aa5fa08",
+          "file": "/private/tmp/shitae-i27-20261018-identity-r1/module-added/extra.shitae"
+        },
+        {
+          "module": "main",
+          "sourceSha256": "26f0e60c5339281f3198024e7170820b2a1650acea133b9d699e50f03bc51c43",
+          "file": "/private/tmp/shitae-i27-20261018-identity-r1/module-added/main.shitae"
+        }
+      ],
+      "modelId": "b5871b0c9ac126152c31bc2d582af9553bb218c4878c5508cadb86cb573f30b3"
+    }
+  },
+  {
+    "name": "module-removed",
+    "scenario": "original",
+    "status": 1,
+    "stderr": "Error: MODEL_MISMATCH: 現在のモデルで不足するmodule: catalog, checkout\nsource bytesが異なるmodule: main（空白・コメントも照合対象）\n次の行動:\n完全一致する保存時のHTMLが残っていれば、そのHTMLとscenarioの組で再開してください。任意の古いHTMLでは再開できません。\nCLIでの再開には、対応する元モデル一式と処理系が必要です。engineのhashだけからcommitは特定できません。\n変更後のモデル・処理系で検討する場合は新しく記録してください。旧版の検討手順は人が選び直すための参照に使えます。\n詳細: Expected {\"engineVersion\":\"278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116\",\"entryModule\":\"main\",\"manifest\":[{\"module\":\"catalog\",\"sourceSha256\":\"eb59b872a7711e6ba8712a517c46ab25f056ea5375a71e3ef82d2e54892db9e0\"},{\"module\":\"checkout\",\"sourceSha256\":\"3a0f30033d7be4c79f2ee298f9d3e91b29d6f0e31b5ba29d4fbb07bafc141d74\"},{\"module\":\"main\",\"sourceSha256\":\"6b7de61923c7629222dca1b0d7164c0da8ed1e2dc8f76da9ace2c4e9d2baaf26\"}],\"modelId\":\"553b9c1c686f779415a88c1404424d3d9755dfad60c056a221d74e353b5395f5\",\"sourceBasis\":\"source-bytes\"}; actual {\"engineVersion\":\"278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116\",\"entryModule\":\"main\",\"manifest\":[{\"module\":\"main\",\"sourceSha256\":\"3519c776555c9243e13bff38b53e8ead9d3c606eb7d518c9066ff025ef6d4887\"}],\"modelId\":\"18f1af7a85e311f0f51fac775c7220fc98c29c9f54c6502562b63ed68c51bd1a\",\"sourceBasis\":\"source-bytes\"}\n",
+    "metadata": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "main",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "main",
+          "sourceSha256": "3519c776555c9243e13bff38b53e8ead9d3c606eb7d518c9066ff025ef6d4887",
+          "file": "/private/tmp/shitae-i27-20261018-identity-r1/module-removed/main.shitae"
+        }
+      ],
+      "modelId": "18f1af7a85e311f0f51fac775c7220fc98c29c9f54c6502562b63ed68c51bd1a"
+    }
+  },
+  {
+    "name": "referenced-source",
+    "scenario": "original",
+    "status": 1,
+    "stderr": "Error: MODEL_MISMATCH: source bytesが異なるmodule: checkout（空白・コメントも照合対象）\n次の行動:\n完全一致する保存時のHTMLが残っていれば、そのHTMLとscenarioの組で再開してください。任意の古いHTMLでは再開できません。\nCLIでの再開には、対応する元モデル一式と処理系が必要です。engineのhashだけからcommitは特定できません。\n変更後のモデル・処理系で検討する場合は新しく記録してください。旧版の検討手順は人が選び直すための参照に使えます。\n詳細: Expected {\"engineVersion\":\"278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116\",\"entryModule\":\"main\",\"manifest\":[{\"module\":\"catalog\",\"sourceSha256\":\"eb59b872a7711e6ba8712a517c46ab25f056ea5375a71e3ef82d2e54892db9e0\"},{\"module\":\"checkout\",\"sourceSha256\":\"3a0f30033d7be4c79f2ee298f9d3e91b29d6f0e31b5ba29d4fbb07bafc141d74\"},{\"module\":\"main\",\"sourceSha256\":\"6b7de61923c7629222dca1b0d7164c0da8ed1e2dc8f76da9ace2c4e9d2baaf26\"}],\"modelId\":\"553b9c1c686f779415a88c1404424d3d9755dfad60c056a221d74e353b5395f5\",\"sourceBasis\":\"source-bytes\"}; actual {\"engineVersion\":\"278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116\",\"entryModule\":\"main\",\"manifest\":[{\"module\":\"catalog\",\"sourceSha256\":\"eb59b872a7711e6ba8712a517c46ab25f056ea5375a71e3ef82d2e54892db9e0\"},{\"module\":\"checkout\",\"sourceSha256\":\"454c0d828ad43be94688fcf6a4162980f3bb9fe55096ed2e4de21975fc646a2b\"},{\"module\":\"main\",\"sourceSha256\":\"6b7de61923c7629222dca1b0d7164c0da8ed1e2dc8f76da9ace2c4e9d2baaf26\"}],\"modelId\":\"36f810196996a01a649f3974fc68734efd857db6b5c6ad4d5356b15f238deb34\",\"sourceBasis\":\"source-bytes\"}\n",
+    "metadata": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "main",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "catalog",
+          "sourceSha256": "eb59b872a7711e6ba8712a517c46ab25f056ea5375a71e3ef82d2e54892db9e0",
+          "file": "/private/tmp/shitae-i27-20261018-identity-r1/referenced-source/catalog.shitae"
+        },
+        {
+          "module": "checkout",
+          "sourceSha256": "454c0d828ad43be94688fcf6a4162980f3bb9fe55096ed2e4de21975fc646a2b",
+          "file": "/private/tmp/shitae-i27-20261018-identity-r1/referenced-source/checkout.shitae"
+        },
+        {
+          "module": "main",
+          "sourceSha256": "6b7de61923c7629222dca1b0d7164c0da8ed1e2dc8f76da9ace2c4e9d2baaf26",
+          "file": "/private/tmp/shitae-i27-20261018-identity-r1/referenced-source/main.shitae"
+        }
+      ],
+      "modelId": "36f810196996a01a649f3974fc68734efd857db6b5c6ad4d5356b15f238deb34"
+    }
+  }
+]
