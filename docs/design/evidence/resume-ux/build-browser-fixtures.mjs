@@ -33,6 +33,7 @@ function scenario(dir, steps) {
 const resumed = scenario(dirs[0], ['Buy', 'Menu']);
 writeFileSync(join(out, 'cli-buy-menu.scenario.json'), JSON.stringify(await resumed.exportScenario(), null, 2) + '\n');
 writeFileSync(join(out, 'cli-detail.scenario.json'), JSON.stringify(await scenario(dirs[0], ['Next']).exportScenario(), null, 2) + '\n');
+writeFileSync(join(out, 'cli-plain.scenario.json'), JSON.stringify(await scenario(dirs[0], ['Plain']).exportScenario(), null, 2) + '\n');
 checks.cliBuyMenuState = resumed.query({ select: ['state'] }).data.state.componentValues.filter((c) => c.singleton)
   .map((c) => `${c.module}::${c.component} ##${c.variant}`);
 checks.modelId = loadModel(join(dirs[1], 'main.shitae')).metadata.modelId;

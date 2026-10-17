@@ -4,13 +4,13 @@
   "protocolVersion": 1,
   "model": {
     "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
-    "modelId": "3d086aa741aae67a4e32fb40689a6bd110eb3a1aaed93e297e4563e88b6c4118",
+    "modelId": "057c73d66ca0630148157e99574d2e9795495ad17dfef26a23b265263a8ac8a1",
     "entryModule": "main",
     "sourceBasis": "source-bytes",
     "manifest": [
       {
         "module": "main",
-        "sourceSha256": "34ed6e2f8903e12fcedc749abdd60b7afe513642efc00f083c8f14a22cd24593"
+        "sourceSha256": "c0ad5bf12b39cf5f91767715e70802b4f1d6b6d76c2ee365824f89d9e25d080b"
       },
       {
         "module": "shop/cart",
@@ -18,7 +18,7 @@
       }
     ]
   },
-  "initialDigest": "26b4c298cd5e8e09ad5a1816fc76912e5c8f91f42c69b65520735755dfbdbff0",
+  "initialDigest": "e942bdaf724033556631fd841ea63af35165f74877ad34aed7aecdc9bb6d19a1",
   "steps": [
     {
       "step": 1,
@@ -50,13 +50,13 @@
         },
         "branch": null
       },
-      "afterDigest": "993064ab10d32e157439550199351e7c044a4b5dca225711d372296df93ccaec",
+      "afterDigest": "a7d5f6001cd60a928b029f885404e95e69c6a01fe1ad5fba0bb379fb10f751cd",
       "observations": [
         {
-          "viewDigest": "ebfb9a7b98a26770c76f4920e6ecb7ff2685ffe64ae3c5bbcddb643215481d69"
+          "viewDigest": "ce0c632c1bf3dafac0beefe50971dd4fe2270a9a31bc4bca1b354118386c5b76"
         },
         {
-          "viewDigest": "eef27aef377d70a0fb6c9ccd6cb115dfe1b1426060efa1de282e8b1ed0e57a72"
+          "viewDigest": "b8caf07f922d2b34ae24e635a88ae7c192ab4d7bf2ad75453fb352830b0d7d44"
         }
       ],
       "output": {
@@ -99,13 +99,13 @@
         },
         "branch": null
       },
-      "afterDigest": "b2bcee9d0de43e5307e34c5f8f82eb2c176890bd609701083e7f3ef261efbfab",
+      "afterDigest": "1e55f4ba728e94aecd6355b6f86e6547ee77dec3e14bf1fdd45bd041fac8bfa0",
       "observations": [
         {
-          "viewDigest": "c302c85419da090725663a9637040c74ef9234dd182481a0b71ba4771d2283a6"
+          "viewDigest": "25214e104f20655d966cf701e688e21d55e5063915e057962a809f3cfd852493"
         },
         {
-          "viewDigest": "20b4c92abcd48d67ff947a36dc44d1a23c4d593114f8690b7e4e5d614a5f3d67"
+          "viewDigest": "cddc1ce8f89a9945624e7c61afd7f4bfc201b1439eaa5c2b5d72c08bca8b159f"
         }
       ],
       "output": {
@@ -134,9 +134,9 @@
           "source": {
             "module": "main",
             "span": {
-              "offset": 254,
+              "offset": 311,
               "length": 21,
-              "line": 13,
+              "line": 17,
               "col": 1
             }
           },
@@ -145,14 +145,14 @@
             "path": [],
             "source": null
           },
-          "definitionDigest": "579c5d6192263df7c670e308df809c911dd5a5b5668d21488d90e4c1f4c29b1e"
+          "definitionDigest": "5d3317fa86a889dc2f3ee59071a2f9c6ff141e63069c075fa036ec26c053cc0f"
         },
         "branch": null
       },
-      "afterDigest": "6c20123659a8a1327cb52cb413432fa24f0e312656932113f6fa912fa3a9f459",
+      "afterDigest": "a013c04e2c02e89dab102ca7e55fd6807c6b4eb03a8cc6298d7a81c411b144c1",
       "observations": [
         {
-          "viewDigest": "c302c85419da090725663a9637040c74ef9234dd182481a0b71ba4771d2283a6"
+          "viewDigest": "25214e104f20655d966cf701e688e21d55e5063915e057962a809f3cfd852493"
         }
       ],
       "output": {
@@ -261,6 +261,14 @@
             },
             {
               "module": "main",
+              "component": "Plain",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "main",
               "component": "Theme",
               "variant": "Dark",
               "singleton": true,
@@ -276,7 +284,20 @@
               "origin": "dsl"
             }
           ],
-          "gateTargets": [],
+          "gateTargets": [
+            {
+              "module": "main",
+              "component": "Theme",
+              "variant": "Dark",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl",
+              "variants": [
+                "Light",
+                "Dark"
+              ]
+            }
+          ],
           "inclusion": {
             "main": {
               "module": "main",
@@ -326,9 +347,9 @@
                   "componentSource": {
                     "module": "main",
                     "span": {
-                      "offset": 276,
+                      "offset": 333,
                       "length": 7,
-                      "line": 14,
+                      "line": 18,
                       "col": 1
                     }
                   },
@@ -343,9 +364,9 @@
                       "source": {
                         "module": "main",
                         "span": {
-                          "offset": 303,
+                          "offset": 360,
                           "length": 1,
-                          "line": 18,
+                          "line": 22,
                           "col": 1
                         }
                       },
@@ -515,6 +536,35 @@
               "branches": [],
               "enabled": true,
               "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "main",
+                  "component": "Home",
+                  "variant": null
+                },
+                "source": {
+                  "module": "main",
+                  "span": {
+                    "offset": 176,
+                    "length": 22,
+                    "line": 8,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "c3837ba7bda50a9009ae7f5961b0f50b563b1ec6466d8efd936bfb662610e99e"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
             }
           ],
           "back": {
@@ -641,9 +691,9 @@
           "source": {
             "module": "main",
             "span": {
-              "offset": 254,
+              "offset": 311,
               "length": 21,
-              "line": 13,
+              "line": 17,
               "col": 1
             }
           },
@@ -666,6 +716,6 @@
         "observation": 0
       }
     },
-    "digest": "6c20123659a8a1327cb52cb413432fa24f0e312656932113f6fa912fa3a9f459"
+    "digest": "a013c04e2c02e89dab102ca7e55fd6807c6b4eb03a8cc6298d7a81c411b144c1"
   }
 }
