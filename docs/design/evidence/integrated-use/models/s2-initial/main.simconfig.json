@@ -1,0 +1,8 @@
+{
+  "graph": {
+    "split": [
+      { "module": "catalog", "component": "予約確認" },
+      { "module": "checkout", "component": "当日貸出確認" }
+    ]
+  }
+}

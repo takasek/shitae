@@ -1,0 +1,1467 @@
+{
+  "kind": "separate-process CLI replay/export equality; not browser or human acceptance",
+  "scenario": "/private/tmp/shitae-i27-20261018-public/s1.scenario.json",
+  "model": "docs/design/evidence/integrated-use/models/s1/expenses.shitae",
+  "status": 0,
+  "allExportEqual": true,
+  "responses": [
+    {
+      "id": "summary",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 12,
+      "summary": {
+        "location": {
+          "module": "expenses",
+          "component": "審査確認",
+          "variant": null
+        },
+        "cursorObservationId": 15,
+        "latestObservationId": 16,
+        "observationCount": 16
+      },
+      "data": {
+        "metadata": {
+          "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+          "entryModule": "expenses",
+          "sourceBasis": "source-bytes",
+          "manifest": [
+            {
+              "module": "expenses",
+              "sourceSha256": "bee07204cc4fa219dfce5288bf61e91d7fd63a35cb10b07e2fe3608042169d19",
+              "file": "/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/integrated-use/models/s1/expenses.shitae"
+            }
+          ],
+          "modelId": "9e90f2917a073bd6aa1a9ef0552bb4de408c2a62d2c3177046f5851205f4d70f"
+        }
+      }
+    },
+    {
+      "id": "save",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 12,
+      "summary": {
+        "location": {
+          "module": "expenses",
+          "component": "審査確認",
+          "variant": null
+        },
+        "cursorObservationId": 15,
+        "latestObservationId": 16,
+        "observationCount": 16
+      },
+      "scenario": {
+        "format": "shitae-scenario",
+        "formatVersion": 1,
+        "protocolVersion": 1,
+        "model": {
+          "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+          "modelId": "9e90f2917a073bd6aa1a9ef0552bb4de408c2a62d2c3177046f5851205f4d70f",
+          "entryModule": "expenses",
+          "sourceBasis": "source-bytes",
+          "manifest": [
+            {
+              "module": "expenses",
+              "sourceSha256": "bee07204cc4fa219dfce5288bf61e91d7fd63a35cb10b07e2fe3608042169d19"
+            }
+          ]
+        },
+        "initialDigest": "c9b6646c25b7703d653e0c5df53a2b74ad4541a67a8345b83ca76b800e192da7",
+        "steps": [
+          {
+            "step": 1,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "expenses",
+                  "component": "申請一覧",
+                  "variant": null
+                },
+                "source": {
+                  "module": "expenses",
+                  "span": {
+                    "offset": 122,
+                    "length": 22,
+                    "line": 7,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "d3df0dc637dbd2fd74cbe889957f1adc58c726b2d716e99a63255e6a962bd6ba"
+              },
+              "branch": null
+            },
+            "afterDigest": "687d5224da15a6d7bfbeaf400d30a188052370ebc1a2ce775c8174d183d8a90c",
+            "observations": [
+              {
+                "viewDigest": "6120e0423144c525b079959a02dafc8596c9421014796802bb32d0627dd1e0fd"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          },
+          {
+            "step": 2,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "expenses",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "expenses",
+                  "span": {
+                    "offset": 177,
+                    "length": 32,
+                    "line": 13,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "8564687fd4b988473a1b4fe39aeca7b0c2f7d4302c58820f7c3a4de8c38a4fcd"
+              },
+              "branch": null
+            },
+            "afterDigest": "1934c3a81c5d5173194dfaf01f3dfd161d22713f6996a6e1049dd14970e6b899",
+            "observations": [
+              {
+                "viewDigest": "24dc0ddf6efaab331d73fdb9566c99a7abe49681576cbbc9aab60f78be6fdff1"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          },
+          {
+            "step": 3,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "expenses",
+                  "component": "審査確認",
+                  "variant": null
+                },
+                "source": {
+                  "module": "expenses",
+                  "span": {
+                    "offset": 264,
+                    "length": 12,
+                    "line": 19,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "580ef9e11ce29b82fd8c6fd4773ccd7cb667dd2cd17dd54078680e36889741e6"
+              },
+              "branch": {
+                "label": "差戻し",
+                "results": [
+                  {
+                    "resultIndex": 3,
+                    "source": {
+                      "module": "expenses",
+                      "span": {
+                        "offset": 334,
+                        "length": 71,
+                        "line": 21,
+                        "col": 1
+                      }
+                    }
+                  },
+                  {
+                    "resultIndex": 4,
+                    "source": {
+                      "module": "expenses",
+                      "span": {
+                        "offset": 334,
+                        "length": 71,
+                        "line": 21,
+                        "col": 1
+                      }
+                    }
+                  },
+                  {
+                    "resultIndex": 5,
+                    "source": {
+                      "module": "expenses",
+                      "span": {
+                        "offset": 334,
+                        "length": 71,
+                        "line": 21,
+                        "col": 1
+                      }
+                    }
+                  },
+                  {
+                    "resultIndex": 6,
+                    "source": {
+                      "module": "expenses",
+                      "span": {
+                        "offset": 334,
+                        "length": 71,
+                        "line": 21,
+                        "col": 1
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "afterDigest": "ca90979c52b7107f48f41978c59ff86561c3889e1b07840485aaaf75e1ef8686",
+            "observations": [
+              {
+                "viewDigest": "24dc0ddf6efaab331d73fdb9566c99a7abe49681576cbbc9aab60f78be6fdff1"
+              },
+              {
+                "viewDigest": "1b73129a33ec3b0b3c848ce044650c37e03aa5e01214df872ce95dd602b2159d"
+              },
+              {
+                "viewDigest": "d7dda49d72d219c9f66fe49fdfad5d94be267b1e724ba9dbe9c24945f145bd62"
+              },
+              {
+                "viewDigest": "4c72da7fde3238b84230b8e25468aec801644adfabc919fa67ff761a411c89ee"
+              }
+            ],
+            "output": {
+              "effects": [
+                {
+                  "resultIndex": 3,
+                  "source": {
+                    "module": "expenses",
+                    "span": {
+                      "offset": 334,
+                      "length": 71,
+                      "line": 21,
+                      "col": 1
+                    }
+                  },
+                  "text": "修正依頼を送る"
+                }
+              ],
+              "diagnostics": [],
+              "changed": [
+                "frames",
+                "overlays",
+                "sharedVariants",
+                "origins"
+              ]
+            },
+            "outputDigest": "4180a5599c53f66ee07ab8cc5648b1eec048efd097a9ae0fea28ec872d19f0a7"
+          },
+          {
+            "step": 4,
+            "command": {
+              "kind": "seek",
+              "target": {
+                "step": 3,
+                "observation": 1
+              }
+            },
+            "afterDigest": "0141a91b98936d227318b657d2c07763d50aa87e198f3b5d69773f1ae43a8e59",
+            "observations": [],
+            "output": null,
+            "outputDigest": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+          },
+          {
+            "step": 5,
+            "command": {
+              "kind": "seek",
+              "target": {
+                "step": 3,
+                "observation": 3
+              }
+            },
+            "afterDigest": "ca90979c52b7107f48f41978c59ff86561c3889e1b07840485aaaf75e1ef8686",
+            "observations": [],
+            "output": null,
+            "outputDigest": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+          },
+          {
+            "step": 6,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "expenses",
+                  "component": "修正依頼通知",
+                  "variant": null
+                },
+                "source": {
+                  "module": "expenses",
+                  "span": {
+                    "offset": 496,
+                    "length": 40,
+                    "line": 31,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "overlay:修正依頼通知",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "30cd44bf2b0346bc737a288fd4d403e06c04ca29aa233eb593d6bcf21bc50924"
+              },
+              "branch": null
+            },
+            "afterDigest": "6a0f5db143fd6ebd2a4c33934dcd0fb70ec61d78dc7cc7d4866f90e77021f978",
+            "observations": [
+              {
+                "viewDigest": "d7dda49d72d219c9f66fe49fdfad5d94be267b1e724ba9dbe9c24945f145bd62"
+              },
+              {
+                "viewDigest": "1feeeca955e58ff7d277d03fa216cf8d823030bcf25538f7f239b78ec05ede6d"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames",
+                "overlays"
+              ]
+            },
+            "outputDigest": "03b6b7e4315e9ca9581dd6133bf0b086060e76021d737592033087a617470315"
+          },
+          {
+            "step": 7,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "expenses",
+                  "component": "修正コメント",
+                  "variant": null
+                },
+                "source": {
+                  "module": "expenses",
+                  "span": {
+                    "offset": 552,
+                    "length": 18,
+                    "line": 35,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "fe4d8b5e079a68fa99c96f3fc0152c3c4dd65fa1075c3e50eb1199c1b6fbc062"
+              },
+              "branch": null
+            },
+            "afterDigest": "f400a16319d50d54b3f34964f8c514db12e3992e2b3210e7f3f9bda1d958f479",
+            "observations": [
+              {
+                "viewDigest": "0448d437db2801b272e1bb0906e27ac0e67dd236a46e937d916eea48f91efae5"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          },
+          {
+            "step": 8,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "document",
+                "host": {
+                  "module": "expenses",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "expenses",
+                  "span": {
+                    "offset": 38,
+                    "length": 31,
+                    "line": 2,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "81807d92d276e0a8134f045e9c76585d11785d6d5b5869d1af04a30a691dbc10"
+              },
+              "branch": null
+            },
+            "afterDigest": "846677d811a91c690a67dd2998b899f02b65faaca55f353a03b32bd954e91491",
+            "observations": [
+              {
+                "viewDigest": "6e1f6969ef84da7fec5fc4e15b9c75e0b2dc653d00c3770f3b9a2f45edc64b2c"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "sharedVariants",
+                "origins"
+              ]
+            },
+            "outputDigest": "e4686d3267f5aa16ab06a44c78ece53960fa308798890cd999c892ca41cb04db"
+          },
+          {
+            "step": 9,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "document",
+                "host": {
+                  "module": "expenses",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "expenses",
+                  "span": {
+                    "offset": 70,
+                    "length": 33,
+                    "line": 3,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "b43f4d56ef46e32f9d3da24e65b093e0f4c31191234f4e7dbf844861129aa8d1"
+              },
+              "branch": null
+            },
+            "afterDigest": "de0b677914de31f1b329ef34206c9632247e0f4eb115358dbab4e42f503d2309",
+            "observations": [
+              {
+                "viewDigest": "c885568c927e860f4c0bb4942c03ca3f72139c728c34c30842ce46c868384e0d"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "sharedVariants"
+              ]
+            },
+            "outputDigest": "af7b49febd8c9b14cb20197629e4a31a977ed40c7dbe80d518db2b6964686948"
+          },
+          {
+            "step": 10,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "expenses",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "expenses",
+                  "span": {
+                    "offset": 177,
+                    "length": 32,
+                    "line": 13,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "8564687fd4b988473a1b4fe39aeca7b0c2f7d4302c58820f7c3a4de8c38a4fcd"
+              },
+              "branch": null
+            },
+            "afterDigest": "12476323ae78257d82b700bc9d3df01e8dc5aabc2671b3ba01722adea26187d7",
+            "observations": [
+              {
+                "viewDigest": "0a343274afe1d823a8fb79b0647378ec5c8cf9d4b6a374744493c15dad24039c"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          },
+          {
+            "step": 11,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "expenses",
+                  "component": "審査確認",
+                  "variant": null
+                },
+                "source": {
+                  "module": "expenses",
+                  "span": {
+                    "offset": 264,
+                    "length": 12,
+                    "line": 19,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "580ef9e11ce29b82fd8c6fd4773ccd7cb667dd2cd17dd54078680e36889741e6"
+              },
+              "branch": {
+                "label": "承認",
+                "results": [
+                  {
+                    "resultIndex": 0,
+                    "source": {
+                      "module": "expenses",
+                      "span": {
+                        "offset": 277,
+                        "length": 56,
+                        "line": 20,
+                        "col": 1
+                      }
+                    }
+                  },
+                  {
+                    "resultIndex": 1,
+                    "source": {
+                      "module": "expenses",
+                      "span": {
+                        "offset": 277,
+                        "length": 56,
+                        "line": 20,
+                        "col": 1
+                      }
+                    }
+                  },
+                  {
+                    "resultIndex": 2,
+                    "source": {
+                      "module": "expenses",
+                      "span": {
+                        "offset": 277,
+                        "length": 56,
+                        "line": 20,
+                        "col": 1
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "afterDigest": "0263eb467b9d77a498ce47828f6c0f6d6a841acf020177b763d89e8e873fbec7",
+            "observations": [
+              {
+                "viewDigest": "0a343274afe1d823a8fb79b0647378ec5c8cf9d4b6a374744493c15dad24039c"
+              },
+              {
+                "viewDigest": "e4cc82c1d4c3c0e4f80407e3ea1a4bc6638061bbd9ded470bba0ade4f01c7f61"
+              },
+              {
+                "viewDigest": "cb79671866eb558635eb0a108739692046c15f220522b016e065d9e91e378c2c"
+              }
+            ],
+            "output": {
+              "effects": [
+                {
+                  "resultIndex": 0,
+                  "source": {
+                    "module": "expenses",
+                    "span": {
+                      "offset": 277,
+                      "length": 56,
+                      "line": 20,
+                      "col": 1
+                    }
+                  },
+                  "text": "審査結果を記録する"
+                }
+              ],
+              "diagnostics": [],
+              "changed": [
+                "frames",
+                "sharedVariants"
+              ]
+            },
+            "outputDigest": "7e020a3a6adc3579f7db7e270943cad4f0d7d038fb8dc50cd7b8db9c7f0672f0"
+          },
+          {
+            "step": 12,
+            "command": {
+              "kind": "seek",
+              "target": {
+                "step": 11,
+                "observation": 1
+              }
+            },
+            "afterDigest": "0fd596d1a8da604dbeb487c4bebf6a12192c4dbb7bf686fdbf2f9d8e3e2f70bc",
+            "observations": [],
+            "output": null,
+            "outputDigest": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+          }
+        ],
+        "final": {
+          "view": {
+            "view": {
+              "location": {
+                "module": "expenses",
+                "component": "審査確認",
+                "variant": null
+              },
+              "state": {
+                "frames": [
+                  {
+                    "id": 0,
+                    "parentId": null,
+                    "stack": [
+                      {
+                        "module": "expenses",
+                        "component": "申請一覧",
+                        "variant": null,
+                        "singleton": false,
+                        "scope": "frame-location",
+                        "origin": "initial"
+                      },
+                      {
+                        "module": "expenses",
+                        "component": "申請詳細",
+                        "variant": null,
+                        "singleton": false,
+                        "scope": "frame-location",
+                        "origin": "initial"
+                      }
+                    ],
+                    "barrier": false,
+                    "beginsSession": null,
+                    "origin": "root"
+                  },
+                  {
+                    "id": 3,
+                    "parentId": 0,
+                    "stack": [
+                      {
+                        "module": "expenses",
+                        "component": "審査確認",
+                        "variant": null,
+                        "singleton": false,
+                        "scope": "frame-location",
+                        "origin": "initial"
+                      }
+                    ],
+                    "barrier": true,
+                    "beginsSession": {
+                      "name": "review"
+                    },
+                    "origin": "present"
+                  }
+                ],
+                "activeFrameId": 3,
+                "nextFrameId": 4,
+                "activePath": [
+                  0,
+                  3
+                ],
+                "overlays": [],
+                "sharedVariants": [
+                  {
+                    "module": "expenses",
+                    "component": "承認状況",
+                    "variant": "承認済",
+                    "singleton": true,
+                    "scope": "singleton-shared",
+                    "origin": "dsl"
+                  },
+                  {
+                    "module": "expenses",
+                    "component": "領収書照合",
+                    "variant": "要確認",
+                    "singleton": true,
+                    "scope": "singleton-shared",
+                    "origin": "dsl"
+                  }
+                ],
+                "testVariants": [],
+                "componentValues": [
+                  {
+                    "module": "expenses",
+                    "component": "修正コメント",
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  {
+                    "module": "expenses",
+                    "component": "修正依頼通知",
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  {
+                    "module": "expenses",
+                    "component": "審査確認",
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  {
+                    "module": "expenses",
+                    "component": "承認状況",
+                    "variant": "承認済",
+                    "singleton": true,
+                    "scope": "singleton-shared",
+                    "origin": "dsl"
+                  },
+                  {
+                    "module": "expenses",
+                    "component": "申請一覧",
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  {
+                    "module": "expenses",
+                    "component": "申請詳細",
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  {
+                    "module": "expenses",
+                    "component": "領収書",
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  {
+                    "module": "expenses",
+                    "component": "領収書照合",
+                    "variant": "要確認",
+                    "singleton": true,
+                    "scope": "singleton-shared",
+                    "origin": "dsl"
+                  }
+                ],
+                "gateTargets": [],
+                "inclusion": {
+                  "main": {
+                    "module": "expenses",
+                    "component": "審査確認",
+                    "root": "main",
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "frame-location",
+                    "origin": "initial",
+                    "source": {
+                      "module": "expenses",
+                      "span": {
+                        "offset": 250,
+                        "length": 6,
+                        "line": 17,
+                        "col": 1
+                      }
+                    },
+                    "children": [
+                      {
+                        "name": "審査コメント",
+                        "root": "main",
+                        "path": [
+                          0
+                        ],
+                        "source": {
+                          "module": "expenses",
+                          "span": {
+                            "offset": 257,
+                            "length": 6,
+                            "line": 18,
+                            "col": 1
+                          }
+                        },
+                        "collection": false,
+                        "reference": {
+                          "module": "expenses",
+                          "component": "審査コメント"
+                        },
+                        "kind": "unresolved",
+                        "children": []
+                      }
+                    ]
+                  },
+                  "overlays": []
+                }
+              },
+              "actions": {
+                "items": [
+                  {
+                    "operation": {
+                      "kind": "interaction",
+                      "scope": "document",
+                      "host": {
+                        "module": "expenses",
+                        "component": "審査確認",
+                        "variant": null
+                      },
+                      "source": {
+                        "module": "expenses",
+                        "span": {
+                          "offset": 38,
+                          "length": 31,
+                          "line": 2,
+                          "col": 1
+                        }
+                      },
+                      "placement": {
+                        "root": "main",
+                        "path": [],
+                        "source": null
+                      },
+                      "definitionDigest": "81807d92d276e0a8134f045e9c76585d11785d6d5b5869d1af04a30a691dbc10"
+                    },
+                    "branches": [],
+                    "enabled": true,
+                    "gate": null
+                  },
+                  {
+                    "operation": {
+                      "kind": "interaction",
+                      "scope": "document",
+                      "host": {
+                        "module": "expenses",
+                        "component": "審査確認",
+                        "variant": null
+                      },
+                      "source": {
+                        "module": "expenses",
+                        "span": {
+                          "offset": 70,
+                          "length": 33,
+                          "line": 3,
+                          "col": 1
+                        }
+                      },
+                      "placement": {
+                        "root": "main",
+                        "path": [],
+                        "source": null
+                      },
+                      "definitionDigest": "b43f4d56ef46e32f9d3da24e65b093e0f4c31191234f4e7dbf844861129aa8d1"
+                    },
+                    "branches": [],
+                    "enabled": true,
+                    "gate": null
+                  },
+                  {
+                    "operation": {
+                      "kind": "interaction",
+                      "scope": "component",
+                      "host": {
+                        "module": "expenses",
+                        "component": "審査確認",
+                        "variant": null
+                      },
+                      "source": {
+                        "module": "expenses",
+                        "span": {
+                          "offset": 264,
+                          "length": 12,
+                          "line": 19,
+                          "col": 1
+                        }
+                      },
+                      "placement": {
+                        "root": "main",
+                        "path": [],
+                        "source": null
+                      },
+                      "definitionDigest": "580ef9e11ce29b82fd8c6fd4773ccd7cb667dd2cd17dd54078680e36889741e6"
+                    },
+                    "branches": [
+                      {
+                        "label": "承認",
+                        "results": [
+                          {
+                            "resultIndex": 0,
+                            "source": {
+                              "module": "expenses",
+                              "span": {
+                                "offset": 277,
+                                "length": 56,
+                                "line": 20,
+                                "col": 1
+                              }
+                            }
+                          },
+                          {
+                            "resultIndex": 1,
+                            "source": {
+                              "module": "expenses",
+                              "span": {
+                                "offset": 277,
+                                "length": 56,
+                                "line": 20,
+                                "col": 1
+                              }
+                            }
+                          },
+                          {
+                            "resultIndex": 2,
+                            "source": {
+                              "module": "expenses",
+                              "span": {
+                                "offset": 277,
+                                "length": 56,
+                                "line": 20,
+                                "col": 1
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "label": "差戻し",
+                        "results": [
+                          {
+                            "resultIndex": 3,
+                            "source": {
+                              "module": "expenses",
+                              "span": {
+                                "offset": 334,
+                                "length": 71,
+                                "line": 21,
+                                "col": 1
+                              }
+                            }
+                          },
+                          {
+                            "resultIndex": 4,
+                            "source": {
+                              "module": "expenses",
+                              "span": {
+                                "offset": 334,
+                                "length": 71,
+                                "line": 21,
+                                "col": 1
+                              }
+                            }
+                          },
+                          {
+                            "resultIndex": 5,
+                            "source": {
+                              "module": "expenses",
+                              "span": {
+                                "offset": 334,
+                                "length": 71,
+                                "line": 21,
+                                "col": 1
+                              }
+                            }
+                          },
+                          {
+                            "resultIndex": 6,
+                            "source": {
+                              "module": "expenses",
+                              "span": {
+                                "offset": 334,
+                                "length": 71,
+                                "line": 21,
+                                "col": 1
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    ],
+                    "enabled": true,
+                    "gate": null
+                  },
+                  {
+                    "operation": {
+                      "kind": "interaction",
+                      "scope": "component",
+                      "host": {
+                        "module": "expenses",
+                        "component": "審査確認",
+                        "variant": null
+                      },
+                      "source": {
+                        "module": "expenses",
+                        "span": {
+                          "offset": 406,
+                          "length": 26,
+                          "line": 22,
+                          "col": 1
+                        }
+                      },
+                      "placement": {
+                        "root": "main",
+                        "path": [],
+                        "source": null
+                      },
+                      "definitionDigest": "745d79cfa8d44da8ba99fa382ac11147b20041d3e2083897d6b73d4fede740f4"
+                    },
+                    "branches": [],
+                    "enabled": true,
+                    "gate": null
+                  }
+                ],
+                "back": {
+                  "enabled": false,
+                  "reason": "barrier"
+                }
+              }
+            },
+            "timeline": [
+              {
+                "resultIndex": null,
+                "source": null,
+                "kind": "transition",
+                "label": "起動",
+                "location": {
+                  "module": "expenses",
+                  "component": "申請一覧",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 0,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "expenses",
+                  "span": {
+                    "offset": 122,
+                    "length": 22,
+                    "line": 7,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "push → 申請詳細",
+                "location": {
+                  "module": "expenses",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 1,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "expenses",
+                  "span": {
+                    "offset": 177,
+                    "length": 32,
+                    "line": 13,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "present → 審査確認",
+                "location": {
+                  "module": "expenses",
+                  "component": "審査確認",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 2,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 3,
+                "source": {
+                  "module": "expenses",
+                  "span": {
+                    "offset": 334,
+                    "length": 71,
+                    "line": 21,
+                    "col": 1
+                  }
+                },
+                "kind": "event",
+                "label": "effect: 修正依頼を送る",
+                "location": {
+                  "module": "expenses",
+                  "component": "審査確認",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 3,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 4,
+                "source": {
+                  "module": "expenses",
+                  "span": {
+                    "offset": 334,
+                    "length": 71,
+                    "line": 21,
+                    "col": 1
+                  }
+                },
+                "kind": "event",
+                "label": "set(承認状況)",
+                "location": {
+                  "module": "expenses",
+                  "component": "審査確認",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 3,
+                  "observation": 1
+                }
+              },
+              {
+                "resultIndex": 5,
+                "source": {
+                  "module": "expenses",
+                  "span": {
+                    "offset": 334,
+                    "length": 71,
+                    "line": 21,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "dismiss → 申請詳細",
+                "location": {
+                  "module": "expenses",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 3,
+                  "observation": 2
+                }
+              },
+              {
+                "resultIndex": 6,
+                "source": {
+                  "module": "expenses",
+                  "span": {
+                    "offset": 334,
+                    "length": 71,
+                    "line": 21,
+                    "col": 1
+                  }
+                },
+                "kind": "event",
+                "label": "show(修正依頼通知)",
+                "location": {
+                  "module": "expenses",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 3,
+                  "observation": 3
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "expenses",
+                  "span": {
+                    "offset": 496,
+                    "length": 40,
+                    "line": 31,
+                    "col": 1
+                  }
+                },
+                "kind": "event",
+                "label": "hide(修正依頼通知)",
+                "location": {
+                  "module": "expenses",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 6,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 1,
+                "source": {
+                  "module": "expenses",
+                  "span": {
+                    "offset": 496,
+                    "length": 40,
+                    "line": 31,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "present → 修正コメント",
+                "location": {
+                  "module": "expenses",
+                  "component": "修正コメント",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 6,
+                  "observation": 1
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "expenses",
+                  "span": {
+                    "offset": 552,
+                    "length": 18,
+                    "line": 35,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "dismiss → 申請詳細",
+                "location": {
+                  "module": "expenses",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 7,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "expenses",
+                  "span": {
+                    "offset": 38,
+                    "length": 31,
+                    "line": 2,
+                    "col": 1
+                  }
+                },
+                "kind": "event",
+                "label": "set(領収書照合)",
+                "location": {
+                  "module": "expenses",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 8,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "expenses",
+                  "span": {
+                    "offset": 70,
+                    "length": 33,
+                    "line": 3,
+                    "col": 1
+                  }
+                },
+                "kind": "event",
+                "label": "set(領収書照合)",
+                "location": {
+                  "module": "expenses",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 9,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "expenses",
+                  "span": {
+                    "offset": 177,
+                    "length": 32,
+                    "line": 13,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "present → 審査確認",
+                "location": {
+                  "module": "expenses",
+                  "component": "審査確認",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 10,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "expenses",
+                  "span": {
+                    "offset": 277,
+                    "length": 56,
+                    "line": 20,
+                    "col": 1
+                  }
+                },
+                "kind": "event",
+                "label": "effect: 審査結果を記録する",
+                "location": {
+                  "module": "expenses",
+                  "component": "審査確認",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 11,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 1,
+                "source": {
+                  "module": "expenses",
+                  "span": {
+                    "offset": 277,
+                    "length": 56,
+                    "line": 20,
+                    "col": 1
+                  }
+                },
+                "kind": "event",
+                "label": "set(承認状況)",
+                "location": {
+                  "module": "expenses",
+                  "component": "審査確認",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 11,
+                  "observation": 1
+                }
+              },
+              {
+                "resultIndex": 2,
+                "source": {
+                  "module": "expenses",
+                  "span": {
+                    "offset": 277,
+                    "length": 56,
+                    "line": 20,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "dismiss → 申請詳細",
+                "location": {
+                  "module": "expenses",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "ghost": true,
+                "ref": {
+                  "step": 11,
+                  "observation": 2
+                }
+              }
+            ],
+            "cursor": {
+              "step": 11,
+              "observation": 1
+            }
+          },
+          "digest": "0fd596d1a8da604dbeb487c4bebf6a12192c4dbb7bf686fdbf2f9d8e3e2f70bc"
+        }
+      }
+    }
+  ]
+}

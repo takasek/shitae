@@ -1,0 +1,3 @@
+# Preserve original source bytes used by saved scenarios.
+models/s2/main.shitae whitespace=-blank-at-eof
+models/s2-initial/main.shitae whitespace=-blank-at-eof
