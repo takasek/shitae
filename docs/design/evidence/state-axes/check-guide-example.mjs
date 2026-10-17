@@ -18,9 +18,8 @@ const example = block[1];
 
 const merged = `# 編集画面
 状態: 文書状態
-図欄: 図
-> 構文エラー -> set(文書状態##不正) ; set(図##エラー)
-> 構文が直る -> set(文書状態##妥当) ; set(図##表示)
+> 構文エラー -> set(文書状態##不正)
+> 構文が直る -> set(文書状態##妥当)
 > 外部で変更される -> set(文書状態##競合) ; show(競合通知)
 
 #! 文書状態
@@ -29,12 +28,6 @@ const merged = `# 編集画面
 エラー一覧
 ## 競合
 外部変更の表示
-
-#! 図
-## 表示
-グラフ
-## エラー
-エラー一覧
 
 # 競合通知
 > 比較する -> hide(競合通知) ; present(版の比較)
@@ -54,6 +47,8 @@ try {
     assert.equal(check.status, 0, check.stdout + check.stderr);
     const errors = (check.stdout + check.stderr).split('\n').filter((l) => l.includes('[error]'));
     assert.deepEqual(errors, []);
+    const warnings = (check.stdout + check.stderr).split('\n').filter((l) => l.includes('[warning]'));
+    if (shouldPass) assert.deepEqual(warnings, [], 'The guide example should check without warnings');
     const out = join(dir, `${name}.json`);
     const run = spawnSync(process.execPath, [resolve(here, 'check-axes.mjs'), model, profile, '--out', out], { encoding: 'utf8' });
     const report = JSON.parse(readFileSync(out, 'utf8'));
