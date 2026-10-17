@@ -65,8 +65,8 @@ function scenarioFileName() {
   const entry = MODEL.entryModule.split('/').at(-1).replace(/[^\p{L}\p{N}._-]/gu, '_');
   return entry + '.' + m.modelId.slice(0, 12) + '.' + m.engineVersion.slice(0, 12) + '.scenario.json';
 }
-function scenarioCounts() {
-  const s = SESSION.query({ select: ['provenanceSummary'] }).data.provenanceSummary;
+function scenarioCounts(session = SESSION) {
+  const s = session.query({ select: ['provenanceSummary'] }).data.provenanceSummary;
   if (!s.available) return '記録の要約は利用できません';
   return 'dispatch ' + s.steps.dispatch + '件 / seek ' + s.steps.seek + '件 / reset ' + s.steps.reset + '件 / 手動試験 ' + s.steps.setTestVariant + '件';
 }
@@ -85,8 +85,8 @@ function rootSingletons(root) {
   return [...found.values()];
 }
 // Read once from the replayed Session at the load point; nothing here is kept in or written to the Session.
-function summarizeLoadSingletons() {
-  const state = SESSION.query({ select: ['state'] }).data.state, counts = nameCounts(state.componentValues);
+function summarizeLoadSingletons(session) {
+  const state = session.query({ select: ['state'] }).data.state, counts = nameCounts(state.componentValues);
   const label = e => (counts.get(e.component) > 1 ? e.module + '::' : '') + e.component + ' ' + (e.variant === null ? 'variantなし' : '##' + e.variant);
   return [{ label: '本体', root: state.inclusion.main }, ...state.inclusion.overlays.map(o => ({ label: 'overlay ' + o.component, root: o }))]
     .map(g => ({ label: g.label, entries: rootSingletons(g.root).map(label) })).filter(g => g.entries.length > 0);
@@ -122,10 +122,11 @@ async function replaceScenario(readText) {
     try { saved = JSON.parse(text); } catch { throw new Shitae.ScenarioError('SCENARIO_FORMAT', 'シナリオのJSONを読めません'); }
     const next = await Shitae.replayScenario({ documents: new Map(MODEL.documents), entryModule: MODEL.entryModule,
       files: new Map(MODEL.files), metadata: MODEL.metadata }, saved);
+    // Everything that can throw is computed from `next` first, so a failure cannot leave a swapped Session behind an error.
+    const notice = 'シナリオを読み込みました（' + scenarioCounts(next) + 'を照合）', summary = summarizeLoadSingletons(next);
     SESSION = next;
     provenanceOpen = new Set(); reviewOpen = false;
-    scenarioNotice = 'シナリオを読み込みました（' + scenarioCounts() + 'を照合）';
-    loadSummary = summarizeLoadSingletons();
+    scenarioNotice = notice; loadSummary = summary;
   } catch (e) {
     scenarioErrorDetails = e.diagnostic ?? null;
     sessionError = e.diagnostic ? e.code + ': ' + e.diagnostic.reasons.join('\n') + '\n次の行動:\n' + e.diagnostic.nextActions.join('\n') : e.message;

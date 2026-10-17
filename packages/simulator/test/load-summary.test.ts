@@ -124,6 +124,16 @@ describe('singleton summary at the scenario load point', () => {
     expect(summaryHtml(g.app.innerHTML)).toContain('Cart ##Full');
   });
 
+  it('keeps the previous Session and shows no summary or notice when computing the summary fails', async () => {
+    const { text } = await resumed(one(SEVERAL), ["handleInteraction('component',0,0)"]);
+    const g = gui(one(SEVERAL)); const before = g.query();
+    g.run("summarizeLoadSingletons = () => { throw new Error('summary boom'); }");
+    await g.load(text);
+    expect(g.app.innerHTML).toContain('summary boom');
+    expect(g.query()).toEqual(before);
+    expect(g.app.innerHTML).not.toContain('読込地点'); expect(g.app.innerHTML).not.toContain(NOTICE);
+  });
+
   it('does not change display settings, the exported scenario or Session state', async () => {
     const { text } = await resumed(one(SEVERAL), ["handleInteraction('component',0,0)"]);
     const b = gui(one(SEVERAL)); b.run('toggleShowEvents(); toggleShowActions(); toggleShowStates()');
