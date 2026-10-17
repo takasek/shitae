@@ -19,7 +19,7 @@
 | 作者と探索/受取の会話分離 | 別会話・別 directory。OS 読取禁止は未実施 |
 | HTML/scenario → 回答後に全モデル | 人の段階1待ち。案内は [human-stage1.md](human-stage1.md) |
 | 経緯説明・次の一操作・再保存 | OPEN |
-| 不一致理由・行動選択・失敗後 Session 保持 | CLI拒否のみ確認。GUI/受取は OPEN |
+| 不一致理由・行動選択・失敗後 Session 保持 | CLI拒否のみ確認。GUI/受取は OPEN（[ファイル選択の応答待ちで中断](browser/gui-import-limit.md)） |
 | 派生モデルで同じ問いを再検討 | OPEN |
 | #25 の人による相違確認 | OPEN |
 | 改善前後の比較 | 設計者指示で対象外 |

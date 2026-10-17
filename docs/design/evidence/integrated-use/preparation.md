@@ -22,3 +22,7 @@ S1 の実ブラウザ保存物は [browser/s1-explorer.scenario.json](browser/s1
 ## S2 の題材不足と修正
 
 初期 S2 では実ブラウザの手動試験drawerに試験対象がなく、必要な手動試験を実施できなかった。初期モデルは [models/s2-initial/](models/s2-initial/)、初期 CLI fixture は [identity-initial/](identity-initial/) に保持。作者が catalog の備品カードに variant と member presence gate を追加し、CLI check、Session gateTargets、手動試験値と reset の照会を確認。親も修正版 check/HTML生成と不一致 fixture 全6件を再実行した。修正版の実ブラウザ評価は新URL `s2-r1.html` でやり直す。これは製品不具合の修正ではなく、評価用モデルの不足修正。S1 と人への配布物は変更しない。
+
+## 派生モデルの準備と GUI 阻害
+
+[S1 派生版の準備結果](s1-revised-preparation.json) で、変更前 scenario の新モデルへの replay は MODEL_MISMATCH / exit 1。人による再検討はまだ実施していない。追加 GUI 読込検査は [阻害記録](browser/gui-import-limit.md) の通り応答待ちで中断し、未確認として残した。
