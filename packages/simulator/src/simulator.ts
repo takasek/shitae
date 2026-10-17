@@ -15,10 +15,24 @@ export function toSimulator(
   return buildHtml(data, documents, entryModule, model);
 }
 
+/** Display copy of a real file path: the module ID plus the `.shitae` suffix when the real file has one, so shared HTML never carries the author's directory. */
+function displayFile(module: string, file: string): string {
+  return file.endsWith('.shitae') ? module + '.shitae' : module;
+}
+
+function embeddedModel(documents: Map<string, Document>, entryModule: string, model?: { files: Map<string, string>; metadata: ModelMetadata }) {
+  if (!model) return { documents: [...documents], entryModule, files: [], metadata: createMetadata(documents, entryModule) };
+  return {
+    documents: [...documents], entryModule,
+    files: [...model.files].map(([module, file]) => [module, displayFile(module, file)]),
+    metadata: { ...model.metadata, manifest: model.metadata.manifest.map((m) => ({ ...m, file: m.file === null ? null : displayFile(m.module, m.file) })) },
+  };
+}
+
 function buildHtml(data: SimulatorData, documents: Map<string, Document>, entryModule: string, model?: { files: Map<string, string>; metadata: ModelMetadata }): string {
   const safeJson = (v: unknown) => JSON.stringify(v).replace(/</g, '\\u003c');
   const json = safeJson(data);
-  const modelJson = safeJson({ documents: [...documents], entryModule, files: [...(model?.files ?? new Map())], metadata: model?.metadata ?? createMetadata(documents, entryModule) });
+  const modelJson = safeJson(embeddedModel(documents, entryModule, model));
   const bundle = readFileSync(new URL('../dist/session-browser.js', import.meta.url), 'utf8');
   const sessionScript = readFileSync(new URL('./gui-session.js', import.meta.url), 'utf8');
   return `<!DOCTYPE html>

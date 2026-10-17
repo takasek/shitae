@@ -2,7 +2,7 @@
 let SESSION = new Shitae.Session(new Map(MODEL.documents), MODEL.entryModule, new Map(MODEL.files), MODEL.metadata);
 let view, stack, overlays, sharedVariants, GATE_TARGETS, timeline, cursor, componentNameCounts;
 let showEvents = true, showActions = true, showStates = false, sessionError = '';
-let scenarioBusy = false, scenarioNotice = '';
+let scenarioBusy = false, scenarioNotice = '', loadSummary = null;
 let scenarioErrorDetails = null;
 let provenanceOpen = new Set(), reviewOpen = false;
 function toggleProvenanceStep(step) { if (provenanceOpen.has(step)) provenanceOpen.delete(step); else provenanceOpen.add(step); render(); }
@@ -65,10 +65,49 @@ function scenarioFileName() {
   const entry = MODEL.entryModule.split('/').at(-1).replace(/[^\p{L}\p{N}._-]/gu, '_');
   return entry + '.' + m.modelId.slice(0, 12) + '.' + m.engineVersion.slice(0, 12) + '.scenario.json';
 }
-function scenarioCounts() {
-  const s = SESSION.query({ select: ['provenanceSummary'] }).data.provenanceSummary;
+function scenarioCounts(session = SESSION) {
+  const s = session.query({ select: ['provenanceSummary'] }).data.provenanceSummary;
   if (!s.available) return '記録の要約は利用できません';
   return 'dispatch ' + s.steps.dispatch + '件 / seek ' + s.steps.seek + '件 / reset ' + s.steps.reset + '件 / 手動試験 ' + s.steps.setTestVariant + '件';
+}
+function nameCounts(componentValues) {
+  const counts = new Map();
+  for (const c of componentValues) counts.set(c.component, (counts.get(c.component) ?? 0) + 1);
+  return counts;
+}
+// Singletons one placement root depends on, once per (module, component): those its inclusion tree shows (the root itself and every
+// component node below it), then the targets of member gates on operations placed in the root (their state decides what is operable).
+function rootSingletons(root, gates) {
+  const found = new Map();
+  const add = (module, component, variant) => { const key = skey(module, component); if (!found.has(key)) found.set(key, { module, component, variant }); };
+  if (root.singleton) add(root.module, root.component, root.variant);
+  const walk = nodes => { for (const n of nodes) { if (n.kind === 'component' && n.value.singleton) add(n.reference.module, n.reference.component, n.value.variant); walk(n.children); } };
+  walk(root.children);
+  for (const g of gates) if (g.kind === 'member' && g.value?.singleton) add(g.module, g.targetComponent, g.value.variant);
+  return [...found.values()];
+}
+// Read once from the replayed Session at the load point; nothing here is kept in or written to the Session.
+function summarizeLoadSingletons(session) {
+  const state = session.query({ select: ['state'] }).data.state, counts = nameCounts(state.componentValues);
+  const gatesByRoot = new Map();
+  for (const item of session.query({ select: ['actions'] }).data.actions.items) {
+    const gate = session.query({ select: ['action'], handle: item.handle }).data.action.gate;
+    if (gate) gatesByRoot.set(item.placement.root, [...(gatesByRoot.get(item.placement.root) ?? []), gate]);
+  }
+  const name = e => (counts.get(e.component) > 1 ? e.module + '::' : '') + e.component;
+  const label = e => name(e) + ' ' + (e.variant === null ? 'variantなし' : '##' + e.variant);
+  return [{ label: '本体', root: state.inclusion.main }, ...state.inclusion.overlays.map(o => ({ label: 'overlay ' + name(o), root: o }))]
+    .map(g => ({ label: g.label, entries: rootSingletons(g.root, gatesByRoot.get(g.root.root) ?? []).map(label) })).filter(g => g.entries.length > 0);
+}
+const LOAD_SUMMARY_INLINE_LIMIT = 5;
+function loadSummaryHtml() {
+  if (!loadSummary) return '';
+  const total = loadSummary.reduce((n, g) => n + g.entries.length, 0);
+  if (total === 0) return '<p role="status">読込地点の画面と操作条件に関係するsingletonはありません</p>';
+  if (total <= LOAD_SUMMARY_INLINE_LIMIT) return '<p role="status">読込地点のsingleton: ' + esc(loadSummary.map(g => g.label + ': ' + g.entries.join(', ')).join(' / ')) + '</p>';
+  return '<p role="status">読込地点のsingleton ' + total + '件（' + esc(loadSummary.map(g => g.label + ' ' + g.entries.length).join(' / ')) + '）</p>' +
+    '<details data-state-key="load-singletons"><summary>読込地点のsingleton一覧</summary><ul>' +
+    loadSummary.flatMap(g => g.entries.map(e => '<li>' + esc(g.label + ': ' + e) + '</li>')).join('') + '</ul></details>';
 }
 async function saveScenario() {
   if (scenarioBusy) return;
@@ -78,22 +117,24 @@ async function saveScenario() {
     const link = document.createElement('a');
     link.href = url; link.download = scenarioFileName(); link.click(); link.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    sessionError = ''; scenarioErrorDetails = null; scenarioNotice = 'シナリオの保存ファイルを作成しました';
-  } catch (e) { sessionError = e.message; scenarioNotice = ''; }
+    sessionError = ''; scenarioErrorDetails = null; scenarioNotice = 'シナリオの保存ファイルを作成しました'; loadSummary = null;
+  } catch (e) { sessionError = e.message; scenarioNotice = ''; loadSummary = null; }
   render();
 }
 async function replaceScenario(readText) {
   if (scenarioBusy) return;
-  scenarioBusy = true; scenarioNotice = ''; sessionError = ''; scenarioErrorDetails = null; render();
+  scenarioBusy = true; scenarioNotice = ''; loadSummary = null; sessionError = ''; scenarioErrorDetails = null; render();
   try {
     const text = await readText();
     let saved;
     try { saved = JSON.parse(text); } catch { throw new Shitae.ScenarioError('SCENARIO_FORMAT', 'シナリオのJSONを読めません'); }
     const next = await Shitae.replayScenario({ documents: new Map(MODEL.documents), entryModule: MODEL.entryModule,
       files: new Map(MODEL.files), metadata: MODEL.metadata }, saved);
+    // Everything that can throw is computed from `next` first, so a failure cannot leave a swapped Session behind an error.
+    const notice = 'シナリオを読み込みました（' + scenarioCounts(next) + 'を照合）', summary = summarizeLoadSingletons(next);
     SESSION = next;
     provenanceOpen = new Set(); reviewOpen = false;
-    scenarioNotice = 'シナリオを読み込みました（' + scenarioCounts() + 'を照合）';
+    scenarioNotice = notice; loadSummary = summary;
   } catch (e) {
     scenarioErrorDetails = e.diagnostic ?? null;
     sessionError = e.diagnostic ? e.code + ': ' + e.diagnostic.reasons.join('\n') + '\n次の行動:\n' + e.diagnostic.nextActions.join('\n') : e.message;
@@ -118,7 +159,7 @@ function scenarioControls() {
     '<p class="scenario-scope">保存範囲: ' + esc(scenarioCounts()) + '。条件選択はdispatchの内訳として操作来歴に表示します。破棄経路・reset前・ghost・手動試験も含む全記録を保存します。モデル本文・DOM・表示設定は含みません。読込後も現在の表示設定を使います。</p>' +
     '<button data-focus-key="save-scenario" onclick="saveScenario()"' + (scenarioBusy ? ' disabled' : '') + '>シナリオを保存</button> ' +
     '<label>シナリオを読み込む <input data-focus-key="load-scenario" type="file" accept=".scenario.json,application/json" onchange="loadScenarioFile(this)"' + (scenarioBusy ? ' disabled' : '') + '></label>' +
-    (scenarioBusy ? '<p role="status">シナリオを照合しています</p>' : scenarioNotice ? '<p role="status">' + esc(scenarioNotice) + '</p>' : '') + '</div>';
+    (scenarioBusy ? '<p role="status">シナリオを照合しています</p>' : scenarioNotice ? '<p role="status">' + esc(scenarioNotice) + '</p>' + loadSummaryHtml() : '') + '</div>';
 }
 function scenarioError() {
   return (sessionError ? '<p role="alert">' + esc(sessionError) + '</p>' : '') +
@@ -137,8 +178,7 @@ function syncView() {
   // Rendering uses gate/target/source annotations; the wire inventory stays compact.
   view.data.actions.items = view.data.actions.items.map(item => SESSION.query({ select: ['action'], handle: item.handle }).data.action);
   const s = view.data.state;
-  componentNameCounts = new Map();
-  for (const c of s.componentValues) componentNameCounts.set(c.component, (componentNameCounts.get(c.component) ?? 0) + 1);
+  componentNameCounts = nameCounts(s.componentValues);
   stack = s.activePath.flatMap(id => {
     const f = s.frames.find(f => f.id === id);
     return f.stack.map((loc, i) => ({ ...loc, frameId: id, wall: i === 0 && f.barrier,
@@ -160,7 +200,7 @@ function locationLabel(loc) { return loc.component + (loc.variant ? ' / ' + loc.
 function currentLocationLabel() { return locationLabel(view.summary.location); }
 function command(run) {
   if (scenarioBusy) return;
-  scenarioNotice = '';
+  scenarioNotice = ''; loadSummary = null;
   scenarioErrorDetails = null;
   try { run(); sessionError = ''; } catch (e) {
     if (!(e instanceof Shitae.SessionError)) throw e;

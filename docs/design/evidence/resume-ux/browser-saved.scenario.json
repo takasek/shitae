@@ -1,0 +1,721 @@
+{
+  "format": "shitae-scenario",
+  "formatVersion": 1,
+  "protocolVersion": 1,
+  "model": {
+    "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+    "modelId": "057c73d66ca0630148157e99574d2e9795495ad17dfef26a23b265263a8ac8a1",
+    "entryModule": "main",
+    "sourceBasis": "source-bytes",
+    "manifest": [
+      {
+        "module": "main",
+        "sourceSha256": "c0ad5bf12b39cf5f91767715e70802b4f1d6b6d76c2ee365824f89d9e25d080b"
+      },
+      {
+        "module": "shop/cart",
+        "sourceSha256": "13ccc3b8de34a139955301daf98643d5cd5b934add6309e7f3e9fde7184dd3a0"
+      }
+    ]
+  },
+  "initialDigest": "e942bdaf724033556631fd841ea63af35165f74877ad34aed7aecdc9bb6d19a1",
+  "steps": [
+    {
+      "step": 1,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "main",
+            "component": "Home",
+            "variant": null
+          },
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 64,
+              "length": 48,
+              "line": 5,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "dda7e9ed5c04f991bcc3ff3819a131d5d227324d126989e4c1afbd789fc29b25"
+        },
+        "branch": null
+      },
+      "afterDigest": "a7d5f6001cd60a928b029f885404e95e69c6a01fe1ad5fba0bb379fb10f751cd",
+      "observations": [
+        {
+          "viewDigest": "ce0c632c1bf3dafac0beefe50971dd4fe2270a9a31bc4bca1b354118386c5b76"
+        },
+        {
+          "viewDigest": "b8caf07f922d2b34ae24e635a88ae7c192ab4d7bf2ad75453fb352830b0d7d44"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "sharedVariants",
+          "origins"
+        ]
+      },
+      "outputDigest": "e4686d3267f5aa16ab06a44c78ece53960fa308798890cd999c892ca41cb04db"
+    },
+    {
+      "step": 2,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "main",
+            "component": "Home",
+            "variant": null
+          },
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 113,
+              "length": 39,
+              "line": 6,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "5e60f5a26bd5047ffd8d15e5b342d3fead7a427e5d2c05b674d86e9172e1784b"
+        },
+        "branch": null
+      },
+      "afterDigest": "1e55f4ba728e94aecd6355b6f86e6547ee77dec3e14bf1fdd45bd041fac8bfa0",
+      "observations": [
+        {
+          "viewDigest": "25214e104f20655d966cf701e688e21d55e5063915e057962a809f3cfd852493"
+        },
+        {
+          "viewDigest": "cddc1ce8f89a9945624e7c61afd7f4bfc201b1439eaa5c2b5d72c08bca8b159f"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "overlays",
+          "sharedVariants",
+          "origins"
+        ]
+      },
+      "outputDigest": "c56b16529b02c007f28fb5ba5e35771af5e435dbca409c2f9c3eded4df78a5ac"
+    },
+    {
+      "step": 3,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "main",
+            "component": "Menu",
+            "variant": null
+          },
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 311,
+              "length": 21,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "overlay:Menu",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "5d3317fa86a889dc2f3ee59071a2f9c6ff141e63069c075fa036ec26c053cc0f"
+        },
+        "branch": null
+      },
+      "afterDigest": "a013c04e2c02e89dab102ca7e55fd6807c6b4eb03a8cc6298d7a81c411b144c1",
+      "observations": [
+        {
+          "viewDigest": "25214e104f20655d966cf701e688e21d55e5063915e057962a809f3cfd852493"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "overlays"
+        ]
+      },
+      "outputDigest": "4cd0a0d95765a7a1eec8255f5780ce1e54ff9288607da9d7d9a2932dd2be1e59"
+    }
+  ],
+  "final": {
+    "view": {
+      "view": {
+        "location": {
+          "module": "main",
+          "component": "Home",
+          "variant": null
+        },
+        "state": {
+          "frames": [
+            {
+              "id": 0,
+              "parentId": null,
+              "stack": [
+                {
+                  "module": "main",
+                  "component": "Home",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                }
+              ],
+              "barrier": false,
+              "beginsSession": null,
+              "origin": "root"
+            }
+          ],
+          "activeFrameId": 0,
+          "nextFrameId": 1,
+          "activePath": [
+            0
+          ],
+          "overlays": [],
+          "sharedVariants": [
+            {
+              "module": "main",
+              "component": "Cart",
+              "variant": "Full",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "main",
+              "component": "Theme",
+              "variant": "Dark",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "shop/cart",
+              "component": "Cart",
+              "variant": "Full",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            }
+          ],
+          "testVariants": [],
+          "componentValues": [
+            {
+              "module": "main",
+              "component": "Cart",
+              "variant": "Full",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "main",
+              "component": "Detail",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "main",
+              "component": "Home",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "main",
+              "component": "Menu",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "main",
+              "component": "Plain",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "main",
+              "component": "Theme",
+              "variant": "Dark",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "shop/cart",
+              "component": "Cart",
+              "variant": "Full",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            }
+          ],
+          "gateTargets": [
+            {
+              "module": "main",
+              "component": "Theme",
+              "variant": "Dark",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl",
+              "variants": [
+                "Light",
+                "Dark"
+              ]
+            }
+          ],
+          "inclusion": {
+            "main": {
+              "module": "main",
+              "component": "Home",
+              "root": "main",
+              "variant": null,
+              "singleton": false,
+              "scope": "frame-location",
+              "origin": "initial",
+              "source": {
+                "module": "main",
+                "span": {
+                  "offset": 25,
+                  "length": 6,
+                  "line": 2,
+                  "col": 1
+                }
+              },
+              "children": [
+                {
+                  "name": "cart",
+                  "root": "main",
+                  "path": [
+                    0
+                  ],
+                  "source": {
+                    "module": "main",
+                    "span": {
+                      "offset": 32,
+                      "length": 10,
+                      "line": 3,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "main",
+                    "component": "Cart"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": "Full",
+                    "singleton": true,
+                    "scope": "singleton-shared",
+                    "origin": "dsl"
+                  },
+                  "componentSource": {
+                    "module": "main",
+                    "span": {
+                      "offset": 333,
+                      "length": 7,
+                      "line": 18,
+                      "col": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "name": "f",
+                      "root": "main",
+                      "path": [
+                        0,
+                        0
+                      ],
+                      "source": {
+                        "module": "main",
+                        "span": {
+                          "offset": 360,
+                          "length": 1,
+                          "line": 22,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "main",
+                        "component": "f"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "name": "shopCart",
+                  "root": "main",
+                  "path": [
+                    1
+                  ],
+                  "source": {
+                    "module": "main",
+                    "span": {
+                      "offset": 43,
+                      "length": 20,
+                      "line": 4,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "shop/cart",
+                    "component": "Cart"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": "Full",
+                    "singleton": true,
+                    "scope": "singleton-shared",
+                    "origin": "dsl"
+                  },
+                  "componentSource": {
+                    "module": "shop/cart",
+                    "span": {
+                      "offset": 0,
+                      "length": 7,
+                      "line": 1,
+                      "col": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "name": "f",
+                      "root": "main",
+                      "path": [
+                        1,
+                        0
+                      ],
+                      "source": {
+                        "module": "shop/cart",
+                        "span": {
+                          "offset": 26,
+                          "length": 1,
+                          "line": 5,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "shop/cart",
+                        "component": "f"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            "overlays": []
+          }
+        },
+        "actions": {
+          "items": [
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "main",
+                  "component": "Home",
+                  "variant": null
+                },
+                "source": {
+                  "module": "main",
+                  "span": {
+                    "offset": 64,
+                    "length": 48,
+                    "line": 5,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "dda7e9ed5c04f991bcc3ff3819a131d5d227324d126989e4c1afbd789fc29b25"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "main",
+                  "component": "Home",
+                  "variant": null
+                },
+                "source": {
+                  "module": "main",
+                  "span": {
+                    "offset": 113,
+                    "length": 39,
+                    "line": 6,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "5e60f5a26bd5047ffd8d15e5b342d3fead7a427e5d2c05b674d86e9172e1784b"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "main",
+                  "component": "Home",
+                  "variant": null
+                },
+                "source": {
+                  "module": "main",
+                  "span": {
+                    "offset": 153,
+                    "length": 22,
+                    "line": 7,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "4cbc8c2a108488e98ec33b8497fea48dffd83f58558f0adada7ca47696fefc2c"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "main",
+                  "component": "Home",
+                  "variant": null
+                },
+                "source": {
+                  "module": "main",
+                  "span": {
+                    "offset": 176,
+                    "length": 22,
+                    "line": 8,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "c3837ba7bda50a9009ae7f5961b0f50b563b1ec6466d8efd936bfb662610e99e"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            }
+          ],
+          "back": {
+            "enabled": false,
+            "reason": "no-return-location"
+          }
+        }
+      },
+      "timeline": [
+        {
+          "resultIndex": null,
+          "source": null,
+          "kind": "transition",
+          "label": "起動",
+          "location": {
+            "module": "main",
+            "component": "Home",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 0,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 64,
+              "length": 48,
+              "line": 5,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(Cart)",
+          "location": {
+            "module": "main",
+            "component": "Home",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 1,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 64,
+              "length": 48,
+              "line": 5,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(Cart)",
+          "location": {
+            "module": "main",
+            "component": "Home",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 1,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 113,
+              "length": 39,
+              "line": 6,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(Theme)",
+          "location": {
+            "module": "main",
+            "component": "Home",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 2,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 113,
+              "length": 39,
+              "line": 6,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "show(Menu)",
+          "location": {
+            "module": "main",
+            "component": "Home",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 2,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 311,
+              "length": 21,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "hide(Menu)",
+          "location": {
+            "module": "main",
+            "component": "Home",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 3,
+            "observation": 0
+          }
+        }
+      ],
+      "cursor": {
+        "step": 3,
+        "observation": 0
+      }
+    },
+    "digest": "a013c04e2c02e89dab102ca7e55fd6807c6b4eb03a8cc6298d7a81c411b144c1"
+  }
+}
