@@ -1,4 +1,6 @@
-# 準備記録
+# 準備記録（作業時点の履歴）
+
+最終的な判断は [acceptance.md](acceptance.md)。人向け評価の継続・再保存依頼は撤回済み。以下の未実施/今後予定という記載は各準備時点の履歴であり、再開指示ではない。
 
 2026-10-18。固定版 `8c86f7cb1412e919554a41d65ff96f68f7e2b1bb`。
 
@@ -15,7 +17,7 @@
 
 ## 人の受取開始前の固定
 
-S1 の実ブラウザ保存物は [browser/s1-explorer.scenario.json](browser/s1-explorer.scenario.json)。別 CLI process で全 export 一致を確認した結果は [browser/s1-explorer-validation.json](browser/s1-explorer-validation.json)。初回回答前の期待は非配信 directory `/private/tmp/shitae-i27-20261018-private/s1-expected-before-human.json` に保存し、SHA-256 は `7a6e857379370afa7d0c79c096035d1a18c7eb42f764dc481e9933ccf4056151`。初回回答確定後に repository へ取り込む。期待の根拠はブラウザ保存来歴と別 CLI 照合であり、製品から独立した意味論テストの oracle とは扱わない。
+S1 の実ブラウザ保存物は [browser/s1-explorer.scenario.json](browser/s1-explorer.scenario.json)。別 CLI process で全 export 一致を確認した結果は [browser/s1-explorer-validation.json](browser/s1-explorer-validation.json)。初回回答前の期待は非配信 directory `/private/tmp/shitae-i27-20261018-private/s1-expected-before-human.json` に保存し、SHA-256 は `7a6e857379370afa7d0c79c096035d1a18c7eb42f764dc481e9933ccf4056151`。人向け評価を打ち切ったため [固定時の期待ファイル](browser/s1-expected-before-human.json) を同一 bytes で取り込んだ。この期待と人のランダムウォークを突き合わせた経路分析はしない。期待の根拠はブラウザ保存来歴と別 CLI 照合であり、製品から独立した意味論テストの oracle とは扱わない。
 
 人の受取人へは localhost の案内、HTML、scenario だけを提示した。本文を解析せず表示から説明し、次の一操作と再保存を依頼。回答前に作者の変更要件や期待の答えは渡していない。
 

@@ -1,0 +1,39 @@
+{
+  "fixedBeforeHuman": true,
+  "basis": "browser-saved journal plus separate CLI full-export validation; not a product-generated independent semantic oracle",
+  "scenarioSha256": "dac59e535c07ea6bdd228af012d94a470884f08b03f3d37c844812b5340cbc8b",
+  "commandCounts": {
+    "dispatch": 9,
+    "seek": 3,
+    "reset": 0,
+    "setTestVariant": 0
+  },
+  "selectedConditions": [
+    "差戻し",
+    "承認"
+  ],
+  "finalLocation": "expenses::審査確認",
+  "sharedVariants": {
+    "承認状況": "承認済",
+    "領収書照合": "要確認"
+  },
+  "overlay": [],
+  "cursor": "承認結果のset直後、dismiss前",
+  "ghost": "承認のdismiss結果が先に残る。実行されていないという意味ではない",
+  "discarded": "巻戻し後に別dispatchしてghostを切り捨てる操作はこの保存物にない",
+  "seekTargets": [
+    {
+      "step": 3,
+      "observation": 1
+    },
+    {
+      "step": 3,
+      "observation": 3
+    },
+    {
+      "step": 11,
+      "observation": 1
+    }
+  ],
+  "saveScope": "dispatch9/seek3/reset0/手動0。JSONは来歴を含み、モデル本文/DOM/表示設定は含まない。自由文effectは実I/Oを意味しない"
+}
