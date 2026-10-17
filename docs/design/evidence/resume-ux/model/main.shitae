@@ -1,0 +1,23 @@
+import shop/cart as shop
+# Home
+cart: Cart
+shopCart: shop::Cart
+> Buy -> set(shop::Cart##Full) ; set(Cart##Full)
+> Menu -> set(Theme##Dark) ; show(Menu)
+> Next -> push(Detail)
+# Detail
+/Users/someone/notes.shitae を開く
+> Back -> back()
+# Menu
+theme: Theme
+> Close -> hide(Menu)
+#! Cart
+## Empty
+e
+## Full
+f
+#! Theme
+## Light
+l
+## Dark
+d
