@@ -94,8 +94,9 @@ function summarizeLoadSingletons(session) {
     const gate = session.query({ select: ['action'], handle: item.handle }).data.action.gate;
     if (gate) gatesByRoot.set(item.placement.root, [...(gatesByRoot.get(item.placement.root) ?? []), gate]);
   }
-  const label = e => (counts.get(e.component) > 1 ? e.module + '::' : '') + e.component + ' ' + (e.variant === null ? 'variantなし' : '##' + e.variant);
-  return [{ label: '本体', root: state.inclusion.main }, ...state.inclusion.overlays.map(o => ({ label: 'overlay ' + o.component, root: o }))]
+  const name = e => (counts.get(e.component) > 1 ? e.module + '::' : '') + e.component;
+  const label = e => name(e) + ' ' + (e.variant === null ? 'variantなし' : '##' + e.variant);
+  return [{ label: '本体', root: state.inclusion.main }, ...state.inclusion.overlays.map(o => ({ label: 'overlay ' + name(o), root: o }))]
     .map(g => ({ label: g.label, entries: rootSingletons(g.root, gatesByRoot.get(g.root.root) ?? []).map(label) })).filter(g => g.entries.length > 0);
 }
 const LOAD_SUMMARY_INLINE_LIMIT = 5;

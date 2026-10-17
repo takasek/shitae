@@ -123,6 +123,15 @@ describe('singleton summary at the scenario load point', () => {
     expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読込地点のsingleton: 本体: main::Cart ##Empty, shop::Cart ##Open</p>');
   });
 
+  it('qualifies an overlay group label with the same rule as entries', async () => {
+    const SHOW_SHOP = { main: 'import shop as shop\n# Home\n> Open -> show(shop::Menu)\n#! Menu\n## A\na\n', shop: '#! Menu\n## B\nb\n' };
+    const { b } = await resumed(SHOW_SHOP, ["handleInteraction('component',0,0)"]);
+    expect(b.query().data.state.overlays.map((o: any) => [o.module, o.component])).toEqual([['shop', 'Menu']]);
+    expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読込地点のsingleton: overlay shop::Menu: shop::Menu ##B</p>');
+    const single = await resumed(one(OVERLAY), ["handleInteraction('component',0,0)"]);
+    expect(summaryHtml(single.b.app.innerHTML)).toContain('overlay Menu: Mode ##Light');
+  });
+
   it('shows a count line and a keyed details list only above five entries', async () => {
     const five = await resumed(one(MANY));
     expect(summaryHtml(five.b.app.innerHTML)).toBe('<p role="status">読込地点のsingleton: 本体: Alpha ##On, Beta ##On, Gamma ##On, Delta ##On, Epsilon ##On</p>');
