@@ -2,7 +2,7 @@
 let SESSION = new Shitae.Session(new Map(MODEL.documents), MODEL.entryModule, new Map(MODEL.files), MODEL.metadata);
 let view, stack, overlays, sharedVariants, GATE_TARGETS, timeline, cursor, componentNameCounts;
 let showEvents = true, showActions = true, showStates = false, sessionError = '';
-let scenarioBusy = false, scenarioNotice = '';
+let scenarioBusy = false, scenarioNotice = '', loadSummary = null;
 let scenarioErrorDetails = null;
 let provenanceOpen = new Set(), reviewOpen = false;
 function toggleProvenanceStep(step) { if (provenanceOpen.has(step)) provenanceOpen.delete(step); else provenanceOpen.add(step); render(); }
@@ -70,6 +70,37 @@ function scenarioCounts() {
   if (!s.available) return '記録の要約は利用できません';
   return 'dispatch ' + s.steps.dispatch + '件 / seek ' + s.steps.seek + '件 / reset ' + s.steps.reset + '件 / 手動試験 ' + s.steps.setTestVariant + '件';
 }
+function nameCounts(componentValues) {
+  const counts = new Map();
+  for (const c of componentValues) counts.set(c.component, (counts.get(c.component) ?? 0) + 1);
+  return counts;
+}
+// Singletons shown by one inclusion root (the root itself and every component node below it), once per (module, component).
+function rootSingletons(root) {
+  const found = new Map();
+  const add = (module, component, variant) => { const key = skey(module, component); if (!found.has(key)) found.set(key, { module, component, variant }); };
+  if (root.singleton) add(root.module, root.component, root.variant);
+  const walk = nodes => { for (const n of nodes) { if (n.kind === 'component' && n.value.singleton) add(n.reference.module, n.reference.component, n.value.variant); walk(n.children); } };
+  walk(root.children);
+  return [...found.values()];
+}
+// Read once from the replayed Session at the load point; nothing here is kept in or written to the Session.
+function summarizeLoadSingletons() {
+  const state = SESSION.query({ select: ['state'] }).data.state, counts = nameCounts(state.componentValues);
+  const label = e => (counts.get(e.component) > 1 ? e.module + '::' : '') + e.component + ' ' + (e.variant === null ? 'variantなし' : '##' + e.variant);
+  return [{ label: '本体', root: state.inclusion.main }, ...state.inclusion.overlays.map(o => ({ label: 'overlay ' + o.component, root: o }))]
+    .map(g => ({ label: g.label, entries: rootSingletons(g.root).map(label) })).filter(g => g.entries.length > 0);
+}
+const LOAD_SUMMARY_INLINE_LIMIT = 5;
+function loadSummaryHtml() {
+  if (!loadSummary) return '';
+  const total = loadSummary.reduce((n, g) => n + g.entries.length, 0);
+  if (total === 0) return '<p role="status">読込地点の表示中の部品にsingletonはありません</p>';
+  if (total <= LOAD_SUMMARY_INLINE_LIMIT) return '<p role="status">読込地点のsingleton: ' + esc(loadSummary.map(g => g.label + ': ' + g.entries.join(', ')).join(' / ')) + '</p>';
+  return '<p role="status">読込地点のsingleton ' + total + '件（' + esc(loadSummary.map(g => g.label + ' ' + g.entries.length).join(' / ')) + '）</p>' +
+    '<details data-state-key="load-singletons"><summary>読込地点のsingleton一覧</summary><ul>' +
+    loadSummary.flatMap(g => g.entries.map(e => '<li>' + esc(g.label + ': ' + e) + '</li>')).join('') + '</ul></details>';
+}
 async function saveScenario() {
   if (scenarioBusy) return;
   try {
@@ -78,13 +109,13 @@ async function saveScenario() {
     const link = document.createElement('a');
     link.href = url; link.download = scenarioFileName(); link.click(); link.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    sessionError = ''; scenarioErrorDetails = null; scenarioNotice = 'シナリオの保存ファイルを作成しました';
-  } catch (e) { sessionError = e.message; scenarioNotice = ''; }
+    sessionError = ''; scenarioErrorDetails = null; scenarioNotice = 'シナリオの保存ファイルを作成しました'; loadSummary = null;
+  } catch (e) { sessionError = e.message; scenarioNotice = ''; loadSummary = null; }
   render();
 }
 async function replaceScenario(readText) {
   if (scenarioBusy) return;
-  scenarioBusy = true; scenarioNotice = ''; sessionError = ''; scenarioErrorDetails = null; render();
+  scenarioBusy = true; scenarioNotice = ''; loadSummary = null; sessionError = ''; scenarioErrorDetails = null; render();
   try {
     const text = await readText();
     let saved;
@@ -94,6 +125,7 @@ async function replaceScenario(readText) {
     SESSION = next;
     provenanceOpen = new Set(); reviewOpen = false;
     scenarioNotice = 'シナリオを読み込みました（' + scenarioCounts() + 'を照合）';
+    loadSummary = summarizeLoadSingletons();
   } catch (e) {
     scenarioErrorDetails = e.diagnostic ?? null;
     sessionError = e.diagnostic ? e.code + ': ' + e.diagnostic.reasons.join('\n') + '\n次の行動:\n' + e.diagnostic.nextActions.join('\n') : e.message;
@@ -118,7 +150,7 @@ function scenarioControls() {
     '<p class="scenario-scope">保存範囲: ' + esc(scenarioCounts()) + '。条件選択はdispatchの内訳として操作来歴に表示します。破棄経路・reset前・ghost・手動試験も含む全記録を保存します。モデル本文・DOM・表示設定は含みません。読込後も現在の表示設定を使います。</p>' +
     '<button data-focus-key="save-scenario" onclick="saveScenario()"' + (scenarioBusy ? ' disabled' : '') + '>シナリオを保存</button> ' +
     '<label>シナリオを読み込む <input data-focus-key="load-scenario" type="file" accept=".scenario.json,application/json" onchange="loadScenarioFile(this)"' + (scenarioBusy ? ' disabled' : '') + '></label>' +
-    (scenarioBusy ? '<p role="status">シナリオを照合しています</p>' : scenarioNotice ? '<p role="status">' + esc(scenarioNotice) + '</p>' : '') + '</div>';
+    (scenarioBusy ? '<p role="status">シナリオを照合しています</p>' : scenarioNotice ? '<p role="status">' + esc(scenarioNotice) + '</p>' + loadSummaryHtml() : '') + '</div>';
 }
 function scenarioError() {
   return (sessionError ? '<p role="alert">' + esc(sessionError) + '</p>' : '') +
@@ -137,8 +169,7 @@ function syncView() {
   // Rendering uses gate/target/source annotations; the wire inventory stays compact.
   view.data.actions.items = view.data.actions.items.map(item => SESSION.query({ select: ['action'], handle: item.handle }).data.action);
   const s = view.data.state;
-  componentNameCounts = new Map();
-  for (const c of s.componentValues) componentNameCounts.set(c.component, (componentNameCounts.get(c.component) ?? 0) + 1);
+  componentNameCounts = nameCounts(s.componentValues);
   stack = s.activePath.flatMap(id => {
     const f = s.frames.find(f => f.id === id);
     return f.stack.map((loc, i) => ({ ...loc, frameId: id, wall: i === 0 && f.barrier,
@@ -160,7 +191,7 @@ function locationLabel(loc) { return loc.component + (loc.variant ? ' / ' + loc.
 function currentLocationLabel() { return locationLabel(view.summary.location); }
 function command(run) {
   if (scenarioBusy) return;
-  scenarioNotice = '';
+  scenarioNotice = ''; loadSummary = null;
   scenarioErrorDetails = null;
   try { run(); sessionError = ''; } catch (e) {
     if (!(e instanceof Shitae.SessionError)) throw e;
