@@ -75,21 +75,28 @@ function nameCounts(componentValues) {
   for (const c of componentValues) counts.set(c.component, (counts.get(c.component) ?? 0) + 1);
   return counts;
 }
-// Singletons shown by one inclusion root (the root itself and every component node below it), once per (module, component).
-function rootSingletons(root) {
+// Singletons one placement root depends on, once per (module, component): those its inclusion tree shows (the root itself and every
+// component node below it), then the targets of member gates on operations placed in the root (their state decides what is operable).
+function rootSingletons(root, gates) {
   const found = new Map();
   const add = (module, component, variant) => { const key = skey(module, component); if (!found.has(key)) found.set(key, { module, component, variant }); };
   if (root.singleton) add(root.module, root.component, root.variant);
   const walk = nodes => { for (const n of nodes) { if (n.kind === 'component' && n.value.singleton) add(n.reference.module, n.reference.component, n.value.variant); walk(n.children); } };
   walk(root.children);
+  for (const g of gates) if (g.kind === 'member' && g.value?.singleton) add(g.module, g.targetComponent, g.value.variant);
   return [...found.values()];
 }
 // Read once from the replayed Session at the load point; nothing here is kept in or written to the Session.
 function summarizeLoadSingletons(session) {
   const state = session.query({ select: ['state'] }).data.state, counts = nameCounts(state.componentValues);
+  const gatesByRoot = new Map();
+  for (const item of session.query({ select: ['actions'] }).data.actions.items) {
+    const gate = session.query({ select: ['action'], handle: item.handle }).data.action.gate;
+    if (gate) gatesByRoot.set(item.placement.root, [...(gatesByRoot.get(item.placement.root) ?? []), gate]);
+  }
   const label = e => (counts.get(e.component) > 1 ? e.module + '::' : '') + e.component + ' ' + (e.variant === null ? 'variantなし' : '##' + e.variant);
   return [{ label: '本体', root: state.inclusion.main }, ...state.inclusion.overlays.map(o => ({ label: 'overlay ' + o.component, root: o }))]
-    .map(g => ({ label: g.label, entries: rootSingletons(g.root).map(label) })).filter(g => g.entries.length > 0);
+    .map(g => ({ label: g.label, entries: rootSingletons(g.root, gatesByRoot.get(g.root.root) ?? []).map(label) })).filter(g => g.entries.length > 0);
 }
 const LOAD_SUMMARY_INLINE_LIMIT = 5;
 function loadSummaryHtml() {

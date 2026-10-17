@@ -39,6 +39,15 @@ const MODULES = {
 };
 const OVERLAY = '# Home\ncart: Cart\n> Open -> set(Banner##Loud) ; show(Menu) ; show(Banner) ; show(Toast)\n' +
   '# Menu\nmode: Mode\n# Toast\nt\n#! Banner\n## Quiet\nq\n## Loud\nl\n#! Cart\n## Empty\ne\n#! Mode\n## Light\nl\n';
+// The operable state of Home depends on Auth through a member gate, although no inclusion shows Auth.
+const AUTH = '# Home\n> Login -> set(Auth##In)\n> タップ(Auth.badge?) -> push(Detail)\n#! Auth\n## Out\no\n## In\nbadge\n# Detail\nd\n';
+const GATE_OVERLAY = '# Home\n> Open -> show(Menu)\n# Menu\n> Check(Auth.badge?) -> hide(Menu)\n#! Auth\n## Out\no\n## In\nbadge\n';
+const GATE_AND_INCLUSION = '# Home\nauth: Auth\n> Check(Auth.badge?) -> push(Detail)\n> Peek(Lamp.glow?) -> push(Detail)\n' +
+  '#! Auth\n## In\nbadge\n#! Lamp\n## On\nglow\n# Detail\nd\n';
+const GATE_MODULES = {
+  main: 'import shop as shop\n# Home\n> Check(Cart.line?) -> push(Detail)\n> Peek(shop::Cart.line?) -> push(Detail)\n#! Cart\n## Empty\nline\n# Detail\nd\n',
+  shop: '#! Cart\n## Open\nline\n',
+};
 const MANY = '# Home\na: Alpha\nb: Beta\nc: Gamma\nd: Delta\ne: Epsilon\n> Open -> show(Menu)\n# Menu\nmode: Mode\nlamp: Lamp\n' +
   ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Mode', 'Lamp'].map(n => `#! ${n}\n## On\no\n`).join('');
 
@@ -90,6 +99,28 @@ describe('singleton summary at the scenario load point', () => {
     expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読込地点のsingleton: 本体: Cart ##Empty / overlay Menu: Mode ##Light / overlay Banner: Banner ##Loud</p>');
     expect(b.app.innerHTML).not.toContain('overlay Toast');
     expect(b.query().data.state.overlays.map((o: any) => o.component)).toEqual(['Menu', 'Banner', 'Toast']);
+  });
+
+  it('lists a singleton that only a member gate of a placed operation depends on, at the load point and after it changes', async () => {
+    const initial = await resumed(one(AUTH));
+    expect(summaryHtml(initial.b.app.innerHTML)).toBe('<p role="status">読込地点のsingleton: 本体: Auth ##Out</p>');
+    const { a, b } = await resumed(one(AUTH), ["handleInteraction('component',0,0)"]);
+    expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読込地点のsingleton: 本体: Auth ##In</p>');
+    expect(valueOf(b, 'main', 'Auth')).toMatchObject({ variant: 'In', singleton: true });
+    expect(valueOf(a, 'main', 'Auth')!.variant).toBe('In');
+  });
+
+  it('groups a gate target under the root that places the operation, once per component, after the inclusion singletons', async () => {
+    const overlay = await resumed(one(GATE_OVERLAY), ["handleInteraction('component',0,0)"]);
+    expect(overlay.b.query().data.state.overlays.map((o: any) => o.component)).toEqual(['Menu']);
+    expect(summaryHtml(overlay.b.app.innerHTML)).toBe('<p role="status">読込地点のsingleton: overlay Menu: Auth ##Out</p>');
+    const mixed = await resumed(one(GATE_AND_INCLUSION));
+    expect(summaryHtml(mixed.b.app.innerHTML)).toBe('<p role="status">読込地点のsingleton: 本体: Auth ##In, Lamp ##On</p>');
+  });
+
+  it('qualifies gate targets of the same name in different modules', async () => {
+    const { b } = await resumed(GATE_MODULES);
+    expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読込地点のsingleton: 本体: main::Cart ##Empty, shop::Cart ##Open</p>');
   });
 
   it('shows a count line and a keyed details list only above five entries', async () => {
