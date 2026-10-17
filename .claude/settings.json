@@ -4,9 +4,7 @@
       "Bash(pnpm:*)",
       "Bash(npx vitest:*)",
       "Bash(npx tsc:*)",
-      "Bash(node packages/cli/dist/index.js check:*)",
-      "Bash(python3 docs/check_refs.py)",
-      "Bash(python3 docs/check_modals.py)"
+      "Bash(node packages/cli/dist/index.js check:*)"
     ]
   }
 }
