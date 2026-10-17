@@ -15,7 +15,7 @@ shitae は UI ラフスケッチ言語。**ラフであることが機能** — 
    - variant change は `goto(##variant)`（`##` を落とすと別 component への遷移になる）。
    - 遷移には transition verb を書く（`-> 完了` は副作用、`-> push(完了)` が遷移）。
    - 要素参照は alias 名で引く。`present` したものは `dismiss`/`exit` で閉じる。
-4. 機械検証は `/shitae-check <file>`（参照整合・モーダル整合）。
+4. 機械検証は CLI の `node packages/cli/dist/index.js check <file>`（初回は `pnpm install --frozen-lockfile && pnpm -r build` で `dist/` を作る）。import 先まで含めて SPEC「診断コード」を検査し、`[error]` があれば終了コード 1 になる。モーダル内から `goto(別画面)` で離脱していないかは検査しないので、手順 3 のチェックリストで確かめる。
 
 ## やらないこと
 
