@@ -61,6 +61,30 @@ function gui(html: string) {
   return { app, run, load: (text: string) => { ctx.scenarioText = text; return run('loadScenarioText(scenarioText)'); } };
 }
 
+/** A model whose own text names its own absolute directory (as typed and as resolved), so the directory is also model content. */
+function selfReferencing(dirName: string) {
+  const parent = mkdtempSync(join(tmpdir(), 'shitae-portable-self-'));
+  cleanup.push(() => rmSync(parent, { recursive: true, force: true }));
+  const dir = join(parent, dirName), real = join(realpathSync(parent), dirName);
+  mkdirSync(dir, { recursive: true });
+  const mentioned = [`${dir}/memo.shitae`, `${real}/memo.shitae`];
+  const main = join(dir, 'main.shitae');
+  writeFileSync(main, `# Home\n${mentioned.map((path, i) => `> Memo${i} -> ${path} を開く\n`).join('')}`);
+  return { dir, real, main, mentioned };
+}
+
+describe('a directory written in the model text is content, not a path to scrub (issue #28)', () => {
+  it('keeps the model\'s own absolute directory verbatim in MODEL.documents while files and the manifest carry none', () => {
+    const f = selfReferencing('own-dir');
+    const model = modelOf(simulate(f.main));
+    const documents = JSON.stringify(model.documents);
+    for (const path of f.mentioned) expect(documents).toContain(JSON.stringify(path).slice(1, -1));
+    const files = [...model.files.map(([, file]: [string, string]) => file), ...model.metadata.manifest.map((m: { file: string | null }) => m.file)];
+    expect(files).toEqual(['main.shitae', 'main.shitae']);
+    for (const file of files) for (const dir of [f.dir, f.real]) { expect(file).not.toContain(dir); expect(file.startsWith('/')).toBe(false); }
+  });
+});
+
 describe('shared simulator HTML does not leak absolute paths (issue #28)', () => {
   let a: ReturnType<typeof fixture>, b: ReturnType<typeof fixture>, htmlA: string, htmlB: string;
   beforeAll(() => {
