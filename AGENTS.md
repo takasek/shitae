@@ -9,6 +9,13 @@ UI フロー記述言語 `shitae`（ラフに書けて、遷移が動く）の�
 - `docs/AI_GUIDE.md` — 読み書き要約 + チェックリスト。`.shitae` を扱う前に読む。
 - `docs/examples/*.shitae` — 検証済みサンプル。
 
+### 作業別の skill
+
+追跡済みの手順書。agent が skill として自動で読み込まない環境でも、該当する作業の前にファイルを開いて従う。
+
+- [`.claude/skills/shitae-authoring/SKILL.md`](.claude/skills/shitae-authoring/SKILL.md) — `.shitae` の読み書き・レビュー。AI_GUIDE を読む順序、手本の example、頻出ミスの自己点検を示す。
+- [`.claude/skills/spec-stress-test/SKILL.md`](.claude/skills/spec-stress-test/SKILL.md) — `docs/SPEC.md` 自体の変更・検討・負荷試験。成果物の置き場所と ADR の残し方を示す。
+
 ## 開発の規律
 
 - **TDD 厳守**: red → green → refactor。production コードは失敗するテストの後にのみ書く（config 除く）。テスト先行の証跡がないコミットは差し戻し。
