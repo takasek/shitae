@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import vm from 'node:vm';
 import { webcrypto } from 'node:crypto';
 import { parse } from '@shitae/parser';
+import { replayScenario } from '@shitae/session';
 import { createMetadata } from '@shitae/session/model';
 import { toSimulator } from '../src/simulator.js';
 
@@ -20,7 +21,7 @@ function gui(sources: Record<string, string>, entry = 'main') {
     document: { getElementById: () => app, createElement: () => ({ href: '', download: '', click() {}, remove() {} }) } });
   vm.runInContext(html.match(/<script>\n([\s\S]*)\n<\/script>/)![1]!, ctx);
   const run = (code: string) => vm.runInContext(code, ctx);
-  return { app, run,
+  return { app, run, prepared: { documents, entryModule: entry, files, metadata },
     query: () => JSON.parse(run('JSON.stringify(SESSION.query({select:["state","actions","history"]}))')),
     load: (text: string) => { ctx.scenarioText = text; return run('loadScenarioText(scenarioText)'); } };
 }
@@ -58,6 +59,8 @@ async function resumed(sources: Record<string, string>, operate: string[] = []) 
   const b = gui(sources); await b.load(text);
   return { a, b, text };
 }
+const withoutHandles = (v: any): any => Array.isArray(v) ? v.map(withoutHandles)
+  : v !== null && typeof v === 'object' ? Object.fromEntries(Object.entries(v).filter(([k]) => k !== 'handle').map(([k, x]) => [k, withoutHandles(x)])) : v;
 const stateValues = (g: ReturnType<typeof gui>) => g.query().data.state.componentValues;
 const valueOf = (g: ReturnType<typeof gui>, module: string, component: string) => stateValues(g).find((c: any) => c.module === module && c.component === component);
 
@@ -182,8 +185,16 @@ describe('singleton summary at the scenario load point', () => {
     expect(summaryHtml(b.app.innerHTML)).toContain('Cart ##Full');
     expect(b.run('[showEvents,showActions,showStates]')).toEqual([false, false, true]);
     expect(await b.run('buildScenarioJson()')).toBe(text);
-    const rendered = b.query(); b.run('render()');
-    expect(b.query()).toEqual(rendered);
+    // Computing the summary must not move the replayed Session: an independent replay of the same text, outside the GUI, is identical.
+    // Operation handles embed a per-Session id, so they are stripped before comparing.
+    // The replay uses the page's module-relative file names, because the exported HTML never carries absolute paths.
+    const { documents, entryModule, metadata } = b.prepared;
+    const files = new Map(b.run('[...MODEL.files]') as Array<[string, string]>);
+    const outside = await replayScenario({ documents: new Map(documents), entryModule, files, metadata }, JSON.parse(text));
+    const select = ['state', 'actions', 'history'];
+    expect(withoutHandles(b.query())).toEqual(withoutHandles(outside.query({ select })));
+    expect(b.query().revision).toBe(outside.query().revision);
+    expect(b.query().summary).toEqual(outside.query().summary);
     expect(await b.run('buildScenarioJson()')).toBe(text);
     const fresh = gui(one(SEVERAL)); await fresh.load(text);
     expect(fresh.run('[showEvents,showActions,showStates]')).toEqual([true, true, false]);
