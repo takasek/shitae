@@ -1998,15 +1998,23 @@ problem: Diagnostics
     expect(traceSection).not.toContain('stack-list');
 
     // 中央: 画面 → スタック → マップ の縦順（ミクロ→マクロ）は維持
+    // 順序は見出し語でなく section の class で測る（説明文が「遷移マップ」等の語を含んでも誤検出しない）
     const centerSection = appHtml.slice(centerIdx);
-    const screenIdx = centerSection.indexOf('現在の画面');
-    const stackIdx = centerSection.indexOf('スタック');
-    const graphIdx = centerSection.indexOf('遷移マップ');
-    expect(screenIdx).toBeGreaterThan(-1);
-    expect(stackIdx).toBeGreaterThan(-1);
-    expect(graphIdx).toBeGreaterThan(-1);
+    const sectionIdx = (cls: string) => {
+      const marker = `class="${cls}"`;
+      const idx = centerSection.indexOf(marker);
+      expect(idx, cls).toBeGreaterThan(-1);
+      expect(centerSection.lastIndexOf(marker), cls).toBe(idx);
+      return idx;
+    };
+    const screenIdx = sectionIdx('screen-section');
+    const stackIdx = sectionIdx('stack-section');
+    const graphIdx = sectionIdx('graph-section');
     expect(screenIdx).toBeLessThan(stackIdx);
     expect(stackIdx).toBeLessThan(graphIdx);
+    expect(centerSection.slice(screenIdx, stackIdx)).toContain('現在の画面');
+    expect(centerSection.slice(stackIdx, graphIdx)).toContain('スタック');
+    expect(centerSection.slice(graphIdx)).toContain('遷移マップ');
   });
 
   it('gate ドロワー: トグルボタンは常時見える（見出し・説明つき）が、対象一覧の本体は開くまで DOM に出ない。開くとオーバーレイ + 背景クリック/閉じるボタンで閉じられる（UX round2 2-4(d)、Task 18 受入基準e）', () => {
