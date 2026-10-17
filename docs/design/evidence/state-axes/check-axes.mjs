@@ -1,6 +1,6 @@
 // Drives the public `shitae session` CLI through the combinations in expectations.md and compares each step with the expected reading.
-// Usage: node check-axes.mjs <model.shitae> <original|split> [--out result.json]
-// The reading profile is the human mapping from a model's singletons to the questions in expectations.md; the expectations themselves do not depend on the model.
+// Usage: node check-axes.mjs <model.shitae> <original|split|guide|guide-merged> [--out result.json]
+// The reading profile is the human mapping from a model's names to the questions in expectations.md; the expectations themselves do not depend on the model.
 import { spawn } from 'node:child_process';
 import { createInterface } from 'node:readline';
 import { writeFileSync } from 'node:fs';
@@ -10,17 +10,22 @@ const root = resolve(import.meta.dirname, '../../../..');
 const cli = resolve(root, 'packages/cli/dist/index.js');
 
 const shared = (state, component) => state.sharedVariants.find((v) => v.component === component)?.variant;
+const sol = { notice: 'RecoveryNotice', review: 'VersionReview', diagram: (s) => shared(s, 'DiagramView') === 'Ready', ops: {}, skip: [] };
+// The AI_GUIDE example names the same events in Japanese and has no view modes, diagram node action, or the other resolve paths.
+const guide = {
+  notice: '競合通知', review: '版の比較', diagram: (s) => shared(s, '図') === '表示',
+  ops: { Conflict: '外部で変更される', ParseError: '構文エラー', ValidInput: '構文が直る', Review: '比較する', KeepEditing: '取り消す', SaveCopy: '別名で保存', Success: '成功' },
+  skip: ['C3-ReplaceReviewedDisk', 'C3-UseDiskVersion', 'C3-DiskChangedAgain', 'C5'],
+};
 const profiles = {
   // Saved Sol proposed: DocumentStatus holds syntax validity and conflict in one variant set.
-  original: {
-    conflict: (s) => shared(s, 'DocumentStatus') === 'Conflict',
-    syntax: (s) => shared(s, 'DocumentStatus') !== 'Invalid',
-  },
+  original: { ...sol, conflict: (s) => shared(s, 'DocumentStatus') === 'Conflict', syntax: (s) => shared(s, 'DocumentStatus') !== 'Invalid' },
   // Derived model: syntax and disk conflict are separate singletons.
-  split: {
-    conflict: (s) => shared(s, 'DiskStatus') === 'Conflict',
-    syntax: (s) => shared(s, 'SyntaxStatus') === 'Valid',
-  },
+  split: { ...sol, conflict: (s) => shared(s, 'DiskStatus') === 'Conflict', syntax: (s) => shared(s, 'SyntaxStatus') === 'Valid' },
+  // AI_GUIDE "分ける例".
+  guide: { ...guide, conflict: (s) => shared(s, '競合') === 'あり', syntax: (s) => shared(s, '構文') === '妥当' },
+  // The merged `#! 文書状態 ## 妥当 ## 不正 ## 競合` the guide warns against; used only to show the check fails on it.
+  'guide-merged': { ...guide, conflict: (s) => shared(s, '文書状態') === '競合', syntax: (s) => shared(s, '文書状態') !== '不正' },
 };
 
 const read = (profile, state, actions) => {
@@ -29,9 +34,9 @@ const read = (profile, state, actions) => {
   return {
     conflict: profile.conflict(state),
     syntax: profile.syntax(state),
-    diagram: shared(state, 'DiagramView') === 'Ready',
-    notice: state.overlays.some((o) => o.component === 'RecoveryNotice'),
-    review: frame.stack.at(-1).component === 'VersionReview',
+    diagram: profile.diagram(state),
+    notice: state.overlays.some((o) => o.component === profile.notice),
+    review: frame.stack.at(-1).component === profile.review,
     node: node ? node.enabled : null,
   };
 };
@@ -90,7 +95,9 @@ const run = async (model, profileName) => {
   const profile = profiles[profileName];
   if (!profile) throw new Error(`unknown profile ${profileName}`);
   const report = [];
-  for (const [name, steps] of combos) {
+  const name_ = (key) => profile.ops[key] ?? key;
+  for (const [name, solSteps] of combos.filter(([name]) => !profile.skip.includes(name))) {
+    const steps = solSteps.map(([op, label, expect]) => [name_(op), label === null ? null : name_(label), expect]);
     const session = open(model);
     const look = async () => {
       const r = await session.send({ command: 'query', select: ['state', 'actions'] });
@@ -120,7 +127,7 @@ const run = async (model, profileName) => {
 
 const [model, profileName, ...rest] = process.argv.slice(2);
 if (!model || !profileName) {
-  console.error('usage: node check-axes.mjs <model.shitae> <original|split> [--out result.json]');
+  console.error('usage: node check-axes.mjs <model.shitae> <original|split|guide|guide-merged> [--out result.json]');
   process.exit(2);
 }
 const report = await run(model, profileName);
