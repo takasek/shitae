@@ -25,3 +25,9 @@ human-stage1-feedback.md と acceptance.md の変更を独立 reviewer が確認
 ## 今回の最終判断と公開案
 
 実装会話を渡さない新しい reviewer に、ユーザーの最終依頼・原文、評価資料全体と最終差分、#27 更新案・デザイン issue 案・PR 本文案を渡した。重要指摘なし。#27 元本文との比較で、判断節追加・#34 の merge 状態更新（未達保持）・統合評価行の追記以外に既存受入条件を削除していないことを確認。JSON16件、ローカルリンク35件、評価スクリプト2件の構文、事前固定期待の SHA-256、origin/main からの差分空白を検証。人の操作経路を分析し直したものではない。公開 URL の置換後は親が本文とリンクを読戻す。
+
+## PR #36 の改行変換への対応
+
+P2: whitespace=-blank-at-eof は改行変換を防がず、core.autocrlf=true の checkout で保存モデルの bytes が変わり再生できない。修正前に S2 main の8改行がCRLFへ変わり、main/catalog/checkout の MODEL_MISMATCH / exit 1を再現した。root .gitattributes の *.shitae -text により、import先・初期題材・state-axes旧/注釈コピーを含めて committed bytes を保持する。既存の空白警告例外とは役割を区別する。
+
+[Red/Green結果](eol-checkout-verification.json)。親は105モデルのbytes一致と8保存物の全export一致を確認。別会話の reviewer も一時indexを使った独立checkoutで105モデルをindex bytesと比較し、8保存物の別CLI replay/export一致を確認。重要指摘なし。モデル/旧scenario自体は変更しない。これはmacOS上でGitの改行変換を有効にした検証であり、実Windows実行ではない。独立出力 `/private/tmp/shitae-eol-independent-20261018-uwq_15sz/`。
