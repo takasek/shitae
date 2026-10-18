@@ -1,0 +1,1823 @@
+{
+  "kind": "public CLI and saved-evidence verification; not browser, human evaluation, or real I/O",
+  "oldModelSourceSha256": "fd841f9856f94f6f8ff9e037ec7b79b8882067f6bdc45aded0bf093876b4572b",
+  "annotatedModelSourceSha256": "ea9aa5d4d77c42539045e1ad30a11c1d88869052e2f72fd1b69c5539974b6a15",
+  "nonCommentLinesEqual": true,
+  "checkExit": 0,
+  "checkDiagnostics": "/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:129: [warning] W103: component 'Save' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:130: [warning] W103: component 'FormatMenu' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:131: [warning] W103: component 'NormalizeAction' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:132: [warning] W103: component 'ViewModes' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:133: [warning] W103: component 'OpenAction' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:134: [warning] W103: component 'NewAction' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:135: [warning] W103: component 'FolderIdentity' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:136: [warning] W103: component 'FileTree' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:137: [warning] W103: component 'RecentTargets' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:138: [warning] W103: component 'FileName' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:139: [warning] W103: component 'DocumentStateText' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:140: [warning] W103: component 'Close' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:141: [warning] W103: component 'ParentFolder' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:142: [warning] W103: component 'SourceText' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:143: [warning] W103: component 'Diagnostics' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:144: [warning] W103: component 'ZoomLevel' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:145: [warning] W103: component 'Fit' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:146: [warning] W103: component 'ActualSize' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:147: [warning] W103: component 'Graph' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:148: [warning] W103: component 'NodeActions' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:149: [warning] W103: component 'SavedOrUnsaved' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:150: [warning] W103: component 'DiagramUnavailable' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:151: [warning] W103: component 'ExternalChange' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:152: [warning] W103: component 'ReviewVersions' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:153: [warning] W103: component 'EditorVersion' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:154: [warning] W103: component 'DiskVersion' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:155: [warning] W103: component 'KeepEditing' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:156: [warning] W103: component 'SaveCopy' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:157: [warning] W103: component 'ReplaceReviewedDisk' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:158: [warning] W103: component 'UseDiskVersion' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:159: [warning] W103: component 'EdgeText' は要素もインタラクションも持たない\n/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/state-axes/clarified/model/proposed.shitae:160: [warning] W103: component 'SourceParsed' は要素もインタラクションも持たない\n",
+  "generatedHtml": {
+    "exit": 0,
+    "bytes": 253024,
+    "sha256": "6932c7c27bd252c532e3ae16b2d43fc6e0c12cac7d4adfb492ed1764fc4ce092",
+    "completeClosingTag": true
+  },
+  "oldScenarioWithOldModelFullExportEqual": true,
+  "oldScenarioWithAnnotatedModel": {
+    "exit": 1,
+    "stderr": "Error: MODEL_MISMATCH: source bytesが異なるmodule: proposed（空白・コメントも照合対象）\n次の行動:\n完全一致する保存時のHTMLが残っていれば、そのHTMLとscenarioの組で再開してください。任意の古いHTMLでは再開できません。\nCLIでの再開には、対応する元モデル一式と処理系が必要です。engineのhashだけからcommitは特定できません。\n変更後のモデル・処理系で検討する場合は新しく記録してください。旧版の検討手順は人が選び直すための参照に使えます。\n詳細: Expected {\"engineVersion\":\"278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116\",\"entryModule\":\"proposed\",\"manifest\":[{\"module\":\"proposed\",\"sourceSha256\":\"fd841f9856f94f6f8ff9e037ec7b79b8882067f6bdc45aded0bf093876b4572b\"}],\"modelId\":\"47a959db2c5763c906c1f8165082bd90c4765db9778a49f80d3d1db5dd057eca\",\"sourceBasis\":\"source-bytes\"}; actual {\"engineVersion\":\"278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116\",\"entryModule\":\"proposed\",\"manifest\":[{\"module\":\"proposed\",\"sourceSha256\":\"ea9aa5d4d77c42539045e1ad30a11c1d88869052e2f72fd1b69c5539974b6a15\"}],\"modelId\":\"9c941d4de3ecd8b1f151a401cf42dc4e4e0c81d6fbf404b8bec9e6d898a614f8\",\"sourceBasis\":\"source-bytes\"}\n"
+  },
+  "cases": [
+    {
+      "initialLastSyntaxReport": "Valid",
+      "afterAdoptBeforeNextReport": {
+        "lastSyntaxReport": "Valid",
+        "diagram": "Ready",
+        "disk": "InSync",
+        "nodeEnabled": true,
+        "currentSourceValidity": "not established",
+        "currentSourceGraphCorrespondence": "not established",
+        "graphActionAppropriateness": "not established"
+      },
+      "nextEvent": "ParseError",
+      "nextSyntax": "Invalid",
+      "fullExportReplayEqual": true,
+      "transcript": [
+        {
+          "sent": {
+            "id": "1",
+            "command": "query",
+            "select": [
+              "state",
+              "actions"
+            ]
+          },
+          "received": {
+            "id": "1",
+            "ok": true,
+            "revision": 0,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Split"
+              },
+              "cursorObservationId": 1,
+              "latestObservationId": 1,
+              "observationCount": 1
+            },
+            "data": {
+              "sharedVariants": [
+                {
+                  "module": "proposed",
+                  "component": "DiagramView",
+                  "variant": "Ready",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "initial"
+                },
+                {
+                  "module": "proposed",
+                  "component": "SyntaxStatus",
+                  "variant": "Valid",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "initial"
+                },
+                {
+                  "module": "proposed",
+                  "component": "DiskStatus",
+                  "variant": "InSync",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "initial"
+                }
+              ],
+              "overlays": [],
+              "nodeActions": []
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "2",
+            "command": "dispatch",
+            "handle": "0eb83043-b55e-45c7-b138-81f5a92514e5:0:3"
+          },
+          "received": {
+            "id": "2",
+            "ok": true,
+            "revision": 1,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Split"
+              },
+              "cursorObservationId": 3,
+              "latestObservationId": 3,
+              "observationCount": 3
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "3",
+            "command": "query",
+            "select": [
+              "state",
+              "actions"
+            ]
+          },
+          "received": {
+            "id": "3",
+            "ok": true,
+            "revision": 1,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Split"
+              },
+              "cursorObservationId": 3,
+              "latestObservationId": 3,
+              "observationCount": 3
+            },
+            "data": {
+              "sharedVariants": [
+                {
+                  "module": "proposed",
+                  "component": "DiagramView",
+                  "variant": "Ready",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "SyntaxStatus",
+                  "variant": "Valid",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "DiskStatus",
+                  "variant": "InSync",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "initial"
+                }
+              ],
+              "overlays": [],
+              "nodeActions": []
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "4",
+            "command": "query",
+            "select": [
+              "state",
+              "actions"
+            ]
+          },
+          "received": {
+            "id": "4",
+            "ok": true,
+            "revision": 1,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Split"
+              },
+              "cursorObservationId": 3,
+              "latestObservationId": 3,
+              "observationCount": 3
+            },
+            "data": {
+              "sharedVariants": [
+                {
+                  "module": "proposed",
+                  "component": "DiagramView",
+                  "variant": "Ready",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "SyntaxStatus",
+                  "variant": "Valid",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "DiskStatus",
+                  "variant": "InSync",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "initial"
+                }
+              ],
+              "overlays": [],
+              "nodeActions": []
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "5",
+            "command": "dispatch",
+            "handle": "0eb83043-b55e-45c7-b138-81f5a92514e5:1:7"
+          },
+          "received": {
+            "id": "5",
+            "ok": true,
+            "revision": 2,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Split"
+              },
+              "cursorObservationId": 5,
+              "latestObservationId": 5,
+              "observationCount": 5
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "6",
+            "command": "query",
+            "select": [
+              "state",
+              "actions"
+            ]
+          },
+          "received": {
+            "id": "6",
+            "ok": true,
+            "revision": 2,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Split"
+              },
+              "cursorObservationId": 5,
+              "latestObservationId": 5,
+              "observationCount": 5
+            },
+            "data": {
+              "sharedVariants": [
+                {
+                  "module": "proposed",
+                  "component": "DiagramView",
+                  "variant": "Ready",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "SyntaxStatus",
+                  "variant": "Valid",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "DiskStatus",
+                  "variant": "Conflict",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                }
+              ],
+              "overlays": [
+                {
+                  "module": "proposed",
+                  "component": "RecoveryNotice",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "overlay-entry",
+                  "origin": "initial"
+                }
+              ],
+              "nodeActions": []
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "7",
+            "command": "query",
+            "select": [
+              "state",
+              "actions"
+            ]
+          },
+          "received": {
+            "id": "7",
+            "ok": true,
+            "revision": 2,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Split"
+              },
+              "cursorObservationId": 5,
+              "latestObservationId": 5,
+              "observationCount": 5
+            },
+            "data": {
+              "sharedVariants": [
+                {
+                  "module": "proposed",
+                  "component": "DiagramView",
+                  "variant": "Ready",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "SyntaxStatus",
+                  "variant": "Valid",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "DiskStatus",
+                  "variant": "Conflict",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                }
+              ],
+              "overlays": [
+                {
+                  "module": "proposed",
+                  "component": "RecoveryNotice",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "overlay-entry",
+                  "origin": "initial"
+                }
+              ],
+              "nodeActions": []
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "8",
+            "command": "dispatch",
+            "handle": "0eb83043-b55e-45c7-b138-81f5a92514e5:2:8"
+          },
+          "received": {
+            "id": "8",
+            "ok": true,
+            "revision": 3,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "VersionReview",
+                "variant": null
+              },
+              "cursorObservationId": 7,
+              "latestObservationId": 7,
+              "observationCount": 7
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "9",
+            "command": "query",
+            "select": [
+              "state",
+              "actions"
+            ]
+          },
+          "received": {
+            "id": "9",
+            "ok": true,
+            "revision": 3,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "VersionReview",
+                "variant": null
+              },
+              "cursorObservationId": 7,
+              "latestObservationId": 7,
+              "observationCount": 7
+            },
+            "data": {
+              "sharedVariants": [
+                {
+                  "module": "proposed",
+                  "component": "DiagramView",
+                  "variant": "Ready",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "SyntaxStatus",
+                  "variant": "Valid",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "DiskStatus",
+                  "variant": "Conflict",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                }
+              ],
+              "overlays": [],
+              "nodeActions": []
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "10",
+            "command": "query",
+            "select": [
+              "state",
+              "actions"
+            ]
+          },
+          "received": {
+            "id": "10",
+            "ok": true,
+            "revision": 3,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "VersionReview",
+                "variant": null
+              },
+              "cursorObservationId": 7,
+              "latestObservationId": 7,
+              "observationCount": 7
+            },
+            "data": {
+              "sharedVariants": [
+                {
+                  "module": "proposed",
+                  "component": "DiagramView",
+                  "variant": "Ready",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "SyntaxStatus",
+                  "variant": "Valid",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "DiskStatus",
+                  "variant": "Conflict",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                }
+              ],
+              "overlays": [],
+              "nodeActions": []
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "11",
+            "command": "dispatch",
+            "handle": "0eb83043-b55e-45c7-b138-81f5a92514e5:3:3",
+            "branch": "b0"
+          },
+          "received": {
+            "id": "11",
+            "ok": true,
+            "revision": 4,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Split"
+              },
+              "cursorObservationId": 11,
+              "latestObservationId": 11,
+              "observationCount": 11
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "12",
+            "command": "query",
+            "select": [
+              "state",
+              "actions"
+            ]
+          },
+          "received": {
+            "id": "12",
+            "ok": true,
+            "revision": 4,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Split"
+              },
+              "cursorObservationId": 11,
+              "latestObservationId": 11,
+              "observationCount": 11
+            },
+            "data": {
+              "sharedVariants": [
+                {
+                  "module": "proposed",
+                  "component": "DiagramView",
+                  "variant": "Ready",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "SyntaxStatus",
+                  "variant": "Valid",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "DiskStatus",
+                  "variant": "InSync",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                }
+              ],
+              "overlays": [],
+              "nodeActions": []
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "13",
+            "command": "query",
+            "select": [
+              "state",
+              "actions"
+            ]
+          },
+          "received": {
+            "id": "13",
+            "ok": true,
+            "revision": 4,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Split"
+              },
+              "cursorObservationId": 11,
+              "latestObservationId": 11,
+              "observationCount": 11
+            },
+            "data": {
+              "sharedVariants": [
+                {
+                  "module": "proposed",
+                  "component": "DiagramView",
+                  "variant": "Ready",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "SyntaxStatus",
+                  "variant": "Valid",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "DiskStatus",
+                  "variant": "InSync",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                }
+              ],
+              "overlays": [],
+              "nodeActions": []
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "14",
+            "command": "dispatch",
+            "handle": "0eb83043-b55e-45c7-b138-81f5a92514e5:4:5"
+          },
+          "received": {
+            "id": "14",
+            "ok": true,
+            "revision": 5,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Diagram"
+              },
+              "cursorObservationId": 12,
+              "latestObservationId": 12,
+              "observationCount": 12
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "15",
+            "command": "query",
+            "select": [
+              "state",
+              "actions"
+            ]
+          },
+          "received": {
+            "id": "15",
+            "ok": true,
+            "revision": 5,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Diagram"
+              },
+              "cursorObservationId": 12,
+              "latestObservationId": 12,
+              "observationCount": 12
+            },
+            "data": {
+              "sharedVariants": [
+                {
+                  "module": "proposed",
+                  "component": "DiagramView",
+                  "variant": "Ready",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "SyntaxStatus",
+                  "variant": "Valid",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "DiskStatus",
+                  "variant": "InSync",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                }
+              ],
+              "overlays": [],
+              "nodeActions": [
+                {
+                  "handle": "0eb83043-b55e-45c7-b138-81f5a92514e5:5:6",
+                  "actionText": "NodeDoubleClick(DiagramView.graph?)",
+                  "scope": "variant",
+                  "placement": {
+                    "root": "main",
+                    "path": []
+                  },
+                  "host": {
+                    "module": "proposed",
+                    "component": "Workspace",
+                    "variant": "Diagram"
+                  },
+                  "enabled": true,
+                  "branches": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "16",
+            "command": "query",
+            "select": [
+              "state",
+              "actions"
+            ]
+          },
+          "received": {
+            "id": "16",
+            "ok": true,
+            "revision": 5,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Diagram"
+              },
+              "cursorObservationId": 12,
+              "latestObservationId": 12,
+              "observationCount": 12
+            },
+            "data": {
+              "sharedVariants": [
+                {
+                  "module": "proposed",
+                  "component": "DiagramView",
+                  "variant": "Ready",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "SyntaxStatus",
+                  "variant": "Valid",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "DiskStatus",
+                  "variant": "InSync",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                }
+              ],
+              "overlays": [],
+              "nodeActions": [
+                {
+                  "handle": "0eb83043-b55e-45c7-b138-81f5a92514e5:5:6",
+                  "actionText": "NodeDoubleClick(DiagramView.graph?)",
+                  "scope": "variant",
+                  "placement": {
+                    "root": "main",
+                    "path": []
+                  },
+                  "host": {
+                    "module": "proposed",
+                    "component": "Workspace",
+                    "variant": "Diagram"
+                  },
+                  "enabled": true,
+                  "branches": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "17",
+            "command": "dispatch",
+            "handle": "0eb83043-b55e-45c7-b138-81f5a92514e5:5:2"
+          },
+          "received": {
+            "id": "17",
+            "ok": true,
+            "revision": 6,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Diagram"
+              },
+              "cursorObservationId": 14,
+              "latestObservationId": 14,
+              "observationCount": 14
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "18",
+            "command": "query",
+            "select": [
+              "state",
+              "actions"
+            ]
+          },
+          "received": {
+            "id": "18",
+            "ok": true,
+            "revision": 6,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Diagram"
+              },
+              "cursorObservationId": 14,
+              "latestObservationId": 14,
+              "observationCount": 14
+            },
+            "data": {
+              "sharedVariants": [
+                {
+                  "module": "proposed",
+                  "component": "DiagramView",
+                  "variant": "Error",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "SyntaxStatus",
+                  "variant": "Invalid",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "DiskStatus",
+                  "variant": "InSync",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                }
+              ],
+              "overlays": [],
+              "nodeActions": [
+                {
+                  "handle": "0eb83043-b55e-45c7-b138-81f5a92514e5:6:6",
+                  "actionText": "NodeDoubleClick(DiagramView.graph?)",
+                  "scope": "variant",
+                  "placement": {
+                    "root": "main",
+                    "path": []
+                  },
+                  "host": {
+                    "module": "proposed",
+                    "component": "Workspace",
+                    "variant": "Diagram"
+                  },
+                  "enabled": false,
+                  "branches": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "19",
+            "command": "exportScenario"
+          },
+          "received": {
+            "id": "19",
+            "ok": true,
+            "revision": 6,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Diagram"
+              },
+              "cursorObservationId": 14,
+              "latestObservationId": 14,
+              "observationCount": 14
+            },
+            "exportScenarioSha256": "17c973a728372ef21ba3e9cbf509c555939a2487ad8a2ddea904b2b2b755b21f"
+          }
+        }
+      ]
+    },
+    {
+      "initialLastSyntaxReport": "Invalid",
+      "afterAdoptBeforeNextReport": {
+        "lastSyntaxReport": "Invalid",
+        "diagram": "Error",
+        "disk": "InSync",
+        "nodeEnabled": false,
+        "currentSourceValidity": "not established",
+        "currentSourceGraphCorrespondence": "not established",
+        "graphActionAppropriateness": "not established"
+      },
+      "nextEvent": "ValidInput",
+      "nextSyntax": "Valid",
+      "fullExportReplayEqual": true,
+      "transcript": [
+        {
+          "sent": {
+            "id": "1",
+            "command": "query",
+            "select": [
+              "state",
+              "actions"
+            ]
+          },
+          "received": {
+            "id": "1",
+            "ok": true,
+            "revision": 0,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Split"
+              },
+              "cursorObservationId": 1,
+              "latestObservationId": 1,
+              "observationCount": 1
+            },
+            "data": {
+              "sharedVariants": [
+                {
+                  "module": "proposed",
+                  "component": "DiagramView",
+                  "variant": "Ready",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "initial"
+                },
+                {
+                  "module": "proposed",
+                  "component": "SyntaxStatus",
+                  "variant": "Valid",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "initial"
+                },
+                {
+                  "module": "proposed",
+                  "component": "DiskStatus",
+                  "variant": "InSync",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "initial"
+                }
+              ],
+              "overlays": [],
+              "nodeActions": []
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "2",
+            "command": "dispatch",
+            "handle": "bec5edaa-fd05-4a3a-87b8-cdab4cb200a8:0:2"
+          },
+          "received": {
+            "id": "2",
+            "ok": true,
+            "revision": 1,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Split"
+              },
+              "cursorObservationId": 3,
+              "latestObservationId": 3,
+              "observationCount": 3
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "3",
+            "command": "query",
+            "select": [
+              "state",
+              "actions"
+            ]
+          },
+          "received": {
+            "id": "3",
+            "ok": true,
+            "revision": 1,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Split"
+              },
+              "cursorObservationId": 3,
+              "latestObservationId": 3,
+              "observationCount": 3
+            },
+            "data": {
+              "sharedVariants": [
+                {
+                  "module": "proposed",
+                  "component": "DiagramView",
+                  "variant": "Error",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "SyntaxStatus",
+                  "variant": "Invalid",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "DiskStatus",
+                  "variant": "InSync",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "initial"
+                }
+              ],
+              "overlays": [],
+              "nodeActions": []
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "4",
+            "command": "query",
+            "select": [
+              "state",
+              "actions"
+            ]
+          },
+          "received": {
+            "id": "4",
+            "ok": true,
+            "revision": 1,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Split"
+              },
+              "cursorObservationId": 3,
+              "latestObservationId": 3,
+              "observationCount": 3
+            },
+            "data": {
+              "sharedVariants": [
+                {
+                  "module": "proposed",
+                  "component": "DiagramView",
+                  "variant": "Error",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "SyntaxStatus",
+                  "variant": "Invalid",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "DiskStatus",
+                  "variant": "InSync",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "initial"
+                }
+              ],
+              "overlays": [],
+              "nodeActions": []
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "5",
+            "command": "dispatch",
+            "handle": "bec5edaa-fd05-4a3a-87b8-cdab4cb200a8:1:7"
+          },
+          "received": {
+            "id": "5",
+            "ok": true,
+            "revision": 2,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Split"
+              },
+              "cursorObservationId": 5,
+              "latestObservationId": 5,
+              "observationCount": 5
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "6",
+            "command": "query",
+            "select": [
+              "state",
+              "actions"
+            ]
+          },
+          "received": {
+            "id": "6",
+            "ok": true,
+            "revision": 2,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Split"
+              },
+              "cursorObservationId": 5,
+              "latestObservationId": 5,
+              "observationCount": 5
+            },
+            "data": {
+              "sharedVariants": [
+                {
+                  "module": "proposed",
+                  "component": "DiagramView",
+                  "variant": "Error",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "SyntaxStatus",
+                  "variant": "Invalid",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "DiskStatus",
+                  "variant": "Conflict",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                }
+              ],
+              "overlays": [
+                {
+                  "module": "proposed",
+                  "component": "RecoveryNotice",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "overlay-entry",
+                  "origin": "initial"
+                }
+              ],
+              "nodeActions": []
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "7",
+            "command": "query",
+            "select": [
+              "state",
+              "actions"
+            ]
+          },
+          "received": {
+            "id": "7",
+            "ok": true,
+            "revision": 2,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Split"
+              },
+              "cursorObservationId": 5,
+              "latestObservationId": 5,
+              "observationCount": 5
+            },
+            "data": {
+              "sharedVariants": [
+                {
+                  "module": "proposed",
+                  "component": "DiagramView",
+                  "variant": "Error",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "SyntaxStatus",
+                  "variant": "Invalid",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "DiskStatus",
+                  "variant": "Conflict",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                }
+              ],
+              "overlays": [
+                {
+                  "module": "proposed",
+                  "component": "RecoveryNotice",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "overlay-entry",
+                  "origin": "initial"
+                }
+              ],
+              "nodeActions": []
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "8",
+            "command": "dispatch",
+            "handle": "bec5edaa-fd05-4a3a-87b8-cdab4cb200a8:2:8"
+          },
+          "received": {
+            "id": "8",
+            "ok": true,
+            "revision": 3,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "VersionReview",
+                "variant": null
+              },
+              "cursorObservationId": 7,
+              "latestObservationId": 7,
+              "observationCount": 7
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "9",
+            "command": "query",
+            "select": [
+              "state",
+              "actions"
+            ]
+          },
+          "received": {
+            "id": "9",
+            "ok": true,
+            "revision": 3,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "VersionReview",
+                "variant": null
+              },
+              "cursorObservationId": 7,
+              "latestObservationId": 7,
+              "observationCount": 7
+            },
+            "data": {
+              "sharedVariants": [
+                {
+                  "module": "proposed",
+                  "component": "DiagramView",
+                  "variant": "Error",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "SyntaxStatus",
+                  "variant": "Invalid",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "DiskStatus",
+                  "variant": "Conflict",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                }
+              ],
+              "overlays": [],
+              "nodeActions": []
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "10",
+            "command": "query",
+            "select": [
+              "state",
+              "actions"
+            ]
+          },
+          "received": {
+            "id": "10",
+            "ok": true,
+            "revision": 3,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "VersionReview",
+                "variant": null
+              },
+              "cursorObservationId": 7,
+              "latestObservationId": 7,
+              "observationCount": 7
+            },
+            "data": {
+              "sharedVariants": [
+                {
+                  "module": "proposed",
+                  "component": "DiagramView",
+                  "variant": "Error",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "SyntaxStatus",
+                  "variant": "Invalid",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "DiskStatus",
+                  "variant": "Conflict",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                }
+              ],
+              "overlays": [],
+              "nodeActions": []
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "11",
+            "command": "dispatch",
+            "handle": "bec5edaa-fd05-4a3a-87b8-cdab4cb200a8:3:3",
+            "branch": "b0"
+          },
+          "received": {
+            "id": "11",
+            "ok": true,
+            "revision": 4,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Split"
+              },
+              "cursorObservationId": 11,
+              "latestObservationId": 11,
+              "observationCount": 11
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "12",
+            "command": "query",
+            "select": [
+              "state",
+              "actions"
+            ]
+          },
+          "received": {
+            "id": "12",
+            "ok": true,
+            "revision": 4,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Split"
+              },
+              "cursorObservationId": 11,
+              "latestObservationId": 11,
+              "observationCount": 11
+            },
+            "data": {
+              "sharedVariants": [
+                {
+                  "module": "proposed",
+                  "component": "DiagramView",
+                  "variant": "Error",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "SyntaxStatus",
+                  "variant": "Invalid",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "DiskStatus",
+                  "variant": "InSync",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                }
+              ],
+              "overlays": [],
+              "nodeActions": []
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "13",
+            "command": "query",
+            "select": [
+              "state",
+              "actions"
+            ]
+          },
+          "received": {
+            "id": "13",
+            "ok": true,
+            "revision": 4,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Split"
+              },
+              "cursorObservationId": 11,
+              "latestObservationId": 11,
+              "observationCount": 11
+            },
+            "data": {
+              "sharedVariants": [
+                {
+                  "module": "proposed",
+                  "component": "DiagramView",
+                  "variant": "Error",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "SyntaxStatus",
+                  "variant": "Invalid",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "DiskStatus",
+                  "variant": "InSync",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                }
+              ],
+              "overlays": [],
+              "nodeActions": []
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "14",
+            "command": "dispatch",
+            "handle": "bec5edaa-fd05-4a3a-87b8-cdab4cb200a8:4:5"
+          },
+          "received": {
+            "id": "14",
+            "ok": true,
+            "revision": 5,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Diagram"
+              },
+              "cursorObservationId": 12,
+              "latestObservationId": 12,
+              "observationCount": 12
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "15",
+            "command": "query",
+            "select": [
+              "state",
+              "actions"
+            ]
+          },
+          "received": {
+            "id": "15",
+            "ok": true,
+            "revision": 5,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Diagram"
+              },
+              "cursorObservationId": 12,
+              "latestObservationId": 12,
+              "observationCount": 12
+            },
+            "data": {
+              "sharedVariants": [
+                {
+                  "module": "proposed",
+                  "component": "DiagramView",
+                  "variant": "Error",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "SyntaxStatus",
+                  "variant": "Invalid",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "DiskStatus",
+                  "variant": "InSync",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                }
+              ],
+              "overlays": [],
+              "nodeActions": [
+                {
+                  "handle": "bec5edaa-fd05-4a3a-87b8-cdab4cb200a8:5:6",
+                  "actionText": "NodeDoubleClick(DiagramView.graph?)",
+                  "scope": "variant",
+                  "placement": {
+                    "root": "main",
+                    "path": []
+                  },
+                  "host": {
+                    "module": "proposed",
+                    "component": "Workspace",
+                    "variant": "Diagram"
+                  },
+                  "enabled": false,
+                  "branches": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "16",
+            "command": "query",
+            "select": [
+              "state",
+              "actions"
+            ]
+          },
+          "received": {
+            "id": "16",
+            "ok": true,
+            "revision": 5,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Diagram"
+              },
+              "cursorObservationId": 12,
+              "latestObservationId": 12,
+              "observationCount": 12
+            },
+            "data": {
+              "sharedVariants": [
+                {
+                  "module": "proposed",
+                  "component": "DiagramView",
+                  "variant": "Error",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "SyntaxStatus",
+                  "variant": "Invalid",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "DiskStatus",
+                  "variant": "InSync",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                }
+              ],
+              "overlays": [],
+              "nodeActions": [
+                {
+                  "handle": "bec5edaa-fd05-4a3a-87b8-cdab4cb200a8:5:6",
+                  "actionText": "NodeDoubleClick(DiagramView.graph?)",
+                  "scope": "variant",
+                  "placement": {
+                    "root": "main",
+                    "path": []
+                  },
+                  "host": {
+                    "module": "proposed",
+                    "component": "Workspace",
+                    "variant": "Diagram"
+                  },
+                  "enabled": false,
+                  "branches": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "17",
+            "command": "dispatch",
+            "handle": "bec5edaa-fd05-4a3a-87b8-cdab4cb200a8:5:3"
+          },
+          "received": {
+            "id": "17",
+            "ok": true,
+            "revision": 6,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Diagram"
+              },
+              "cursorObservationId": 14,
+              "latestObservationId": 14,
+              "observationCount": 14
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "18",
+            "command": "query",
+            "select": [
+              "state",
+              "actions"
+            ]
+          },
+          "received": {
+            "id": "18",
+            "ok": true,
+            "revision": 6,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Diagram"
+              },
+              "cursorObservationId": 14,
+              "latestObservationId": 14,
+              "observationCount": 14
+            },
+            "data": {
+              "sharedVariants": [
+                {
+                  "module": "proposed",
+                  "component": "DiagramView",
+                  "variant": "Ready",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "SyntaxStatus",
+                  "variant": "Valid",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "proposed",
+                  "component": "DiskStatus",
+                  "variant": "InSync",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                }
+              ],
+              "overlays": [],
+              "nodeActions": [
+                {
+                  "handle": "bec5edaa-fd05-4a3a-87b8-cdab4cb200a8:6:6",
+                  "actionText": "NodeDoubleClick(DiagramView.graph?)",
+                  "scope": "variant",
+                  "placement": {
+                    "root": "main",
+                    "path": []
+                  },
+                  "host": {
+                    "module": "proposed",
+                    "component": "Workspace",
+                    "variant": "Diagram"
+                  },
+                  "enabled": true,
+                  "branches": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "sent": {
+            "id": "19",
+            "command": "exportScenario"
+          },
+          "received": {
+            "id": "19",
+            "ok": true,
+            "revision": 6,
+            "summary": {
+              "location": {
+                "module": "proposed",
+                "component": "Workspace",
+                "variant": "Diagram"
+              },
+              "cursorObservationId": 14,
+              "latestObservationId": 14,
+              "observationCount": 14
+            },
+            "exportScenarioSha256": "8ebe45406bc299a2e807b237b1f8fe29b5b180ccce23fa7480cca90d31e0d0b1"
+          }
+        }
+      ]
+    }
+  ]
+}
