@@ -1,0 +1,3 @@
+# Model source bytes participate in saved scenario identities.
+# Preserve committed bytes on checkout, including core.autocrlf=true.
+*.shitae -text

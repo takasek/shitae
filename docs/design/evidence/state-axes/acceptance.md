@@ -2,6 +2,12 @@
 
 Issue [#25](https://github.com/takasek/shitae/issues/25) の記録。処理系は origin/main `fea6132` から作った `issue-25-independent-state-axes`。engine `278103a97da5…`。製品コード・SPEC・`docs/examples`・原モデル・旧証拠・旧scenarioは変更していない（`git diff origin/main` の変更は `docs/AI_GUIDE.md` とこのdirectoryだけ）。
 
+## 2026-10-18 の設計者確認と完了範囲
+
+設計者は Astra の独立検討と原モデルからの対応説明を踏まえ「Aで進めよう」と指示した。[採用判断・対応表・意味の限定](clarified/decision.md) と [検証結果](clarified/verification.json) を追加する。SyntaxStatus を最後の構文判定として読む限定した分析例を採用し、内容置換後の現在内容・図・操作の正しさは再判定まで保証しない。`InSync` は未解決の外部競合なしを意味する。
+
+#25 はガイドと例・反例、組合せ検査、再検討の題材の整備として区切る。人間の作者・受取人の利用評価は未実施のまま [#27](https://github.com/takasek/shitae/issues/27)／[#35](https://github.com/takasek/shitae/issues/35) へ引き継ぎ、今回の設計確認と区別する。以下の #34 時点の実験記録は履歴として保持する。旧モデル・HTML・scenario は変更せず、注釈付きコピーに新しい証拠を対応付ける。
+
 ## 成果物
 
 | 種類 | ファイル | 内容 |
@@ -38,7 +44,7 @@ Issue [#25](https://github.com/takasek/shitae/issues/25) の記録。処理系�
 - C5: 競合中でも DiagramView が Ready ならノード操作（`NodeDoubleClick(DiagramView.graph?)`）は可能、ParseError で不可、ValidInput で可能に戻る。
 - 自由文 effect は照合に使っていない。`Preserve both versions` などを実保存の成功とは扱わず、「解決」は条件ラベルの経路を選んだ後のモデル上の状態だけを指す。NodeDoubleClick の `Reveal matching source position` も実行していない（gate の有効・無効だけを見た）。
 
-設計上の選択として、解決操作は構文軸を変えない（C4）。UseDiskVersion でエディタの内容が入れ替わっても、取り込んだ内容の構文はモデルが知らないため、再評価は ParseError・ValidInput の出来事で表す。**この選択は設計者の確認待ち。**
+設計上の選択として、解決操作は構文軸を変えない（C4）。UseDiskVersion でエディタの内容が入れ替わっても、取り込んだ内容の構文はモデルが知らないため、再評価は ParseError・ValidInput の出来事で表す。**#34 時点では設計者確認待ちだったが、2026-10-18 に A の限定を付して採用された。**
 
 派生モデルの `SyntaxStatus` と `DiagramView` は、原モデルの構成を保ったため別々の singleton のままで、いつも同じ出来事（ParseError・ValidInput）で一緒に変わる。ガイドの基準では独立した軸ではない（同じ軸を二つの画面部品に表示している）。原モデルとの差分を小さく保つためにまとめていない。
 
@@ -96,14 +102,14 @@ Claude subagent（Sonnet、この会話の文脈は渡していない）に、AI
 - 受取人は手順と同じ5操作を actions 照会から選び直し、各時点の sharedVariants・overlays を照会して「競合は残る」と答えた（[recipient-report.md](reexamine/recipient-report.md)、[送受信](reexamine/derived.jsonl)、[検討手順](reexamine/derived.review.txt)）。`derived.jsonl` は受取人の client の出力で、各行に送信 `>> `・受信 `<< ` の接頭辞が付く（厳密な JSON Lines ではない）。
 - 選び直しの誤り: なし。転記: なし（handle の session ID 部分を自作 helper に固定した以外）。追加質問: なし。
 - 操作名・host・配置・結果の数と順序は一致し、`set(...)` の対象名だけが変わった（DocumentStatus → DiskStatus / SyntaxStatus）。受取人は、この違いを派生モデル本文を読んで対応付けたと報告した。原モデルの検討手順と派生モデルの検討手順の差分も、`set` の対象名の行だけだった。
-- **人による相違の確認は未実施。** issue は「操作名・結果の意味が変わった場合は人が相違を確認する」としているが、今回 `set` 対象名の相違を確認したのは agent の受取人である。設計者による確認を残件とする。
+- **#34 の実験時点では人による相違確認は未実施だった。** issue は「操作名・結果の意味が変わった場合は人が相違を確認する」としているが、今回 `set` 対象名の相違を確認したのは agent の受取人である。この実験結果だけでは設計者確認を満たさない。2026-10-18 の後続説明と A 方針の採用は [確認記録](clarified/decision.md) に分けて残す。
 - 限界: 受取人は agent 1体。問いの範囲外として解決操作（InSync へ戻る）は操作しなかった。操作名が変わらない設計変更だったため、名前の変更を伴う選び直しは試していない。
 
-## 残件
+## 設計確認と残る利用評価
 
-- 解決操作は構文軸を変えない（C4）という設計選択の確認（設計者）。
-- `set` 対象名の相違を人が確認すること（設計者）。
-- 人間の作者・受取人による利用評価（今回は agent のみ）。#27 の統合利用評価で扱う。
+- C4 の設計判断は、最後の判定を保持する A の限定を付けて採用済み。現在のソースの妥当性を常に示すモデルにはしない。
+- `set` の対応は後続の説明と A 方針採用として [確認記録](clarified/decision.md) に残す。agent の旧再検討を人の実操作へ読み替えない。
+- 人間の作者・受取人による利用評価と、人向け UI による再検討は未実施。#25 の整備完了とは分け、#27／#35 のデザイン改善後の評価に残す。
 
 ## 再実行
 

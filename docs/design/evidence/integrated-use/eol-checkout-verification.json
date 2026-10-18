@@ -1,0 +1,59 @@
+{
+  "kind": "Git checkout-index on macOS with core.autocrlf=true; not native Windows execution",
+  "baseCommit": "015331cffb5d5de08aca70ea8a9c421756889338",
+  "before": {
+    "model": "models/s2/main.shitae",
+    "crlfCount": 8,
+    "replayExit": 1,
+    "reason": "Error: MODEL_MISMATCH: source bytesが異なるmodule: catalog, checkout, main（空白・コメントも照合対象）"
+  },
+  "rule": "*.shitae -text",
+  "after": {
+    "coreAutocrlf": true,
+    "allExportedModelBytesEqual": true,
+    "modelFilesCompared": 105,
+    "replays": [
+      {
+        "case": "integrated-s1",
+        "exit": 0,
+        "allExportEqual": true
+      },
+      {
+        "case": "integrated-s2",
+        "exit": 0,
+        "allExportEqual": true
+      },
+      {
+        "case": "integrated-s2-initial",
+        "exit": 0,
+        "allExportEqual": true
+      },
+      {
+        "case": "identity-current",
+        "exit": 0,
+        "allExportEqual": true
+      },
+      {
+        "case": "identity-initial",
+        "exit": 0,
+        "allExportEqual": true
+      },
+      {
+        "case": "state-axes-old",
+        "exit": 0,
+        "allExportEqual": true
+      },
+      {
+        "case": "state-axes-clarified-valid",
+        "exit": 0,
+        "allExportEqual": true
+      },
+      {
+        "case": "state-axes-clarified-invalid",
+        "exit": 0,
+        "allExportEqual": true
+      }
+    ]
+  },
+  "modelSourcesAndScenariosModified": false
+}

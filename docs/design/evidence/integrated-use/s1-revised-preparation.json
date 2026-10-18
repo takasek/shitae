@@ -1,0 +1,20 @@
+{
+  "kind": "preparation only; human re-examination not performed",
+  "diff": [
+    "--- s1",
+    "+++ s1-revised",
+    "@@ -18,7 +18,7 @@",
+    " 審査コメント",
+    " > 審査を確定する ->",
+    " >     [承認] 審査結果を記録する ; set(承認状況##承認済) ; dismiss(@review)",
+    "->     [差戻し] 修正依頼を送る ; set(承認状況##差戻し中) ; dismiss(@review) ; show(修正依頼通知)",
+    "+>     [修正依頼] 修正依頼を送る ; set(承認状況##差戻し中) ; dismiss(@review) ; show(修正依頼通知)",
+    " > 取り消す -> dismiss(@review)",
+    " ",
+    " # 領収書"
+  ],
+  "replayOldOnRevised": {
+    "exitCode": 1,
+    "stderr": "Error: MODEL_MISMATCH: source bytesが異なるmodule: expenses（空白・コメントも照合対象）\n次の行動:\n完全一致する保存時のHTMLが残っていれば、そのHTMLとscenarioの組で再開してください。任意の古いHTMLでは再開できません。\nCLIでの再開には、対応する元モデル一式と処理系が必要です。engineのhashだけからcommitは特定できません。\n変更後のモデル・処理系で検討する場合は新しく記録してください。旧版の検討手順は人が選び直すための参照に使えます。\n詳細: Expected {\"engineVersion\":\"278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116\",\"entryModule\":\"expenses\",\"manifest\":[{\"module\":\"expenses\",\"sourceSha256\":\"bee07204cc4fa219dfce5288bf61e91d7fd63a35cb10b07e2fe3608042169d19\"}],\"modelId\":\"9e90f2917a073bd6aa1a9ef0552bb4de408c2a62d2c3177046f5851205f4d70f\",\"sourceBasis\":\"source-bytes\"}; actual {\"engineVersion\":\"278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116\",\"entryModule\":\"expenses\",\"manifest\":[{\"module\":\"expenses\",\"sourceSha256\":\"cac86de133e16cf9aa38a3296d8a712e0ff8f5256d2e8494267ce3280b05dbd5\"}],\"modelId\":\"4d24eedd3878fd7eec4df35d047775892c1d51571481aa4fd2edcf846110a2fc\",\"sourceBasis\":\"source-bytes\"}\n"
+  }
+}

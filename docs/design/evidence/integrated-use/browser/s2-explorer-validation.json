@@ -1,0 +1,1592 @@
+{
+  "kind": "separate-process CLI replay/export equality; not browser or human acceptance",
+  "scenario": "/private/tmp/shitae-i27-20261018-public/s2.scenario.json",
+  "model": "docs/design/evidence/integrated-use/models/s2/main.shitae",
+  "status": 0,
+  "allExportEqual": true,
+  "responses": [
+    {
+      "id": "summary",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 17,
+      "summary": {
+        "location": {
+          "module": "checkout",
+          "component": "貸出窓口",
+          "variant": null
+        },
+        "cursorObservationId": 24,
+        "latestObservationId": 24,
+        "observationCount": 11
+      },
+      "data": {
+        "metadata": {
+          "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+          "entryModule": "main",
+          "sourceBasis": "source-bytes",
+          "manifest": [
+            {
+              "module": "catalog",
+              "sourceSha256": "eb59b872a7711e6ba8712a517c46ab25f056ea5375a71e3ef82d2e54892db9e0",
+              "file": "/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/integrated-use/models/s2/catalog.shitae"
+            },
+            {
+              "module": "checkout",
+              "sourceSha256": "3a0f30033d7be4c79f2ee298f9d3e91b29d6f0e31b5ba29d4fbb07bafc141d74",
+              "file": "/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/integrated-use/models/s2/checkout.shitae"
+            },
+            {
+              "module": "main",
+              "sourceSha256": "6b7de61923c7629222dca1b0d7164c0da8ed1e2dc8f76da9ace2c4e9d2baaf26",
+              "file": "/Users/m5/works/shitae/.worktrees/issue-27-eval/docs/design/evidence/integrated-use/models/s2/main.shitae"
+            }
+          ],
+          "modelId": "553b9c1c686f779415a88c1404424d3d9755dfad60c056a221d74e353b5395f5"
+        }
+      }
+    },
+    {
+      "id": "save",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 17,
+      "summary": {
+        "location": {
+          "module": "checkout",
+          "component": "貸出窓口",
+          "variant": null
+        },
+        "cursorObservationId": 24,
+        "latestObservationId": 24,
+        "observationCount": 11
+      },
+      "scenario": {
+        "format": "shitae-scenario",
+        "formatVersion": 1,
+        "protocolVersion": 1,
+        "model": {
+          "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+          "modelId": "553b9c1c686f779415a88c1404424d3d9755dfad60c056a221d74e353b5395f5",
+          "entryModule": "main",
+          "sourceBasis": "source-bytes",
+          "manifest": [
+            {
+              "module": "catalog",
+              "sourceSha256": "eb59b872a7711e6ba8712a517c46ab25f056ea5375a71e3ef82d2e54892db9e0"
+            },
+            {
+              "module": "checkout",
+              "sourceSha256": "3a0f30033d7be4c79f2ee298f9d3e91b29d6f0e31b5ba29d4fbb07bafc141d74"
+            },
+            {
+              "module": "main",
+              "sourceSha256": "6b7de61923c7629222dca1b0d7164c0da8ed1e2dc8f76da9ace2c4e9d2baaf26"
+            }
+          ]
+        },
+        "initialDigest": "4aa522232f234b87e9a84eecc81cce093c2779710b8da95c54b26644cea5cf50",
+        "steps": [
+          {
+            "step": 1,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "main",
+                  "component": "備品ポータル",
+                  "variant": null
+                },
+                "source": {
+                  "module": "main",
+                  "span": {
+                    "offset": 69,
+                    "length": 30,
+                    "line": 6,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "53d34b097a2f87c964797f3048a673bc2b62cb71247e25e2a9594b0e80b5ca69"
+              },
+              "branch": null
+            },
+            "afterDigest": "6945db2d1bb2db9415c172cd1703d06e7bf8e381867cc67fef99b0249b2433b8",
+            "observations": [
+              {
+                "viewDigest": "cd76b69a2966085bbfae85d480863b84ad1a9ab9e61dceeb4b2f7bcf07562438"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          },
+          {
+            "step": 2,
+            "command": {
+              "kind": "setTestVariant",
+              "module": "catalog",
+              "component": "備品カード",
+              "variant": "整備中"
+            },
+            "afterDigest": "99aa7c6c939d2c2b9568089d1bac3ec92414f8a478ba0ab66a876f04b313e70f",
+            "observations": [
+              {
+                "viewDigest": "013768fcb257f964943d356fda594c65d85ec07b583b8cf5aa82d36ce0a30b33"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "testVariants"
+              ]
+            },
+            "outputDigest": "fd54384cc71351e493b4a3f3f614d442861d0d70004877674a5c351479dcb11a"
+          },
+          {
+            "step": 3,
+            "command": {
+              "kind": "setTestVariant",
+              "module": "catalog",
+              "component": "備品カード",
+              "variant": "貸出可能"
+            },
+            "afterDigest": "1ed7cb051e9c315eaf4c492e8bc5be7113ca3fee519293ced2c3cf3ec8d1d6fc",
+            "observations": [
+              {
+                "viewDigest": "c4c026e9167b1d129f3ced08b649f9be28f0b744e08a62da22cba797b18f515d"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "testVariants"
+              ]
+            },
+            "outputDigest": "fd54384cc71351e493b4a3f3f614d442861d0d70004877674a5c351479dcb11a"
+          },
+          {
+            "step": 4,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "catalog",
+                  "component": "備品一覧",
+                  "variant": null
+                },
+                "source": {
+                  "module": "catalog",
+                  "span": {
+                    "offset": 67,
+                    "length": 41,
+                    "line": 6,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "ed104f9fabb0078919e21beea61e5ec7bbcf021d6fb961894db7151735734561"
+              },
+              "branch": null
+            },
+            "afterDigest": "4078c5b1b12a2ca735c3c1bb210c29a293613d191038f9f518a5d4e02289cc07",
+            "observations": [
+              {
+                "viewDigest": "861a279003c8c088bb9996b124dfa68fd6371a252c37133feadec9e6d1337d07"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          },
+          {
+            "step": 5,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "catalog",
+                  "component": "プロジェクター詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "catalog",
+                  "span": {
+                    "offset": 266,
+                    "length": 33,
+                    "line": 20,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "b9412160f8783de2777dd409906406fafc55de1c61e6398a390ec7a04e356680"
+              },
+              "branch": null
+            },
+            "afterDigest": "600ccb42f0c1d898b0386ffd43c4e1e8e0cd75e8cca18c3e28107c2c1c8a7225",
+            "observations": [
+              {
+                "viewDigest": "57d06f068c21ed51a5334d9fb6adfbdd5adf7052fd0346d64ec04c212b599236"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          },
+          {
+            "step": 6,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "catalog",
+                  "component": "予約確認",
+                  "variant": "入力中"
+                },
+                "source": {
+                  "module": "catalog",
+                  "span": {
+                    "offset": 330,
+                    "length": 12,
+                    "line": 25,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "f56ff42be2ff365fcd32cdc9226b4271da47a71d54f7b9a7c7277fe2dd6dea95"
+              },
+              "branch": {
+                "label": "貸出中",
+                "results": [
+                  {
+                    "resultIndex": 4,
+                    "source": {
+                      "module": "catalog",
+                      "span": {
+                        "offset": 434,
+                        "length": 24,
+                        "line": 27,
+                        "col": 1
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "afterDigest": "aa6f36533f9883a9825332232c82b1b60eb901ea233c510c3531b89a4deae180",
+            "observations": [
+              {
+                "viewDigest": "908da0c1551c0791a5b689d81bc3cb58026c0a7e5f40526623d5c199d6d582c4"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          },
+          {
+            "step": 7,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "variant",
+                "host": {
+                  "module": "catalog",
+                  "component": "予約確認",
+                  "variant": "空き待ち"
+                },
+                "source": {
+                  "module": "catalog",
+                  "span": {
+                    "offset": 517,
+                    "length": 24,
+                    "line": 33,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "6318862839fad0463add3f00c45273adbdb8a25ee73d3bfafcd9919a8c9ac7ac"
+              },
+              "branch": null
+            },
+            "afterDigest": "454d2a0a848db72d78ff5974727789325d0e3bceccf7fe613464881548dd340e",
+            "observations": [
+              {
+                "viewDigest": "096dcd85f02ca781906e6346c331eca74cf28305b157bd62f1e40dcabada0b31"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          },
+          {
+            "step": 8,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "catalog",
+                  "component": "予約確認",
+                  "variant": "入力中"
+                },
+                "source": {
+                  "module": "catalog",
+                  "span": {
+                    "offset": 330,
+                    "length": 12,
+                    "line": 25,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "f56ff42be2ff365fcd32cdc9226b4271da47a71d54f7b9a7c7277fe2dd6dea95"
+              },
+              "branch": {
+                "label": "予約可",
+                "results": [
+                  {
+                    "resultIndex": 0,
+                    "source": {
+                      "module": "catalog",
+                      "span": {
+                        "offset": 343,
+                        "length": 90,
+                        "line": 26,
+                        "col": 1
+                      }
+                    }
+                  },
+                  {
+                    "resultIndex": 1,
+                    "source": {
+                      "module": "catalog",
+                      "span": {
+                        "offset": 343,
+                        "length": 90,
+                        "line": 26,
+                        "col": 1
+                      }
+                    }
+                  },
+                  {
+                    "resultIndex": 2,
+                    "source": {
+                      "module": "catalog",
+                      "span": {
+                        "offset": 343,
+                        "length": 90,
+                        "line": 26,
+                        "col": 1
+                      }
+                    }
+                  },
+                  {
+                    "resultIndex": 3,
+                    "source": {
+                      "module": "catalog",
+                      "span": {
+                        "offset": 343,
+                        "length": 90,
+                        "line": 26,
+                        "col": 1
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "afterDigest": "e67594240c4d9b52583abf54ece3d079c9a3489f480e547df0152bab0d838dd6",
+            "observations": [
+              {
+                "viewDigest": "096dcd85f02ca781906e6346c331eca74cf28305b157bd62f1e40dcabada0b31"
+              },
+              {
+                "viewDigest": "c945c23760479e5709a74dab5883b25d8a0b9e81ac03716b99372c9824856c72"
+              },
+              {
+                "viewDigest": "fac476628492f201b6a90f009427fd316af18cf168f92339f3cf770ed932cd47"
+              },
+              {
+                "viewDigest": "9241bb7faf4e1034bc21b63ad22fdd9df8e045529f2dad8daa890e3988d5c79f"
+              }
+            ],
+            "output": {
+              "effects": [
+                {
+                  "resultIndex": 0,
+                  "source": {
+                    "module": "catalog",
+                    "span": {
+                      "offset": 343,
+                      "length": 90,
+                      "line": 26,
+                      "col": 1
+                    }
+                  },
+                  "text": "予約を記録する"
+                }
+              ],
+              "diagnostics": [],
+              "changed": [
+                "frames",
+                "sharedVariants",
+                "origins"
+              ]
+            },
+            "outputDigest": "af3b5a293fa317f15e577a156bb5eeec4cd79dadff439aa8db4df92ff1fa16ed"
+          },
+          {
+            "step": 9,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "control",
+                "name": "back"
+              },
+              "branch": null
+            },
+            "afterDigest": "4a99fd768fd04869948e1a800ddb3ed43294694cd8845503456fbf7a0157806a",
+            "observations": [
+              {
+                "viewDigest": "fac476628492f201b6a90f009427fd316af18cf168f92339f3cf770ed932cd47"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          },
+          {
+            "step": 10,
+            "command": {
+              "kind": "reset"
+            },
+            "afterDigest": "52307e898931890a07d62a244807a4928c9c912e52e5deb4c6cd24ce0a16438a",
+            "observations": [
+              {
+                "viewDigest": "3c9bdda73fafce6508004c21e40bd38dd2a5cd36e00e13386684f10db909ea1a"
+              }
+            ],
+            "output": null,
+            "outputDigest": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+          },
+          {
+            "step": 11,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "main",
+                  "component": "備品ポータル",
+                  "variant": null
+                },
+                "source": {
+                  "module": "main",
+                  "span": {
+                    "offset": 100,
+                    "length": 31,
+                    "line": 7,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "245016ad51b698c119076751001716c66880a91dc6f707c2faf792dfbe4bd23b"
+              },
+              "branch": null
+            },
+            "afterDigest": "6f7702f18decb09cf9c776b8f48fe9aa26016a94995f9480a9d933d57964f376",
+            "observations": [
+              {
+                "viewDigest": "bde358915414bd556373702dbc8435bd0112757ddbbd06ed2229a3801b2f6608"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          },
+          {
+            "step": 12,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "checkout",
+                  "component": "貸出窓口",
+                  "variant": null
+                },
+                "source": {
+                  "module": "checkout",
+                  "span": {
+                    "offset": 44,
+                    "length": 30,
+                    "line": 4,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "a164919bb64a4dd61caea95540cc4450cdf6ff05b101de3a8f69c627f33c2e0f"
+              },
+              "branch": null
+            },
+            "afterDigest": "8bbafc5fb7e1934426f1949d49b1d99dffc3b948c215bd691e57416bfdba3358",
+            "observations": [
+              {
+                "viewDigest": "b77d57373f77c5365436cb83ff2c555f242d2ce38d900e9249c62e4071fcb6e8"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          },
+          {
+            "step": 13,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "checkout",
+                  "component": "当日貸出確認",
+                  "variant": "確認中"
+                },
+                "source": {
+                  "module": "checkout",
+                  "span": {
+                    "offset": 210,
+                    "length": 8,
+                    "line": 16,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "f8c259113bced40bebe55733e26e168d45d6e9027bffcc745f3ba03f4c79c8ef"
+              },
+              "branch": {
+                "label": "整備中",
+                "results": [
+                  {
+                    "resultIndex": 4,
+                    "source": {
+                      "module": "checkout",
+                      "span": {
+                        "offset": 282,
+                        "length": 24,
+                        "line": 18,
+                        "col": 1
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "afterDigest": "6250108ae48c28b5915b69a1ea226df9c531e7d83f284b033320e6ac3b4345de",
+            "observations": [
+              {
+                "viewDigest": "77ef0d6eea0c56384dece26d80d59ead165a392c0efc7d159aea218af693f3e0"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          },
+          {
+            "step": 14,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "checkout",
+                  "component": "当日貸出確認",
+                  "variant": "利用不可"
+                },
+                "source": {
+                  "module": "checkout",
+                  "span": {
+                    "offset": 307,
+                    "length": 19,
+                    "line": 19,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "6497fb4ca518a86addcad044f6169d0f7f3d761c2c6971edf9ec54aceb441dd3"
+              },
+              "branch": null
+            },
+            "afterDigest": "d90bc36f3f8d3698edab030a6bd2a7017ac61eca9e775de0d5fa37fe5c2b41d4",
+            "observations": [
+              {
+                "viewDigest": "3ce532809a94258d494b6ac2e64e256f5a8ed73b08448eb5f0efd761c8e85949"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          },
+          {
+            "step": 15,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "checkout",
+                  "component": "貸出窓口",
+                  "variant": null
+                },
+                "source": {
+                  "module": "checkout",
+                  "span": {
+                    "offset": 44,
+                    "length": 30,
+                    "line": 4,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "a164919bb64a4dd61caea95540cc4450cdf6ff05b101de3a8f69c627f33c2e0f"
+              },
+              "branch": null
+            },
+            "afterDigest": "6fdf7fdf58004a61d7871b66112ed4412b1c1ce2e3149371ca554175c6f42367",
+            "observations": [
+              {
+                "viewDigest": "29f2b3ea58c6067aea566f926f56cf82fecbfabbaf8c6d5bacaad048855744cd"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          },
+          {
+            "step": 16,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "checkout",
+                  "component": "当日貸出確認",
+                  "variant": "確認中"
+                },
+                "source": {
+                  "module": "checkout",
+                  "span": {
+                    "offset": 210,
+                    "length": 8,
+                    "line": 16,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "f8c259113bced40bebe55733e26e168d45d6e9027bffcc745f3ba03f4c79c8ef"
+              },
+              "branch": {
+                "label": "利用可能",
+                "results": [
+                  {
+                    "resultIndex": 0,
+                    "source": {
+                      "module": "checkout",
+                      "span": {
+                        "offset": 219,
+                        "length": 62,
+                        "line": 17,
+                        "col": 1
+                      }
+                    }
+                  },
+                  {
+                    "resultIndex": 1,
+                    "source": {
+                      "module": "checkout",
+                      "span": {
+                        "offset": 219,
+                        "length": 62,
+                        "line": 17,
+                        "col": 1
+                      }
+                    }
+                  },
+                  {
+                    "resultIndex": 2,
+                    "source": {
+                      "module": "checkout",
+                      "span": {
+                        "offset": 219,
+                        "length": 62,
+                        "line": 17,
+                        "col": 1
+                      }
+                    }
+                  },
+                  {
+                    "resultIndex": 3,
+                    "source": {
+                      "module": "checkout",
+                      "span": {
+                        "offset": 219,
+                        "length": 62,
+                        "line": 17,
+                        "col": 1
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "afterDigest": "3dadf96426160fb7ddc8350ac60580137ff114b6eb463b42cf33ef1631a2cfe9",
+            "observations": [
+              {
+                "viewDigest": "29f2b3ea58c6067aea566f926f56cf82fecbfabbaf8c6d5bacaad048855744cd"
+              },
+              {
+                "viewDigest": "4e7fdffd46fa7dc0d7f13ec46d2e9912ff0f41ad80940d4dd033783fda59712a"
+              },
+              {
+                "viewDigest": "e37a6ddae3a11e3416de234945025390bb4143991b59005b1f7169e30e4f9281"
+              },
+              {
+                "viewDigest": "d22a826f0c9ce557378a9bfa532df26fddf45150236538780e93a098e0ed4182"
+              }
+            ],
+            "output": {
+              "effects": [
+                {
+                  "resultIndex": 0,
+                  "source": {
+                    "module": "checkout",
+                    "span": {
+                      "offset": 219,
+                      "length": 62,
+                      "line": 17,
+                      "col": 1
+                    }
+                  },
+                  "text": "貸出を記録する"
+                }
+              ],
+              "diagnostics": [],
+              "changed": [
+                "frames",
+                "sharedVariants",
+                "origins"
+              ]
+            },
+            "outputDigest": "06a1e3a89601379a53a8c35e3738eee561a075e4cdf5872173626d73b90e18ac"
+          },
+          {
+            "step": 17,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "checkout",
+                  "component": "貸出控え",
+                  "variant": null
+                },
+                "source": {
+                  "module": "checkout",
+                  "span": {
+                    "offset": 379,
+                    "length": 15,
+                    "line": 28,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "df0857a58aba155c8e59de33f6a41d18cf44aea3194eff07bc0ff74ab3068602"
+              },
+              "branch": null
+            },
+            "afterDigest": "a1192e0abf3cc967954163fa30af77506890eefa1c6c99c14ea0b0957d7cc89c",
+            "observations": [
+              {
+                "viewDigest": "e37a6ddae3a11e3416de234945025390bb4143991b59005b1f7169e30e4f9281"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          }
+        ],
+        "final": {
+          "view": {
+            "view": {
+              "location": {
+                "module": "checkout",
+                "component": "貸出窓口",
+                "variant": null
+              },
+              "state": {
+                "frames": [
+                  {
+                    "id": 0,
+                    "parentId": null,
+                    "stack": [
+                      {
+                        "module": "main",
+                        "component": "備品ポータル",
+                        "variant": null,
+                        "singleton": false,
+                        "scope": "frame-location",
+                        "origin": "initial"
+                      },
+                      {
+                        "module": "checkout",
+                        "component": "貸出窓口",
+                        "variant": null,
+                        "singleton": false,
+                        "scope": "frame-location",
+                        "origin": "initial"
+                      }
+                    ],
+                    "barrier": false,
+                    "beginsSession": null,
+                    "origin": "root"
+                  }
+                ],
+                "activeFrameId": 0,
+                "nextFrameId": 3,
+                "activePath": [
+                  0
+                ],
+                "overlays": [],
+                "sharedVariants": [
+                  {
+                    "module": "checkout",
+                    "component": "予約状況",
+                    "variant": "貸出中",
+                    "singleton": true,
+                    "scope": "singleton-shared",
+                    "origin": "dsl"
+                  }
+                ],
+                "testVariants": [],
+                "componentValues": [
+                  {
+                    "module": "catalog",
+                    "component": "スピーカー詳細",
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  {
+                    "module": "catalog",
+                    "component": "プロジェクター詳細",
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  {
+                    "module": "catalog",
+                    "component": "予約確認",
+                    "variant": "入力中",
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  {
+                    "module": "catalog",
+                    "component": "備品カード",
+                    "variant": "貸出可能",
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  {
+                    "module": "catalog",
+                    "component": "備品一覧",
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  {
+                    "module": "checkout",
+                    "component": "予約状況",
+                    "variant": "貸出中",
+                    "singleton": true,
+                    "scope": "singleton-shared",
+                    "origin": "dsl"
+                  },
+                  {
+                    "module": "checkout",
+                    "component": "受取案内",
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  {
+                    "module": "checkout",
+                    "component": "当日貸出確認",
+                    "variant": "確認中",
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  {
+                    "module": "checkout",
+                    "component": "貸出控え",
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  {
+                    "module": "checkout",
+                    "component": "貸出窓口",
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  {
+                    "module": "checkout",
+                    "component": "返却確認",
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  {
+                    "module": "main",
+                    "component": "備品ポータル",
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  }
+                ],
+                "gateTargets": [
+                  {
+                    "module": "catalog",
+                    "component": "備品カード",
+                    "variant": "貸出可能",
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial",
+                    "variants": [
+                      "貸出可能",
+                      "整備中"
+                    ]
+                  }
+                ],
+                "inclusion": {
+                  "main": {
+                    "module": "checkout",
+                    "component": "貸出窓口",
+                    "root": "main",
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "frame-location",
+                    "origin": "initial",
+                    "source": {
+                      "module": "checkout",
+                      "span": {
+                        "offset": 0,
+                        "length": 6,
+                        "line": 1,
+                        "col": 1
+                      }
+                    },
+                    "children": [
+                      {
+                        "name": "予約欄",
+                        "root": "main",
+                        "path": [
+                          0
+                        ],
+                        "source": {
+                          "module": "checkout",
+                          "span": {
+                            "offset": 7,
+                            "length": 9,
+                            "line": 2,
+                            "col": 1
+                          }
+                        },
+                        "collection": false,
+                        "reference": {
+                          "module": "checkout",
+                          "component": "予約状況"
+                        },
+                        "kind": "component",
+                        "value": {
+                          "variant": "貸出中",
+                          "singleton": true,
+                          "scope": "singleton-shared",
+                          "origin": "dsl"
+                        },
+                        "componentSource": {
+                          "module": "checkout",
+                          "span": {
+                            "offset": 481,
+                            "length": 7,
+                            "line": 35,
+                            "col": 1
+                          }
+                        },
+                        "children": [
+                          {
+                            "name": "貸出情報",
+                            "root": "main",
+                            "path": [
+                              0,
+                              0
+                            ],
+                            "source": {
+                              "module": "checkout",
+                              "span": {
+                                "offset": 524,
+                                "length": 4,
+                                "line": 41,
+                                "col": 1
+                              }
+                            },
+                            "collection": false,
+                            "reference": {
+                              "module": "checkout",
+                              "component": "貸出情報"
+                            },
+                            "kind": "unresolved",
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "overlays": []
+                }
+              },
+              "actions": {
+                "items": [
+                  {
+                    "operation": {
+                      "kind": "interaction",
+                      "scope": "component",
+                      "host": {
+                        "module": "checkout",
+                        "component": "貸出窓口",
+                        "variant": null
+                      },
+                      "source": {
+                        "module": "checkout",
+                        "span": {
+                          "offset": 17,
+                          "length": 26,
+                          "line": 3,
+                          "col": 1
+                        }
+                      },
+                      "placement": {
+                        "root": "main",
+                        "path": [],
+                        "source": null
+                      },
+                      "definitionDigest": "c2b44c7bf6c8c68e7d58192dc50e76944909e67455c90844403c3d1b49ad6763"
+                    },
+                    "branches": [],
+                    "enabled": true,
+                    "gate": null
+                  },
+                  {
+                    "operation": {
+                      "kind": "interaction",
+                      "scope": "component",
+                      "host": {
+                        "module": "checkout",
+                        "component": "貸出窓口",
+                        "variant": null
+                      },
+                      "source": {
+                        "module": "checkout",
+                        "span": {
+                          "offset": 44,
+                          "length": 30,
+                          "line": 4,
+                          "col": 1
+                        }
+                      },
+                      "placement": {
+                        "root": "main",
+                        "path": [],
+                        "source": null
+                      },
+                      "definitionDigest": "a164919bb64a4dd61caea95540cc4450cdf6ff05b101de3a8f69c627f33c2e0f"
+                    },
+                    "branches": [],
+                    "enabled": true,
+                    "gate": null
+                  },
+                  {
+                    "operation": {
+                      "kind": "interaction",
+                      "scope": "component",
+                      "host": {
+                        "module": "checkout",
+                        "component": "貸出窓口",
+                        "variant": null
+                      },
+                      "source": {
+                        "module": "checkout",
+                        "span": {
+                          "offset": 75,
+                          "length": 23,
+                          "line": 5,
+                          "col": 1
+                        }
+                      },
+                      "placement": {
+                        "root": "main",
+                        "path": [],
+                        "source": null
+                      },
+                      "definitionDigest": "0216c4fed8f3abf2aded40b7a9763c9ee768d424f4c437aee4b5b898e1c3a43c"
+                    },
+                    "branches": [],
+                    "enabled": true,
+                    "gate": null
+                  },
+                  {
+                    "operation": {
+                      "kind": "interaction",
+                      "scope": "component",
+                      "host": {
+                        "module": "checkout",
+                        "component": "貸出窓口",
+                        "variant": null
+                      },
+                      "source": {
+                        "module": "checkout",
+                        "span": {
+                          "offset": 99,
+                          "length": 14,
+                          "line": 6,
+                          "col": 1
+                        }
+                      },
+                      "placement": {
+                        "root": "main",
+                        "path": [],
+                        "source": null
+                      },
+                      "definitionDigest": "448448f607549ade334c3325a99a3a6869ee518d63b158a5350c65135ab58a68"
+                    },
+                    "branches": [],
+                    "enabled": true,
+                    "gate": null
+                  }
+                ],
+                "back": {
+                  "enabled": true,
+                  "reason": null
+                }
+              }
+            },
+            "timeline": [
+              {
+                "resultIndex": null,
+                "source": null,
+                "kind": "transition",
+                "label": "起動",
+                "location": {
+                  "module": "main",
+                  "component": "備品ポータル",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 10,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "main",
+                  "span": {
+                    "offset": 100,
+                    "length": 31,
+                    "line": 7,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "push → 貸出窓口",
+                "location": {
+                  "module": "checkout",
+                  "component": "貸出窓口",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 11,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "checkout",
+                  "span": {
+                    "offset": 44,
+                    "length": 30,
+                    "line": 4,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "present → 当日貸出確認 / 確認中",
+                "location": {
+                  "module": "checkout",
+                  "component": "当日貸出確認",
+                  "variant": "確認中"
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 12,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 4,
+                "source": {
+                  "module": "checkout",
+                  "span": {
+                    "offset": 282,
+                    "length": 24,
+                    "line": 18,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "goto → 当日貸出確認 / 利用不可",
+                "location": {
+                  "module": "checkout",
+                  "component": "当日貸出確認",
+                  "variant": "利用不可"
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 13,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "checkout",
+                  "span": {
+                    "offset": 307,
+                    "length": 19,
+                    "line": 19,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "dismiss → 貸出窓口",
+                "location": {
+                  "module": "checkout",
+                  "component": "貸出窓口",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 14,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "checkout",
+                  "span": {
+                    "offset": 44,
+                    "length": 30,
+                    "line": 4,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "present → 当日貸出確認 / 確認中",
+                "location": {
+                  "module": "checkout",
+                  "component": "当日貸出確認",
+                  "variant": "確認中"
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 15,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "checkout",
+                  "span": {
+                    "offset": 219,
+                    "length": 62,
+                    "line": 17,
+                    "col": 1
+                  }
+                },
+                "kind": "event",
+                "label": "effect: 貸出を記録する",
+                "location": {
+                  "module": "checkout",
+                  "component": "当日貸出確認",
+                  "variant": "確認中"
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 16,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 1,
+                "source": {
+                  "module": "checkout",
+                  "span": {
+                    "offset": 219,
+                    "length": 62,
+                    "line": 17,
+                    "col": 1
+                  }
+                },
+                "kind": "event",
+                "label": "set(予約状況)",
+                "location": {
+                  "module": "checkout",
+                  "component": "当日貸出確認",
+                  "variant": "確認中"
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 16,
+                  "observation": 1
+                }
+              },
+              {
+                "resultIndex": 2,
+                "source": {
+                  "module": "checkout",
+                  "span": {
+                    "offset": 219,
+                    "length": 62,
+                    "line": 17,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "dismiss → 貸出窓口",
+                "location": {
+                  "module": "checkout",
+                  "component": "貸出窓口",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 16,
+                  "observation": 2
+                }
+              },
+              {
+                "resultIndex": 3,
+                "source": {
+                  "module": "checkout",
+                  "span": {
+                    "offset": 219,
+                    "length": 62,
+                    "line": 17,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "push → 貸出控え",
+                "location": {
+                  "module": "checkout",
+                  "component": "貸出控え",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 16,
+                  "observation": 3
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "checkout",
+                  "span": {
+                    "offset": 379,
+                    "length": 15,
+                    "line": 28,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "back → 貸出窓口",
+                "location": {
+                  "module": "checkout",
+                  "component": "貸出窓口",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 17,
+                  "observation": 0
+                }
+              }
+            ],
+            "cursor": {
+              "step": 17,
+              "observation": 0
+            }
+          },
+          "digest": "a1192e0abf3cc967954163fa30af77506890eefa1c6c99c14ea0b0957d7cc89c"
+        }
+      }
+    }
+  ]
+}

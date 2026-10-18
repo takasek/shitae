@@ -1,0 +1,85 @@
+Browser tab: 4, Title: "shitae simulator", URL: "http://127.0.0.1:18727/identity/A.html".
+0 AXWebArea shitae simulator, URL: 127.0.0.1:18727/identity/A.html
+	1 container app
+		2 container
+			3 text 操作来歴（統合ログ） ナビゲーション履歴。実行された遷移の列を操作ごとに表示します。新しい記録が上。操作を展開すると結果と観測点を確認できます。完了点や途中の観測点を選ぶと巻戻し・やり直しできます。破棄済みの観測点へは移動できません。
+			4 checkbox (settable, integer) Description: イベントを表示, Value: 1
+			5 text 現在地: 備品を探す / 記録1 / 観測1 / 備品一覧 現在まで 2観測点 / ghost 0観測点 / 破棄済み 0観測点。記録には破棄経路・reset前・手動試験も含まれます。
+			6 button (collapsed) 1. 備品を探す, Secondary Actions: Expand
+			7 text main::備品ポータル / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			8 button 完了点: push → 備品一覧 備品一覧 / 現在地
+				9 text 完了点: push → 備品一覧
+				10 text 備品一覧 / 現在地
+			11 button 起点: 起動 備品ポータル
+				12 text 起点: 起動
+				13 text 備品ポータル
+			14 button (collapsed) 検討手順を表示, Secondary Actions: Expand
+			15 button 検討手順を書出し
+		16 container
+			17 text 現在の画面
+			18 button 初期状態へ
+			19 text このHTML: main · model 553b9c1c686f · engine 278103a97da5
+			20 button (collapsed) 版の詳細・共有するもの, Secondary Actions: Expand
+				21 text 版の詳細・共有するもの
+			22 text 保存範囲: dispatch 1件 / seek 0件 / reset 0件 / 手動試験 0件。条件選択はdispatchの内訳として操作来歴に表示します。破棄経路・reset前・ghost・手動試験も含む全記録を保存します。モデル本文・DOM・表示設定は含みません。読込後も現在の表示設定を使います。
+			23 button シナリオを保存
+			24 container
+				25 text シナリオを読み込む
+				26 button シナリオを読み込む
+			27 text アクティブな frame の表示（本体）と掲示中カード
+			28 checkbox (settable, integer) Description: アクションを表示, Value: 1
+			29 checkbox (settable, integer) Description: 部品の状態を表示, Value: 0
+			30 button 画面外 component の姿切替（gate 試験用）
+			31 text 今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。
+			32 text 備品一覧
+			33 container
+				34 button (expanded) プロジェクター, Secondary Actions: Collapse
+					35 text プロジェクター
+				36 button 利用する(プロジェクター.貸出手続き) 備品カード / 貸出可能 貸出可能 component common
+					37 text 利用する(プロジェクター.貸出手続き)
+					38 text 備品カード / 貸出可能
+					39 pop up button (collapsed, settable) Value: 貸出可能, Secondary Actions: Expand
+						40 menu
+							41 (selected) 貸出可能
+							42 整備中
+					43 text component common
+				44 text 品名と貸出案内 貸出手続き
+			45 container
+				46 button (expanded) 会議用スピーカー, Secondary Actions: Collapse
+					47 text 会議用スピーカー
+				48 button 利用する(会議用スピーカー.貸出手続き) 備品カード / 貸出可能 貸出可能 component common
+					49 text 利用する(会議用スピーカー.貸出手続き)
+					50 text 備品カード / 貸出可能
+					51 pop up button (collapsed, settable) Value: 貸出可能, Secondary Actions: Expand
+						52 menu
+							53 (selected) 貸出可能
+							54 整備中
+					55 text component common
+				56 text 品名と貸出案内 貸出手続き
+			57 button 戻る component common
+				58 text 戻る
+				59 text component common
+			60 button ← 戻る
+			61 container
+				62 button (expanded) スタック, Help: スタック — 今積み重なっている画面。プッシュダウン構成として読める, Secondary Actions: Collapse
+					63 text スタック
+				64 text 今積み重なっている画面。プッシュダウン構成として読める。上が現在地 備品一覧 備品ポータル
+			65 container
+				66 button (expanded) 遷移マップ, Help: 遷移マップ — 画面間の遷移関係（表示のみ。状態遷移図として読める）, Secondary Actions: Collapse
+					67 text 遷移マップ
+				68 text 画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。
+				69 button 設定を保存
+				70 checkbox (settable, integer) Description: 全体を見る, Value: 0
+				71 image
+					72 text main
+					73 text 備品ポータル
+					74 text catalog
+					75 text 備品一覧
+					76 text 備品カード
+					77 text プロジェクター詳細
+					78 text 予約確認
+					79 text スピーカー詳細
+					80 text checkout
+					81 text 貸出窓口
+
+The focused UI element is 0 AXWebArea shitae simulator, URL: 127.0.0.1:18727/identity/A.html
