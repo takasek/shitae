@@ -11,10 +11,10 @@ UI フロー記述言語 `shitae`（ラフに書けて、遷移が動く）の�
 
 ### 作業別の skill
 
-追跡済みの手順書。agent が skill として自動で読み込まない環境でも、該当する作業の前にファイルを開いて従う。
+追跡済みの手順書。agent が skill として自動で読み込まない環境でも、該当する作業の前にファイルを開いて従う。実体は `.agents/skills/` に置き、`.claude/skills/` からは symlink で参照する。
 
-- [`.claude/skills/shitae-authoring/SKILL.md`](.claude/skills/shitae-authoring/SKILL.md) — `.shitae` の読み書き・レビュー。AI_GUIDE を読む順序、手本の example、頻出ミスの自己点検を示す。
-- [`.claude/skills/spec-stress-test/SKILL.md`](.claude/skills/spec-stress-test/SKILL.md) — `docs/SPEC.md` 自体の変更・検討・負荷試験。成果物の置き場所と ADR の残し方を示す。
+- [`.agents/skills/shitae-authoring/SKILL.md`](.agents/skills/shitae-authoring/SKILL.md) — `.shitae` の読み書き・レビュー。AI_GUIDE を読む順序、手本の example、頻出ミスの自己点検を示す。
+- [`.agents/skills/spec-stress-test/SKILL.md`](.agents/skills/spec-stress-test/SKILL.md) — `docs/SPEC.md` 自体の変更・検討・負荷試験。成果物の置き場所と ADR の残し方を示す。
 
 ## 開発の規律
 
