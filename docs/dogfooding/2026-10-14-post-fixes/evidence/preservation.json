@@ -1,0 +1,17 @@
+{
+  "oldFileCount": 33,
+  "oldAllSHA256Identical": true,
+  "oldSourceManifestEntries": 20,
+  "oldSourceManifestAllMatch": true,
+  "trackedDiff": [],
+  "primarySHA": "a3ebaedbd5d452c99093a949bbaf94508da43ab4",
+  "primaryStatus": "?? .agents/\n?? .worktrees/\n",
+  "fixedTargetSHA": "e985f4ee58ab76339df5b0f59144e1f1a5da91c8",
+  "fixCommitsAreAncestors": {
+    "4b56240": true,
+    "9f47b1f": true,
+    "e92e543": true,
+    "3844800": true
+  },
+  "commitPushIssueMutation": "not performed"
+}

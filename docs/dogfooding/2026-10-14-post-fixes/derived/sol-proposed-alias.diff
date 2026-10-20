@@ -1,0 +1,11 @@
+--- docs/dogfooding/2026-10-13-standalone/sol/models/proposed.shitae
++++ docs/dogfooding/2026-10-14-post-fixes/derived/sol-proposed-alias.shitae
+@@ -34,7 +34,7 @@
+ status: DocumentStatus
+ > Split -> goto(##Split)
+ > SourceOnly -> goto(##Source)
+-> NodeDoubleClick(DiagramView.graph?) -> Reveal matching source position; goto(##Split)
++> NodeDoubleClick(diagram.graph?) -> Reveal matching source position; goto(##Split)
+ ## NoDocument
+ start: StartActions
+ > OpenDocument(StartActions.Open?) -> goto(##Split)

@@ -1,0 +1,42 @@
+[
+  {
+    "file": "derived/sol-proposed-alias.html",
+    "sha256": "37ac1547c789176dcc3d3e082cf184f9995488bd77c16de62665d714bbbb7a2f",
+    "htmlBytes": 148478,
+    "completeHtml": true,
+    "validUtf8": true,
+    "scriptSyntaxExits": [
+      0
+    ]
+  },
+  {
+    "file": "derived/sol-proposed-readable-status.html",
+    "sha256": "a894eaf88e5dc7c098bcbfff9305599c216ae6fb6ac8182d3da58b696dc5b58d",
+    "htmlBytes": 150099,
+    "completeHtml": true,
+    "validUtf8": true,
+    "scriptSyntaxExits": [
+      0
+    ]
+  },
+  {
+    "file": "guide-evaluation/initial.html",
+    "sha256": "0e6ad9fcfe26e085620b97591e0e1db2cc2678acf4c5945fe55696207b7d11c4",
+    "htmlBytes": 130619,
+    "completeHtml": true,
+    "validUtf8": true,
+    "scriptSyntaxExits": [
+      0
+    ]
+  },
+  {
+    "file": "guide-evaluation/receiver-probe.html",
+    "sha256": "78c9a34d4bfaf6316c2c6dfd1e8b844b44c8cc59351c97a9154092975eff8afb",
+    "htmlBytes": 124274,
+    "completeHtml": true,
+    "validUtf8": true,
+    "scriptSyntaxExits": [
+      0
+    ]
+  }
+]

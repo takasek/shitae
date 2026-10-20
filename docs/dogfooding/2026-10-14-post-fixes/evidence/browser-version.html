@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="UTF-8"><title>評価ブラウザの環境</title></head>
+<body><h1>評価ブラウザの環境</h1><pre id="environment"></pre>
+<script>
+document.getElementById('environment').textContent = JSON.stringify({
+  userAgent: navigator.userAgent, vendor: navigator.vendor,
+  platform: navigator.platform, viewport: [innerWidth, innerHeight]
+}, null, 2);
+</script></body></html>

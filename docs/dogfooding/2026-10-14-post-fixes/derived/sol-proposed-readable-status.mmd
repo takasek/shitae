@@ -1,0 +1,76 @@
+flowchart LR
+  subgraph Workspace_group["# Workspace"]
+    Workspace_Split["## Split"]
+    Workspace_Source["## Source"]
+    Workspace_Diagram["## Diagram"]
+    Workspace_NoDocument["## NoDocument"]
+  end
+  DocumentCommands["# DocumentCommands"]
+  StartActions["# StartActions"]
+  Navigation["# Navigation"]
+  DocumentTabs["# DocumentTabs"]
+  DocumentTab["# DocumentTab"]
+  DocumentIdentity["# DocumentIdentity"]
+  SourceEditor["# SourceEditor"]
+  subgraph DiagramView_group["# DiagramView"]
+    DiagramView_Ready["## Ready"]
+    DiagramView_Error["## Error"]
+  end
+  subgraph DocumentStatus_group["# DocumentStatus"]
+    DocumentStatus_Valid["## Valid"]
+    DocumentStatus_Invalid["## Invalid"]
+    DocumentStatus_Conflict["## Conflict"]
+  end
+  RecoveryNotice["# RecoveryNotice"]
+  VersionReview["# VersionReview"]
+  NormalizedEdges["# NormalizedEdges"]
+  Save["# Save"]
+  FormatMenu["# FormatMenu"]
+  NormalizeAction["# NormalizeAction"]
+  ViewModes["# ViewModes"]
+  OpenAction["# OpenAction"]
+  NewAction["# NewAction"]
+  FolderIdentity["# FolderIdentity"]
+  FileTree["# FileTree"]
+  RecentTargets["# RecentTargets"]
+  FileName["# FileName"]
+  DocumentStateText["# DocumentStateText"]
+  Close["# Close"]
+  ParentFolder["# ParentFolder"]
+  SourceText["# SourceText"]
+  Diagnostics["# Diagnostics"]
+  ZoomLevel["# ZoomLevel"]
+  Fit["# Fit"]
+  ActualSize["# ActualSize"]
+  Graph["# Graph"]
+  NodeActions["# NodeActions"]
+  SavedOrUnsaved["# SavedOrUnsaved"]
+  DiagramUnavailable["# DiagramUnavailable"]
+  ExternalChange["# ExternalChange"]
+  ReviewVersions["# ReviewVersions"]
+  EditorVersion["# EditorVersion"]
+  DiskVersion["# DiskVersion"]
+  KeepEditing["# KeepEditing"]
+  SaveCopy["# SaveCopy"]
+  ReplaceReviewedDisk["# ReplaceReviewedDisk"]
+  UseDiskVersion["# UseDiskVersion"]
+  EdgeText["# EdgeText"]
+
+  Workspace_Split -->|"CloseLastDocument"| Workspace_NoDocument
+  Workspace_Split -->|"OpenDocument"| Workspace_Split
+  Workspace_Split -->|"SourceOnly"| Workspace_Source
+  Workspace_Split -->|"DiagramOnly"| Workspace_Diagram
+  Workspace_Source -->|"CloseLastDocument"| Workspace_NoDocument
+  Workspace_Source -->|"OpenDocument"| Workspace_Split
+  Workspace_Source -->|"Split"| Workspace_Split
+  Workspace_Source -->|"DiagramOnly"| Workspace_Diagram
+  Workspace_Diagram -->|"CloseLastDocument"| Workspace_NoDocument
+  Workspace_Diagram -->|"OpenDocument"| Workspace_Split
+  Workspace_Diagram -->|"Split"| Workspace_Split
+  Workspace_Diagram -->|"SourceOnly"| Workspace_Source
+  Workspace_Diagram -->|"NodeDoubleClick(DiagramView)"| Workspace_Split
+  Workspace_NoDocument -->|"CloseLastDocument"| Workspace_NoDocument
+  Workspace_NoDocument -->|"OpenDocument"| Workspace_Split
+  Workspace_NoDocument -->|"OpenDocument(StartActions)"| Workspace_Split
+  Workspace_NoDocument -->|"NewDocument(StartActions)"| Workspace_Source
+  RecoveryNotice -->|"Review"| VersionReview

@@ -1,0 +1,39 @@
+{
+  "shitaeSHA": "e985f4ee58ab76339df5b0f59144e1f1a5da91c8",
+  "reset": "reload generated page; no manual variant presets",
+  "scenarios": [
+    {
+      "model": "sol/models/proposed.shitae",
+      "modelSHA256": "acc1cd09372ee07d350ae9cdb0283fd7080fa7f53263dc53cb1bf5cc166edc3b",
+      "actions": [
+        "SourceOnly",
+        "DiagramOnly",
+        "NodeDoubleClick(DiagramView.graph)",
+        "Conflict",
+        "Review",
+        "KeepEditing",
+        "ParseError",
+        "DiagramOnly",
+        "ValidInput",
+        "NodeDoubleClick(DiagramView.graph)",
+        "CloseLastDocument"
+      ],
+      "expected": "Workspace/NoDocument, no document Save/Format/diagram/RecoveryNotice"
+    },
+    {
+      "model": "astra/models/proposed.shitae",
+      "modelSHA256": "4df483ee831379ef3a52988950985072717e3cdba5a7e86181fad62568b8810a",
+      "actions": [
+        "開く(開始ボタン)",
+        "編集",
+        {
+          "action": "保存",
+          "conditionLabel": "成功"
+        },
+        "切替(B)",
+        "編集"
+      ],
+      "expected": "文書B, B.pfdsl — Edited; switching A retains A.pfdsl — Saved"
+    }
+  ]
+}

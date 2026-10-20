@@ -1,0 +1,46 @@
+[
+  {
+    "file": "docs/dogfooding/2026-10-14-post-fixes/guide-evaluation/initial.shitae",
+    "command": "check",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "file": "docs/dogfooding/2026-10-14-post-fixes/guide-evaluation/receiver-probe.shitae",
+    "command": "check",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "file": "docs/dogfooding/2026-10-14-post-fixes/guide-evaluation/ordinary-set-negative.shitae",
+    "command": "check",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "/private/tmp/shitae-post-fixes-20261014/docs/dogfooding/2026-10-14-post-fixes/guide-evaluation/ordinary-set-negative.shitae:3: [error] E030: set(通常文書##保存済) の '通常文書' は singleton ではない（インスタンス独立のため書き込み先が定まらない。#! にするか遷移で書き換える。「singleton component」参照）\n"
+  },
+  {
+    "file": "docs/dogfooding/2026-10-14-post-fixes/guide-evaluation/singleton-collection-negative.shitae",
+    "command": "check",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "/private/tmp/shitae-post-fixes-20261014/docs/dogfooding/2026-10-14-post-fixes/guide-evaluation/singleton-collection-negative.shitae:3: [error] E028: singleton '代表文書' に collection の * は付けられない（単一インスタンス。「singleton component」参照）\n"
+  },
+  {
+    "file": "docs/dogfooding/2026-10-14-post-fixes/guide-evaluation/initial.shitae",
+    "command": "simulate",
+    "exit_code": 0,
+    "stdout_bytes": 130619,
+    "stderr": "",
+    "starts_with": "<!DOCTYPE html>\n<html lang=\"ja\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>shitae si"
+  },
+  {
+    "file": "docs/dogfooding/2026-10-14-post-fixes/guide-evaluation/receiver-probe.shitae",
+    "command": "simulate",
+    "exit_code": 0,
+    "stdout_bytes": 124274,
+    "stderr": "",
+    "starts_with": "<!DOCTYPE html>\n<html lang=\"ja\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>shitae si"
+  }
+]
