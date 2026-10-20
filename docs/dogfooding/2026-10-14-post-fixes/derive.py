@@ -14,7 +14,8 @@ for key,content,purpose in [
     for command in ['check','mermaid','simulate']:
         result=subprocess.run(['node',str(root/'packages/cli/dist/index.js'),command,str(model)],capture_output=True)
         if command!='check':(dest/(key+('.mmd' if command=='mermaid' else '.html'))).write_bytes(result.stdout)
-        rows.append(dict(command=command,exit=result.returncode,stderr=result.stderr.decode(),warningCodes=re.findall(r'\[warning\] (W\d+)',result.stderr.decode())))
+        diagnostic=result.stderr.decode().replace(str(root)+'/','')
+        rows.append(dict(command=command,exit=result.returncode,stderr=diagnostic,warningCodes=re.findall(r'\[warning\] (W\d+)',diagnostic)))
         assert result.returncode==0
     (dest/(key+'-validation.json')).write_text(json.dumps(dict(purpose=purpose,originalSHA256=hashlib.sha256(source.read_bytes()).hexdigest(),derivedSHA256=hashlib.sha256(model.read_bytes()).hexdigest(),commands=rows),ensure_ascii=False,indent=2)+'\n')
 print('Generated 2 comparison models; saved sources were read only.')
