@@ -1,0 +1,2369 @@
+[
+  {
+    "request": {
+      "id": "v2-1",
+      "command": "query",
+      "select": [
+        "actions"
+      ]
+    },
+    "response": {
+      "id": "v2-1",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 0,
+      "summary": {
+        "location": {
+          "module": "library-v1",
+          "component": "図書検索",
+          "variant": "入力前"
+        },
+        "cursorObservationId": 1,
+        "latestObservationId": 1,
+        "observationCount": 1
+      },
+      "data": {
+        "actions": {
+          "items": [
+            {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:0:0",
+              "actionText": "タップ(検索する)",
+              "scope": "component",
+              "placement": {
+                "root": "main",
+                "path": []
+              },
+              "host": {
+                "module": "library-v1",
+                "component": "図書検索",
+                "variant": "入力前"
+              },
+              "enabled": true,
+              "branches": []
+            }
+          ],
+          "controls": {
+            "back": {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:0:back",
+              "enabled": false
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "request": {
+      "id": "v2-2",
+      "command": "dispatch",
+      "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:0:0"
+    },
+    "response": {
+      "id": "v2-2",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 1,
+      "summary": {
+        "location": {
+          "module": "library-v1",
+          "component": "図書検索",
+          "variant": "結果あり"
+        },
+        "cursorObservationId": 3,
+        "latestObservationId": 3,
+        "observationCount": 3
+      },
+      "receipt": {
+        "operationId": 1,
+        "changed": [
+          "frames"
+        ],
+        "observations": {
+          "count": 2,
+          "firstId": 2,
+          "lastId": 3
+        },
+        "effects": [
+          {
+            "resultIndex": 0,
+            "source": {
+              "module": "library-v1",
+              "file": "/private/tmp/shitae-e2e-20261020-01a1570c/docs/dogfooding/2026-10-20-end-to-end/models/author/revised/library-v1.shitae",
+              "span": {
+                "offset": 62,
+                "length": 37,
+                "line": 5,
+                "col": 1
+              }
+            },
+            "text": "検索を実行する"
+          }
+        ],
+        "diagnostics": []
+      }
+    }
+  },
+  {
+    "request": {
+      "id": "v2-3",
+      "command": "query",
+      "select": [
+        "actions"
+      ]
+    },
+    "response": {
+      "id": "v2-3",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 1,
+      "summary": {
+        "location": {
+          "module": "library-v1",
+          "component": "図書検索",
+          "variant": "結果あり"
+        },
+        "cursorObservationId": 3,
+        "latestObservationId": 3,
+        "observationCount": 3
+      },
+      "data": {
+        "actions": {
+          "items": [
+            {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:1:0",
+              "actionText": "タップ(検索する)",
+              "scope": "component",
+              "placement": {
+                "root": "main",
+                "path": []
+              },
+              "host": {
+                "module": "library-v1",
+                "component": "図書検索",
+                "variant": "結果あり"
+              },
+              "enabled": true,
+              "branches": []
+            },
+            {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:1:1",
+              "actionText": "タップ(本)",
+              "scope": "variant",
+              "placement": {
+                "root": "main",
+                "path": []
+              },
+              "host": {
+                "module": "library-v1",
+                "component": "図書検索",
+                "variant": "結果あり"
+              },
+              "enabled": true,
+              "branches": []
+            }
+          ],
+          "controls": {
+            "back": {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:1:back",
+              "enabled": false
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "request": {
+      "id": "v2-4",
+      "command": "dispatch",
+      "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:1:1"
+    },
+    "response": {
+      "id": "v2-4",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 2,
+      "summary": {
+        "location": {
+          "module": "library-v1",
+          "component": "本の詳細",
+          "variant": null
+        },
+        "cursorObservationId": 4,
+        "latestObservationId": 4,
+        "observationCount": 4
+      },
+      "receipt": {
+        "operationId": 2,
+        "changed": [
+          "frames"
+        ],
+        "observations": {
+          "count": 1,
+          "firstId": 4,
+          "lastId": 4
+        },
+        "effects": [],
+        "diagnostics": []
+      }
+    }
+  },
+  {
+    "request": {
+      "id": "v2-5",
+      "command": "query",
+      "select": [
+        "actions"
+      ]
+    },
+    "response": {
+      "id": "v2-5",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 2,
+      "summary": {
+        "location": {
+          "module": "library-v1",
+          "component": "本の詳細",
+          "variant": null
+        },
+        "cursorObservationId": 4,
+        "latestObservationId": 4,
+        "observationCount": 4
+      },
+      "data": {
+        "actions": {
+          "items": [
+            {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:2:0",
+              "actionText": "タップ(予約する)",
+              "scope": "component",
+              "placement": {
+                "root": "main",
+                "path": []
+              },
+              "host": {
+                "module": "library-v1",
+                "component": "本の詳細",
+                "variant": null
+              },
+              "enabled": true,
+              "branches": []
+            },
+            {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:2:1",
+              "actionText": "タップ(戻る)",
+              "scope": "component",
+              "placement": {
+                "root": "main",
+                "path": []
+              },
+              "host": {
+                "module": "library-v1",
+                "component": "本の詳細",
+                "variant": null
+              },
+              "enabled": true,
+              "branches": []
+            }
+          ],
+          "controls": {
+            "back": {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:2:back",
+              "enabled": true
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "request": {
+      "id": "v2-6",
+      "command": "dispatch",
+      "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:2:0"
+    },
+    "response": {
+      "id": "v2-6",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 3,
+      "summary": {
+        "location": {
+          "module": "library-v1",
+          "component": "予約確認",
+          "variant": null
+        },
+        "cursorObservationId": 5,
+        "latestObservationId": 5,
+        "observationCount": 5
+      },
+      "receipt": {
+        "operationId": 3,
+        "changed": [
+          "frames"
+        ],
+        "observations": {
+          "count": 1,
+          "firstId": 5,
+          "lastId": 5
+        },
+        "effects": [],
+        "diagnostics": []
+      }
+    }
+  },
+  {
+    "request": {
+      "id": "v2-7",
+      "command": "query",
+      "select": [
+        "actions"
+      ]
+    },
+    "response": {
+      "id": "v2-7",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 3,
+      "summary": {
+        "location": {
+          "module": "library-v1",
+          "component": "予約確認",
+          "variant": null
+        },
+        "cursorObservationId": 5,
+        "latestObservationId": 5,
+        "observationCount": 5
+      },
+      "data": {
+        "actions": {
+          "items": [
+            {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:3:0",
+              "actionText": "タップ(取り消す)",
+              "scope": "component",
+              "placement": {
+                "root": "main",
+                "path": []
+              },
+              "host": {
+                "module": "library-v1",
+                "component": "予約確認",
+                "variant": null
+              },
+              "enabled": true,
+              "branches": []
+            },
+            {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:3:1",
+              "actionText": "タップ(確定する)",
+              "scope": "component",
+              "placement": {
+                "root": "main",
+                "path": []
+              },
+              "host": {
+                "module": "library-v1",
+                "component": "予約確認",
+                "variant": null
+              },
+              "enabled": true,
+              "branches": []
+            },
+            {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:3:2",
+              "actionText": "タップ(戻る)",
+              "scope": "component",
+              "placement": {
+                "root": "main",
+                "path": []
+              },
+              "host": {
+                "module": "library-v1",
+                "component": "予約確認",
+                "variant": null
+              },
+              "enabled": true,
+              "branches": []
+            }
+          ],
+          "controls": {
+            "back": {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:3:back",
+              "enabled": false
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "request": {
+      "id": "v2-8",
+      "command": "dispatch",
+      "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:3:2"
+    },
+    "response": {
+      "id": "v2-8",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 4,
+      "summary": {
+        "location": {
+          "module": "library-v1",
+          "component": "本の詳細",
+          "variant": null
+        },
+        "cursorObservationId": 6,
+        "latestObservationId": 6,
+        "observationCount": 6
+      },
+      "receipt": {
+        "operationId": 4,
+        "changed": [
+          "frames"
+        ],
+        "observations": {
+          "count": 1,
+          "firstId": 6,
+          "lastId": 6
+        },
+        "effects": [],
+        "diagnostics": []
+      }
+    }
+  },
+  {
+    "request": {
+      "id": "v2-9",
+      "command": "query",
+      "select": [
+        "actions"
+      ]
+    },
+    "response": {
+      "id": "v2-9",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 4,
+      "summary": {
+        "location": {
+          "module": "library-v1",
+          "component": "本の詳細",
+          "variant": null
+        },
+        "cursorObservationId": 6,
+        "latestObservationId": 6,
+        "observationCount": 6
+      },
+      "data": {
+        "actions": {
+          "items": [
+            {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:4:0",
+              "actionText": "タップ(予約する)",
+              "scope": "component",
+              "placement": {
+                "root": "main",
+                "path": []
+              },
+              "host": {
+                "module": "library-v1",
+                "component": "本の詳細",
+                "variant": null
+              },
+              "enabled": true,
+              "branches": []
+            },
+            {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:4:1",
+              "actionText": "タップ(戻る)",
+              "scope": "component",
+              "placement": {
+                "root": "main",
+                "path": []
+              },
+              "host": {
+                "module": "library-v1",
+                "component": "本の詳細",
+                "variant": null
+              },
+              "enabled": true,
+              "branches": []
+            }
+          ],
+          "controls": {
+            "back": {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:4:back",
+              "enabled": true
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "request": {
+      "id": "v2-10",
+      "command": "dispatch",
+      "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:4:0"
+    },
+    "response": {
+      "id": "v2-10",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 5,
+      "summary": {
+        "location": {
+          "module": "library-v1",
+          "component": "予約確認",
+          "variant": null
+        },
+        "cursorObservationId": 7,
+        "latestObservationId": 7,
+        "observationCount": 7
+      },
+      "receipt": {
+        "operationId": 5,
+        "changed": [
+          "frames"
+        ],
+        "observations": {
+          "count": 1,
+          "firstId": 7,
+          "lastId": 7
+        },
+        "effects": [],
+        "diagnostics": []
+      }
+    }
+  },
+  {
+    "request": {
+      "id": "v2-11",
+      "command": "query",
+      "select": [
+        "actions"
+      ]
+    },
+    "response": {
+      "id": "v2-11",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 5,
+      "summary": {
+        "location": {
+          "module": "library-v1",
+          "component": "予約確認",
+          "variant": null
+        },
+        "cursorObservationId": 7,
+        "latestObservationId": 7,
+        "observationCount": 7
+      },
+      "data": {
+        "actions": {
+          "items": [
+            {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:5:0",
+              "actionText": "タップ(取り消す)",
+              "scope": "component",
+              "placement": {
+                "root": "main",
+                "path": []
+              },
+              "host": {
+                "module": "library-v1",
+                "component": "予約確認",
+                "variant": null
+              },
+              "enabled": true,
+              "branches": []
+            },
+            {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:5:1",
+              "actionText": "タップ(確定する)",
+              "scope": "component",
+              "placement": {
+                "root": "main",
+                "path": []
+              },
+              "host": {
+                "module": "library-v1",
+                "component": "予約確認",
+                "variant": null
+              },
+              "enabled": true,
+              "branches": []
+            },
+            {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:5:2",
+              "actionText": "タップ(戻る)",
+              "scope": "component",
+              "placement": {
+                "root": "main",
+                "path": []
+              },
+              "host": {
+                "module": "library-v1",
+                "component": "予約確認",
+                "variant": null
+              },
+              "enabled": true,
+              "branches": []
+            }
+          ],
+          "controls": {
+            "back": {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:5:back",
+              "enabled": false
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "request": {
+      "id": "v2-12",
+      "command": "dispatch",
+      "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:5:0"
+    },
+    "response": {
+      "id": "v2-12",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 6,
+      "summary": {
+        "location": {
+          "module": "library-v1",
+          "component": "本の詳細",
+          "variant": null
+        },
+        "cursorObservationId": 8,
+        "latestObservationId": 8,
+        "observationCount": 8
+      },
+      "receipt": {
+        "operationId": 6,
+        "changed": [
+          "frames"
+        ],
+        "observations": {
+          "count": 1,
+          "firstId": 8,
+          "lastId": 8
+        },
+        "effects": [],
+        "diagnostics": []
+      }
+    }
+  },
+  {
+    "request": {
+      "id": "v2-13",
+      "command": "query",
+      "select": [
+        "actions"
+      ]
+    },
+    "response": {
+      "id": "v2-13",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 6,
+      "summary": {
+        "location": {
+          "module": "library-v1",
+          "component": "本の詳細",
+          "variant": null
+        },
+        "cursorObservationId": 8,
+        "latestObservationId": 8,
+        "observationCount": 8
+      },
+      "data": {
+        "actions": {
+          "items": [
+            {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:6:0",
+              "actionText": "タップ(予約する)",
+              "scope": "component",
+              "placement": {
+                "root": "main",
+                "path": []
+              },
+              "host": {
+                "module": "library-v1",
+                "component": "本の詳細",
+                "variant": null
+              },
+              "enabled": true,
+              "branches": []
+            },
+            {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:6:1",
+              "actionText": "タップ(戻る)",
+              "scope": "component",
+              "placement": {
+                "root": "main",
+                "path": []
+              },
+              "host": {
+                "module": "library-v1",
+                "component": "本の詳細",
+                "variant": null
+              },
+              "enabled": true,
+              "branches": []
+            }
+          ],
+          "controls": {
+            "back": {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:6:back",
+              "enabled": true
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "request": {
+      "id": "v2-14",
+      "command": "dispatch",
+      "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:6:1"
+    },
+    "response": {
+      "id": "v2-14",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 7,
+      "summary": {
+        "location": {
+          "module": "library-v1",
+          "component": "図書検索",
+          "variant": "結果あり"
+        },
+        "cursorObservationId": 9,
+        "latestObservationId": 9,
+        "observationCount": 9
+      },
+      "receipt": {
+        "operationId": 7,
+        "changed": [
+          "frames"
+        ],
+        "observations": {
+          "count": 1,
+          "firstId": 9,
+          "lastId": 9
+        },
+        "effects": [],
+        "diagnostics": []
+      }
+    }
+  },
+  {
+    "request": {
+      "id": "v2-15",
+      "command": "query",
+      "select": [
+        "actions"
+      ]
+    },
+    "response": {
+      "id": "v2-15",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 7,
+      "summary": {
+        "location": {
+          "module": "library-v1",
+          "component": "図書検索",
+          "variant": "結果あり"
+        },
+        "cursorObservationId": 9,
+        "latestObservationId": 9,
+        "observationCount": 9
+      },
+      "data": {
+        "actions": {
+          "items": [
+            {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:7:0",
+              "actionText": "タップ(検索する)",
+              "scope": "component",
+              "placement": {
+                "root": "main",
+                "path": []
+              },
+              "host": {
+                "module": "library-v1",
+                "component": "図書検索",
+                "variant": "結果あり"
+              },
+              "enabled": true,
+              "branches": []
+            },
+            {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:7:1",
+              "actionText": "タップ(本)",
+              "scope": "variant",
+              "placement": {
+                "root": "main",
+                "path": []
+              },
+              "host": {
+                "module": "library-v1",
+                "component": "図書検索",
+                "variant": "結果あり"
+              },
+              "enabled": true,
+              "branches": []
+            }
+          ],
+          "controls": {
+            "back": {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:7:back",
+              "enabled": false
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "request": {
+      "id": "v2-16",
+      "command": "dispatch",
+      "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:7:1"
+    },
+    "response": {
+      "id": "v2-16",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 8,
+      "summary": {
+        "location": {
+          "module": "library-v1",
+          "component": "本の詳細",
+          "variant": null
+        },
+        "cursorObservationId": 10,
+        "latestObservationId": 10,
+        "observationCount": 10
+      },
+      "receipt": {
+        "operationId": 8,
+        "changed": [
+          "frames"
+        ],
+        "observations": {
+          "count": 1,
+          "firstId": 10,
+          "lastId": 10
+        },
+        "effects": [],
+        "diagnostics": []
+      }
+    }
+  },
+  {
+    "request": {
+      "id": "v2-17",
+      "command": "query",
+      "select": [
+        "actions"
+      ]
+    },
+    "response": {
+      "id": "v2-17",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 8,
+      "summary": {
+        "location": {
+          "module": "library-v1",
+          "component": "本の詳細",
+          "variant": null
+        },
+        "cursorObservationId": 10,
+        "latestObservationId": 10,
+        "observationCount": 10
+      },
+      "data": {
+        "actions": {
+          "items": [
+            {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:8:0",
+              "actionText": "タップ(予約する)",
+              "scope": "component",
+              "placement": {
+                "root": "main",
+                "path": []
+              },
+              "host": {
+                "module": "library-v1",
+                "component": "本の詳細",
+                "variant": null
+              },
+              "enabled": true,
+              "branches": []
+            },
+            {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:8:1",
+              "actionText": "タップ(戻る)",
+              "scope": "component",
+              "placement": {
+                "root": "main",
+                "path": []
+              },
+              "host": {
+                "module": "library-v1",
+                "component": "本の詳細",
+                "variant": null
+              },
+              "enabled": true,
+              "branches": []
+            }
+          ],
+          "controls": {
+            "back": {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:8:back",
+              "enabled": true
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "request": {
+      "id": "v2-18",
+      "command": "dispatch",
+      "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:8:0"
+    },
+    "response": {
+      "id": "v2-18",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 9,
+      "summary": {
+        "location": {
+          "module": "library-v1",
+          "component": "予約確認",
+          "variant": null
+        },
+        "cursorObservationId": 11,
+        "latestObservationId": 11,
+        "observationCount": 11
+      },
+      "receipt": {
+        "operationId": 9,
+        "changed": [
+          "frames"
+        ],
+        "observations": {
+          "count": 1,
+          "firstId": 11,
+          "lastId": 11
+        },
+        "effects": [],
+        "diagnostics": []
+      }
+    }
+  },
+  {
+    "request": {
+      "id": "v2-19",
+      "command": "query",
+      "select": [
+        "actions"
+      ]
+    },
+    "response": {
+      "id": "v2-19",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 9,
+      "summary": {
+        "location": {
+          "module": "library-v1",
+          "component": "予約確認",
+          "variant": null
+        },
+        "cursorObservationId": 11,
+        "latestObservationId": 11,
+        "observationCount": 11
+      },
+      "data": {
+        "actions": {
+          "items": [
+            {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:9:0",
+              "actionText": "タップ(取り消す)",
+              "scope": "component",
+              "placement": {
+                "root": "main",
+                "path": []
+              },
+              "host": {
+                "module": "library-v1",
+                "component": "予約確認",
+                "variant": null
+              },
+              "enabled": true,
+              "branches": []
+            },
+            {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:9:1",
+              "actionText": "タップ(確定する)",
+              "scope": "component",
+              "placement": {
+                "root": "main",
+                "path": []
+              },
+              "host": {
+                "module": "library-v1",
+                "component": "予約確認",
+                "variant": null
+              },
+              "enabled": true,
+              "branches": []
+            },
+            {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:9:2",
+              "actionText": "タップ(戻る)",
+              "scope": "component",
+              "placement": {
+                "root": "main",
+                "path": []
+              },
+              "host": {
+                "module": "library-v1",
+                "component": "予約確認",
+                "variant": null
+              },
+              "enabled": true,
+              "branches": []
+            }
+          ],
+          "controls": {
+            "back": {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:9:back",
+              "enabled": false
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "request": {
+      "id": "v2-20",
+      "command": "dispatch",
+      "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:9:1"
+    },
+    "response": {
+      "id": "v2-20",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 10,
+      "summary": {
+        "location": {
+          "module": "library-v1",
+          "component": "予約完了",
+          "variant": null
+        },
+        "cursorObservationId": 14,
+        "latestObservationId": 14,
+        "observationCount": 14
+      },
+      "receipt": {
+        "operationId": 10,
+        "changed": [
+          "frames"
+        ],
+        "observations": {
+          "count": 3,
+          "firstId": 12,
+          "lastId": 14
+        },
+        "effects": [
+          {
+            "resultIndex": 0,
+            "source": {
+              "module": "library-v1",
+              "file": "/private/tmp/shitae-e2e-20261020-01a1570c/docs/dogfooding/2026-10-20-end-to-end/models/author/revised/library-v1.shitae",
+              "span": {
+                "offset": 268,
+                "length": 47,
+                "line": 26,
+                "col": 1
+              }
+            },
+            "text": "予約を登録する"
+          }
+        ],
+        "diagnostics": []
+      }
+    }
+  },
+  {
+    "request": {
+      "id": "v2-21",
+      "command": "query",
+      "select": [
+        "actions"
+      ]
+    },
+    "response": {
+      "id": "v2-21",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 10,
+      "summary": {
+        "location": {
+          "module": "library-v1",
+          "component": "予約完了",
+          "variant": null
+        },
+        "cursorObservationId": 14,
+        "latestObservationId": 14,
+        "observationCount": 14
+      },
+      "data": {
+        "actions": {
+          "items": [
+            {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:10:0",
+              "actionText": "タップ(戻る)",
+              "scope": "component",
+              "placement": {
+                "root": "main",
+                "path": []
+              },
+              "host": {
+                "module": "library-v1",
+                "component": "予約完了",
+                "variant": null
+              },
+              "enabled": true,
+              "branches": []
+            }
+          ],
+          "controls": {
+            "back": {
+              "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:10:back",
+              "enabled": true
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "request": {
+      "id": "v2-22",
+      "command": "dispatch",
+      "handle": "767bc15c-94f3-4bd0-a7aa-37dfb5e70dfe:10:0"
+    },
+    "response": {
+      "id": "v2-22",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 11,
+      "summary": {
+        "location": {
+          "module": "library-v1",
+          "component": "図書検索",
+          "variant": "結果あり"
+        },
+        "cursorObservationId": 15,
+        "latestObservationId": 15,
+        "observationCount": 15
+      },
+      "receipt": {
+        "operationId": 11,
+        "changed": [
+          "frames"
+        ],
+        "observations": {
+          "count": 1,
+          "firstId": 15,
+          "lastId": 15
+        },
+        "effects": [],
+        "diagnostics": []
+      }
+    }
+  },
+  {
+    "request": {
+      "id": "v2-23",
+      "command": "exportScenario"
+    },
+    "response": {
+      "id": "v2-23",
+      "ok": true,
+      "protocolVersion": 1,
+      "revision": 11,
+      "summary": {
+        "location": {
+          "module": "library-v1",
+          "component": "図書検索",
+          "variant": "結果あり"
+        },
+        "cursorObservationId": 15,
+        "latestObservationId": 15,
+        "observationCount": 15
+      },
+      "scenario": {
+        "format": "shitae-scenario",
+        "formatVersion": 1,
+        "protocolVersion": 1,
+        "model": {
+          "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+          "modelId": "3d6bd2f2364c9bc254a4742a1052ed9935dc0b326b730b117cb737be0aa8e236",
+          "entryModule": "library-v1",
+          "sourceBasis": "source-bytes",
+          "manifest": [
+            {
+              "module": "library-v1",
+              "sourceSha256": "3e03a38ee6f0d8f0396769c6573f2e46c64a2b2f0f1f8d6b13cec19398309ed6"
+            }
+          ]
+        },
+        "initialDigest": "5f43a67e671011a6af974cb49a188b3e83302161f179abc1210c9126437986bb",
+        "steps": [
+          {
+            "step": 1,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "library-v1",
+                  "component": "図書検索",
+                  "variant": "入力前"
+                },
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 62,
+                    "length": 37,
+                    "line": 5,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "0cba2b66f81ed69e7eb59dd9229c444cc810d722731bdd15e0c0488662319869"
+              },
+              "branch": null
+            },
+            "afterDigest": "7376e9db928d6d602a1cb3b683eaf0d50dfb97644c49ed4c443872288b39ec08",
+            "observations": [
+              {
+                "viewDigest": "5e2143c523917a89ec3687cde392977e15b3042e28a74793b0c0fe9c08af94c5"
+              },
+              {
+                "viewDigest": "f60add351f418e067400fb9e0076b17b6542c38db047ce8fe33688c0a3f17560"
+              }
+            ],
+            "output": {
+              "effects": [
+                {
+                  "resultIndex": 0,
+                  "source": {
+                    "module": "library-v1",
+                    "span": {
+                      "offset": 62,
+                      "length": 37,
+                      "line": 5,
+                      "col": 1
+                    }
+                  },
+                  "text": "検索を実行する"
+                }
+              ],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "3e90e64e5ef1336deee800b081aa64cb9d679a20f535727c80eb8284a27719cc"
+          },
+          {
+            "step": 2,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "variant",
+                "host": {
+                  "module": "library-v1",
+                  "component": "図書検索",
+                  "variant": "結果あり"
+                },
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 123,
+                    "length": 22,
+                    "line": 10,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "f6c9636e5b99f7353a45ccd5e4b327f02a44e41beaf8fe9a88524e46e141fdf5"
+              },
+              "branch": null
+            },
+            "afterDigest": "fb88c3dcea6e7666e501f95e045153efe0c8493fccc3b609c2f8f80dd04b98e1",
+            "observations": [
+              {
+                "viewDigest": "71885bd8fbd964bd523c7590710aa9808178cc1bd4e49e0d3b81bc62f5cc32e7"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          },
+          {
+            "step": 3,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "library-v1",
+                  "component": "本の詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 168,
+                    "length": 28,
+                    "line": 17,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "315081b3115460514a1299c9628f487acbe15e68c9b586f2a8e4761cf75457b3"
+              },
+              "branch": null
+            },
+            "afterDigest": "cac1160c79f035a9c69b3f575eab1a5e05dabf3e22097003fc5bec9dd9d86b0c",
+            "observations": [
+              {
+                "viewDigest": "2d6fbeca86a2d3c03751917e7b33c5714397376a54b14f3fa41a202fe66fffc0"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          },
+          {
+            "step": 4,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "library-v1",
+                  "component": "予約確認",
+                  "variant": null
+                },
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 316,
+                    "length": 22,
+                    "line": 27,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "72231b332f5f620f2603b3515ea9ea3baeb4a3000087194fb6c132cfe4beb7d0"
+              },
+              "branch": null
+            },
+            "afterDigest": "5dfb158c67a5bcb8406f65f5816563f2a3f073171a8091f197c12bba243824d2",
+            "observations": [
+              {
+                "viewDigest": "a8ecddef1fe18352793e18dcbe09529b56d16b4a2eb84110633598c82de1c262"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          },
+          {
+            "step": 5,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "library-v1",
+                  "component": "本の詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 168,
+                    "length": 28,
+                    "line": 17,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "315081b3115460514a1299c9628f487acbe15e68c9b586f2a8e4761cf75457b3"
+              },
+              "branch": null
+            },
+            "afterDigest": "ee6cf1aaa8bd29e4e03595ad775cd05b436156d7697b81c65b11d75cbe9b08f5",
+            "observations": [
+              {
+                "viewDigest": "a98128b1e3bd3ff315476a49acb081f4ce1aecc7ea783a515e8ba7ba4047c2a3"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          },
+          {
+            "step": 6,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "library-v1",
+                  "component": "予約確認",
+                  "variant": null
+                },
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 243,
+                    "length": 24,
+                    "line": 25,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "8b407eaac5fb180faea4c4f127139a98ec35da83f78c0e05ddf6cee474e54c1a"
+              },
+              "branch": null
+            },
+            "afterDigest": "e43072f8eb89a4d792c7599d25a94f8458a941214cb5fc06b94fe354cb22ea51",
+            "observations": [
+              {
+                "viewDigest": "a4e6b85f3d050dfc02b52937f1c4dc2199751d96669842079d147899cef50bf7"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          },
+          {
+            "step": 7,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "library-v1",
+                  "component": "本の詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 197,
+                    "length": 19,
+                    "line": 18,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "b1b4368bd9524f51a53bbed8deab4a439f99817ae3704922413bd6c32b98db04"
+              },
+              "branch": null
+            },
+            "afterDigest": "6968f4ec3caeb1ea521e7fd94220e1837d7e4776bb63c48c166d91b8750a6f58",
+            "observations": [
+              {
+                "viewDigest": "a6c6575e0b6d4b66be7ad0f5eebad69f26d4372466bb27ce07e53c574edf6b56"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          },
+          {
+            "step": 8,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "variant",
+                "host": {
+                  "module": "library-v1",
+                  "component": "図書検索",
+                  "variant": "結果あり"
+                },
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 123,
+                    "length": 22,
+                    "line": 10,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "f6c9636e5b99f7353a45ccd5e4b327f02a44e41beaf8fe9a88524e46e141fdf5"
+              },
+              "branch": null
+            },
+            "afterDigest": "457fd9dc4fa7b3f40ab6278c109f303aa0974a10033f3364f0c5ae50d048d570",
+            "observations": [
+              {
+                "viewDigest": "a4e6b85f3d050dfc02b52937f1c4dc2199751d96669842079d147899cef50bf7"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          },
+          {
+            "step": 9,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "library-v1",
+                  "component": "本の詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 168,
+                    "length": 28,
+                    "line": 17,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "315081b3115460514a1299c9628f487acbe15e68c9b586f2a8e4761cf75457b3"
+              },
+              "branch": null
+            },
+            "afterDigest": "a7e43b42ee2892e3b84ddf04f441c1472755961e00f4d6b985f371ee56a36aa6",
+            "observations": [
+              {
+                "viewDigest": "ad507ff773df3b17716784925ccceb648ba04e851cab6cb6f3f40610359dbb06"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          },
+          {
+            "step": 10,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "library-v1",
+                  "component": "予約確認",
+                  "variant": null
+                },
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 268,
+                    "length": 47,
+                    "line": 26,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "76f964296da8a394815632fd020429620a12e3030950744ad8a8df5597345502"
+              },
+              "branch": null
+            },
+            "afterDigest": "582072cb5f9aefeea4ce570d85db8f458c338a3924ea6933ac49da5670bf179e",
+            "observations": [
+              {
+                "viewDigest": "ad507ff773df3b17716784925ccceb648ba04e851cab6cb6f3f40610359dbb06"
+              },
+              {
+                "viewDigest": "61058ba4cbbd833e62d600a0b8f38daa46b110d09fe9e00e47d9cec92de7467e"
+              },
+              {
+                "viewDigest": "a1c55831f050621ccdf3c7592de06c3526f33f8ed1c4ff8ae3aee80fb71968ef"
+              }
+            ],
+            "output": {
+              "effects": [
+                {
+                  "resultIndex": 0,
+                  "source": {
+                    "module": "library-v1",
+                    "span": {
+                      "offset": 268,
+                      "length": 47,
+                      "line": 26,
+                      "col": 1
+                    }
+                  },
+                  "text": "予約を登録する"
+                }
+              ],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "286eb6810f093a535b5bb6219f9ded6590c456948082abff26bc04293e4084b8"
+          },
+          {
+            "step": 11,
+            "command": {
+              "kind": "dispatch",
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "library-v1",
+                  "component": "予約完了",
+                  "variant": null
+                },
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 355,
+                    "length": 19,
+                    "line": 32,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "1903dc2ee49e9dbbf0495595cfd84b791ecd97d9be3c2e99baa102cb7dd3e8ec"
+              },
+              "branch": null
+            },
+            "afterDigest": "d828f2b32ce57123ba2c81dcfbf0568d9a247f9a6e328037183e70b6fd00428f",
+            "observations": [
+              {
+                "viewDigest": "a6a88d4103132551ffb9fae55c1220d00126fa9fbc46957a8f6805f1ce8cf0dd"
+              }
+            ],
+            "output": {
+              "effects": [],
+              "diagnostics": [],
+              "changed": [
+                "frames"
+              ]
+            },
+            "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+          }
+        ],
+        "final": {
+          "view": {
+            "view": {
+              "location": {
+                "module": "library-v1",
+                "component": "図書検索",
+                "variant": "結果あり"
+              },
+              "state": {
+                "frames": [
+                  {
+                    "id": 0,
+                    "parentId": null,
+                    "stack": [
+                      {
+                        "module": "library-v1",
+                        "component": "図書検索",
+                        "variant": "結果あり",
+                        "singleton": false,
+                        "scope": "frame-location",
+                        "origin": "dsl"
+                      }
+                    ],
+                    "barrier": false,
+                    "beginsSession": null,
+                    "origin": "root"
+                  }
+                ],
+                "activeFrameId": 0,
+                "nextFrameId": 4,
+                "activePath": [
+                  0
+                ],
+                "overlays": [],
+                "sharedVariants": [],
+                "testVariants": [],
+                "componentValues": [
+                  {
+                    "module": "library-v1",
+                    "component": "予約完了",
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  {
+                    "module": "library-v1",
+                    "component": "予約確認",
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  {
+                    "module": "library-v1",
+                    "component": "図書検索",
+                    "variant": "入力前",
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  {
+                    "module": "library-v1",
+                    "component": "本の詳細",
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  }
+                ],
+                "gateTargets": [],
+                "inclusion": {
+                  "main": {
+                    "module": "library-v1",
+                    "component": "図書検索",
+                    "root": "main",
+                    "variant": "結果あり",
+                    "singleton": false,
+                    "scope": "frame-location",
+                    "origin": "dsl",
+                    "source": {
+                      "module": "library-v1",
+                      "span": {
+                        "offset": 46,
+                        "length": 6,
+                        "line": 2,
+                        "col": 1
+                      }
+                    },
+                    "children": [
+                      {
+                        "name": "検索欄",
+                        "root": "main",
+                        "path": [
+                          0
+                        ],
+                        "source": {
+                          "module": "library-v1",
+                          "span": {
+                            "offset": 53,
+                            "length": 3,
+                            "line": 3,
+                            "col": 1
+                          }
+                        },
+                        "collection": false,
+                        "reference": {
+                          "module": "library-v1",
+                          "component": "検索欄"
+                        },
+                        "kind": "unresolved",
+                        "children": []
+                      },
+                      {
+                        "name": "検索する",
+                        "root": "main",
+                        "path": [
+                          1
+                        ],
+                        "source": {
+                          "module": "library-v1",
+                          "span": {
+                            "offset": 57,
+                            "length": 4,
+                            "line": 4,
+                            "col": 1
+                          }
+                        },
+                        "collection": false,
+                        "reference": {
+                          "module": "library-v1",
+                          "component": "検索する"
+                        },
+                        "kind": "unresolved",
+                        "children": []
+                      },
+                      {
+                        "name": "本",
+                        "root": "main",
+                        "path": [
+                          2
+                        ],
+                        "source": {
+                          "module": "library-v1",
+                          "span": {
+                            "offset": 120,
+                            "length": 2,
+                            "line": 9,
+                            "col": 1
+                          }
+                        },
+                        "collection": true,
+                        "reference": {
+                          "module": "library-v1",
+                          "component": "本"
+                        },
+                        "kind": "unresolved",
+                        "children": []
+                      }
+                    ]
+                  },
+                  "overlays": []
+                }
+              },
+              "actions": {
+                "items": [
+                  {
+                    "operation": {
+                      "kind": "interaction",
+                      "scope": "component",
+                      "host": {
+                        "module": "library-v1",
+                        "component": "図書検索",
+                        "variant": "結果あり"
+                      },
+                      "source": {
+                        "module": "library-v1",
+                        "span": {
+                          "offset": 62,
+                          "length": 37,
+                          "line": 5,
+                          "col": 1
+                        }
+                      },
+                      "placement": {
+                        "root": "main",
+                        "path": [],
+                        "source": null
+                      },
+                      "definitionDigest": "0cba2b66f81ed69e7eb59dd9229c444cc810d722731bdd15e0c0488662319869"
+                    },
+                    "branches": [],
+                    "enabled": true,
+                    "gate": null
+                  },
+                  {
+                    "operation": {
+                      "kind": "interaction",
+                      "scope": "variant",
+                      "host": {
+                        "module": "library-v1",
+                        "component": "図書検索",
+                        "variant": "結果あり"
+                      },
+                      "source": {
+                        "module": "library-v1",
+                        "span": {
+                          "offset": 123,
+                          "length": 22,
+                          "line": 10,
+                          "col": 1
+                        }
+                      },
+                      "placement": {
+                        "root": "main",
+                        "path": [],
+                        "source": null
+                      },
+                      "definitionDigest": "f6c9636e5b99f7353a45ccd5e4b327f02a44e41beaf8fe9a88524e46e141fdf5"
+                    },
+                    "branches": [],
+                    "enabled": true,
+                    "gate": null
+                  }
+                ],
+                "back": {
+                  "enabled": false,
+                  "reason": "no-return-location"
+                }
+              }
+            },
+            "timeline": [
+              {
+                "resultIndex": null,
+                "source": null,
+                "kind": "transition",
+                "label": "起動",
+                "location": {
+                  "module": "library-v1",
+                  "component": "図書検索",
+                  "variant": "入力前"
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 0,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 62,
+                    "length": 37,
+                    "line": 5,
+                    "col": 1
+                  }
+                },
+                "kind": "event",
+                "label": "effect: 検索を実行する",
+                "location": {
+                  "module": "library-v1",
+                  "component": "図書検索",
+                  "variant": "入力前"
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 1,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 1,
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 62,
+                    "length": 37,
+                    "line": 5,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "goto → 図書検索 / 結果あり",
+                "location": {
+                  "module": "library-v1",
+                  "component": "図書検索",
+                  "variant": "結果あり"
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 1,
+                  "observation": 1
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 123,
+                    "length": 22,
+                    "line": 10,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "push → 本の詳細",
+                "location": {
+                  "module": "library-v1",
+                  "component": "本の詳細",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 2,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 168,
+                    "length": 28,
+                    "line": 17,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "present → 予約確認",
+                "location": {
+                  "module": "library-v1",
+                  "component": "予約確認",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 3,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 316,
+                    "length": 22,
+                    "line": 27,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "dismiss → 本の詳細",
+                "location": {
+                  "module": "library-v1",
+                  "component": "本の詳細",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 4,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 168,
+                    "length": 28,
+                    "line": 17,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "present → 予約確認",
+                "location": {
+                  "module": "library-v1",
+                  "component": "予約確認",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 5,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 243,
+                    "length": 24,
+                    "line": 25,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "dismiss → 本の詳細",
+                "location": {
+                  "module": "library-v1",
+                  "component": "本の詳細",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 6,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 197,
+                    "length": 19,
+                    "line": 18,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "back → 図書検索 / 結果あり",
+                "location": {
+                  "module": "library-v1",
+                  "component": "図書検索",
+                  "variant": "結果あり"
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 7,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 123,
+                    "length": 22,
+                    "line": 10,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "push → 本の詳細",
+                "location": {
+                  "module": "library-v1",
+                  "component": "本の詳細",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 8,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 168,
+                    "length": 28,
+                    "line": 17,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "present → 予約確認",
+                "location": {
+                  "module": "library-v1",
+                  "component": "予約確認",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 9,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 268,
+                    "length": 47,
+                    "line": 26,
+                    "col": 1
+                  }
+                },
+                "kind": "event",
+                "label": "effect: 予約を登録する",
+                "location": {
+                  "module": "library-v1",
+                  "component": "予約確認",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 10,
+                  "observation": 0
+                }
+              },
+              {
+                "resultIndex": 1,
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 268,
+                    "length": 47,
+                    "line": 26,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "dismiss → 本の詳細",
+                "location": {
+                  "module": "library-v1",
+                  "component": "本の詳細",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 10,
+                  "observation": 1
+                }
+              },
+              {
+                "resultIndex": 2,
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 268,
+                    "length": 47,
+                    "line": 26,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "goto → 予約完了",
+                "location": {
+                  "module": "library-v1",
+                  "component": "予約完了",
+                  "variant": null
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 10,
+                  "observation": 2
+                }
+              },
+              {
+                "resultIndex": 0,
+                "source": {
+                  "module": "library-v1",
+                  "span": {
+                    "offset": 355,
+                    "length": 19,
+                    "line": 32,
+                    "col": 1
+                  }
+                },
+                "kind": "transition",
+                "label": "back → 図書検索 / 結果あり",
+                "location": {
+                  "module": "library-v1",
+                  "component": "図書検索",
+                  "variant": "結果あり"
+                },
+                "ghost": false,
+                "ref": {
+                  "step": 11,
+                  "observation": 0
+                }
+              }
+            ],
+            "cursor": {
+              "step": 11,
+              "observation": 0
+            }
+          },
+          "digest": "d828f2b32ce57123ba2c81dcfbf0568d9a247f9a6e328037183e70b6fd00428f"
+        }
+      }
+    }
+  }
+]

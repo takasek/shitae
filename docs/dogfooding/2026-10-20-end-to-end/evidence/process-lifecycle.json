@@ -1,0 +1,20 @@
+{
+  "astra": {
+    "originalPid": 52770,
+    "replayPid": 53250,
+    "originalEndedBeforeReplay": true,
+    "continuedAction": "編集",
+    "exported": "astra-resumed.scenario.json"
+  },
+  "ghost": {
+    "replayPid": 55500,
+    "branchedReplayPid": 55512,
+    "firstEndedBeforeSecond": true,
+    "guiCursor": 10,
+    "guiLatest": 11,
+    "continuedAction": "ソースのみ",
+    "finalRetained": 11,
+    "finalGhost": 0,
+    "finalDiscarded": 1
+  }
+}

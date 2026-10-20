@@ -1,0 +1,112 @@
+Browser tab: 2, Title: "shitae simulator", URL: "http://127.0.0.1:8765/evidence/sol-models-proposed.html".
+0 AXWebArea shitae simulator, URL: 127.0.0.1:8765/evidence/sol-models-proposed.html
+	1 container app
+		2 container
+			3 text 操作来歴（統合ログ） ナビゲーション履歴。実行された遷移の列を操作ごとに表示します。新しい記録が上。操作を展開すると結果と観測点を確認できます。完了点や途中の観測点を選ぶと巻戻し・やり直しできます。破棄済みの観測点へは移動できません。
+			4 checkbox (settable, integer) Description: イベントを表示, Value: 1
+			5 text 現在地: Review / 記録2 / 観測2 / VersionReview 現在まで 5観測点 / ghost 0観測点 / 破棄済み 0観測点。記録には破棄経路・reset前・手動試験も含まれます。
+			6 button (collapsed) 2. Review, Secondary Actions: Expand
+			7 text proposed::RecoveryNotice / 配置 overlay:RecoveryNotice[] 2結果 / 2観測点 · 現在まで 2観測点 / ghost 0観測点 / 破棄済み 0観測点
+			8 button 完了点: present → VersionReview VersionReview / 現在地
+				9 text 完了点: present → VersionReview 
+				10 text VersionReview / 現在地
+			11 button (collapsed) 1. Conflict, Secondary Actions: Expand
+			12 text proposed::Workspace / Split / 配置 main[] 2結果 / 2観測点 · 現在まで 2観測点 / ghost 0観測点 / 破棄済み 0観測点
+			13 button 完了点: show(RecoveryNotice) Workspace / Split
+				14 text 完了点: show(RecoveryNotice) 
+				15 text Workspace / Split
+			16 button 起点: 起動 Workspace / Split
+				17 text 起点: 起動 
+				18 text Workspace / Split
+			19 button (collapsed) 検討手順を表示, Secondary Actions: Expand
+			20 button 検討手順を書出し
+		21 container
+			22 text 現在の画面
+			23 button 初期状態へ
+			24 text このHTML: proposed · model 6ea6e57467bb · engine 278103a97da5
+			25 button (collapsed) 版の詳細・共有するもの, Secondary Actions: Expand
+				26 text 版の詳細・共有するもの
+			27 text 保存範囲: dispatch 2件 / seek 0件 / reset 0件 / 手動試験 0件。条件選択はdispatchの内訳として操作来歴に表示します。破棄経路・reset前・ghost・手動試験も含む全記録を保存します。モデル本文・DOM・表示設定は含みません。読込後も現在の表示設定を使います。
+			28 button シナリオを保存
+			29 container
+				30 text シナリオを読み込む 
+				31 button シナリオを読み込む
+			32 text アクティブな frame の表示（本体）と掲示中カード
+			33 checkbox (settable, integer) Description: アクションを表示, Value: 1
+			34 checkbox (settable, integer) Description: 部品の状態を表示, Value: 1
+			35 button 画面外 component の姿切替（gate 試験用）
+			36 text 今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。
+			37 text VersionReview
+			38 text 画面の値 · 初期
+			39 container
+				40 button (expanded) identity → DocumentIdentity · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					41 text identity
+					42 text  → DocumentIdentity · variantなし · 
+					43 text 包含の初期値 · 初期
+				44 button (expanded) name → FileName · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					45 text name
+					46 text  → FileName · variantなし · 
+					47 text 包含の初期値 · 初期
+				48 button (expanded) context → ParentFolder · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					49 text context
+					50 text  → ParentFolder · variantなし · 
+					51 text 包含の初期値 · 初期
+			52 button (expanded) editor → EditorVersion · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+				53 text editor
+				54 text  → EditorVersion · variantなし · 
+				55 text 包含の初期値 · 初期
+			56 button (expanded) disk → DiskVersion · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+				57 text disk
+				58 text  → DiskVersion · variantなし · 
+				59 text 包含の初期値 · 初期
+			60 button (expanded) cancel → KeepEditing · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+				61 text cancel
+				62 text  → KeepEditing · variantなし · 
+				63 text 包含の初期値 · 初期
+			64 button (expanded) elsewhere → SaveCopy · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+				65 text elsewhere
+				66 text  → SaveCopy · variantなし · 
+				67 text 包含の初期値 · 初期
+			68 button (expanded) replace → ReplaceReviewedDisk · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+				69 text replace
+				70 text  → ReplaceReviewedDisk · variantなし · 
+				71 text 包含の初期値 · 初期
+			72 button (expanded) adopt → UseDiskVersion · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+				73 text adopt
+				74 text  → UseDiskVersion · variantなし · 
+				75 text 包含の初期値 · 初期
+			76 button KeepEditing component common
+				77 text KeepEditing
+				78 text component common
+			79 text SaveCopy
+			80 text component common
+			81 button [Success]
+			82 text ReplaceReviewedDisk
+			83 text component common
+			84 button [ConfirmedFresh]
+			85 text UseDiskVersion
+			86 text component common
+			87 button [ConfirmedFresh]
+			88 button DiskChangedAgain component common
+				89 text DiskChangedAgain
+				90 text component common
+			91 container
+				92 button (expanded) スタック, Help: スタック — 今積み重なっている画面。プッシュダウン構成として読める, Secondary Actions: Collapse
+					93 text スタック
+				94 text 今積み重なっている画面。プッシュダウン構成として読める。上が現在地
+				95 text ▌
+				96 text VersionReview Workspace / Split
+			97 container
+				98 button (expanded) 遷移マップ, Help: 遷移マップ — 画面間の遷移関係（表示のみ。状態遷移図として読める）, Secondary Actions: Collapse
+					99 text 遷移マップ
+				100 text 画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。
+				101 button 設定を保存
+				102 checkbox (settable, integer) Description: 全体を見る, Value: 0
+				103 image
+					104 text DocumentCommands
+					105 text StartActions
+					106 text DiagramView
+					107 text RecoveryNotice
+					108 text VersionReview
+
+The focused UI element is 0 AXWebArea shitae simulator, URL: 127.0.0.1:8765/evidence/sol-models-proposed.html

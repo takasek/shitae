@@ -1,0 +1,12 @@
+
+ RUN  v2.1.9 /private/tmp/shitae-e2e-20261020-01a1570c/packages/cli
+
+ ✓ test/portable-html.test.ts (6 tests) 247ms
+ ✓ test/stdout.test.ts (2 tests) 433ms
+ ✓ test/session.test.ts (11 tests) 971ms
+
+ Test Files  3 passed (3)
+      Tests  19 passed (19)
+   Start at  11:07:30
+   Duration  1.22s (transform 113ms, setup 0ms, collect 172ms, tests 1.65s, environment 0ms, prepare 98ms)
+

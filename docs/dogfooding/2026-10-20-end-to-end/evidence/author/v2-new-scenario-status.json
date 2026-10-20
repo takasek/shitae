@@ -1,0 +1,16 @@
+{
+  "dispatches": 11,
+  "requests": 23,
+  "processExit": 0,
+  "replayExit": 0,
+  "final": {
+    "location": {
+      "module": "library-v1",
+      "component": "図書検索",
+      "variant": "結果あり"
+    },
+    "cursorObservationId": 15,
+    "latestObservationId": 15,
+    "observationCount": 15
+  }
+}

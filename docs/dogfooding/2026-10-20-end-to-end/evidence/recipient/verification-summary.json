@@ -1,0 +1,91 @@
+{
+  "response_ids": [
+    "before",
+    "resume",
+    "after",
+    "save"
+  ],
+  "all_ok": true,
+  "before": {
+    "available": true,
+    "reason": null,
+    "steps": {
+      "dispatch": 8,
+      "seek": 1,
+      "reset": 0,
+      "setTestVariant": 0
+    },
+    "resultCount": 10,
+    "observations": {
+      "retained": 10,
+      "ghost": 1,
+      "discarded": 0
+    },
+    "cursor": {
+      "id": 10,
+      "ref": {
+        "step": 8,
+        "observation": 0
+      },
+      "resultPosition": 0,
+      "ordinal": 0,
+      "kind": "event",
+      "label": "set(作業面A)",
+      "location": {
+        "module": "proposed",
+        "component": "文書A",
+        "variant": null
+      },
+      "actionText": "ノードからソースへ"
+    }
+  },
+  "after": {
+    "available": true,
+    "reason": null,
+    "steps": {
+      "dispatch": 9,
+      "seek": 1,
+      "reset": 0,
+      "setTestVariant": 0
+    },
+    "resultCount": 11,
+    "observations": {
+      "retained": 11,
+      "ghost": 0,
+      "discarded": 1
+    },
+    "cursor": {
+      "id": 12,
+      "ref": {
+        "step": 10,
+        "observation": 0
+      },
+      "resultPosition": 0,
+      "ordinal": 0,
+      "kind": "transition",
+      "label": "switch → 文書B",
+      "location": {
+        "module": "proposed",
+        "component": "文書B",
+        "variant": null
+      },
+      "actionText": "切替(B)"
+    }
+  },
+  "engine": {
+    "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+    "entryModule": "proposed",
+    "sourceBasis": "source-bytes",
+    "manifest": [
+      {
+        "module": "proposed",
+        "sourceSha256": "4df483ee831379ef3a52988950985072717e3cdba5a7e86181fad62568b8810a",
+        "file": "/private/tmp/shitae-e2e-20261020-01a1570c/docs/dogfooding/2026-10-20-end-to-end/models/saved/astra/models/proposed.shitae"
+      }
+    ],
+    "modelId": "9500d179aec9b7f1dd819665bd7f2e7fa3aab73679200fb383cfe3308a5e50b6"
+  },
+  "regenerate_exit": 0,
+  "regenerated_bytes": 232557,
+  "copied_source_same_bytes": true
+}

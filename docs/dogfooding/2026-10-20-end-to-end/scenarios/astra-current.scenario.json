@@ -1,0 +1,1522 @@
+{
+  "format": "shitae-scenario",
+  "formatVersion": 1,
+  "protocolVersion": 1,
+  "model": {
+    "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+    "modelId": "a0eba4bfc7b9130759aa2a1395603467a0db57c4f32330ea1537361216ebdd9f",
+    "entryModule": "current",
+    "sourceBasis": "source-bytes",
+    "manifest": [
+      {
+        "module": "current",
+        "sourceSha256": "05c29e9748933be7d8dd14f912a4a6c630b195bcec65fedc69d93778949baf7f"
+      }
+    ]
+  },
+  "initialDigest": "b5f12f0928298c540d93c12fd1e8d940aabf95ac9347707a0c86cfa05e66c61f",
+  "steps": [
+    {
+      "step": 1,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "current",
+            "component": "開始",
+            "variant": null
+          },
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 117,
+              "length": 31,
+              "line": 6,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "e072b16fae630e5ef1827f930c5b18e9ba80db4a8cfc51f89d93595dbefb4a96"
+        },
+        "branch": null
+      },
+      "afterDigest": "334377f4e0213c4fb8bba1b1fc08668f396e7022ce002399c993fb17d965d8df",
+      "observations": [
+        {
+          "viewDigest": "fa2223d64b2b5726b1702ca056ffbfe1458498a3ef9229077e8e4fd7bd0456fd"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 2,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "current",
+            "component": "文書A",
+            "variant": "保存済"
+          },
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 257,
+              "length": 36,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "1ef34845c31ce9a8cbb610c16b461c8e29d0f0d38d341c96927c6d7f8c5f84a1"
+        },
+        "branch": null
+      },
+      "afterDigest": "55aea26fc7595615b4e755210c113a9b4349768c55844113ffbdf8052255c732",
+      "observations": [
+        {
+          "viewDigest": "a7198057e84b15466fed7bee618ca38d12f402be23a1dc45bd800c45afb05d5b"
+        },
+        {
+          "viewDigest": "11556eec17acab1b6e799717c2acd69492f265a17a3e30ed9d91cd0a78241d6b"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames",
+          "sharedVariants",
+          "origins"
+        ]
+      },
+      "outputDigest": "27c020a580dd146bbfd58ed553a07bb17d39788327efcd8c69e4c314ba723908"
+    },
+    {
+      "step": 3,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "current",
+            "component": "文書A",
+            "variant": "未保存"
+          },
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 374,
+              "length": 44,
+              "line": 20,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "5dc96f61fae7c596173960d21821000d098f8599a8cbaeb134b1421b3cbf0028"
+        },
+        "branch": {
+          "label": "成功",
+          "results": [
+            {
+              "resultIndex": 0,
+              "source": {
+                "module": "current",
+                "span": {
+                  "offset": 374,
+                  "length": 44,
+                  "line": 20,
+                  "col": 1
+                }
+              }
+            },
+            {
+              "resultIndex": 1,
+              "source": {
+                "module": "current",
+                "span": {
+                  "offset": 374,
+                  "length": 44,
+                  "line": 20,
+                  "col": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      "afterDigest": "2db4ed4354ea0115434a172a39092e74b6d4ebace94acb87f9fbff0ea70f771b",
+      "observations": [
+        {
+          "viewDigest": "da72a70f391edc09b11303a70ab44803f3e5081b8b34ef366cba0d7293fb11fd"
+        },
+        {
+          "viewDigest": "d0cbc74d36250e6fcfc6a757bda4855854c3ef270765d2c02163bd06097912ca"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames",
+          "sharedVariants",
+          "origins"
+        ]
+      },
+      "outputDigest": "27c020a580dd146bbfd58ed553a07bb17d39788327efcd8c69e4c314ba723908"
+    },
+    {
+      "step": 4,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "current",
+            "component": "文書A",
+            "variant": "保存済"
+          },
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 230,
+              "length": 26,
+              "line": 16,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "ef1a53a515db99f59945cf7a6f7c0da98ac6c3b359ab58917bd0e3f294c58153"
+        },
+        "branch": null
+      },
+      "afterDigest": "e33047b32602de64503a27a137329ff868a79fe93d4489715bd137437c67d0d5",
+      "observations": [
+        {
+          "viewDigest": "f29cf18d0663208ca0f14487eb2f5bebe4c4d9e684657d2c1df07026e07242a0"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 5,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "current",
+            "component": "文書B",
+            "variant": "保存済"
+          },
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 585,
+              "length": 19,
+              "line": 35,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "9ffea9675f20b4dea2c20398612af9792b9b726ae7413f167b48c3f819c59715"
+        },
+        "branch": null
+      },
+      "afterDigest": "19acf6a65be0da4e981d7d70ccfbd688c251323cd5a535f89ee0d1d014e401b5",
+      "observations": [
+        {
+          "viewDigest": "f5acc0007a8d5bdcd8a75110921ba5e3be271bc3cabf3338b317319943d1521d"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames",
+          "sharedVariants",
+          "origins"
+        ]
+      },
+      "outputDigest": "27c020a580dd146bbfd58ed553a07bb17d39788327efcd8c69e4c314ba723908"
+    }
+  ],
+  "final": {
+    "view": {
+      "view": {
+        "location": {
+          "module": "current",
+          "component": "文書B",
+          "variant": "未保存"
+        },
+        "state": {
+          "frames": [
+            {
+              "id": 0,
+              "parentId": null,
+              "stack": [
+                {
+                  "module": "current",
+                  "component": "開始",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                }
+              ],
+              "barrier": false,
+              "beginsSession": null,
+              "origin": "root"
+            },
+            {
+              "id": 1,
+              "parentId": 0,
+              "stack": [
+                {
+                  "module": "current",
+                  "component": "文書A",
+                  "variant": "保存済",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                }
+              ],
+              "barrier": true,
+              "beginsSession": {
+                "name": "a"
+              },
+              "origin": "present"
+            },
+            {
+              "id": 2,
+              "parentId": 1,
+              "stack": [
+                {
+                  "module": "current",
+                  "component": "文書B",
+                  "variant": "未保存",
+                  "singleton": true,
+                  "scope": "singleton-shared",
+                  "origin": "dsl"
+                }
+              ],
+              "barrier": true,
+              "beginsSession": {
+                "name": "b"
+              },
+              "origin": "switch"
+            }
+          ],
+          "activeFrameId": 2,
+          "nextFrameId": 3,
+          "activePath": [
+            0,
+            1,
+            2
+          ],
+          "overlays": [],
+          "sharedVariants": [
+            {
+              "module": "current",
+              "component": "共通通知",
+              "variant": "Aを保存した",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "current",
+              "component": "文書A",
+              "variant": "保存済",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "current",
+              "component": "文書B",
+              "variant": "未保存",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "current",
+              "component": "正規化A",
+              "variant": "非表示",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            }
+          ],
+          "testVariants": [],
+          "componentValues": [
+            {
+              "module": "current",
+              "component": "アプリ操作群",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "ソース部品",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "タブ一覧",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "共通通知",
+              "variant": "Aを保存した",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "current",
+              "component": "図部品",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "文書A",
+              "variant": "保存済",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "current",
+              "component": "文書B",
+              "variant": "未保存",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "current",
+              "component": "文書一覧",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "current",
+              "component": "正規化A",
+              "variant": "非表示",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "current",
+              "component": "開始",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            }
+          ],
+          "gateTargets": [],
+          "inclusion": {
+            "main": {
+              "module": "current",
+              "component": "文書B",
+              "root": "main",
+              "variant": "未保存",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl",
+              "source": {
+                "module": "current",
+                "span": {
+                  "offset": 487,
+                  "length": 6,
+                  "line": 27,
+                  "col": 1
+                }
+              },
+              "children": [
+                {
+                  "name": "アプリ操作",
+                  "root": "main",
+                  "path": [
+                    0
+                  ],
+                  "source": {
+                    "module": "current",
+                    "span": {
+                      "offset": 494,
+                      "length": 13,
+                      "line": 28,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "current",
+                    "component": "アプリ操作群"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  "componentSource": {
+                    "module": "current",
+                    "span": {
+                      "offset": 855,
+                      "length": 8,
+                      "line": 56,
+                      "col": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "name": "New",
+                      "root": "main",
+                      "path": [
+                        0,
+                        0
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 864,
+                          "length": 3,
+                          "line": 57,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "current",
+                        "component": "New"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    },
+                    {
+                      "name": "OpenFile",
+                      "root": "main",
+                      "path": [
+                        0,
+                        1
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 868,
+                          "length": 8,
+                          "line": 58,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "current",
+                        "component": "OpenFile"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    },
+                    {
+                      "name": "OpenFolder",
+                      "root": "main",
+                      "path": [
+                        0,
+                        2
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 877,
+                          "length": 10,
+                          "line": 59,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "current",
+                        "component": "OpenFolder"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    },
+                    {
+                      "name": "Save",
+                      "root": "main",
+                      "path": [
+                        0,
+                        3
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 888,
+                          "length": 4,
+                          "line": 60,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "current",
+                        "component": "Save"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    },
+                    {
+                      "name": "SaveAs",
+                      "root": "main",
+                      "path": [
+                        0,
+                        4
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 893,
+                          "length": 6,
+                          "line": 61,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "current",
+                        "component": "SaveAs"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    },
+                    {
+                      "name": "FormatFlows",
+                      "root": "main",
+                      "path": [
+                        0,
+                        5
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 900,
+                          "length": 11,
+                          "line": 62,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "current",
+                        "component": "FormatFlows"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    },
+                    {
+                      "name": "FormatFlat",
+                      "root": "main",
+                      "path": [
+                        0,
+                        6
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 912,
+                          "length": 10,
+                          "line": 63,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "current",
+                        "component": "FormatFlat"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    },
+                    {
+                      "name": "NormalizedEdges",
+                      "root": "main",
+                      "path": [
+                        0,
+                        7
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 923,
+                          "length": 15,
+                          "line": 64,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "current",
+                        "component": "NormalizedEdges"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "name": "ナビゲーション",
+                  "root": "main",
+                  "path": [
+                    1
+                  ],
+                  "source": {
+                    "module": "current",
+                    "span": {
+                      "offset": 508,
+                      "length": 13,
+                      "line": 29,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "current",
+                    "component": "文書一覧"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  "componentSource": {
+                    "module": "current",
+                    "span": {
+                      "offset": 940,
+                      "length": 6,
+                      "line": 66,
+                      "col": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "name": "Recent",
+                      "root": "main",
+                      "path": [
+                        1,
+                        0
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 947,
+                          "length": 6,
+                          "line": 67,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "current",
+                        "component": "Recent"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    },
+                    {
+                      "name": "FolderFiles",
+                      "root": "main",
+                      "path": [
+                        1,
+                        1
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 954,
+                          "length": 11,
+                          "line": 68,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "current",
+                        "component": "FolderFiles"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "name": "タブ",
+                  "root": "main",
+                  "path": [
+                    2
+                  ],
+                  "source": {
+                    "module": "current",
+                    "span": {
+                      "offset": 522,
+                      "length": 8,
+                      "line": 30,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "current",
+                    "component": "タブ一覧"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  "componentSource": {
+                    "module": "current",
+                    "span": {
+                      "offset": 967,
+                      "length": 6,
+                      "line": 70,
+                      "col": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "name": "A",
+                      "root": "main",
+                      "path": [
+                        2,
+                        0
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 974,
+                          "length": 1,
+                          "line": 71,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "current",
+                        "component": "A"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    },
+                    {
+                      "name": "B",
+                      "root": "main",
+                      "path": [
+                        2,
+                        1
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 976,
+                          "length": 1,
+                          "line": 72,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "current",
+                        "component": "B"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "name": "ソース",
+                  "root": "main",
+                  "path": [
+                    3
+                  ],
+                  "source": {
+                    "module": "current",
+                    "span": {
+                      "offset": 531,
+                      "length": 10,
+                      "line": 31,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "current",
+                    "component": "ソース部品"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  "componentSource": {
+                    "module": "current",
+                    "span": {
+                      "offset": 979,
+                      "length": 7,
+                      "line": 74,
+                      "col": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "name": "テキスト",
+                      "root": "main",
+                      "path": [
+                        3,
+                        0
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 987,
+                          "length": 4,
+                          "line": 75,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "current",
+                        "component": "テキスト"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    },
+                    {
+                      "name": "診断マーカー",
+                      "root": "main",
+                      "path": [
+                        3,
+                        1
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 992,
+                          "length": 6,
+                          "line": 76,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "current",
+                        "component": "診断マーカー"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "name": "図",
+                  "root": "main",
+                  "path": [
+                    4
+                  ],
+                  "source": {
+                    "module": "current",
+                    "span": {
+                      "offset": 542,
+                      "length": 6,
+                      "line": 32,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "current",
+                    "component": "図部品"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  "componentSource": {
+                    "module": "current",
+                    "span": {
+                      "offset": 1000,
+                      "length": 5,
+                      "line": 78,
+                      "col": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "name": "Zoom",
+                      "root": "main",
+                      "path": [
+                        4,
+                        0
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 1006,
+                          "length": 4,
+                          "line": 79,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "current",
+                        "component": "Zoom"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    },
+                    {
+                      "name": "Fit",
+                      "root": "main",
+                      "path": [
+                        4,
+                        1
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 1011,
+                          "length": 3,
+                          "line": 80,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "current",
+                        "component": "Fit"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    },
+                    {
+                      "name": "ActualSize",
+                      "root": "main",
+                      "path": [
+                        4,
+                        2
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 1015,
+                          "length": 10,
+                          "line": 81,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "current",
+                        "component": "ActualSize"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    },
+                    {
+                      "name": "NodeActions",
+                      "root": "main",
+                      "path": [
+                        4,
+                        3
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 1026,
+                          "length": 11,
+                          "line": 82,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "current",
+                        "component": "NodeActions"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    },
+                    {
+                      "name": "Help",
+                      "root": "main",
+                      "path": [
+                        4,
+                        4
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 1038,
+                          "length": 4,
+                          "line": 83,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "current",
+                        "component": "Help"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    },
+                    {
+                      "name": "ノード",
+                      "root": "main",
+                      "path": [
+                        4,
+                        5
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 1043,
+                          "length": 3,
+                          "line": 84,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "current",
+                        "component": "ノード"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "name": "通知",
+                  "root": "main",
+                  "path": [
+                    5
+                  ],
+                  "source": {
+                    "module": "current",
+                    "span": {
+                      "offset": 549,
+                      "length": 8,
+                      "line": 33,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "current",
+                    "component": "共通通知"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": "Aを保存した",
+                    "singleton": true,
+                    "scope": "singleton-shared",
+                    "origin": "dsl"
+                  },
+                  "componentSource": {
+                    "module": "current",
+                    "span": {
+                      "offset": 760,
+                      "length": 7,
+                      "line": 49,
+                      "col": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "name": "Saved.",
+                      "root": "main",
+                      "path": [
+                        5,
+                        0
+                      ],
+                      "source": {
+                        "module": "current",
+                        "span": {
+                          "offset": 813,
+                          "length": 8,
+                          "line": 53,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "current",
+                        "component": "Saved."
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "name": "未保存ドット",
+                  "root": "main",
+                  "path": [
+                    6
+                  ],
+                  "source": {
+                    "module": "current",
+                    "span": {
+                      "offset": 627,
+                      "length": 6,
+                      "line": 39,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "current",
+                    "component": "未保存ドット"
+                  },
+                  "kind": "unresolved",
+                  "children": []
+                }
+              ]
+            },
+            "overlays": []
+          }
+        },
+        "actions": {
+          "items": [
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "current",
+                  "component": "文書B",
+                  "variant": "未保存"
+                },
+                "source": {
+                  "module": "current",
+                  "span": {
+                    "offset": 558,
+                    "length": 26,
+                    "line": 34,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "6bc27a9952ecef2fdc3a2e3ecf098bbb6e9486678daabd5cd29c5c5d6bb59905"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "current",
+                  "component": "文書B",
+                  "variant": "未保存"
+                },
+                "source": {
+                  "module": "current",
+                  "span": {
+                    "offset": 585,
+                    "length": 19,
+                    "line": 35,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "9ffea9675f20b4dea2c20398612af9792b9b726ae7413f167b48c3f819c59715"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            }
+          ],
+          "back": {
+            "enabled": false,
+            "reason": "barrier"
+          }
+        }
+      },
+      "timeline": [
+        {
+          "resultIndex": null,
+          "source": null,
+          "kind": "transition",
+          "label": "起動",
+          "location": {
+            "module": "current",
+            "component": "開始",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 0,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 117,
+              "length": 31,
+              "line": 6,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "present → 文書A / 保存済",
+          "location": {
+            "module": "current",
+            "component": "文書A",
+            "variant": "保存済"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 1,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 257,
+              "length": 36,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(正規化A)",
+          "location": {
+            "module": "current",
+            "component": "文書A",
+            "variant": "保存済"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 2,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 257,
+              "length": 36,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "goto → 文書A / 未保存",
+          "location": {
+            "module": "current",
+            "component": "文書A",
+            "variant": "未保存"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 2,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 374,
+              "length": 44,
+              "line": 20,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(共通通知)",
+          "location": {
+            "module": "current",
+            "component": "文書A",
+            "variant": "未保存"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 3,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 374,
+              "length": 44,
+              "line": 20,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "goto → 文書A / 保存済",
+          "location": {
+            "module": "current",
+            "component": "文書A",
+            "variant": "保存済"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 3,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 230,
+              "length": 26,
+              "line": 16,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "switch → 文書B / 保存済",
+          "location": {
+            "module": "current",
+            "component": "文書B",
+            "variant": "保存済"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 4,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "current",
+            "span": {
+              "offset": 585,
+              "length": 19,
+              "line": 35,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "goto → 文書B / 未保存",
+          "location": {
+            "module": "current",
+            "component": "文書B",
+            "variant": "未保存"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 5,
+            "observation": 0
+          }
+        }
+      ],
+      "cursor": {
+        "step": 5,
+        "observation": 0
+      }
+    },
+    "digest": "19acf6a65be0da4e981d7d70ccfbd688c251323cd5a535f89ee0d1d014e401b5"
+  }
+}

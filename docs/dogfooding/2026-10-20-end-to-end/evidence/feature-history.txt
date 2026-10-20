@@ -1,0 +1,90 @@
+3c68321 Merge pull request #36 from takasek/issue-27-integrated-evaluation
+e3392d2 fix: preserve model source bytes across Git EOL settings
+015331c docs: adopt bounded syntax-report interpretation for state axes
+9784f9d docs: clarify AI materials do not replace human-author evaluation
+677601d docs: position current tooling for AI analysis and defer human evaluation
+d686ffd docs: record human handoff feedback and remaining checks
+7742167 docs: record GUI import blocker and reexamination preparation
+711d657 docs: prepare integrated use evaluation and browser evidence
+8c86f7c Merge pull request #34 from takasek/issue-25-independent-state-axes
+57cdde8 docs(state-axes): revise acceptance record after independent review
+05f447c docs(state-axes): keep browser-saved scenario, review text and per-step walk log
+97e3776 docs(ai-guide): drop the diagram from the split example; it always moved with syntax
+a782534 test(state-axes): check unchanged (—) cells cumulatively and isolate mutant results
+f6c52ae docs(state-axes): acceptance record mapping #25 criteria to evidence
+0bfc112 docs(state-axes): record re-examination, browser walk and independent author evidence
+99317a5 docs(ai-guide): point the combine-then-operate advice at the session usage page
+53b3c4f docs(ai-guide): when to split independent state into separate singletons, with counterexample
+821bb9e test(state-axes): run the AI_GUIDE split example through the same combined-event check
+dcfb242 docs(state-axes): derive Sol proposed with syntax and disk conflict as separate singletons
+8b761af test(state-axes): check combined events via public CLI; fails on saved Sol proposed
+9533c7d docs(state-axes): write combined-event expectations before remodeling
+fea6132 Merge pull request #33 from takasek/fix/simulator-two-column-test
+4dc0abd Merge pull request #32 from takasek/fix/shitae-check-refs
+5155892 Merge pull request #31 from takasek/issue-28-resume-ux
+10c4705 test(simulator): anchor 2-column center order on section markers
+afff9f7 chore(docs): delete obsolete Python check scripts
+edcb22f docs(agent): point check instructions at the CLI instead of /shitae-check
+cbbf162 docs: update #28 acceptance evidence after review fixes
+f890695 fix(simulator): word the empty load summary to cover gate conditions
+c17f4ef test(cli): guard model text that names its own directory
+18bcf90 test(simulator): compare loaded Session with an outside replay
+87f8d60 fix(simulator): qualify overlay group label by module
+02baae7 fix(simulator): include gate-target singletons in load summary
+a2c62c2 fix(simulator): compute load summary before swapping Session
+f5cb6d7 docs: record #28 acceptance evidence
+5a7c370 refactor(simulator): name the HTML model copy embeddedModel
+0aa2076 fix(simulator): embed module-relative file paths in shared HTML
+9d22a7e feat(simulator): summarize singleton state at the scenario load point
+3d5e971 docs: link tracked shitae skills from AGENTS.md
+e90ed13 Merge pull request #30 from takasek/codex/issue-24-artifact-identity
+67adf63 feat: explain scenario identity and saved artifact scope
+34c250f Merge pull request #29 from takasek/codex/issue-23-provenance
+cb562c7 docs(session): document provenance and acceptance evidence
+3c0e155 fix(simulator): respect event visibility for completion points
+4d53ac4 feat(session): expose journal provenance in CLI and simulator
+7a0a958 Merge pull request #26 from takasek/codex/end-to-end-dogfooding-20261016
+2f93adf docs: link dogfooding follow-up issues
+35a0b3c docs: record end-to-end dogfooding and independent handoff
+bbd99d4 Merge pull request #22 from takasek/codex/issue-11-replay-design
+4f72833 docs: record scenario replay usage and cross-process acceptance
+d807d7f feat(simulator): save and load scenarios through an isolated session
+d26d2f4 feat(cli): export scenarios and replay before serving a new session
+15df3ab feat(session): record and strictly replay versioned scenarios
+008dbe4 Merge pull request #21 from takasek/codex/issue-19-readme
+b47e243 docs: propose versioned scenario replay contract
+59b25f6 docs: explain model checks and HTML sharing
+da4457a Merge pull request #20 from takasek/codex/issue-18-session
+8e36743 docs(session): verify issue 18 acceptance before PR
+0f06ddb fix(simulator): distinguish component modules in state labels
+b8f8660 docs(session): record compact action contract and response measurements
+7e08011 feat(session): split compact inventory from action details
+f6887ec docs(session): record browser validation and agent workflow evaluation
+7cb02aa fix(session): retain destination variants in timeline labels
+cd7fb9c feat(simulator): share session execution and model identity with CLI
+7cf86ec test(session): cover frame subtrees and compact responses at scale
+0cde4ec feat(session): add detailed observations and manual trials
+0d0d814 feat(session): add persistent CLI action dispatch roundtrip
+5f97f29 fix(runtime): follow nearest switch ancestor through present frames
+2fb8a9c docs: relax simulator single-file packaging requirement
+818ce95 docs: make session responses compact by default
+5b07555 docs: propose common session contract for issue 18
+e985f4e Merge pull request #17 from takasek/codex/simulator-alias-inline
+3844800 fix(simulator): retain and render inline component children
+e92e543 fix(simulator): resolve member gate aliases within their source body
+1487bbf Merge pull request #16 from takasek/codex/issue-8-cli-output
+9f47b1f fix(cli): let simulate stdout finish before exiting
+57e6dee Merge pull request #15 from takasek/codex/issue-13-singleton-guide
+4b56240 docs: add singleton and set guidance to AI guide
+ce5eb45 Merge pull request #14 from takasek/codex/dogfooding-reports-20261013
+efcd2d9 docs: record dogfooding issue mapping and publication checks
+6f212d0 docs: archive standalone dogfooding reports and reproductions
+a3ebaed docs: make AGENTS.md the shared source and import it from .claude/CLAUDE.md
+95531a4 Merge pull request #5 from takasek/simulator-observability-ui
+333f02b feat(simulator): 遷移マップ高さのツマミ調整を追加
+e203eca fix(simulator): アクション表示オン時に外部イベントセクションを既定で開く
+ac3fbf5 fix(simulator): gateドロワーがhost gate保持画面で「参照先なし」と誤誘導するのを直す
+5f647d7 fix(simulator): 中央ペイン上下1fr/1fr均等割りをauto/1fr逆転に変更
+81b7d40 fix(simulator): gateドロワーの閉じるボタンが2行に折り返す見た目を直す
+607f7cb fix(simulator): 外部イベントセクションを開いたときscrollIntoViewする
+e55fab3 fix(simulator): gate試験対象ノードを遷移マップの近傍表示へ常に含める

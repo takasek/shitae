@@ -1,0 +1,20 @@
+{
+  "fixedSha": "3c68321001771faab35a35fc212056f54bb02bf1",
+  "trackedChangedFiles": [],
+  "originalFilesChecked": 33,
+  "originalHashChanges": [],
+  "status": "?? docs/dogfooding/2026-10-20-end-to-end/\n",
+  "jsonFilesValidated": 38,
+  "jsonErrors": [],
+  "missingLocalLinks": [],
+  "commitPushPrIssueWritesPerformed": false,
+  "server": {
+    "pid": 52954,
+    "address": "127.0.0.1:8765",
+    "terminated": true,
+    "lsofListenerExitCode": 1,
+    "lsofListenerOutput": ""
+  },
+  "originalWorktreeStatus": "",
+  "primaryStatus": "?? .agents/\n?? .worktrees/\n"
+}

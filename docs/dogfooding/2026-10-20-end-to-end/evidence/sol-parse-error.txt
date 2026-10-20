@@ -1,0 +1,207 @@
+Browser tab: 2, Title: "shitae simulator", URL: "http://127.0.0.1:8765/evidence/sol-models-proposed.html".
+0 AXWebArea shitae simulator, URL: 127.0.0.1:8765/evidence/sol-models-proposed.html
+	1 container app
+		2 container
+			3 text 操作来歴（統合ログ） ナビゲーション履歴。実行された遷移の列を操作ごとに表示します。新しい記録が上。操作を展開すると結果と観測点を確認できます。完了点や途中の観測点を選ぶと巻戻し・やり直しできます。破棄済みの観測点へは移動できません。
+			4 checkbox (settable, integer) Description: イベントを表示, Value: 1
+			5 text 現在地: DiagramOnly / 記録5 / 観測1 / Workspace / Diagram 現在まで 10観測点 / ghost 0観測点 / 破棄済み 0観測点。記録には破棄経路・reset前・手動試験も含まれます。
+			6 button (collapsed) 5. DiagramOnly, Secondary Actions: Expand
+			7 text proposed::Workspace / Split / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			8 button 完了点: goto → Workspace / Diagram Workspace / Diagram / 現在地
+				9 text 完了点: goto → Workspace / Diagram 
+				10 text Workspace / Diagram / 現在地
+			11 button (collapsed) 4. ParseError, Secondary Actions: Expand
+			12 text proposed::Workspace / Split / 配置 main[] 2結果 / 2観測点 · 現在まで 2観測点 / ghost 0観測点 / 破棄済み 0観測点
+			13 button 完了点: set(DiagramView) Workspace / Split
+				14 text 完了点: set(DiagramView) 
+				15 text Workspace / Split
+			16 button (collapsed) 3. KeepEditing, Secondary Actions: Expand
+			17 text proposed::VersionReview / 配置 main[] 2結果 / 2観測点 · 現在まで 2観測点 / ghost 0観測点 / 破棄済み 0観測点
+			18 button 完了点: show(RecoveryNotice) Workspace / Split
+				19 text 完了点: show(RecoveryNotice) 
+				20 text Workspace / Split
+			21 button (collapsed) 2. Review, Secondary Actions: Expand
+			22 text proposed::RecoveryNotice / 配置 overlay:RecoveryNotice[] 2結果 / 2観測点 · 現在まで 2観測点 / ghost 0観測点 / 破棄済み 0観測点
+			23 button 完了点: present → VersionReview VersionReview
+				24 text 完了点: present → VersionReview 
+				25 text VersionReview
+			26 button (collapsed) 1. Conflict, Secondary Actions: Expand
+			27 text proposed::Workspace / Split / 配置 main[] 2結果 / 2観測点 · 現在まで 2観測点 / ghost 0観測点 / 破棄済み 0観測点
+			28 button 完了点: show(RecoveryNotice) Workspace / Split
+				29 text 完了点: show(RecoveryNotice) 
+				30 text Workspace / Split
+			31 button 起点: 起動 Workspace / Split
+				32 text 起点: 起動 
+				33 text Workspace / Split
+			34 button (collapsed) 検討手順を表示, Secondary Actions: Expand
+			35 button 検討手順を書出し
+		36 container
+			37 text 現在の画面
+			38 button 初期状態へ
+			39 text このHTML: proposed · model 6ea6e57467bb · engine 278103a97da5
+			40 button (collapsed) 版の詳細・共有するもの, Secondary Actions: Expand
+				41 text 版の詳細・共有するもの
+			42 text 保存範囲: dispatch 5件 / seek 0件 / reset 0件 / 手動試験 0件。条件選択はdispatchの内訳として操作来歴に表示します。破棄経路・reset前・ghost・手動試験も含む全記録を保存します。モデル本文・DOM・表示設定は含みません。読込後も現在の表示設定を使います。
+			43 button シナリオを保存
+			44 container
+				45 text シナリオを読み込む 
+				46 button シナリオを読み込む
+			47 text アクティブな frame の表示（本体）と掲示中カード
+			48 checkbox (settable, integer) Description: アクションを表示, Value: 1
+			49 checkbox (settable, integer) Description: 部品の状態を表示, Value: 1
+			50 button 画面外 component の姿切替（gate 試験用）
+			51 text 今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。
+			52 text Workspace
+			53 text ## Diagram
+			54 text 画面の値 · DSL
+			55 container
+				56 button (expanded) navigation → Navigation · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					57 text navigation
+					58 text  → Navigation · variantなし · 
+					59 text 包含の初期値 · 初期
+				60 button (expanded) folder → FolderIdentity · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					61 text folder
+					62 text  → FolderIdentity · variantなし · 
+					63 text 包含の初期値 · 初期
+				64 button (expanded) files → FileTree · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					65 text files
+					66 text  → FileTree · variantなし · 
+					67 text 包含の初期値 · 初期
+				68 button (expanded) recent → RecentTargets · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					69 text recent
+					70 text  → RecentTargets · variantなし · 
+					71 text 包含の初期値 · 初期
+			72 container
+				73 button (expanded) tabs → DocumentTabs · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					74 text tabs
+					75 text  → DocumentTabs · variantなし · 
+					76 text 包含の初期値 · 初期
+				77 button (expanded) DocumentTab · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					78 text DocumentTab
+					79 text  · variantなし · 
+					80 text 包含の初期値 · 初期
+				81 button (expanded) name → FileName · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					82 text name
+					83 text  → FileName · variantなし · 
+					84 text 包含の初期値 · 初期
+				85 button (expanded) state → DocumentStateText · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					86 text state
+					87 text  → DocumentStateText · variantなし · 
+					88 text 包含の初期値 · 初期
+				89 button (expanded) close → Close · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					90 text close
+					91 text  → Close · variantなし · 
+					92 text 包含の初期値 · 初期
+			93 container
+				94 button (expanded) identity → DocumentIdentity · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					95 text identity
+					96 text  → DocumentIdentity · variantなし · 
+					97 text 包含の初期値 · 初期
+				98 button (expanded) name → FileName · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					99 text name
+					100 text  → FileName · variantなし · 
+					101 text 包含の初期値 · 初期
+				102 button (expanded) context → ParentFolder · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					103 text context
+					104 text  → ParentFolder · variantなし · 
+					105 text 包含の初期値 · 初期
+			106 container
+				107 button (expanded) document → DocumentCommands · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					108 text document
+					109 text  → DocumentCommands · variantなし · 
+					110 text 包含の初期値 · 初期
+				111 button (expanded) save → Save · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					112 text save
+					113 text  → Save · variantなし · 
+					114 text 包含の初期値 · 初期
+				115 button (expanded) format → FormatMenu · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					116 text format
+					117 text  → FormatMenu · variantなし · 
+					118 text 包含の初期値 · 初期
+				119 button (expanded) Normalize → NormalizeAction · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					120 text Normalize
+					121 text  → NormalizeAction · variantなし · 
+					122 text 包含の初期値 · 初期
+				123 button (expanded) view → ViewModes · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					124 text view
+					125 text  → ViewModes · variantなし · 
+					126 text 包含の初期値 · 初期
+			127 container
+				128 button (expanded) diagram → DiagramView · ##Error · 共有 (singleton) · DSL, Secondary Actions: Collapse
+					129 text diagram
+					130 text  → DiagramView · ##Error · 
+					131 text 共有 (singleton) · DSL
+				132 button (expanded) problem → Diagnostics · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					133 text problem
+					134 text  → Diagnostics · variantなし · 
+					135 text 包含の初期値 · 初期
+			136 container
+				137 button (expanded) status → DocumentStatus · ##Invalid · 共有 (singleton) · DSL, Secondary Actions: Collapse
+					138 text status
+					139 text  → DocumentStatus · ##Invalid · 
+					140 text 共有 (singleton) · DSL
+				141 button (expanded) state → DiagramUnavailable · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					142 text state
+					143 text  → DiagramUnavailable · variantなし · 
+					144 text 包含の初期値 · 初期
+				145 button (expanded) problems → Diagnostics · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					146 text problems
+					147 text  → Diagnostics · variantなし · 
+					148 text 包含の初期値 · 初期
+			149 button Split variant固有
+				150 text Split
+				151 text variant固有
+			152 button SourceOnly variant固有
+				153 text SourceOnly
+				154 text variant固有
+			155 text NodeDoubleClick(DiagramView.graph)
+			156 text DiagramView / Error
+			157 pop up button (collapsed, settable) Value: Error, Secondary Actions: Expand
+				158 menu
+					159 Ready
+					160 (selected) Error
+			161 text gate off で無効
+			162 text variant固有
+			163 button CloseLastDocument component common
+				164 text CloseLastDocument
+				165 text component common
+			166 button OpenDocument component common
+				167 text OpenDocument
+				168 text component common
+			169 button ParseError component common
+				170 text ParseError
+				171 text component common
+			172 button ValidInput component common
+				173 text ValidInput
+				174 text component common
+			175 text 掲示中
+			176 text RecoveryNotice
+			177 text 掲示の値 · 初期
+			178 button (expanded) state → ExternalChange · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+				179 text state
+				180 text  → ExternalChange · variantなし · 
+				181 text 包含の初期値 · 初期
+			182 button (expanded) review → ReviewVersions · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+				183 text review
+				184 text  → ReviewVersions · variantなし · 
+				185 text 包含の初期値 · 初期
+			186 button Review component common
+				187 text Review
+				188 text component common
+			189 container
+				190 button (expanded) スタック, Help: スタック — 今積み重なっている画面。プッシュダウン構成として読める, Secondary Actions: Collapse
+					191 text スタック
+				192 text 今積み重なっている画面。プッシュダウン構成として読める。上が現在地 Workspace / Diagram
+			193 container
+				194 button (expanded) 遷移マップ, Help: 遷移マップ — 画面間の遷移関係（表示のみ。状態遷移図として読める）, Secondary Actions: Collapse
+					195 text 遷移マップ
+				196 text 画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。
+				197 button 設定を保存
+				198 checkbox (settable, integer) Description: 全体を見る, Value: 0
+				199 image
+					200 text Workspace
+					201 text DocumentCommands
+					202 text StartActions
+					203 text DiagramView
+
+The focused UI element is 0 AXWebArea shitae simulator, URL: 127.0.0.1:8765/evidence/sol-models-proposed.html

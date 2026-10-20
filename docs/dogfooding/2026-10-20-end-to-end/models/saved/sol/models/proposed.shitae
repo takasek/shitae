@@ -1,0 +1,142 @@
+// Proposal only. View modes mean availability, never positions or dimensions.
+// Source and graph share the same document; changing mode must retain source, undo, selection and graph viewport.
+# Workspace
+navigation: Navigation
+> CloseLastDocument -> hide(RecoveryNotice); hide(NormalizedEdges); goto(##NoDocument)
+> OpenDocument -> goto(##Split)
+// Diagnostic events refer to an open specimen document; no file or asynchronous condition is evaluated.
+> ParseError -> set(DocumentStatus##Invalid); set(DiagramView##Error)
+> ValidInput -> set(DocumentStatus##Valid); set(DiagramView##Ready)
+## Split
+tabs: DocumentTabs
+identity: DocumentIdentity
+document: DocumentCommands
+source: SourceEditor
+diagram: DiagramView
+status: DocumentStatus
+> SourceOnly -> goto(##Source)
+> DiagramOnly -> goto(##Diagram)
+> Normalize(DocumentCommands.Normalize?) -> show(NormalizedEdges)
+> Conflict -> set(DocumentStatus##Conflict); show(RecoveryNotice)
+## Source
+tabs: DocumentTabs
+identity: DocumentIdentity
+document: DocumentCommands
+source: SourceEditor
+status: DocumentStatus
+> Split -> goto(##Split)
+> DiagramOnly -> goto(##Diagram)
+## Diagram
+tabs: DocumentTabs
+identity: DocumentIdentity
+document: DocumentCommands
+diagram: DiagramView
+status: DocumentStatus
+> Split -> goto(##Split)
+> SourceOnly -> goto(##Source)
+> NodeDoubleClick(DiagramView.graph?) -> Reveal matching source position; goto(##Split)
+## NoDocument
+start: StartActions
+> OpenDocument(StartActions.Open?) -> goto(##Split)
+> NewDocument(StartActions.New?) -> goto(##Source)
+
+# DocumentCommands
+save: Save
+format: FormatMenu
+Normalize: NormalizeAction
+view: ViewModes
+
+# StartActions
+Open: OpenAction
+New: NewAction
+
+# Navigation
+folder: FolderIdentity
+files: FileTree
+recent: RecentTargets
+
+# DocumentTabs
+*DocumentTab
+# DocumentTab
+name: FileName
+state: DocumentStateText
+close: Close
+# DocumentIdentity
+name: FileName
+context: ParentFolder
+# SourceEditor
+text: SourceText
+markers: Diagnostics
+#! DiagramView
+// One specimen diagram. Do not use this singleton for every real document.
+## Ready
+view: { ZoomLevel; Fit; ActualSize }
+graph: Graph
+details: NodeActions
+## Error
+problem: Diagnostics
+
+#! DocumentStatus
+// A bounded single-document scenario, not shared status across real documents.
+## Valid
+state: SavedOrUnsaved
+## Invalid
+state: DiagramUnavailable
+problems: Diagnostics
+## Conflict
+state: ExternalChange
+
+# RecoveryNotice
+state: ExternalChange
+review: ReviewVersions
+> Review -> hide(RecoveryNotice); present(VersionReview)
+# VersionReview
+identity: DocumentIdentity
+editor: EditorVersion
+disk: DiskVersion
+cancel: KeepEditing
+elsewhere: SaveCopy
+replace: ReplaceReviewedDisk
+adopt: UseDiskVersion
+> KeepEditing -> dismiss(); show(RecoveryNotice)
+> SaveCopy -> [Success] Preserve both versions; dismiss(); hide(RecoveryNotice); set(DocumentStatus##Valid)
+> ReplaceReviewedDisk -> [ConfirmedFresh] Save editor to reviewed target; dismiss(); hide(RecoveryNotice); set(DocumentStatus##Valid)
+> UseDiskVersion -> [ConfirmedFresh] Replace editor with reviewed disk; dismiss(); hide(RecoveryNotice); set(DocumentStatus##Valid)
+> DiskChangedAgain -> Explain changed version; keep review open for a fresh decision
+
+# NormalizedEdges
+text: EdgeText
+close: Close
+> Close -> hide(NormalizedEdges)
+
+# Save
+# FormatMenu
+# NormalizeAction
+# ViewModes
+# OpenAction
+# NewAction
+# FolderIdentity
+# FileTree
+# RecentTargets
+# FileName
+# DocumentStateText
+# Close
+# ParentFolder
+# SourceText
+# Diagnostics
+# ZoomLevel
+# Fit
+# ActualSize
+# Graph
+# NodeActions
+# SavedOrUnsaved
+# DiagramUnavailable
+# ExternalChange
+# ReviewVersions
+# EditorVersion
+# DiskVersion
+# KeepEditing
+# SaveCopy
+# ReplaceReviewedDisk
+# UseDiskVersion
+# EdgeText
