@@ -15,6 +15,7 @@ UI フロー記述言語 `shitae`（ラフに書けて、遷移が動く）の�
 
 - [`.agents/skills/shitae-authoring/SKILL.md`](.agents/skills/shitae-authoring/SKILL.md) — `.shitae` の読み書き・レビュー。AI_GUIDE を読む順序、手本の example、頻出ミスの自己点検を示す。
 - [`.agents/skills/spec-stress-test/SKILL.md`](.agents/skills/spec-stress-test/SKILL.md) — `docs/SPEC.md` 自体の変更・検討・負荷試験。成果物の置き場所と ADR の残し方を示す。
+- [`.agents/skills/shitae-dogfooding/SKILL.md`](.agents/skills/shitae-dogfooding/SKILL.md) — 現行版を実際に使う一連の評価（ドッグフーディング）。対象版・前回評価・公開入口の文言を実行時に解決する手順を示す。
 
 ## 開発の規律
 
