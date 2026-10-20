@@ -1,0 +1,1 @@
+/Users/m5/works/shitae/.worktrees/dogfood-2026-10-21/docs/dogfooding/2026-10-21-end-to-end/reproductions/w105-dismiss-goto.shitae:7: [warning] W105: goto(##確定済み) の '確定済み' は '確認' に定義されていない variant

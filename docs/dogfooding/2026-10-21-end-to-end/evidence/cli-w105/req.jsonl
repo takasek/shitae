@@ -1,0 +1,5 @@
+{"id":"q1","command":"query","select":["actions"]}
+{"id":"d1","command":"dispatch","handle":"24c6c76f-1590-48b9-b9c9-ef913722e9ed:0:0"}
+{"id":"q2","command":"query","select":["actions"]}
+{"id":"d2","command":"dispatch","handle":"24c6c76f-1590-48b9-b9c9-ef913722e9ed:1:0"}
+{"id":"s","command":"query","select":["state"]}

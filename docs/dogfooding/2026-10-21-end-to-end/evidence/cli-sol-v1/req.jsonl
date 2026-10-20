@@ -1,0 +1,11 @@
+{"id":"a0","command":"query","select":["actions"]}
+{"id":"d1","command":"dispatch","handle":"9a813fb6-7029-42bc-a606-56ef5651b829:0:0"}
+{"id":"a1","command":"query","select":["actions"]}
+{"id":"d2","command":"dispatch","handle":"9a813fb6-7029-42bc-a606-56ef5651b829:1:0"}
+{"id":"a2","command":"query","select":["actions"]}
+{"id":"d3","command":"dispatch","handle":"9a813fb6-7029-42bc-a606-56ef5651b829:2:2","branch":"b0"}
+{"id":"a3","command":"query","select":["actions"]}
+{"id":"d4","command":"dispatch","handle":"9a813fb6-7029-42bc-a606-56ef5651b829:3:3","branch":"b0"}
+{"id":"a4","command":"query","select":["actions"]}
+{"id":"d5","command":"dispatch","handle":"9a813fb6-7029-42bc-a606-56ef5651b829:4:2","branch":"b2"}
+{"id":"save","command":"exportScenario"}

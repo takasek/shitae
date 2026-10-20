@@ -1,0 +1,5 @@
+{"id":"g0","command":"query","select":["actions"]}
+{"id":"g1","command":"query","select":["history"],"history":{"operationId":8}}
+{"id":"g2","command":"dispatch","handle":"a73894cc-82f0-4720-8ead-3fd4679da83e:9:1","branch":"b1"}
+{"id":"g3","command":"query","select":["history"],"history":{"after":9}}
+{"id":"g4","command":"exportScenario"}

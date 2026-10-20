@@ -1,0 +1,28 @@
+[tab-4 / http://127.0.0.1:8765/handoff/astra-proposed.html / get_page_text 抜粋 (読込直後、操作なし)]
+操作を続ける画面
+初期状態へ
+このHTML: proposed · model 9500d179aec9 · engine 278103a97da5
+定義と実行プログラムの版・再現用の資料
+画面外も含めて状態を確認する方法
+保存範囲: dispatch 0件 / seek 0件 / reset 0件 / 手動試験 0件。条件選択はdispatchの内訳として操作来歴に表示します。破棄経路・reset前・ghost・手動試験も含む全記録を保存します。モデル本文・DOM・表示設定は含みません。読込後も現在の表示設定を使います。
+操作の再生ファイルを保存 操作の再生ファイルを読み込む
+アクティブな frame の表示（本体）と掲示中カード / アクションを表示 / 部品の状態を表示
+画面外 component の姿切替（gate 試験用）
+開始
+開始ボタン
+開く(開始ボタン)
+component common
+スタック: 開始
+遷移マップ: ノード 開始 / 文書A / 文書B / 比較
+
+[javascript で details を開いて取得した innerText 要約 (tab-4)]
+「定義と実行プログラムの版・再現用の資料」: engineVersion 278103a9...5116 / modelId 9500d179...50b6 / entryModule proposed / sourceBasis source-bytes / manifest proposed sha256 4df483ee...810a。
+ 文言: 再開には、このHTMLと完全一致するscenarioの組を渡す。CLIでの再開には全モデル・参照moduleと対応する処理系が必要。
+「画面外も含めて状態を確認する方法」: このHTMLからモデル本文は取り出せない。なければ作成者から定義・実行プログラムを受け取る。
+ `node packages/cli/dist/index.js session <定義ファイルの入口> --replay <対象の再生ファイル>` を起動し、同じprocessへ {"id":"shared","command":"query","select":["state"]} を送る。data.state.sharedVariants が画面外を含む全singletonのvariant一覧。
+
+[tab-4 で「開く(開始ボタン)」を1回クリックした後の画面 (main.innerText 抜粋)]
+保存範囲: dispatch 1件 / seek 0件 / reset 0件 / 手動試験 0件 (HTML単独は常に初期状態から始まり、引継ぎ scenario は含まない)
+文書A / 文書操作 Open Save / 表示操作 Source Split Diagram Sidebar / 文書メニュー FormatFlows FormatFlat InspectNormalizedEdges / 作業面 ソース 図 / 診断 最新の図 / 保存状態 A.pfdsl — Saved / タブ A B
+操作: 切替(B), 編集, 図のみ, 並列, ソースのみ, 正規化[有効な入力][入力エラー], 保存[成功][外部変更], 入力エラー発生, 入力修正, 外部変更確認
+スタック: ▌文書A@a / 開始

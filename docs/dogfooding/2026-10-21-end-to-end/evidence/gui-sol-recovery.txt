@@ -1,0 +1,10 @@
+built-in browser / http://127.0.0.1:8765/evidence/sol-models-recovery.html（modelId 1e6933bcad00…, engine 278103a97da5）
+
+操作: ExternalChange → ReviewAndSaveHere → ChooseAnotherFile[ExistingDifferentTarget] → ChangedAgain[NewRevision] → SaveAs[Cancelled]
+
+1. ReviewAndSaveHere の後: 画面 OverwriteReview。スタック ▌OverwriteReview / Conflict
+2. ChooseAnotherFile[ExistingDifferentTarget] の後: 操作を続ける位置 記録3 / 結果3 / OverwriteReview。スタック ▌OverwriteReview / Conflict（1 枚のまま）。本体の表示は 1 と同一（editor / disk / actions）で、対象が変わったことは画面から読めない。
+3. ChangedAgain[NewRevision] の後: 画面 Conflict。スタック Conflict。記録4 は結果 2件。自由文 effect「Show fresh disk observation」は本体に出ない（find で 0 件）。
+4. SaveAs[Cancelled] の後: 操作を続ける位置 記録5「SaveAs」 / 選んだ条件：Cancelled / 結果1 / 状態1 / Conflict。画面・スタックとも Conflict のまま。effect「Keep the current editor and pending conflict」は本体に出ない。
+
+予想 S1・S2・S3 と一致。

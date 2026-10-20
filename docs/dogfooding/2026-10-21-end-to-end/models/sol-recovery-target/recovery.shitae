@@ -1,0 +1,52 @@
+// Current implementation's bounded recovery relationship, not proof of disk safety.
+// Conflict here means an observed existing version different from the editor. Missing-file recreation is outside this model.
+// Conditions are selected manually; freshness, revision and asynchronous races belong to implementation tests.
+# Editing
+buffer: EditorVersion
+> ExternalChange -> goto(Conflict)
+
+# Conflict
+buffer: EditorVersion
+observed: ObservedDisk
+choices: { ReviewAndSaveHere; SaveAs; UseCurrentDiskVersion }
+> ReviewAndSaveHere -> set(ReviewTarget##CurrentFile); present(OverwriteReview)
+> UseCurrentDiskVersion -> present(DiscardReview)
+> SaveAs -> [ExistingDifferentTarget] Choose the target; set(ReviewTarget##ChosenFile); present(OverwriteReview)
+>     [NewTargetSaved] Save to a new target after checks; goto(Editing)
+>     [Cancelled] Keep the current editor and pending conflict
+> KeepEditing -> Preserve pending editor content
+
+# OverwriteReview
+target: ReviewTarget
+editor: EditorVersion
+disk: ObservedDisk
+actions: { KeepEditing; ChooseAnotherFile; ReplaceObservedVersion }
+> KeepEditing -> dismiss()
+> ReplaceObservedVersion -> [Saved] Save after version check; dismiss(); goto(Editing)
+> ChooseAnotherFile -> [ExistingDifferentTarget] Choose another target; set(ReviewTarget##ChosenFile); dismiss(); present(OverwriteReview)
+>     [NewTargetSaved] Save to a new target after checks; dismiss(); goto(Editing)
+> ChangedAgain -> [NewRevision] Show fresh disk observation; dismiss()
+
+# DiscardReview
+editor: EditorVersion
+disk: ObservedDisk
+actions: { KeepEditing; UseDiskVersion }
+> KeepEditing -> dismiss()
+> UseDiskVersion -> [Fresh] Adopt disk after version check; dismiss(); goto(Editing)
+> ChangedAgain -> [NewRevision] Preserve editor; dismiss()
+
+#! ReviewTarget
+## CurrentFile
+"Overwrite the file open in this editor"
+## ChosenFile
+"Overwrite the other existing file you chose"
+
+# EditorVersion
+# ObservedDisk
+# ReviewAndSaveHere
+# SaveAs
+# UseCurrentDiskVersion
+# KeepEditing
+# ChooseAnotherFile
+# ReplaceObservedVersion
+# UseDiskVersion

@@ -1,0 +1,5 @@
+{"id":"r0","command":"query","select":["actions","metadata"]}
+{"id":"old","command":"dispatch","handle":"29d28a44-de2b-4de0-a2aa-0d4131600d12:7:0"}
+{"id":"r1","command":"dispatch","handle":"2bd54247-d41b-44fb-851f-244145a13343:8:0"}
+{"id":"r2","command":"query","select":["state"]}
+{"id":"save2","command":"exportScenario"}

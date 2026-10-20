@@ -1,0 +1,2 @@
+/Users/m5/works/shitae/.worktrees/dogfood-2026-10-21/docs/dogfooding/2026-10-21-end-to-end/author/library-v1.shitae:26: [warning] W105: goto(##予約済み) の '予約済み' は '予約確認' に定義されていない variant
+/Users/m5/works/shitae/.worktrees/dogfood-2026-10-21/docs/dogfooding/2026-10-21-end-to-end/author/library-v1.shitae:34: [warning] W105: goto(##未予約) の '未予約' は '取消確認' に定義されていない variant

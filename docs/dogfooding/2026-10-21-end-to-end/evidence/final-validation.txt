@@ -1,0 +1,20 @@
+# final validation 2026-10-21 07:32 JST
+HEAD 365a8c07262a1110451678d7bc2e1027fd2038a2
+## original models
+docs/dogfooding/2026-10-13-standalone/astra/models/current.shitae: OK
+docs/dogfooding/2026-10-13-standalone/astra/models/inline-repro.shitae: OK
+docs/dogfooding/2026-10-13-standalone/astra/models/proposed.shitae: OK
+docs/dogfooding/2026-10-13-standalone/sol/models/current.shitae: OK
+docs/dogfooding/2026-10-13-standalone/sol/models/proposed.shitae: OK
+docs/dogfooding/2026-10-13-standalone/sol/models/recovery.shitae: OK
+docs/dogfooding/2026-10-13-standalone/reproductions/alias-member.shitae: OK
+## tracked index vs start
+index identical
+## git diff --stat HEAD (tracked changes)
+(end)
+## git status --short
+?? docs/dogfooding/2026-10-21-end-to-end/
+## listener 8765
+none
+## session processes
+none

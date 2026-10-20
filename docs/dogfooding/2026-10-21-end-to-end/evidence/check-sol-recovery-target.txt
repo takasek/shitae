@@ -1,0 +1,9 @@
+/Users/m5/works/shitae/.worktrees/dogfood-2026-10-21/docs/dogfooding/2026-10-21-end-to-end/models/sol-recovery-target/recovery.shitae:44: [warning] W103: component 'EditorVersion' は要素もインタラクションも持たない
+/Users/m5/works/shitae/.worktrees/dogfood-2026-10-21/docs/dogfooding/2026-10-21-end-to-end/models/sol-recovery-target/recovery.shitae:45: [warning] W103: component 'ObservedDisk' は要素もインタラクションも持たない
+/Users/m5/works/shitae/.worktrees/dogfood-2026-10-21/docs/dogfooding/2026-10-21-end-to-end/models/sol-recovery-target/recovery.shitae:46: [warning] W103: component 'ReviewAndSaveHere' は要素もインタラクションも持たない
+/Users/m5/works/shitae/.worktrees/dogfood-2026-10-21/docs/dogfooding/2026-10-21-end-to-end/models/sol-recovery-target/recovery.shitae:47: [warning] W103: component 'SaveAs' は要素もインタラクションも持たない
+/Users/m5/works/shitae/.worktrees/dogfood-2026-10-21/docs/dogfooding/2026-10-21-end-to-end/models/sol-recovery-target/recovery.shitae:48: [warning] W103: component 'UseCurrentDiskVersion' は要素もインタラクションも持たない
+/Users/m5/works/shitae/.worktrees/dogfood-2026-10-21/docs/dogfooding/2026-10-21-end-to-end/models/sol-recovery-target/recovery.shitae:49: [warning] W103: component 'KeepEditing' は要素もインタラクションも持たない
+/Users/m5/works/shitae/.worktrees/dogfood-2026-10-21/docs/dogfooding/2026-10-21-end-to-end/models/sol-recovery-target/recovery.shitae:50: [warning] W103: component 'ChooseAnotherFile' は要素もインタラクションも持たない
+/Users/m5/works/shitae/.worktrees/dogfood-2026-10-21/docs/dogfooding/2026-10-21-end-to-end/models/sol-recovery-target/recovery.shitae:51: [warning] W103: component 'ReplaceObservedVersion' は要素もインタラクションも持たない
+/Users/m5/works/shitae/.worktrees/dogfood-2026-10-21/docs/dogfooding/2026-10-21-end-to-end/models/sol-recovery-target/recovery.shitae:52: [warning] W103: component 'UseDiskVersion' は要素もインタラクションも持たない
