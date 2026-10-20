@@ -1,6 +1,6 @@
 # shitae の一連の設計作業を通した評価（2026-10-21）
 
-固定版の shitae で、自然文からのモデル作成、保存済みモデルの設計検討、保存・引継ぎ、設計変更後の再検討を行った。評価と新規記録のみ。製品・SPEC・既存ガイド・過去証拠は変更せず、commit・push・PR・issue 書込みを行っていない。手順は `.agents/skills/shitae-dogfooding/SKILL.md`（PR #41 で追加中、評価 SHA には未収録）に従った。
+固定版の shitae で、自然文からのモデル作成、保存済みモデルの設計検討、保存・引継ぎ、設計変更後の再検討を行った。評価と新規記録のみ。評価中は製品・SPEC・既存ガイド・過去証拠を変更せず、commit・push・PR・issue 書込みも行っていない。評価後に利用者の指示で、この記録を commit して PR にし、改善候補を issue #42〜#49 として起票した（[candidates.md](candidates.md)）。手順は `.agents/skills/shitae-dogfooding/SKILL.md`（PR #41 で追加中、評価 SHA には未収録）に従った。
 
 ## 固定対象と環境
 
