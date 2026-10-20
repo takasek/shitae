@@ -1,0 +1,29 @@
+{
+  "method": "real browser UI actions and read-only DOM measurement",
+  "model": "existing s1-revised/expenses.shitae; regenerated at fixed HEAD",
+  "actions": [
+    "領収書照合が完了する ×10",
+    "履歴ペインを1ページ下へ",
+    "記録5の見出しを展開",
+    "記録5の結果1点を選択"
+  ],
+  "beforeExpand": {
+    "traceScrollTop": 720,
+    "dispatch": 10,
+    "seek": 0
+  },
+  "afterExpand": {
+    "traceScrollTop": 0,
+    "dispatch": 10,
+    "seek": 0,
+    "focus": "AXWebArea"
+  },
+  "afterPointSelection": {
+    "currentStep": 5,
+    "retainedPoints": 6,
+    "ghostPoints": 5,
+    "dispatch": 10,
+    "seek": 1
+  },
+  "note": "数値は実行時のブラウザ観測出力から転記。人のランダムウォークの再現ではない。"
+}

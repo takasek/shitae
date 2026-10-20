@@ -1,0 +1,14 @@
+{
+  "finalInputsUnchanged": true,
+  "finalInputCount": 11,
+  "productTrackedDiff": "empty",
+  "stateTests": {
+    "pass": 4,
+    "fail": 0
+  },
+  "independentReview": "R1-R3 resolved; no additional blocking findings within scope",
+  "subagentFirstLook": "materials 4 scenarios, terms 4 scenarios (CLI value check outside terms scope)",
+  "subagentFollowup": "IAB unavailable; not run",
+  "parentBrowserFollowup": "4 directed routes plus standalone preview",
+  "standaloneSha256": "afeef3fa600407ed55ff25b448d8821675a23ae778d953614a67786e2a65e2a9"
+}

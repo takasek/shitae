@@ -1,0 +1,11 @@
+Browser tab: 1, Title: "履歴UI設計案 v3", URL: "http://127.0.0.1:8875/ui-proposal.html".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 90-91
++		197 container
++			198 button (expanded) 画面外も含めて状態を確認する方法, ID: shared-guide, Secondary Actions: Collapse
++				199 text 画面外も含めて状態を確認する方法
++			200 text 確認したい時点を選び、同じモデルと処理系に対応する保存ファイルを使います。「見ている時点」と「操作を続ける位置」は別です。参照中でも、現在の状態を調べる資料は操作を続ける位置に対応するものを選びます。 今回の資料は揃っています。
++			201 link Description: 資料と照会手順を開く, Value: 127.0.0.1:8875/materials/guide.html
++			202 text 。文書Bの識別は module＝expense、component＝文書B です。
++			203 text このデモで操作を続ける位置の資料：resumed.scenario.json
+The focused UI element is 198 button (expanded) 画面外も含めて状態を確認する方法, ID: shared-guide, Secondary Actions: Collapse

@@ -1,0 +1,72 @@
+[
+  {
+    "id": 13,
+    "operationId": 11,
+    "resultIndex": 0,
+    "source": {
+      "module": "expense",
+      "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae",
+      "span": {
+        "offset": 386,
+        "length": 33,
+        "line": 16,
+        "col": 1
+      }
+    },
+    "kind": "event",
+    "label": "set(文書B)",
+    "location": {
+      "module": "expense",
+      "component": "申請詳細",
+      "variant": null
+    },
+    "ghost": false
+  },
+  {
+    "id": 14,
+    "operationId": 12,
+    "resultIndex": 0,
+    "source": {
+      "module": "expense",
+      "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae",
+      "span": {
+        "offset": 420,
+        "length": 46,
+        "line": 17,
+        "col": 1
+      }
+    },
+    "kind": "event",
+    "label": "set(申請状態)",
+    "location": {
+      "module": "expense",
+      "component": "申請詳細",
+      "variant": null
+    },
+    "ghost": false
+  },
+  {
+    "id": 15,
+    "operationId": 12,
+    "resultIndex": 1,
+    "source": {
+      "module": "expense",
+      "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae",
+      "span": {
+        "offset": 420,
+        "length": 46,
+        "line": 17,
+        "col": 1
+      }
+    },
+    "kind": "event",
+    "label": "set(保存状況)",
+    "location": {
+      "module": "expense",
+      "component": "申請詳細",
+      "variant": null
+    },
+    "ghost": false
+  }
+]
+metadata {"engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116", "entryModule": "expense", "sourceBasis": "source-bytes", "manifest": [{"module": "expense", "sourceSha256": "81a8737481b16fb310f40d49ea5e528ef704aaad7a11e57c5f52f08bee88a196", "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae"}], "modelId": "874fc8c77588d712fc22b3701a2f25c4c1e8d998999bb72415409be1a088570a"}

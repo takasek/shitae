@@ -1,0 +1,37 @@
+Browser tab: 1, Title: "履歴UI設計案 v3", URL: "http://127.0.0.1:8875/ui-proposal.html".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 189-196, 227, 229-231, 237-258
++		213 text 操作を続ける位置：記録15「申請を取り下げる」／条件：指定なし／結果1の後
++		214 text 取下げ後の画面です。後の履歴の文章は残り、古い画面には戻れません。
+~			11 button (collapsed) 記録12：支払いを完了する 条件：指定なし · 2結果 · 文章のみ, Secondary Actions: Expand
++				215 text 文章のみ
+~			16 button (collapsed) 記録11：領収書の更新を受け取る 条件：指定なし · 1結果 · 文章のみ, Secondary Actions: Expand
++				216 text 文章のみ
+~				205 button (expanded) 記録10：支払いを予約する 条件：指定なし · 1結果 · 文章のみ, Secondary Actions: Collapse
++					217 text 文章のみ
+~				212 button (disabled) 記録10・結果1の画面を見る
++				218 text 文章のみ：この時点の画面は残っていません
+~			26 button (collapsed) 記録9：保存する 条件：成功 · 1結果 · 文章のみ, Secondary Actions: Expand
++				219 text 文章のみ
+~			31 button (collapsed) 記録8：承認する 条件：問題なし · 1結果 · 文章のみ, Secondary Actions: Expand
++				220 text 文章のみ
+~				159 button (expanded) 記録7：再申請する 条件：修正済み · 2結果 · 画面を確認できる, Secondary Actions: Collapse
++					221 text 画面を確認できる
+~				169 button (disabled) 記録7・結果2の画面を見る
++				222 text 文章のみ：この時点の画面は残っていません
++					223 text 画面を確認できる
++					224 text 画面を確認できる
++				225 text 画面を確認できる
++				226 text 画面を確認できる
++				227 text 画面を確認できる
++				228 text 画面を確認できる
++		229 button (collapsed) 戻れなくなった履歴, Secondary Actions: Expand
++			230 text 戻れなくなった履歴
+~			75 heading 操作を続ける画面：申請詳細, Value: 2, ID: screenTitle
++				231 text 操作を続ける画面：申請詳細
++			232 text 一万円
++			233 text 取下げ
++			234 text 未保存
++			235 text 記録15「申請を取り下げる」／条件：指定なし／結果1の後
++			236 text このデモで操作を続ける位置の資料：branched.scenario.json
+The focused UI element is 75 heading 操作を続ける画面：申請詳細, Value: 2, ID: screenTitle

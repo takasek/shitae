@@ -1,0 +1,113 @@
+Browser tab: 1, Title: "shitae simulator", URL: "http://127.0.0.1:8875/evidence/current.html".
+0 AXWebArea shitae simulator, URL: 127.0.0.1:8875/evidence/current.html
+	1 container app
+		2 container
+			3 text 操作来歴（統合ログ） ナビゲーション履歴。実行された遷移の列を操作ごとに表示します。新しい記録が上。操作を展開すると結果と観測点を確認できます。完了点や途中の観測点を選ぶと巻戻し・やり直しできます。破棄済みの観測点へは移動できません。
+			4 checkbox (settable, integer) Description: イベントを表示, Value: 1
+			5 text 現在地: 領収書照合が完了する / 記録10 / 観測1 / 申請一覧 現在まで 11観測点 / ghost 0観測点 / 破棄済み 0観測点。記録には破棄経路・reset前・手動試験も含まれます。
+			6 button (collapsed) 10. 領収書照合が完了する, Secondary Actions: Expand
+			7 text expenses::申請一覧 / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			8 button 完了点: set(領収書照合) 申請一覧 / 現在地
+				9 text 完了点: set(領収書照合) 
+				10 text 申請一覧 / 現在地
+			11 button (collapsed) 9. 領収書照合が完了する, Secondary Actions: Expand
+			12 text expenses::申請一覧 / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			13 button 完了点: set(領収書照合) 申請一覧
+				14 text 完了点: set(領収書照合) 
+				15 text 申請一覧
+			16 button (collapsed) 8. 領収書照合が完了する, Secondary Actions: Expand
+			17 text expenses::申請一覧 / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			18 button 完了点: set(領収書照合) 申請一覧
+				19 text 完了点: set(領収書照合) 
+				20 text 申請一覧
+			21 button (collapsed) 7. 領収書照合が完了する, Secondary Actions: Expand
+			22 text expenses::申請一覧 / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			23 button 完了点: set(領収書照合) 申請一覧
+				24 text 完了点: set(領収書照合) 
+				25 text 申請一覧
+			26 button (collapsed) 6. 領収書照合が完了する, Secondary Actions: Expand
+			27 text expenses::申請一覧 / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			28 button 完了点: set(領収書照合) 申請一覧
+				29 text 完了点: set(領収書照合) 
+				30 text 申請一覧
+			31 button (expanded) 5. 領収書照合が完了する, Secondary Actions: Collapse
+			32 text expenses::申請一覧 / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			33 button 完了点: set(領収書照合) 申請一覧
+				34 text 完了点: set(領収書照合) 
+				35 text 申請一覧
+			36 text 結果1: set(領収書照合##照合済) · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			37 button 結果1 / 観測1（完了点）: set(領収書照合) 申請一覧
+				38 text 結果1 / 観測1（完了点）: set(領収書照合) 
+				39 text 申請一覧
+			40 button (collapsed) 4. 領収書照合が完了する, Secondary Actions: Expand
+			41 text expenses::申請一覧 / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			42 button 完了点: set(領収書照合) 申請一覧
+				43 text 完了点: set(領収書照合) 
+				44 text 申請一覧
+			45 button (collapsed) 3. 領収書照合が完了する, Secondary Actions: Expand
+			46 text expenses::申請一覧 / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			47 button 完了点: set(領収書照合) 申請一覧
+				48 text 完了点: set(領収書照合) 
+				49 text 申請一覧
+			50 button (collapsed) 2. 領収書照合が完了する, Secondary Actions: Expand
+			51 text expenses::申請一覧 / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			52 button 完了点: set(領収書照合) 申請一覧
+				53 text 完了点: set(領収書照合) 
+				54 text 申請一覧
+			55 button (collapsed) 1. 領収書照合が完了する, Secondary Actions: Expand
+			56 text expenses::申請一覧 / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			57 button 完了点: set(領収書照合) 申請一覧
+				58 text 完了点: set(領収書照合) 
+				59 text 申請一覧
+			60 button 起点: 起動 申請一覧
+				61 text 起点: 起動 
+				62 text 申請一覧
+			63 button (collapsed) 検討手順を表示, Secondary Actions: Expand
+			64 button 検討手順を書出し
+		65 container
+			66 text 現在の画面
+			67 button 初期状態へ
+			68 text このHTML: expenses · model 4d24eedd3878 · engine 278103a97da5
+			69 button (collapsed) 版の詳細・共有するもの, Secondary Actions: Expand
+				70 text 版の詳細・共有するもの
+			71 text 保存範囲: dispatch 10件 / seek 0件 / reset 0件 / 手動試験 0件。条件選択はdispatchの内訳として操作来歴に表示します。破棄経路・reset前・ghost・手動試験も含む全記録を保存します。モデル本文・DOM・表示設定は含みません。読込後も現在の表示設定を使います。
+			72 button シナリオを保存
+			73 container
+				74 text シナリオを読み込む 
+				75 button シナリオを読み込む
+			76 text アクティブな frame の表示（本体）と掲示中カード
+			77 checkbox (settable, integer) Description: アクションを表示, Value: 1
+			78 checkbox (settable, integer) Description: 部品の状態を表示, Value: 0
+			79 button 画面外 component の姿切替（gate 試験用）
+			80 text 今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。
+			81 text 申請一覧
+			82 text 申請
+			83 button 開く(申請) component common
+				84 text 開く(申請)
+				85 text component common
+			86 container
+				87 button (expanded) 外部イベントを発生させる, Help: 外部イベントを発生させる — この文書のどの画面でも常に有効な操作（document common）。プッシュ通知やセッション切れなど、稀に起こる外的要因を模す, Secondary Actions: Collapse
+					88 text 外部イベントを発生させる
+				89 button 領収書照合が完了する document common
+					90 text 領収書照合が完了する
+					91 text document common
+				92 button 領収書の不一致が見つかる document common
+					93 text 領収書の不一致が見つかる
+					94 text document common
+			95 container
+				96 button (expanded) スタック, Help: スタック — 今積み重なっている画面。プッシュダウン構成として読める, Secondary Actions: Collapse
+					97 text スタック
+				98 text 今積み重なっている画面。プッシュダウン構成として読める。上が現在地 申請一覧
+			99 container
+				100 button (expanded) 遷移マップ, Help: 遷移マップ — 画面間の遷移関係（表示のみ。状態遷移図として読める）, Secondary Actions: Collapse
+					101 text 遷移マップ
+				102 text 画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。
+				103 button 設定を保存
+				104 checkbox (settable, integer) Description: 全体を見る, Value: 0
+				105 image
+					106 text 申請一覧
+					107 text 申請詳細
+					108 text 審査確認
+					109 text 領収書
+
+The focused UI element is 0 AXWebArea shitae simulator, URL: 127.0.0.1:8875/evidence/current.html

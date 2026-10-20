@@ -1,0 +1,126 @@
+Browser tab: 1, Title: "#35 履歴UI設計案", URL: "http://127.0.0.1:8875/ui-proposal.html".
+0 AXWebArea #35 履歴UI設計案, URL: 127.0.0.1:8875/ui-proposal.html
+	1 container
+		2 heading 履歴を読み、続きを選ぶ 設計案 v2・架空データ, Value: 1
+			3 text 履歴を読み、続きを選ぶ  設計案 v2・架空データ
+		127 text 実行位置：記録7「申請を保存」／条件：成功／結果1の後
+		128 text 設計デモ：実行位置の表示を更新。実際のseekや保存は行っていません。
+	6 container 操作履歴
+		7 heading 操作履歴, Value: 2
+			8 text 操作履歴
+		9 text 詳細を開く → 画面を見る → 必要なら再開
+		10 container history
+			11 button (collapsed) 記録12：申請を保存 条件：成功 · 2結果 · 未来・保持中, Secondary Actions: Expand
+				12 AXListMarker ▸ 
+				13 text 記録12：申請を保存
+				14 text 条件：成功 · 2結果 ·
+				129 text 未来・保持中
+			16 button (collapsed) 記録11：申請を保存 条件：成功 · 2結果 · 未来・保持中, Secondary Actions: Expand
+				17 AXListMarker ▸ 
+				18 text 記録11：申請を保存
+				19 text 条件：成功 · 2結果 ·
+				130 text 未来・保持中
+			143 container
+				144 button (expanded) 記録10：申請を保存 条件：成功 · 2結果 · 未来・保持中, Secondary Actions: Collapse
+					145 AXListMarker ▾ 
+					146 text 記録10：申請を保存
+					147 text 条件：成功 · 2結果 ·
+					148 text 未来・保持中
+				149 text 結果1：申請状態を承認済みにする
+				150 text 申請詳細／結果1の後
+				151 button 記録10・結果1の画面を見る
+				152 text 結果2：保存通知を表示する
+				153 text 申請詳細／この操作の最後の状態
+				154 button 記録10・結果2の画面を見る
+				155 button (collapsed) 技術詳細, Secondary Actions: Expand
+					156 text 技術詳細
+			26 button (collapsed) 記録9：申請を保存 条件：成功 · 2結果 · 未来・保持中, Secondary Actions: Expand
+				27 AXListMarker ▸ 
+				28 text 記録9：申請を保存
+				29 text 条件：成功 · 2結果 ·
+				132 text 未来・保持中
+			31 button (collapsed) 記録8：申請を保存 条件：成功 · 2結果 · 未来・保持中, Secondary Actions: Expand
+				32 AXListMarker ▸ 
+				33 text 記録8：申請を保存
+				34 text 条件：成功 · 2結果 ·
+				133 text 未来・保持中
+			96 container
+				97 button (expanded) 記録7：申請を保存 条件：成功 · 2結果 · 実行位置を含む, Secondary Actions: Collapse
+					98 AXListMarker ▾ 
+					99 text 記録7：申請を保存
+					100 text 条件：成功 · 2結果 ·
+					134 text 実行位置を含む
+				102 text 結果1：申請状態を承認済みにする
+				103 text 申請詳細／結果1の後
+				104 button 記録7・結果1の画面を見る
+				105 text 結果2：保存通知を表示する
+				106 text 申請詳細／この操作の最後の状態
+				107 button 記録7・結果2の画面を見る
+				108 button (collapsed) 技術詳細, Secondary Actions: Expand
+					109 text 技術詳細
+			41 button (collapsed) 記録6：申請を保存 条件：成功 · 2結果 · 保持中, Secondary Actions: Expand
+				42 AXListMarker ▸ 
+				43 text 記録6：申請を保存
+				44 text 条件：成功 · 2結果 ·
+				135 text 保持中
+			46 button (collapsed) 記録5：申請を保存 条件：成功 · 2結果 · 保持中, Secondary Actions: Expand
+				47 AXListMarker ▸ 
+				48 text 記録5：申請を保存
+				49 text 条件：成功 · 2結果 ·
+				136 text 保持中
+			51 button (collapsed) 記録4：申請を保存 条件：成功 · 2結果 · 保持中, Secondary Actions: Expand
+				52 AXListMarker ▸ 
+				53 text 記録4：申請を保存
+				54 text 条件：成功 · 2結果 ·
+				137 text 保持中
+			56 button (collapsed) 記録3：申請を保存 条件：成功 · 2結果 · 保持中, Secondary Actions: Expand
+				57 AXListMarker ▸ 
+				58 text 記録3：申請を保存
+				59 text 条件：成功 · 2結果 ·
+				138 text 保持中
+			61 button (collapsed) 記録2：申請を保存 条件：成功 · 2結果 · 保持中, Secondary Actions: Expand
+				62 AXListMarker ▸ 
+				63 text 記録2：申請を保存
+				64 text 条件：成功 · 2結果 ·
+				139 text 保持中
+			113 container
+				114 button (expanded) 記録1：申請を保存 条件：成功 · 2結果 · 保持中, Secondary Actions: Collapse
+					115 AXListMarker ▾ 
+					116 text 記録1：申請を保存
+					117 text 条件：成功 · 2結果 ·
+					140 text 保持中
+				119 text 結果1：申請状態を承認済みにする
+				120 text 申請詳細／結果1の後
+				121 button 記録1・結果1の画面を見る
+				122 text 結果2：保存通知を表示する
+				123 text 申請詳細／この操作の最後の状態
+				124 button 記録1・結果2の画面を見る
+				125 button (collapsed) 技術詳細, Secondary Actions: Expand
+					126 text 技術詳細
+		71 button (collapsed) 記録0：状態点のない操作 結果の文章だけを保持, Secondary Actions: Expand
+			72 AXListMarker ▸ 
+			73 text 記録0：状態点のない操作
+			74 text 結果の文章だけを保持
+		75 button (collapsed) 破棄された経路 3状態点・記録のみ, Secondary Actions: Expand
+			76 AXListMarker ▸ 
+			77 text 破棄された経路
+			78 text 3状態点・記録のみ
+	79 container 画面表示
+		80 container
+			81 heading 現在の画面：申請詳細, Value: 2, ID: screenTitle
+				141 text 現在の画面：申請詳細
+			83 text 申請 出張費・代表データ 審査状態
+			84 text 承認済み
+			85 text 表示対象
+			142 text 記録7／結果1の後
+		87 container
+			88 heading 読込時点の要約, Value: 2
+				89 text 読込時点の要約
+			90 text 画面・操作条件に関係する共有状態：本体：申請状態 ##承認済み 読込時点の値です。画面外も含む全共有状態の一覧ではありません。
+			91 button (collapsed) 全共有状態を確認する方法, ID: shared-guide, Secondary Actions: Expand
+				92 text 全共有状態を確認する方法
+		93 button (collapsed) 技術詳細・版の詳細・共有するもの, Secondary Actions: Expand
+			94 text 技術詳細・版の詳細・共有するもの
+		95 text モデルは状態と遷移、このHTMLは配置と表示位置を検討します。両者は製品実装・人向け受入ではありません。
+
+The focused UI element is 144 button (expanded) 記録10：申請を保存 条件：成功 · 2結果 · 未来・保持中, Secondary Actions: Collapse

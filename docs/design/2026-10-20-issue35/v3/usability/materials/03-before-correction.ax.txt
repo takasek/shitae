@@ -1,0 +1,24 @@
+Browser tab: 1, Title: "履歴UI設計案 v3", URL: "http://127.0.0.1:8875/ui-proposal.html".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 104-112, 114-117, 119, 123-127, 134
++		138 text 操作を続ける位置：記録12「支払いを完了する」／条件：指定なし／結果2の後
++		139 text 見ている画面を切り替えました。操作を続ける位置は変わっていません。
++				140 text ここから操作を続ける
++				141 text 画面を確認できる
++				142 text 画面を確認できる
++				143 text 画面を確認できる
++				144 text 画面を確認できる
++				145 text 画面を確認できる
++					146 text 画面を確認できる
++					147 text 画面を確認できる
++				148 text 画面を確認できる
++				149 text 画面を確認できる
++				150 text 画面を確認できる
++				151 text 画面を確認できる
++			152 text 見ている時点：記録5「差し戻す」／条件：領収書不足／結果1の後
++				153 text 当時の画面：申請詳細
++			154 text 一万二千円
++			155 text 要修正
++			156 text 未保存
++			157 text 記録5「差し戻す」／条件：領収書不足／結果1の後
+The focused UI element is 137 button 記録5・結果1の画面を見る

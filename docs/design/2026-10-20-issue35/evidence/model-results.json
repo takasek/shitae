@@ -1,0 +1,65 @@
+[
+  {
+    "case": "cancel",
+    "separateProcessReplay": true,
+    "values": {
+      "実行位置": "C",
+      "未来の扱い": "保持",
+      "参照表示": "現在"
+    }
+  },
+  {
+    "case": "resume",
+    "separateProcessReplay": true,
+    "values": {
+      "実行位置": "B",
+      "未来の扱い": "保持",
+      "参照表示": "現在"
+    }
+  },
+  {
+    "case": "redo",
+    "separateProcessReplay": true,
+    "values": {
+      "実行位置": "C",
+      "未来の扱い": "保持",
+      "参照表示": "現在"
+    }
+  },
+  {
+    "case": "branch",
+    "separateProcessReplay": true,
+    "values": {
+      "実行位置": "新経路",
+      "未来の扱い": "破棄",
+      "参照表示": "現在"
+    }
+  },
+  {
+    "case": "unavailable",
+    "separateProcessReplay": true,
+    "values": {
+      "実行位置": "C",
+      "未来の扱い": "保持",
+      "参照表示": "B"
+    }
+  },
+  {
+    "case": "record-only",
+    "separateProcessReplay": true,
+    "values": {
+      "実行位置": "C",
+      "未来の扱い": "保持",
+      "参照表示": "現在"
+    }
+  },
+  {
+    "case": "summary",
+    "separateProcessReplay": true,
+    "values": {
+      "実行位置": "C",
+      "未来の扱い": "保持",
+      "参照表示": "現在"
+    }
+  }
+]

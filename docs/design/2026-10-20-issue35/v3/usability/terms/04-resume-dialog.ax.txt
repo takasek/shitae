@@ -1,0 +1,13 @@
+Browser tab: 1, Title: "履歴UI設計案 v3", URL: "http://127.0.0.1:8875/ui-proposal.html".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
++		159 container confirm
++			160 heading 操作を続ける位置を変えます, Value: 2
++				161 text 操作を続ける位置を変えます
++			162 text 変更前：記録12「支払いを完了する」／条件：指定なし／結果2の後
++			163 text 変更後：記録7「再申請する」／条件：修正済み／結果1の後
++			164 text 確定後も、これより後の履歴へ戻れます。ただし、新たに戻れる地点を作る操作を行うと、それより後の画面には戻れなくなります。操作・条件・結果の文章は残ります。
++			165 button (collapsed) 後の履歴が残る場合, Secondary Actions: Expand
++				166 text 後の履歴が残る場合
++			167 button 変更せず参照に戻る, ID: cancel
++			168 button この位置に変更, ID: commit
+The focused UI element is 167 button 変更せず参照に戻る, ID: cancel

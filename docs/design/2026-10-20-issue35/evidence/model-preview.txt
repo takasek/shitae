@@ -1,0 +1,108 @@
+Browser tab: 3, Title: "shitae simulator", URL: "http://127.0.0.1:8875/evidence/model.html".
+0 AXWebArea shitae simulator, URL: 127.0.0.1:8875/evidence/model.html
+	1 container app
+		2 container
+			3 text 操作来歴（統合ログ） ナビゲーション履歴。実行された遷移の列を操作ごとに表示します。新しい記録が上。操作を展開すると結果と観測点を確認できます。完了点や途中の観測点を選ぶと巻戻し・やり直しできます。破棄済みの観測点へは移動できません。
+			4 checkbox (settable, integer) Description: イベントを表示, Value: 1
+			5 text 現在地: Bの画面を見る / 記録2 / 観測2 / 履歴作業場 現在まで 4観測点 / ghost 0観測点 / 破棄済み 0観測点。記録には破棄経路・reset前・手動試験も含まれます。
+			6 button (collapsed) 2. Bの画面を見る, Secondary Actions: Expand
+			7 text history-flow::操作詳細 / 配置 overlay:操作詳細[] 2結果 / 2観測点 · 現在まで 2観測点 / ghost 0観測点 / 破棄済み 0観測点
+			8 button 完了点: show(B参照) 履歴作業場 / 現在地
+				9 text 完了点: show(B参照) 
+				10 text 履歴作業場 / 現在地
+			11 button (collapsed) 1. 詳細を開く, Secondary Actions: Expand
+			12 text history-flow::履歴作業場 / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			13 button 完了点: show(操作詳細) 履歴作業場
+				14 text 完了点: show(操作詳細) 
+				15 text 履歴作業場
+			16 button 起点: 起動 履歴作業場
+				17 text 起点: 起動 
+				18 text 履歴作業場
+			19 button (collapsed) 検討手順を表示, Secondary Actions: Expand
+			20 button 検討手順を書出し
+		21 container
+			22 text 現在の画面
+			23 button 初期状態へ
+			24 text このHTML: history-flow · model 4f3ce7a249a4 · engine 278103a97da5
+			25 button (collapsed) 版の詳細・共有するもの, Secondary Actions: Expand
+				26 text 版の詳細・共有するもの
+			27 text 保存範囲: dispatch 2件 / seek 0件 / reset 0件 / 手動試験 0件。条件選択はdispatchの内訳として操作来歴に表示します。破棄経路・reset前・ghost・手動試験も含む全記録を保存します。モデル本文・DOM・表示設定は含みません。読込後も現在の表示設定を使います。
+			28 button シナリオを保存
+			29 container
+				30 text シナリオを読み込む 
+				31 button シナリオを読み込む
+			32 text アクティブな frame の表示（本体）と掲示中カード
+			33 checkbox (settable, integer) Description: アクションを表示, Value: 1
+			34 checkbox (settable, integer) Description: 部品の状態を表示, Value: 0
+			35 button 画面外 component の姿切替（gate 試験用）
+			36 text 今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。
+			37 text 履歴作業場
+			38 container
+				39 button (expanded) 実行, Secondary Actions: Collapse
+					40 text 実行
+				41 text 記録2の結果2の後
+			42 container
+				43 button (expanded) 未来, Secondary Actions: Collapse
+					44 text 未来
+				45 text Cは保持中
+			46 container
+				47 button (expanded) 表示, Secondary Actions: Collapse
+					48 text 表示
+				49 text 参照中の記録2の結果1の画面 操作は説明のみ
+			50 container
+				51 button (expanded) 要約, Secondary Actions: Collapse
+					52 text 要約
+				53 text 読込時点の画面と操作条件に関係する共有状態のみ 全共有状態ではない
+			54 button 詳細を開く component common
+				55 text 詳細を開く
+				56 text component common
+			57 button 読込要約の案内を開く component common
+				58 text 読込要約の案内を開く
+				59 text component common
+			60 button 全共有状態を確認する component common
+				61 text 全共有状態を確認する
+				62 text component common
+			63 text 掲示中
+			64 text 操作詳細
+			65 text 条件は承認
+			66 text 結果1と結果2は同じ画面名でも別の状態
+			67 button Bの画面を見る component common
+				68 text Bの画面を見る
+				69 text component common
+			70 text Cの画面を見る
+			71 text component common
+			72 button [保持中]
+			73 button [破棄済み]
+			74 button Dの記録を読む component common
+				75 text Dの記録を読む
+				76 text component common
+			77 button 無観測の結果を読む component common
+				78 text 無観測の結果を読む
+				79 text component common
+			80 button 詳細を閉じる component common
+				81 text 詳細を閉じる
+				82 text component common
+			83 text 掲示中
+			84 text B参照
+			85 text Bは保持中の過去
+			86 text 実行位置は参照だけでは変わらない
+			87 button 現在の表示へ戻る component common
+				88 text 現在の表示へ戻る
+				89 text component common
+			90 button Bから再開する component common
+				91 text Bから再開する
+				92 text component common
+			93 container
+				94 button (expanded) スタック, Help: スタック — 今積み重なっている画面。プッシュダウン構成として読める, Secondary Actions: Collapse
+					95 text スタック
+				96 text 今積み重なっている画面。プッシュダウン構成として読める。上が現在地 履歴作業場
+			97 container
+				98 button (expanded) 遷移マップ, Help: 遷移マップ — 画面間の遷移関係（表示のみ。状態遷移図として読める）, Secondary Actions: Collapse
+					99 text 遷移マップ
+				100 text 画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。
+				101 button 設定を保存
+				102 checkbox (settable, integer) Description: 全体を見る, Value: 0
+				103 image
+					104 text 履歴作業場
+
+The focused UI element is 67 button Bの画面を見る component common

@@ -1,0 +1,33 @@
+
+ RUN  v3.2.4 /Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/simulator
+
+ ❯ test/history-preview.test.ts (9 tests | 1 failed) 158ms
+   ✓ read-only history preview and explicit resume > keeps state, handles, revision, journal and export unchanged while previewing and cancelling 13ms
+   ✓ read-only history preview and explicit resume > resumes only after confirmation and rejects stale confirmation across load/reset 10ms
+   ✓ read-only history preview and explicit resume > retains preview on rejection/load failure but clears it on accepted no-op and branch 6ms
+   ✓ read-only history preview and explicit resume > shows partial load scope and a persistent executable state-query guide 6ms
+   ✓ history presentation anchors > keeps a visible row at the same viewport offset and focuses its heading when a point is filtered 1ms
+   ✓ result and snapshot boundaries > labels the saved point of an operation whose final result has no observation 6ms
+   ✓ result and snapshot boundaries > renders retained overlay and inclusion values without leaking current shared variants 8ms
+   ✓ focus across history controls > moves focus to the confirmation and back to an existing control on cancel and end 4ms
+   × long-history rendering > does not repeatedly scan earlier steps for every completion shortcut 105ms
+     → expected 495 to be less than or equal to 90
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/history-preview.test.ts > long-history rendering > does not repeatedly scan earlier steps for every completion shortcut
+AssertionError: expected 495 to be less than or equal to 90
+ ❯ test/history-preview.test.ts:154:36
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+   Start at  15:50:32
+   Duration  406ms (transform 57ms, setup 0ms, collect 64ms, tests 158ms, environment 0ms, prepare 32ms)
+
+undefined
+/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/simulator:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: vitest run test/history-preview.test.ts

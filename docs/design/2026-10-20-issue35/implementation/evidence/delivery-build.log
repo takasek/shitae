@@ -1,0 +1,4 @@
+
+> @shitae/simulator@0.0.1 build /Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/simulator
+> node scripts/build-browser.mjs && tsc
+

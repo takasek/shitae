@@ -1,0 +1,13 @@
+Browser tab: 1, Title: "履歴UI設計案 v3", URL: "http://127.0.0.1:8875/ui-proposal.html".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 41-45
++			95 container
++				96 button (expanded) 記録6：金額を訂正する 条件：指定なし · 1結果 · 画面を確認できる, Secondary Actions: Collapse
++					97 AXListMarker ▾ 
++					98 text 記録6：金額を訂正する
++					99 text 条件：指定なし · 1結果 ·
++					100 text 画面を確認できる
++				101 text 結果1：申請額を更新
++				102 text 一万円
++				103 button 記録6・結果1の画面を見る
+The focused UI element is 96 button (expanded) 記録6：金額を訂正する 条件：指定なし · 1結果 · 画面を確認できる, Secondary Actions: Collapse

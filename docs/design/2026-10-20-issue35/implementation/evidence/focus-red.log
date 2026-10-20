@@ -1,0 +1,107 @@
+
+ RUN  v3.2.4 /Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/simulator
+
+ ❯ test/history-preview.test.ts (8 tests | 2 failed) 60ms
+   ✓ read-only history preview and explicit resume > keeps state, handles, revision, journal and export unchanged while previewing and cancelling 14ms
+   ✓ read-only history preview and explicit resume > resumes only after confirmation and rejects stale confirmation across load/reset 10ms
+   ✓ read-only history preview and explicit resume > retains preview on rejection/load failure but clears it on accepted no-op and branch 6ms
+   ✓ read-only history preview and explicit resume > shows partial load scope and a persistent executable state-query guide 7ms
+   ✓ history presentation anchors > keeps a visible row at the same viewport offset and focuses its heading when a point is filtered 2ms
+   × result and snapshot boundaries > labels the saved point of an operation whose final result has no observation 9ms
+     → expected '<div class="live-position">操作を続ける位置: …' to match /この操作の最後に保存された状態を見る: 記録1[^<]*結果1[^<]*状…/
+   ✓ result and snapshot boundaries > renders retained overlay and inclusion values without leaking current shared variants 8ms
+   × focus across history controls > moves focus to the confirmation and back to an existing control on cancel and end 4ms
+     → expected undefined to be 'confirm-resume' // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/history-preview.test.ts > result and snapshot boundaries > labels the saved point of an operation whose final result has no observation
+AssertionError: expected '<div class="live-position">操作を続ける位置: …' to match /この操作の最後に保存された状態を見る: 記録1[^<]*結果1[^<]*状…/
+
+- Expected: 
+/この操作の最後に保存された状態を見る: 記録1[^<]*結果1[^<]*状態1/
+
++ Received: 
+"<div class=\"live-position\">操作を続ける位置: 記録1「Try」 / 選んだ条件：なし / 結果1 / 状態1 / Home <button onclick=\"focusCurrentHistory()\">現在の操作位置を一覧で見る</button><p role=\"status\"></p></div><aside class=\"pane pane-trace\" data-generation=\"0\"><div class=\"pane-title\">操作来歴（統合ログ）</div><div class=\"pane-desc\">ナビゲーション履歴。実行された遷移の列を操作ごとに表示します。新しい記録が上。記録の見出しで詳細を開閉し、結果ごとに画面を閲覧できます。操作を続ける位置の変更は別の確認で確定します。文章のみの地点は閲覧・再開できません。</div><label class=\"timeline-toggle\"><input type=\"checkbox\" checked onchange=\"toggleShowEvents()\"> イベントを表示</label><p class=\"pane-desc\">記録には位置の変更・reset前・手動試験も含みます。再開できる地点は、一つの結果の途中も含む保存された状態です。</p><details data-state-key=\"history-counts\"><summary>技術詳細：履歴の保持件数</summary>現在まで 2地点 / 後の履歴 0地点 / 文章のみ 0地点</details><div class=\"provenance-step\" data-history-key=\"step:1\"><button data-focus-key=\"step:1\" class=\"provenance-heading\" aria-expanded=\"true\" onclick=\"toggleProvenanceStep(1)\">記録1 · 操作 · Try</button><p>選んだ条件：なし / 結果 2件 / 閲覧・再開可</p><button data-focus-key=\"last:1\" onclick=\"previewObservation(2)\">この操作の最後に保存された状態を見る</button><p>結果1: effect</p><div class=\"history-point\" data-current-point=\"true\" data-history-key=\"point:2\"><p>結果1 / 状態1: effect: effect / Home · 現在の操作位置</p><button data-focus-key=\"preview:2\" onclick=\"previewObservation(2)\">画面を見る</button> <button data-focus-key=\"resume:2\" onclick=\"requestResume(2)\" disabled title=\"現在の操作位置と同じ地点です\">この時点から続ける…</button></div><p>結果2: back() / 再開できる地点なし</p><details data-state-key=\"technical:1\"><summary>技術詳細</summary><pre>{
+  &quot;host&quot;: {
+    &quot;module&quot;: &quot;main&quot;,
+    &quot;component&quot;: &quot;Home&quot;,
+    &quot;variant&quot;: null
+  },
+  &quot;placement&quot;: {
+    &quot;root&quot;: &quot;main&quot;,
+    &quot;path&quot;: []
+  },
+  &quot;observations&quot;: [
+    {
+      &quot;id&quot;: 2,
+      &quot;ref&quot;: {
+        &quot;step&quot;: 1,
+        &quot;observation&quot;: 0
+      },
+      &quot;resultPosition&quot;: 0,
+      &quot;ordinal&quot;: 0,
+      &quot;kind&quot;: &quot;event&quot;,
+      &quot;label&quot;: &quot;effect: effect&quot;,
+      &quot;location&quot;: {
+        &quot;module&quot;: &quot;main&quot;,
+        &quot;component&quot;: &quot;Home&quot;,
+        &quot;variant&quot;: null
+      },
+      &quot;status&quot;: &quot;retained&quot;,
+      &quot;seekable&quot;: true,
+      &quot;current&quot;: true
+    }
+  ],
+  &quot;discarded&quot;: []
+}</pre></details></div><div class=\"history-point\" data-history-key=\"point:1\"><p>起点: 起動 / Home · 閲覧・再開可</p><button data-focus-key=\"preview:1\" onclick=\"previewObservation(1)\">画面を見る</button> <button data-focus-key=\"resume:1\" onclick=\"requestResume(1)\">この時点から続ける…</button></div><p><button onclick=\"toggleReview()\" aria-expanded=\"false\">検討手順を表示</button> <button onclick=\"saveReview()\">検討手順を書出し</button></p></aside><main class=\"pane pane-center\" data-view-key=\"0:live\"><section class=\"screen-section\" data-view-key=\"0:live\"><div class=\"pane-title\">操作を続ける画面</div><button onclick=\"resetSession()\">初期状態へ</button><div class=\"scenario-controls\"><p class=\"artifact-identity\">このHTML: main · model 5328b361cf74 · engine 278103a97da5</p><details class=\"identity-details\"><summary>定義と実行プログラムの版・再現用の資料</summary><p>短縮IDは対応付けの補助です。読込時は完全な識別情報で厳密に照合します。</p><pre>{
+  &quot;engineVersion&quot;: &quot;278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116&quot;,
+  &quot;modelId&quot;: &quot;5328b361cf747a261fb011d25faf303211e24141229ff484be081fa1bf39a6ab&quot;,
+  &quot;entryModule&quot;: &quot;main&quot;,
+  &quot;sourceBasis&quot;: &quot;source-bytes&quot;,
+  &quot;manifest&quot;: [
+    {
+      &quot;module&quot;: &quot;main&quot;,
+      &quot;sourceSha256&quot;: &quot;cad8810a193e609ce65ff8f5e265ff28d26ba439774ae8293027327c3f109d1e&quot;
+    }
+  ]
+}</pre><p>再開には、このHTMLと完全一致するscenarioの組を渡してください。編集・再生成やCLIでの再開には全モデル・参照moduleと対応する処理系が必要です。遷移マップの分割設定も渡すならsimconfigを添えてください。</p><details data-state-key=\"state-query\"><summary>画面外も含めて状態を確認する方法</summary><p>部品の共有状態は、同じ部品を別の場所で使うときも共通になる状態です。全業務データを意味しません。</p><p>読み込んだ時点を調べるには元の読込ファイル、現在の操作位置を調べるには「操作の再生ファイルを保存」で作ったファイルを使います。履歴の閲覧中も保存するのは操作を続ける位置です。</p><p>「定義と実行プログラムの版・再現用の資料」の完全なmodelId/engineVersionを照合し、対応する画面と操作の定義（モデル）の入口・import一式と実行プログラム（shitae）を用意します。このHTMLからモデル本文は取り出せません。なければ作成者から対応する定義・実行プログラムを受け取ってください。</p><p>次のパスを手元のファイルに置き換えて起動し、同じprocessへJSONを1行送信します。</p><pre>node packages/cli/dist/index.js session &lt;定義ファイルの入口&gt; --replay &lt;対象の再生ファイル&gt;</pre><pre>{\"id\":\"shared\",\"command\":\"query\",\"select\":[\"state\"]}</pre><p>応答の data.state.sharedVariants が画面外を含む全singletonのvariant一覧です。module（所属）とcomponent（部品）の組で識別し、variant（選ばれている状態）を読みます。componentValuesは通常部品も含む別の一覧です。照合に失敗したら元の組合せを用意し、ファイル編集で回避しないでください。</p></details></details><p class=\"scenario-scope\">保存範囲: dispatch 1件 / seek 0件 / reset 0件 / 手動試験 0件。条件選択はdispatchの内訳として操作来歴に表示します。破棄経路・reset前・ghost・手動試験も含む全記録を保存します。モデル本文・DOM・表示設定は含みません。読込後も現在の表示設定を使います。</p><button data-focus-key=\"save-scenario\" onclick=\"saveScenario()\">操作の再生ファイルを保存</button> <label>操作の再生ファイルを読み込む <input data-focus-key=\"load-scenario\" type=\"file\" accept=\".scenario.json,application/json\" onchange=\"loadScenarioFile(this)\"></label></div><div class=\"pane-desc\">アクティブな frame の表示（本体）と掲示中カード</div><label class=\"action-toggle\"><input type=\"checkbox\" checked onchange=\"toggleShowActions()\"> アクションを表示</label><label class=\"action-toggle\"><input type=\"checkbox\"  onchange=\"toggleShowStates()\"> 部品の状態を表示</label><div class=\"gate-toggle-block\"><button class=\"gate-drawer-toggle\" onclick=\"toggleGatePanel()\">画面外 component の姿切替（gate 試験用）</button><p class=\"gate-panel-desc\">今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。</p></div><div class=\"screen\"><div class=\"screen-title\">Home</div><div class=\"action-list action-flat\"><div class=\"action-row action-row-solo\" data-focus-key=\"main::main:7\" role=\"button\" tabindex=\"0\" onkeydown=\"if(event.target === this && (event.key === &quot;Enter&quot; || event.key === &quot; &quot;)){event.preventDefault();this.click()}\" onclick=\"handleInteraction('component',0,0, 'd7bbb643-d4ee-4589-9dcf-ba2225831d4b:1:0')\"><span class=\"action-text\">Try</span><span class=\"scope-badge\" title=\"この component のどの姿でも共通して有効な操作\">component common</span></div></div></div></section><div class=\"lower-section\"><details open class=\"stack-section\" ontoggle=\"stackPanelOpen = this.open\"><summary class=\"pane-title\" title=\"スタック — 今積み重なっている画面。プッシュダウン構成として読める\">スタック</summary><div class=\"pane-desc\">今積み重なっている画面。プッシュダウン構成として読める。上が現在地</div><div class=\"stack-list\"><div class=\"stack-item stack-item-current\">Home</div></div></details><details open class=\"graph-section\" ontoggle=\"mapPanelOpen = this.open\"><summary class=\"pane-title\" title=\"遷移マップ — 画面間の遷移関係（表示のみ。状態遷移図として読める）\">遷移マップ</summary><div class=\"pane-desc\">画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。</div><button class=\"graph-save-btn\" onclick=\"saveGraphConfig()\">設定を保存</button><label class=\"graph-scope-toggle\"><input type=\"checkbox\"  onchange=\"toggleGraphShowAll()\"> 全体を見る</label><div class=\"graph-map-scroll\"><svg class=\"graph-svg\" width=\"192\" height=\"76\"><defs><marker id=\"graph-arrow\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"3\" orient=\"auto\"><path d=\"M0,0 L0,6 L6,3 z\"></path></marker></defs><g class=\"graph-node graph-node-current\" onmouseenter=\"showNodeTooltip(0,16,48)\" onmouseleave=\"hideNodeTooltip()\" onclick=\"pinGraphTooltip(0)\"><rect x=\"16\" y=\"16\" width=\"120\" height=\"28\" rx=\"4\"></rect><text x=\"76\" y=\"34\" text-anchor=\"middle\">Home</text></g></svg><div id=\"graph-tooltip\" class=\"graph-tooltip\"></div></div></details></div></main>"
+
+ ❯ test/history-preview.test.ts:100:29
+     98|     expect(result.results[1].observations).toEqual([]);
+     99|     expect(g.app.innerHTML).toContain('結果2: back() / 再開できる地点なし');
+    100|     expect(g.app.innerHTML).toMatch(/この操作の最後に保存された状態を見る: 記録1[^<]*結果1[^…
+       |                             ^
+    101|     g.run('previewObservation(2)');
+    102|     expect(g.app.innerHTML).toContain('結果1 / 状態1');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  test/history-preview.test.ts > focus across history controls > moves focus to the confirmation and back to an existing control on cancel and end
+AssertionError: expected undefined to be 'confirm-resume' // Object.is equality
+
+- Expected: 
+"confirm-resume"
+
++ Received: 
+undefined
+
+ ❯ test/history-preview.test.ts:138:75
+    136|     const focused = () => doc.activeElement?.getAttribute('data-focus-…
+    137|     g.run("handleInteraction('component',0,0); previewObservation(1)");
+    138|     focus('request-resume'); g.run('requestResume(1)'); expect(focused…
+       |                                                                           ^
+    139|     focus('cancel-resume'); g.run('cancelResume()'); expect(focused())…
+    140|     focus('end-preview'); g.run('endHistoryPreview()'); expect(focused…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 6 passed (8)
+   Start at  15:44:05
+   Duration  340ms (transform 66ms, setup 0ms, collect 78ms, tests 60ms, environment 0ms, prepare 38ms)
+
+undefined
+/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/simulator:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: vitest run test/history-preview.test.ts

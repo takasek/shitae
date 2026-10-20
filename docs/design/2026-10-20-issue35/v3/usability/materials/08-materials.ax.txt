@@ -1,0 +1,3 @@
+Browser tab: 1, Title: "履歴UI設計案 v3", URL: "http://127.0.0.1:8875/ui-proposal.html".
+There has been no change in the accessibility tree.
+The focused UI element is 201 link Description: 資料と照会手順を開く, URL: 127.0.0.1:8875/materials/guide.html

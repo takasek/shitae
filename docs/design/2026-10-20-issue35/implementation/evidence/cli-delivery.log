@@ -1,0 +1,40 @@
+
+> @shitae/cli@0.0.1 pretest /Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/cli
+> pnpm --filter "@shitae/cli..." build
+
+Scope: 9 of 11 workspace projects
+../ast build$ tsc
+../ast build: Done
+../parser build$ tsc
+../parser build: Done
+../resolver build$ tsc
+../runtime build$ tsc
+../resolver build: Done
+../runtime build: Done
+../transpiler-mermaid build$ tsc
+../checker build$ tsc
+../session build$ node scripts/build-engine.mjs && tsc
+../transpiler-mermaid build: Done
+../checker build: Done
+../session build: Done
+../simulator build$ node scripts/build-browser.mjs && tsc
+../simulator build: Done
+. build$ tsc
+. build: Done
+
+> @shitae/cli@0.0.1 test /Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/cli
+> vitest run
+
+
+ RUN  v2.1.9 /Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/cli
+
+ ✓ test/portable-html.test.ts (6 tests) 248ms
+ ✓ test/stdout.test.ts (2 tests) 435ms
+ ✓ test/cli.test.ts (17 tests) 693ms
+ ✓ test/session.test.ts (11 tests) 1024ms
+
+ Test Files  4 passed (4)
+      Tests  36 passed (36)
+   Start at  15:51:28
+   Duration  1.24s (transform 121ms, setup 0ms, collect 214ms, tests 2.40s, environment 0ms, prepare 130ms)
+

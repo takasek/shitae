@@ -783,3 +783,7 @@ condition label は**結果**に付く記法であり、要素行の名前を `[
 - **同一 `@S` の静的な再 begin**：遷移グラフ上、`begin(@S)` から `exit`/`dismiss(@S)` を経ずに到達しうる別の `begin(@S)` を、処理系は警告してよい（分岐で exit する経路があるケースの誤検出リスクがあるため error にはしない）。
 
 予約語は今後増える可能性がある——今は effect として素通りしている `語(引数)` が、その語が将来 transition verb / overlay verb に加わった時点で黙って意味を変える。既存文書の effect がある日から遷移として解釈され得ることに注意する。
+
+## 生成GUIでの履歴操作
+
+生成GUIは履歴の読取と実行位置の変更を分離する。閲覧は既存observationの投影だけを使い、Sessionや保存内容を変更しない。再開は移動先を確認してseekする。表示の寿命、履歴の位置保持、読込要約の範囲は [GUI履歴契約](design/gui-history-contract.md) に定める。言語のresult実行順・singleton共有・scenario再生の意味論は変えない。

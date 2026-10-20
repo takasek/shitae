@@ -27,8 +27,8 @@ function gui(sources: Record<string, string>, entry = 'main') {
 }
 const one = (source: string) => ({ main: source });
 // The summary is its own status element(s) next to the notice; the notice text itself is #24's and is not asserted here.
-const summaryHtml = (html: string) => html.match(/<p role="status">読込地点[\s\S]*?<\/p>(?:<details data-state-key="load-singletons">[\s\S]*?<\/details>)?/)?.[0] ?? '';
-const NOTICE = 'シナリオを読み込みました';
+const summaryHtml = (html: string) => html.match(/<p role="status">読み込んだ時点の状態（一部）[\s\S]*?<\/p>(?:<details data-state-key="load-singletons">[\s\S]*?<\/details>)?/)?.[0] ?? '';
+const NOTICE = '操作の再生ファイルを読み込みました';
 
 const NONE = '# Home\nplain: Plain\n> Open -> push(Detail)\n# Plain\nx\n# Detail\ny\n#! Cart\n## Empty\ne\n';
 const SEVERAL = '# Home\nbar: Bar\nlist: List\nside: { mode: Mode }\n> Add -> set(Cart##Full) ; set(Bar##Away)\n' +
@@ -67,13 +67,13 @@ const valueOf = (g: ReturnType<typeof gui>, module: string, component: string) =
 describe('singleton summary at the scenario load point', () => {
   it('says explicitly when no singleton is displayed, without listing undisplayed singletons', async () => {
     const { b } = await resumed(one(NONE), ["handleInteraction('component',0,0)"]);
-    expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読込地点の画面と操作条件に関係するsingletonはありません</p>');
+    expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読み込んだ時点の状態（一部）: 画面・操作条件に関係する部品の共有状態はありません。画面外の部品の共有状態がないという意味ではありません。</p>');
     expect(b.app.innerHTML).not.toContain('Cart');
   });
 
   it('shows each displayed singleton once with the variant of the replayed Session', async () => {
     const { a, b } = await resumed(one(SEVERAL), ["handleInteraction('component',0,0)"]);
-    expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読込地点のsingleton: 本体: Bar ##Away, Cart ##Full, Mode ##Light</p>');
+    expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読み込んだ時点の状態（一部）: 画面・操作条件に関係する部品の共有状態: 本体: Bar ##Away, Cart ##Full, Mode ##Light</p>');
     expect(b.app.innerHTML).not.toContain('Unseen');
     for (const [component, variant] of [['Bar', 'Away'], ['Cart', 'Full'], ['Mode', 'Light']] as const) {
       expect(valueOf(b, 'main', component)).toMatchObject({ variant, singleton: true });
@@ -86,29 +86,29 @@ describe('singleton summary at the scenario load point', () => {
 
   it('follows the Session when a loaded scenario seeks back before the change', async () => {
     const { b } = await resumed(one(SEVERAL), ["handleInteraction('component',0,0)", 'jumpToTimeline(0)']);
-    expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読込地点のsingleton: 本体: Bar ##On, Cart ##Empty, Mode ##Light</p>');
+    expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読み込んだ時点の状態（一部）: 画面・操作条件に関係する部品の共有状態: 本体: Bar ##On, Cart ##Empty, Mode ##Light</p>');
     expect(valueOf(b, 'main', 'Cart')!.variant).toBe('Empty');
   });
 
   it('qualifies a singleton name that exists in more than one module and only that name', async () => {
     const { b } = await resumed(MODULES, ["handleInteraction('component',0,0)"]);
-    expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読込地点のsingleton: 本体: main::Cart ##Empty, shop::Cart ##Full, Coupon ##Valid</p>');
+    expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読み込んだ時点の状態（一部）: 画面・操作条件に関係する部品の共有状態: 本体: main::Cart ##Empty, shop::Cart ##Full, Coupon ##Valid</p>');
     expect(valueOf(b, 'main', 'Cart')!.variant).toBe('Empty');
     expect(valueOf(b, 'shop', 'Cart')!.variant).toBe('Full');
   });
 
   it('groups the main frame and each open overlay, counting a singleton overlay root itself and omitting groups without singletons', async () => {
     const { b } = await resumed(one(OVERLAY), ["handleInteraction('component',0,0)"]);
-    expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読込地点のsingleton: 本体: Cart ##Empty / overlay Menu: Mode ##Light / overlay Banner: Banner ##Loud</p>');
+    expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読み込んだ時点の状態（一部）: 画面・操作条件に関係する部品の共有状態: 本体: Cart ##Empty / overlay Menu: Mode ##Light / overlay Banner: Banner ##Loud</p>');
     expect(b.app.innerHTML).not.toContain('overlay Toast');
     expect(b.query().data.state.overlays.map((o: any) => o.component)).toEqual(['Menu', 'Banner', 'Toast']);
   });
 
   it('lists a singleton that only a member gate of a placed operation depends on, at the load point and after it changes', async () => {
     const initial = await resumed(one(AUTH));
-    expect(summaryHtml(initial.b.app.innerHTML)).toBe('<p role="status">読込地点のsingleton: 本体: Auth ##Out</p>');
+    expect(summaryHtml(initial.b.app.innerHTML)).toBe('<p role="status">読み込んだ時点の状態（一部）: 画面・操作条件に関係する部品の共有状態: 本体: Auth ##Out</p>');
     const { a, b } = await resumed(one(AUTH), ["handleInteraction('component',0,0)"]);
-    expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読込地点のsingleton: 本体: Auth ##In</p>');
+    expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読み込んだ時点の状態（一部）: 画面・操作条件に関係する部品の共有状態: 本体: Auth ##In</p>');
     expect(valueOf(b, 'main', 'Auth')).toMatchObject({ variant: 'In', singleton: true });
     expect(valueOf(a, 'main', 'Auth')!.variant).toBe('In');
   });
@@ -116,32 +116,32 @@ describe('singleton summary at the scenario load point', () => {
   it('groups a gate target under the root that places the operation, once per component, after the inclusion singletons', async () => {
     const overlay = await resumed(one(GATE_OVERLAY), ["handleInteraction('component',0,0)"]);
     expect(overlay.b.query().data.state.overlays.map((o: any) => o.component)).toEqual(['Menu']);
-    expect(summaryHtml(overlay.b.app.innerHTML)).toBe('<p role="status">読込地点のsingleton: overlay Menu: Auth ##Out</p>');
+    expect(summaryHtml(overlay.b.app.innerHTML)).toBe('<p role="status">読み込んだ時点の状態（一部）: 画面・操作条件に関係する部品の共有状態: overlay Menu: Auth ##Out</p>');
     const mixed = await resumed(one(GATE_AND_INCLUSION));
-    expect(summaryHtml(mixed.b.app.innerHTML)).toBe('<p role="status">読込地点のsingleton: 本体: Auth ##In, Lamp ##On</p>');
+    expect(summaryHtml(mixed.b.app.innerHTML)).toBe('<p role="status">読み込んだ時点の状態（一部）: 画面・操作条件に関係する部品の共有状態: 本体: Auth ##In, Lamp ##On</p>');
   });
 
   it('qualifies gate targets of the same name in different modules', async () => {
     const { b } = await resumed(GATE_MODULES);
-    expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読込地点のsingleton: 本体: main::Cart ##Empty, shop::Cart ##Open</p>');
+    expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読み込んだ時点の状態（一部）: 画面・操作条件に関係する部品の共有状態: 本体: main::Cart ##Empty, shop::Cart ##Open</p>');
   });
 
   it('qualifies an overlay group label with the same rule as entries', async () => {
     const SHOW_SHOP = { main: 'import shop as shop\n# Home\n> Open -> show(shop::Menu)\n#! Menu\n## A\na\n', shop: '#! Menu\n## B\nb\n' };
     const { b } = await resumed(SHOW_SHOP, ["handleInteraction('component',0,0)"]);
     expect(b.query().data.state.overlays.map((o: any) => [o.module, o.component])).toEqual([['shop', 'Menu']]);
-    expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読込地点のsingleton: overlay shop::Menu: shop::Menu ##B</p>');
+    expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読み込んだ時点の状態（一部）: 画面・操作条件に関係する部品の共有状態: overlay shop::Menu: shop::Menu ##B</p>');
     const single = await resumed(one(OVERLAY), ["handleInteraction('component',0,0)"]);
     expect(summaryHtml(single.b.app.innerHTML)).toContain('overlay Menu: Mode ##Light');
   });
 
   it('shows a count line and a keyed details list only above five entries', async () => {
     const five = await resumed(one(MANY));
-    expect(summaryHtml(five.b.app.innerHTML)).toBe('<p role="status">読込地点のsingleton: 本体: Alpha ##On, Beta ##On, Gamma ##On, Delta ##On, Epsilon ##On</p>');
+    expect(summaryHtml(five.b.app.innerHTML)).toBe('<p role="status">読み込んだ時点の状態（一部）: 画面・操作条件に関係する部品の共有状態: 本体: Alpha ##On, Beta ##On, Gamma ##On, Delta ##On, Epsilon ##On</p>');
     expect(five.b.app.innerHTML).not.toContain('load-singletons');
     const { b } = await resumed(one(MANY), ["handleInteraction('component',0,0)"]);
     const html = summaryHtml(b.app.innerHTML);
-    expect(html.startsWith('<p role="status">読込地点のsingleton 7件（本体 5 / overlay Menu 2）</p><details data-state-key="load-singletons">')).toBe(true);
+    expect(html.startsWith('<p role="status">読み込んだ時点の状態（一部）: 関係する部品の共有状態（表示箇所別 7件）</p><details data-state-key="load-singletons">')).toBe(true);
     for (const line of ['本体: Alpha ##On', '本体: Epsilon ##On', 'overlay Menu: Mode ##On', 'overlay Menu: Lamp ##On']) expect(html).toContain('<li>' + line + '</li>');
     expect(html.match(/<li>/g)).toHaveLength(7);
     expect(html).not.toContain('Alpha ##On, Beta');
@@ -152,16 +152,16 @@ describe('singleton summary at the scenario load point', () => {
     const foreign = gui(one(SEVERAL + '// changed\n'));
     await g.load(await foreign.run('buildScenarioJson()'));
     expect(g.app.innerHTML).toContain('MODEL_MISMATCH'); expect(g.query()).toEqual(before);
-    expect(g.app.innerHTML).not.toContain('読込地点');
+    expect(g.app.innerHTML).not.toContain('読み込んだ時点の状態（一部）');
     const { text } = await resumed(one(SEVERAL), ["handleInteraction('component',0,0)"]);
     await g.load(text);
     expect(summaryHtml(g.app.innerHTML)).toContain('Cart ##Full');
     await g.load(await foreign.run('buildScenarioJson()'));
-    expect(g.app.innerHTML).toContain('MODEL_MISMATCH'); expect(g.app.innerHTML).not.toContain('読込地点');
+    expect(g.app.innerHTML).toContain('MODEL_MISMATCH'); expect(g.app.innerHTML).not.toContain('読み込んだ時点の状態（一部）');
     await g.load(text);
     expect(summaryHtml(g.app.innerHTML)).toContain('Cart ##Full');
     g.run('resetSession()');
-    expect(g.app.innerHTML).not.toContain('読込地点'); expect(g.app.innerHTML).not.toContain(NOTICE);
+    expect(g.app.innerHTML).not.toContain('読み込んだ時点の状態（一部）'); expect(g.app.innerHTML).not.toContain(NOTICE);
     await g.load(text);
     g.run('toggleShowStates()');
     expect(summaryHtml(g.app.innerHTML)).toContain('Cart ##Full');
@@ -174,7 +174,7 @@ describe('singleton summary at the scenario load point', () => {
     await g.load(text);
     expect(g.app.innerHTML).toContain('summary boom');
     expect(g.query()).toEqual(before);
-    expect(g.app.innerHTML).not.toContain('読込地点'); expect(g.app.innerHTML).not.toContain(NOTICE);
+    expect(g.app.innerHTML).not.toContain('読み込んだ時点の状態（一部）'); expect(g.app.innerHTML).not.toContain(NOTICE);
   });
 
   it('does not change display settings, the exported scenario or Session state', async () => {

@@ -1,0 +1,10 @@
+
+ RUN  v3.2.4 /Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/simulator
+
+ ✓ test/history-preview.test.ts (9 tests) 78ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  15:50:57
+   Duration  292ms (transform 55ms, setup 0ms, collect 64ms, tests 78ms, environment 0ms, prepare 31ms)
+

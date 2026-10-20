@@ -1,0 +1,26 @@
+{
+  "inputChecks": [
+    {
+      "path": "ui-proposal.html",
+      "sha256": "e425a395a08453eb24fe7b2baf9d8a03dfd39736c8764546bb408a64e760291d",
+      "unchanged": true
+    },
+    {
+      "path": "models/v2/history-flow.shitae",
+      "sha256": "de8b8479f9df9e2990332ffa6d390313b5cd1101e02c3f028973756ff1990460",
+      "unchanged": true
+    },
+    {
+      "path": "evidence/v2/model.html",
+      "sha256": "3ad5a73f101a6885b936a342b48620f4baa19a432b6a901d37e7a7255dbbd823",
+      "unchanged": true
+    },
+    {
+      "path": "evidence/v2/resume.scenario.json",
+      "sha256": "8885b8e5335fb409ffc852922fa3a6bbcb06b2b1983534f64836d2d7bdc5039c",
+      "unchanged": true
+    }
+  ],
+  "trackedProductDiff": "empty at verification",
+  "evidenceCopies": "byte-identical to agent outputs"
+}

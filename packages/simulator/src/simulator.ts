@@ -51,7 +51,15 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
    （ミクロ→マクロ。スタック・マップは折畳み可）。gate パネルはトグルボタンで開く
    オーバーレイドロワー（.gate-drawer、position: fixed）へ移した——グリッドのカラムには
    含まれない（レイアウトの外に浮く）。 */
-#app { display: grid; grid-template-columns: 260px 1fr; height: 100vh; }
+#app { display: grid; grid-template-columns: 320px minmax(0,1fr); grid-template-rows: auto minmax(0,1fr); height: 100vh; }
+.live-position { grid-column: 1 / -1; padding: 12px 16px; background: #fff; border-bottom: 2px solid #345; }
+.history-point { padding: 8px; border-left: 3px solid #ccc; margin: 6px 0; }
+.history-point.selected { border-color: #285bd4; background: #eef3ff; }
+.history-preview h2 { font-size: 18px; }
+.history-preview p, .history-preview li { margin: 8px 0; }
+.history-preview ul { padding-left: 20px; }
+button:focus-visible { outline: 3px solid #285bd4; }
+@media (max-width: 680px) { #app { grid-template-columns: minmax(0,1fr); grid-template-rows: auto minmax(160px,35vh) minmax(0,1fr); } }
 .pane { padding: 16px; overflow-y: auto; }
 .pane-trace { background: #fff; border-right: 1px solid #e0e0e0; }
 /* 中央ペインは自身を単一スクロール領域にしない（.pane の overflow-y: auto を上書き）——
@@ -1174,7 +1182,7 @@ function render() {
     const screenBadge = entry.kind === 'event'
       ? '<span class="timeline-item-screen">[' + esc(entry.screen) + ']</span> '
       : '';
-    timelineParts.push('<span class="' + classes.join(' ') + '" onclick="jumpToTimeline(' + i + ')">' + screenBadge + esc(entry.label) + '</span>');
+    timelineParts.push('<div class="' + classes.join(' ') + '" data-observation-id="' + entry.id + '">' + screenBadge + esc(entry.label) + '<button onclick="previewObservation(' + entry.id + ')">画面を見る</button><button onclick="requestResume(' + entry.id + ')"' + (i === cursor ? ' disabled title="現在の操作位置と同じ地点です"' : '') + '>この時点から続ける…</button></div>');
   }
   const timelineHtml = timelineParts.join(' › ');
 
@@ -1195,7 +1203,7 @@ function render() {
 
   // back button（「戻れない」= stack 長 1 または現 frame.wall。disabled でなく DOM から消す）
   const canBack = view.data.actions.controls.back.enabled;
-  const backBtn = canBack ? '<button class="back-btn" onclick="' + esc('goBack(' + JSON.stringify(view.data.actions.controls.back.handle) + ')') + '">← 戻る</button>' : '';
+  const backBtn = canBack ? '<button class="back-btn" onclick="' + esc('goBack(' + JSON.stringify(view.data.actions.controls.back.handle) + ')') + '">← 前の画面へ（画面内の操作）</button>' : '';
 
   // インスタンス variant 手動トグルドロワー（画面外 component の姿切替。presence gate の
   // 効きを手動で試験するための開発者向け UI——姿を持たない対象は切替不要なので除外）。
@@ -1260,25 +1268,23 @@ function render() {
   // 見出し・役割説明を添え、エリアの意味が一目で伝わるようにする。説明文にはオートマトンとしての
   // 読み方を一言添える（用語は現状のまま。ADR-0022）。
   app.innerHTML =
-    '<aside class="pane pane-trace">' +
+    '<div class="live-position">操作を続ける位置: ' + esc(pointDescription(view.summary.cursorObservationId)) + ' <button data-focus-key="current-position" onclick="focusCurrentHistory()">現在の操作位置を一覧で見る</button><p role="status">' + esc(historyNotice) + '</p></div>' +
+    '<aside class="pane pane-trace" data-generation="' + sessionGeneration + '">' +
       '<div class="pane-title">操作来歴（統合ログ）</div>' +
-      '<div class="pane-desc">ナビゲーション履歴。実行された遷移の列を操作ごとに表示します。新しい記録が上。操作を展開すると結果と観測点を確認できます。完了点や途中の観測点を選ぶと巻戻し・やり直しできます。破棄済みの観測点へは移動できません。</div>' +
-      '<label class="timeline-toggle"><input type="checkbox" ' + (showEvents ? 'checked' : '') + ' onchange="toggleShowEvents()"> イベントを表示</label>' +
+      '<div class="pane-desc">ナビゲーション履歴。実行された遷移の列を操作ごとに表示します。新しい記録が上。記録の見出しで詳細を開閉し、結果ごとに画面を閲覧できます。操作を続ける位置の変更は別の確認で確定します。文章のみの地点は閲覧・再開できません。</div>' +
+      '<label class="timeline-toggle"><input type="checkbox" ' + (showEvents ? 'checked' : '') + ' onchange="toggleShowEvents()"> イベントを表示</label><p class="pane-desc">effect・状態変更・診断などの状態点を切り替えます。操作・位置変更の記録は消しません。</p>' +
       renderProvenance(timelineHtml) +
     '</aside>' +
-    '<main class="pane pane-center">' +
-      '<section class="screen-section">' +
-        '<div class="pane-title">現在の画面</div>' +
+    '<main class="pane pane-center" data-view-key="' + screenViewKey() + '">' +
+      '<section class="screen-section" data-view-key="' + screenViewKey() + '">' +
+        '<div class="pane-title">' + (historySelection || resumeConfirmation ? '履歴の閲覧・位置の変更' : '操作を続ける画面') + '</div>' +
         '<button onclick="resetSession()">初期状態へ</button>' +
         scenarioControls() +
         scenarioError() +
         '<div class="pane-desc">アクティブな frame の表示（本体）と掲示中カード</div>' +
         '<label class="action-toggle"><input type="checkbox" ' + (showActions ? 'checked' : '') + ' onchange="toggleShowActions()"> アクションを表示</label>' +
         '<label class="action-toggle"><input type="checkbox" ' + (showStates ? 'checked' : '') + ' onchange="toggleShowStates()"> 部品の状態を表示</label>' +
-        gateToggleHtml +
-        mainCardHtml +
-        externalEventsHtml +
-        overlayCardsHtml +
+        (historySelection || resumeConfirmation ? historyPreviewHtml() : gateToggleHtml + mainCardHtml + externalEventsHtml + overlayCardsHtml) +
       '</section>' +
       '<div class="lower-section">' +
         stackSectionHtml +

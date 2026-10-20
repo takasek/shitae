@@ -1,0 +1,131 @@
+Browser tab: 1, Title: "履歴UI設計案 v3", URL: "http://127.0.0.1:8875/ui-proposal.html".
+0 AXWebArea 履歴UI設計案 v3, URL: 127.0.0.1:8875/ui-proposal.html
+	1 container
+		2 heading 履歴を調べて、続きを選ぶ 設計案 v3, Value: 1
+			3 text 履歴を調べて、続きを選ぶ  設計案 v3
+		213 text 操作を続ける位置：記録15「申請を取り下げる」／条件：指定なし／結果1の後
+		214 text 取下げ後の画面です。後の履歴の文章は残り、古い画面には戻れません。
+	6 container 操作履歴
+		7 heading 操作の履歴, Value: 2
+			8 text 操作の履歴
+		9 text 各操作を開くと、その操作で起きたことと直後の画面を調べられます。
+		10 container history
+			11 button (collapsed) 記録12：支払いを完了する 条件：指定なし · 2結果 · 文章のみ, Secondary Actions: Expand
+				12 AXListMarker ▸ 
+				13 text 記録12：支払いを完了する
+				14 text 条件：指定なし · 2結果 ·
+				215 text 文章のみ
+			16 button (collapsed) 記録11：領収書の更新を受け取る 条件：指定なし · 1結果 · 文章のみ, Secondary Actions: Expand
+				17 AXListMarker ▸ 
+				18 text 記録11：領収書の更新を受け取る
+				19 text 条件：指定なし · 1結果 ·
+				216 text 文章のみ
+			204 container
+				205 button (expanded) 記録10：支払いを予約する 条件：指定なし · 1結果 · 文章のみ, Secondary Actions: Collapse
+					206 AXListMarker ▾ 
+					207 text 記録10：支払いを予約する
+					208 text 条件：指定なし · 1結果 ·
+					217 text 文章のみ
+				210 text 結果1：申請状態を更新
+				211 text 支払予定
+				212 button (disabled) 記録10・結果1の画面を見る
+				218 text 文章のみ：この時点の画面は残っていません
+			26 button (collapsed) 記録9：保存する 条件：成功 · 1結果 · 文章のみ, Secondary Actions: Expand
+				27 AXListMarker ▸ 
+				28 text 記録9：保存する
+				29 text 条件：成功 · 1結果 ·
+				219 text 文章のみ
+			31 button (collapsed) 記録8：承認する 条件：問題なし · 1結果 · 文章のみ, Secondary Actions: Expand
+				32 AXListMarker ▸ 
+				33 text 記録8：承認する
+				34 text 条件：問題なし · 1結果 ·
+				220 text 文章のみ
+			158 container
+				159 button (expanded) 記録7：再申請する 条件：修正済み · 2結果 · 画面を確認できる, Secondary Actions: Collapse
+					160 AXListMarker ▾ 
+					161 text 記録7：再申請する
+					162 text 条件：修正済み · 2結果 ·
+					221 text 画面を確認できる
+				164 text 結果1：申請状態を更新
+				165 text 審査中
+				166 button 記録7・結果1の画面を見る
+				167 text 結果2：保存状況を更新
+				168 text 未保存
+				169 button (disabled) 記録7・結果2の画面を見る
+				222 text 文章のみ：この時点の画面は残っていません
+			95 container
+				96 button (expanded) 記録6：金額を訂正する 条件：指定なし · 1結果 · 画面を確認できる, Secondary Actions: Collapse
+					97 AXListMarker ▾ 
+					98 text 記録6：金額を訂正する
+					99 text 条件：指定なし · 1結果 ·
+					223 text 画面を確認できる
+				101 text 結果1：申請額を更新
+				102 text 一万円
+				103 button 記録6・結果1の画面を見る
+			129 container
+				130 button (expanded) 記録5：差し戻す 条件：領収書不足 · 1結果 · 画面を確認できる, Secondary Actions: Collapse
+					131 AXListMarker ▾ 
+					132 text 記録5：差し戻す
+					133 text 条件：領収書不足 · 1結果 ·
+					224 text 画面を確認できる
+				135 text 結果1：申請状態を更新
+				136 text 要修正
+				137 button 記録5・結果1の画面を見る
+			51 button (collapsed) 記録4：申請する 条件：提出 · 1結果 · 画面を確認できる, Secondary Actions: Expand
+				52 AXListMarker ▸ 
+				53 text 記録4：申請する
+				54 text 条件：提出 · 1結果 ·
+				225 text 画面を確認できる
+			56 button (collapsed) 記録3：領収書を確認する 条件：指定なし · 1結果 · 画面を確認できる, Secondary Actions: Expand
+				57 AXListMarker ▸ 
+				58 text 記録3：領収書を確認する
+				59 text 条件：指定なし · 1結果 ·
+				226 text 画面を確認できる
+			61 button (collapsed) 記録2：金額を入力する 条件：指定なし · 1結果 · 画面を確認できる, Secondary Actions: Expand
+				62 AXListMarker ▸ 
+				63 text 記録2：金額を入力する
+				64 text 条件：指定なし · 1結果 ·
+				227 text 画面を確認できる
+			66 button (collapsed) 記録1：下書きを作る 条件：指定なし · 1結果 · 画面を確認できる, Secondary Actions: Expand
+				67 AXListMarker ▸ 
+				68 text 記録1：下書きを作る
+				69 text 条件：指定なし · 1結果 ·
+				228 text 画面を確認できる
+		247 container
+			248 button (expanded) 画面を残さなかった操作の例, Secondary Actions: Collapse
+				249 text 画面を残さなかった操作の例
+			250 text 操作：前の画面に戻る。条件：指定なし。結果：この画面には戻り先がないため、移動しませんでした。新しく戻れる地点は作られず、後の履歴も残ります。 操作の文章は残りますが、この操作の直後を選ぶボタンはありません。対応する再現資料：noop.scenario.json。
+		243 container
+			244 button (expanded) 戻れなくなった履歴, Secondary Actions: Collapse
+				245 text 戻れなくなった履歴
+			246 text 記録7の結果2〜記録12の画面は、新しい操作で分岐したため残っていません。上の一覧では操作・条件・結果の文章を読めますが、画面を見たり、その時点へ戻ったりはできません。
+	73 container 画面表示
+		74 container
+			75 heading 操作を続ける画面：申請詳細, Value: 2, ID: screenTitle
+				231 text 操作を続ける画面：申請詳細
+			77 text 申請 文書A：大阪出張の交通費 申請額
+			232 text 一万円
+			79 text 審査・支払
+			233 text 取下げ
+			81 text 保存状況
+			234 text 未保存
+			83 text 表示対象
+			235 text 記録15「申請を取り下げる」／条件：指定なし／結果1の後
+		197 container
+			198 button (expanded) 画面外も含めて状態を確認する方法, ID: shared-guide, Secondary Actions: Collapse
+				199 text 画面外も含めて状態を確認する方法
+			200 text 確認したい時点を選び、同じモデルと処理系に対応する保存ファイルを使います。「見ている時点」と「操作を続ける位置」は別です。参照中でも、現在の状態を調べる資料は操作を続ける位置に対応するものを選びます。 今回の資料は揃っています。
+			201 link Description: 資料と照会手順を開く, Value: 127.0.0.1:8875/materials/guide.html
+			202 text 。文書Bの識別は module＝expense、component＝文書B です。
+			236 text このデモで操作を続ける位置の資料：branched.scenario.json
+		237 container
+			238 button (expanded) モデルと処理系の版・再現用の資料, Secondary Actions: Collapse
+				239 text モデルと処理系の版・再現用の資料
+			240 text モデルは画面や操作の定義、シナリオはそのモデルで行った操作を再生する保存ファイルです。どちらも必要です。
+			241 text modelId: 874fc8c77588d712fc22b3701a2f25c4c1e8d998999bb72415409be1a088570a
+engineVersion: 278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116
+entry: expense.shitae
+			242 link Description: モデル・シナリオ・処理系と確認手順, Value: 127.0.0.1:8875/materials/guide.html
+		94 text 仕様用語の変更は未確定です。製品は変更していません。業務上の送信・支払い・保存は行いません。
+
+The focused UI element is 248 button (expanded) 画面を残さなかった操作の例, Secondary Actions: Collapse

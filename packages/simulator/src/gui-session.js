@@ -7,9 +7,77 @@ let scenarioErrorDetails = null;
 let provenanceOpen = new Set(), reviewOpen = false;
 function toggleProvenanceStep(step) { if (provenanceOpen.has(step)) provenanceOpen.delete(step); else provenanceOpen.add(step); render(); }
 function toggleReview() { reviewOpen = !reviewOpen; render(); }
-function seekProvenancePoint(id) {
-  // Revalidate against the current retained timeline, including after imports/reset.
-  if (timeline.some(p => p.id === id)) command(() => SESSION.seek(id));
+let sessionGeneration = 0, historySelection = null, historicalPreview = null, resumeConfirmation = null, historyNotice = '';
+let nextPresentationFocus = null, resumeReturnFocus = null;
+function retainedObservation(id) {
+  try { return SESSION.query({ select: ['observation'], observationId: id }).data.observation; }
+  catch (e) { if (!(e instanceof Shitae.SessionError)) throw e; return null; }
+}
+function previewObservation(id) {
+  if (scenarioBusy) return;
+  const observation = retainedObservation(id);
+  resumeConfirmation = null;
+  historySelection = observation ? { generation: sessionGeneration, id } : null;
+  historicalPreview = observation;
+  historyNotice = observation ? '' : '対象が変わりました。履歴から選び直してください';
+  render();
+}
+function focusCurrentHistory() {
+  const current = SESSION.query({select:['provenanceSummary']}).data.provenanceSummary.cursor;
+  if (current?.ref.step) { provenanceOpen.add(current.ref.step); render(); }
+  const p = app.querySelector?.('[data-current-point]');
+  p?.scrollIntoView({block:'nearest'}); p?.querySelector?.('button')?.focus({preventScroll:true});
+}
+function endHistoryPreview() { nextPresentationFocus = historySelection ? 'preview:' + historySelection.id : 'current-position'; historySelection = null; historicalPreview = null; resumeConfirmation = null; render(); }
+function requestResume(id) {
+  if (scenarioBusy) return;
+  const observation = retainedObservation(id);
+  if (!observation || id === SESSION.query().summary.cursorObservationId) return;
+  resumeReturnFocus = historySelection ? 'request-resume' : 'resume:' + id;
+  nextPresentationFocus = 'confirm-resume';
+  resumeConfirmation = { generation: sessionGeneration, revision: SESSION.query().revision, id };
+  render();
+}
+function cancelResume() { nextPresentationFocus = resumeReturnFocus; resumeConfirmation = null; render(); }
+function confirmResume() {
+  if (scenarioBusy) return;
+  const target = resumeConfirmation;
+  if (!target || target.generation !== sessionGeneration || target.revision !== SESSION.query().revision || !retainedObservation(target.id)) {
+    resumeConfirmation = null; historyNotice = '対象が変わりました。履歴から選び直してください'; render(); return;
+  }
+  command(() => SESSION.seek(target.id));
+  historyNotice = '操作を続ける位置を変更しました'; render();
+}
+function seekProvenancePoint(id) { previewObservation(id); }
+function pointDescription(id, knownStep) {
+  const p = timeline.find(p => p.id === id);
+  if (!p) return '利用できない地点';
+  let after;
+  do {
+    const page = knownStep === undefined ? SESSION.query({select:['provenance'], provenance:{limit:100,...(after === undefined ? {} : {after})}}).data.provenance : {items:[{step:knownStep}],nextAfter:null};
+    for (const item of page.items) {
+      const d = SESSION.query({select:['provenanceStep'],step:item.step}).data.provenanceStep;
+      const o = d.observations.find(o=>o.id===id);
+      if (o) return '記録' + d.step + '「' + d.actionText + '」 / 選んだ条件：' + (d.branch ?? 'なし') +
+        (o.resultPosition === null ? '' : ' / 結果' + (o.resultPosition + 1)) + ' / 状態' + (o.ordinal + 1) + ' / ' + locationLabel(p.location);
+    }
+    after = page.nextAfter;
+  } while (after !== null);
+  return (p.id === 1 ? '起動' : '観測' + p.id + '「' + p.label + '」' + (p.resultIndex === null ? '' : ' / 定義内の結果' + (p.resultIndex + 1))) + ' / ' + locationLabel(p.location);
+}
+function historyPreviewHtml() {
+  if (resumeConfirmation) return '<section class="history-preview"><h2>操作を続ける位置の変更</h2><p>変更前: ' + esc(pointDescription(view.summary.cursorObservationId)) +
+    '</p><p>変更後: ' + esc(pointDescription(resumeConfirmation.id)) + '</p><p>確定するのは操作を続ける位置の変更だけです。当時の操作や同じ操作の残りの結果は自動では実行しません。</p>' +
+    '<p>後の履歴も閲覧・再開できます。新たに再開できる地点を作る操作で、後の画面は閲覧・再開できなくなります。操作・条件・結果の文章は残ります。地点を作らない操作や拒否では後の履歴を保持します。見た目の変化だけでは判断できません。</p>' +
+    '<button data-focus-key="confirm-resume" onclick="confirmResume()">この時点から続ける</button> <button data-focus-key="cancel-resume" onclick="cancelResume()">位置の変更をやめる</button></section>';
+  if (!historicalPreview) return '';
+  const o = historicalPreview, state = o.view.state;
+  const nodes = children => '<ul>' + children.map(n => '<li>' + esc((n.collection ? '*' : '') + n.name + (n.reference ? ' / ' + n.reference.module + '::' + n.reference.component + (n.value?.variant ? ' / ' + n.value.variant : '') : '')) + nodes(n.children) + '</li>').join('') + '</ul>';
+  const card = r => '<div class="screen"><h3>' + esc(r.module + '::' + locationLabel(r)) + '</h3>' + nodes(r.children) + '</div>';
+  return '<section class="history-preview"><h2>見ている履歴の画面: ' + esc(pointDescription(o.id)) + '</h2><p>閲覧は表示だけを切り替えます。操作を続ける位置は変わりません。当時の操作は説明として表示し、ここでは実行できません。</p>' +
+    '<button data-focus-key="end-preview" onclick="endHistoryPreview()">履歴の閲覧を終える</button> <button data-focus-key="request-resume" onclick="requestResume(' + o.id + ')"' + (o.id === view.summary.cursorObservationId ? ' disabled title="現在の操作位置と同じ地点です"' : '') + '>この時点から続ける…</button>' +
+    card(state.inclusion.main) + state.inclusion.overlays.map(card).join('') +
+    '<h3>当時の操作（説明のみ）</h3><ul>' + o.view.actions.items.map(a => '<li>' + esc(a.actionText + ' / ' + a.placement.root + ' / ' + (a.enabled ? '有効' : '無効') + ' / 条件: ' + (a.branches.map(b=>b.label ?? 'なし').join('、') || 'なし')) + '</li>').join('') + '</ul></section>';
 }
 function saveReview() {
   const review = SESSION.query({ select: ['review'] }).data.review;
@@ -20,7 +88,7 @@ function saveReview() {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 function pointRef(ref) { return '記録' + ref.step + ' / 観測' + (ref.observation + 1); }
-function provenanceCounts(counts) { return '現在まで ' + counts.retained + '観測点 / ghost ' + counts.ghost + '観測点 / 破棄済み ' + counts.discarded + '観測点'; }
+function provenanceCounts(counts) { return '現在まで ' + counts.retained + '地点 / 後の履歴 ' + counts.ghost + '地点 / 文章のみ ' + counts.discarded + '地点'; }
 function renderProvenance(fallback) {
   const summary = SESSION.query({ select: ['provenanceSummary'] }).data.provenanceSummary;
   if (!summary.available) return '<p>操作来歴を利用できません: ' + esc(summary.reason) + '</p><div class="timeline-log">' + fallback + '</div>';
@@ -29,27 +97,33 @@ function renderProvenance(fallback) {
     const page = SESSION.query({ select: ['provenance'], provenance: { limit: 100, ...(after === undefined ? {} : { after }) } }).data.provenance;
     items.push(...page.items); after = page.nextAfter;
   } while (after !== null);
-  const pointButton = (p, extra = '') => '<button class="timeline-item timeline-item-' + p.kind + (p.current ? ' current' : '') + (p.status === 'ghost' ? ' ghost' : '') + '" onclick="seekProvenancePoint(' + p.id + ')">' + esc(extra + p.label) + ' <small>' + esc(locationLabel(p.location)) + (p.current ? ' / 現在地' : p.status === 'ghost' ? ' / ghost' : '') + '</small></button>';
-  let html = '<p class="pane-desc">現在地: ' + esc(summary.cursor.actionText + ' / ' + pointRef(summary.cursor.ref) + ' / ' + locationLabel(summary.cursor.location)) + '</p>';
-  html += '<p class="pane-desc">' + esc(provenanceCounts(summary.observations)) + '。記録には破棄経路・reset前・手動試験も含まれます。</p>';
+  const pointButton = (p, extra = '') => '<div class="history-point' + (historySelection?.id === p.id ? ' selected' : '') + '"' + (p.current ? ' data-current-point="true"' : '') + ' data-history-key="point:' + p.id + '">' +
+    '<p>' + esc(extra + p.label + ' / ' + locationLabel(p.location)) + ' · ' + (p.current ? '現在の操作位置' : p.status === 'ghost' ? '後の履歴・閲覧・再開可' : p.seekable === false ? '文章のみ' : '閲覧・再開可') + (historySelection?.id === p.id ? ' / 見ている履歴の画面' : '') + '</p>' +
+    '<button data-focus-key="preview:' + p.id + '" onclick="previewObservation(' + p.id + ')"' + (p.seekable === false ? ' disabled' : '') + '>画面を見る</button> ' +
+    '<button data-focus-key="resume:' + p.id + '" onclick="requestResume(' + p.id + ')"' + (p.current || p.seekable === false ? ' disabled title="' + (p.current ? '現在の操作位置と同じ地点です' : 'この時点の画面は残っていません') + '"' : '') + '>この時点から続ける…</button></div>';
+  let html = '<p class="pane-desc">記録には位置の変更・reset前・手動試験も含みます。再開できる地点は、一つの結果の途中も含む保存された状態です。</p>';
+  html += '<details data-state-key="history-counts"><summary>技術詳細：履歴の保持件数</summary>' + esc(provenanceCounts(summary.observations)) + '</details>';
   html += items.reverse().map(item => {
     const open = provenanceOpen.has(item.step);
-    let body = '<div class="provenance-step"><button class="provenance-heading" aria-expanded="' + open + '" onclick="toggleProvenanceStep(' + item.step + ')">' + item.step + '. ' + esc(item.actionText + (item.branch === null ? '' : ' / 条件: ' + item.branch)) + '</button>';
-    body += '<div class="pane-desc">' + esc((item.host.module ?? '') + '::' + locationLabel(item.host) + (item.placement ? ' / 配置 ' + item.placement.root + '[' + item.placement.path.join('.') + ']' : '')) + '</div>';
-    body += '<div class="pane-desc">' + item.resultCount + '結果 / ' + item.observationCount + '観測点 · ' + esc(provenanceCounts(item.counts)) + '</div>';
-    if (item.target) body += '<p class="provenance-marker">巻戻し/やり直し先: ' + esc(item.target.actionText + ' / ' + pointRef(item.target.ref) + (item.target.resultPosition === null ? '' : ' / 結果' + (item.target.resultPosition + 1)) + ' / ' + item.target.label) + '</p>';
-    if (item.discarded.length) body += '<p class="provenance-marker">分岐・破棄 ' + item.discarded.length + '観測点（' + esc(item.discarded.map(pointRef).join('、')) + '）</p>';
+    const c = item.counts, available = c.retained + c.ghost;
+    const status = c.discarded ? (available ? '一部の結果は文章のみ' : '文章のみ') : available ? '閲覧・再開可' : '再開できる地点なし';
+    const kind = {dispatch:'操作',seek:'位置の変更',reset:'初期化',setTestVariant:'手動試験'}[item.kind];
+    let body = '<div class="provenance-step" data-history-key="step:' + item.step + '"><button data-focus-key="step:' + item.step + '" class="provenance-heading" aria-expanded="' + open + '" onclick="toggleProvenanceStep(' + item.step + ')">記録' + item.step + ' · ' + kind + ' · ' + esc(item.actionText) + '</button>';
+    body += '<p>選んだ条件：' + esc(item.branch ?? 'なし') + ' / 結果 ' + item.resultCount + '件 / ' + status + '</p>';
+    if (item.discarded.length) body += '<p>この記録で文章のみになった地点: ' + item.discarded.length + '件</p>';
+    if (item.target) body += '<p>変更先: ' + esc(item.target.actionText + ' / ' + pointRef(item.target.ref)) + '</p>';
     if (item.completionObservationId !== null) {
       const p = timeline.find(p => p.id === item.completionObservationId);
-      if (p && (showEvents || p.kind !== 'event' || p.id === view.summary.cursorObservationId)) body += pointButton({ ...p, current: p.id === view.summary.cursorObservationId, status: p.ghost ? 'ghost' : 'retained' }, '完了点: ');
-    } else if (item.kind === 'dispatch') body += '<p class="pane-desc">' + (item.observationCount ? '完了点は破棄済み' : '観測なし（移動先なし）') + '</p>';
+      if (p && (showEvents || p.kind !== 'event' || p.id === view.summary.cursorObservationId)) body += '<button data-focus-key="last:' + item.step + '" onclick="previewObservation(' + p.id + ')">この操作の最後に保存された状態を見る: ' + esc(pointDescription(p.id, item.step)) + '</button>';
+    }
     if (open) {
       const d = SESSION.query({ select: ['provenanceStep'], step: item.step }).data.provenanceStep;
-      for (const r of d.results) body += '<p class="pane-desc">結果' + (r.position + 1) + ': ' + esc(r.label) + ' · ' + esc(provenanceCounts(r.counts)) + (r.observations.length ? '' : ' / 観測なし') + '</p>';
-      for (const p of d.observations) {
-        if (!p.seekable || (p.kind === 'event' && !showEvents && !p.current)) continue;
-        body += pointButton(p, (p.resultPosition === null ? '' : '結果' + (p.resultPosition + 1) + ' / ') + '観測' + (p.ordinal + 1) + (p.id === d.completionObservationId ? '（完了点）: ' : '（途中）: '));
+      for (const r of d.results) {
+        body += '<p>結果' + (r.position + 1) + ': ' + esc(r.label) + (r.observations.length ? '' : ' / 再開できる地点なし') + '</p>';
+        for (const p of r.observations) if (showEvents || p.kind !== 'event' || p.current) body += pointButton(p, '結果' + (r.position + 1) + ' / 状態' + (p.ordinal + 1) + ': ');
       }
+      for (const p of d.observations.filter(p=>p.resultPosition === null)) if (showEvents || p.kind !== 'event' || p.current) body += pointButton(p);
+      body += '<details data-state-key="technical:' + item.step + '"><summary>技術詳細</summary><pre>' + esc(JSON.stringify({host:item.host, placement:item.placement, observations:d.observations, discarded:item.discarded},null,2)) + '</pre></details>';
     }
     return body + '</div>';
   }).join('');
@@ -100,14 +174,25 @@ function summarizeLoadSingletons(session) {
     .map(g => ({ label: g.label, entries: rootSingletons(g.root, gatesByRoot.get(g.root.root) ?? []).map(label) })).filter(g => g.entries.length > 0);
 }
 const LOAD_SUMMARY_INLINE_LIMIT = 5;
+function stateQueryGuide(key = "state-query") {
+  return '<details data-state-key="' + key + '"><summary>画面外も含めて状態を確認する方法</summary>' +
+    '<p>部品の共有状態は、同じ部品を別の場所で使うときも共通になる状態です。全業務データを意味しません。</p>' +
+    '<p>読み込んだ時点を調べるには元の読込ファイル、現在の操作位置を調べるには「操作の再生ファイルを保存」で作ったファイルを使います。履歴の閲覧中も保存するのは操作を続ける位置です。</p>' +
+    '<p>「定義と実行プログラムの版・再現用の資料」の完全なmodelId/engineVersionを照合し、対応する画面と操作の定義（モデル）の入口・import一式と実行プログラム（shitae）を用意します。このHTMLからモデル本文は取り出せません。なければ作成者から対応する定義・実行プログラムを受け取ってください。</p>' +
+    '<p>次のパスを手元のファイルに置き換えて起動し、同じprocessへJSONを1行送信します。</p>' +
+    '<pre>node packages/cli/dist/index.js session &lt;定義ファイルの入口&gt; --replay &lt;対象の再生ファイル&gt;</pre>' +
+    '<pre>{"id":"shared","command":"query","select":["state"]}</pre>' +
+    '<p>応答の data.state.sharedVariants が画面外を含む全singletonのvariant一覧です。module（所属）とcomponent（部品）の組で識別し、variant（選ばれている状態）を読みます。componentValuesは通常部品も含む別の一覧です。照合に失敗したら元の組合せを用意し、ファイル編集で回避しないでください。</p></details>';
+}
 function loadSummaryHtml() {
   if (!loadSummary) return '';
   const total = loadSummary.reduce((n, g) => n + g.entries.length, 0);
-  if (total === 0) return '<p role="status">読込地点の画面と操作条件に関係するsingletonはありません</p>';
-  if (total <= LOAD_SUMMARY_INLINE_LIMIT) return '<p role="status">読込地点のsingleton: ' + esc(loadSummary.map(g => g.label + ': ' + g.entries.join(', ')).join(' / ')) + '</p>';
-  return '<p role="status">読込地点のsingleton ' + total + '件（' + esc(loadSummary.map(g => g.label + ' ' + g.entries.length).join(' / ')) + '）</p>' +
-    '<details data-state-key="load-singletons"><summary>読込地点のsingleton一覧</summary><ul>' +
-    loadSummary.flatMap(g => g.entries.map(e => '<li>' + esc(g.label + ': ' + e) + '</li>')).join('') + '</ul></details>';
+  const prefix = '読み込んだ時点の状態（一部）: ';
+  const note = '<p>読み込んだ時点の状態の一部です。画面外も含む全ての部品の共有状態の一覧ではありません。</p>' + stateQueryGuide('load-state-query');
+  if (total === 0) return '<p role="status">' + prefix + '画面・操作条件に関係する部品の共有状態はありません。画面外の部品の共有状態がないという意味ではありません。</p>' + note;
+  if (total <= LOAD_SUMMARY_INLINE_LIMIT) return '<p role="status">' + prefix + '画面・操作条件に関係する部品の共有状態: ' + esc(loadSummary.map(g => g.label + ': ' + g.entries.join(', ')).join(' / ')) + '</p>' + note;
+  return '<p role="status">' + prefix + '関係する部品の共有状態（表示箇所別 ' + total + '件）</p>' +
+    '<details data-state-key="load-singletons"><summary>部品の共有状態を開く</summary><ul>' + loadSummary.flatMap(g => g.entries.map(e => '<li>' + esc(g.label + ': ' + e) + '</li>')).join('') + '</ul></details>' + note;
 }
 async function saveScenario() {
   if (scenarioBusy) return;
@@ -131,8 +216,8 @@ async function replaceScenario(readText) {
     const next = await Shitae.replayScenario({ documents: new Map(MODEL.documents), entryModule: MODEL.entryModule,
       files: new Map(MODEL.files), metadata: MODEL.metadata }, saved);
     // Everything that can throw is computed from `next` first, so a failure cannot leave a swapped Session behind an error.
-    const notice = 'シナリオを読み込みました（' + scenarioCounts(next) + 'を照合）', summary = summarizeLoadSingletons(next);
-    SESSION = next;
+    const notice = '操作の再生ファイルを読み込みました（' + scenarioCounts(next) + 'を照合）', summary = summarizeLoadSingletons(next);
+    SESSION = next; sessionGeneration++; nextPresentationFocus = 'current-position'; historySelection = null; historicalPreview = null; resumeConfirmation = null; historyNotice = '再生ファイルを読み込み、現在の操作位置を表示しました';
     provenanceOpen = new Set(); reviewOpen = false;
     scenarioNotice = notice; loadSummary = summary;
   } catch (e) {
@@ -154,11 +239,11 @@ function scenarioControls() {
     manifest: m.manifest.map(({ module, sourceSha256 }) => ({ module, sourceSha256 })) };
   return '<div class="scenario-controls">' +
     '<p class="artifact-identity">このHTML: ' + esc(m.entryModule) + ' · model ' + esc(m.modelId.slice(0, 12)) + ' · engine ' + esc(m.engineVersion.slice(0, 12)) + '</p>' +
-    '<details class="identity-details"><summary>版の詳細・共有するもの</summary><p>短縮IDは対応付けの補助です。読込時は完全な識別情報で厳密に照合します。</p><pre>' + esc(JSON.stringify(identity, null, 2)) + '</pre>' +
-    '<p>再開には、このHTMLと完全一致するscenarioの組を渡してください。編集・再生成やCLIでの再開には全モデル・参照moduleと対応する処理系が必要です。遷移マップの分割設定も渡すならsimconfigを添えてください。</p></details>' +
+    '<details class="identity-details"><summary>定義と実行プログラムの版・再現用の資料</summary><p>短縮IDは対応付けの補助です。読込時は完全な識別情報で厳密に照合します。</p><pre>' + esc(JSON.stringify(identity, null, 2)) + '</pre>' +
+    '<p>再開には、このHTMLと完全一致するscenarioの組を渡してください。編集・再生成やCLIでの再開には全モデル・参照moduleと対応する処理系が必要です。遷移マップの分割設定も渡すならsimconfigを添えてください。</p></details>' + stateQueryGuide() +
     '<p class="scenario-scope">保存範囲: ' + esc(scenarioCounts()) + '。条件選択はdispatchの内訳として操作来歴に表示します。破棄経路・reset前・ghost・手動試験も含む全記録を保存します。モデル本文・DOM・表示設定は含みません。読込後も現在の表示設定を使います。</p>' +
-    '<button data-focus-key="save-scenario" onclick="saveScenario()"' + (scenarioBusy ? ' disabled' : '') + '>シナリオを保存</button> ' +
-    '<label>シナリオを読み込む <input data-focus-key="load-scenario" type="file" accept=".scenario.json,application/json" onchange="loadScenarioFile(this)"' + (scenarioBusy ? ' disabled' : '') + '></label>' +
+    '<button data-focus-key="save-scenario" onclick="saveScenario()"' + (scenarioBusy ? ' disabled' : '') + '>操作の再生ファイルを保存</button> ' +
+    '<label>操作の再生ファイルを読み込む <input data-focus-key="load-scenario" type="file" accept=".scenario.json,application/json" onchange="loadScenarioFile(this)"' + (scenarioBusy ? ' disabled' : '') + '></label>' +
     (scenarioBusy ? '<p role="status">シナリオを照合しています</p>' : scenarioNotice ? '<p role="status">' + esc(scenarioNotice) + '</p>' + loadSummaryHtml() : '') + '</div>';
 }
 function scenarioError() {
@@ -177,6 +262,10 @@ function syncView() {
   view = SESSION.query({ select: ['state', 'actions'] });
   // Rendering uses gate/target/source annotations; the wire inventory stays compact.
   view.data.actions.items = view.data.actions.items.map(item => SESSION.query({ select: ['action'], handle: item.handle }).data.action);
+  if (historySelection) {
+    historicalPreview = historySelection.generation === sessionGeneration ? retainedObservation(historySelection.id) : null;
+    if (!historicalPreview) { historySelection = null; resumeConfirmation = null; historyNotice = '対象が変わりました。履歴から選び直してください'; }
+  }
   const s = view.data.state;
   componentNameCounts = nameCounts(s.componentValues);
   stack = s.activePath.flatMap(id => {
@@ -202,7 +291,14 @@ function command(run) {
   if (scenarioBusy) return;
   scenarioNotice = ''; loadSummary = null;
   scenarioErrorDetails = null;
-  try { run(); sessionError = ''; } catch (e) {
+  try {
+    const previewId = historySelection?.id;
+    const readingHistory = (app.querySelector?.('.pane-trace')?.scrollTop ?? 0) > 0;
+    run(); sessionError = '';
+    if (historySelection || resumeConfirmation) nextPresentationFocus = 'current-position';
+    historySelection = null; historicalPreview = null; resumeConfirmation = null;
+    historyNotice = previewId && !retainedObservation(previewId) ? '見ていた履歴の画面は閲覧・再開できなくなりました。記録の文章は引き続き読めます' : readingHistory ? '新しい記録1件。履歴の読取位置を保持しています' : '';
+  } catch (e) {
     if (!(e instanceof Shitae.SessionError)) throw e;
     sessionError = e.message;
   }
@@ -213,7 +309,7 @@ function toggleGatePanel() { gatePanelOpen = !gatePanelOpen; render(); }
 function toggleShowEvents() { showEvents = !showEvents; render(); }
 function toggleShowActions() { showActions = !showActions; render(); }
 function toggleShowStates() { showStates = !showStates; render(); }
-function resetSession() { command(() => SESSION.reset()); }
+function resetSession() { command(() => { SESSION.reset(); sessionGeneration++; }); }
 function jumpToTimeline(idx) { const entry = timeline[idx]; if (entry) command(() => SESSION.seek(entry.id)); }
 function goBack(handle) { command(() => SESSION.dispatch({ handle: handle ?? view.data.actions.controls.back.handle })); }
 function asInteraction(op) {
@@ -283,19 +379,40 @@ function valueDescription(v) {
 function rootStateLabel(root) { return showStates ? '<div class="component-state-value">' + valueDescription(root) + '</div>' : ''; }
 function nodeKey(node) { return node.root + ':' + node.source.module + ':' + node.source.span.offset + ':' + node.path.join('.'); }
 function operationKey(op) { return op.placement.root + ':' + op.placement.path.join('.') + ':' + op.source.module + ':' + op.source.span.offset; }
+const screenScroll = new Map();
+function screenViewKey() { return sessionGeneration + ':' + (resumeConfirmation ? 'confirm:' + resumeConfirmation.id : historySelection ? 'preview:' + historySelection.id : 'live'); }
 function capturePresentation() {
   const details = new Map([...(app.querySelectorAll?.('details[data-state-key]') ?? [])].map(el => [el.dataset.stateKey, el.open]));
   const active = document.activeElement;
   const focus = active && app.contains?.(active) ? active.getAttribute('data-focus-key') ?? active.getAttribute('onchange') : null;
-  return { details, focus };
+  const trace = app.querySelector?.('.pane-trace'), center = app.querySelector?.('.screen-section');
+  const rows = [...(app.querySelectorAll?.('[data-history-key]') ?? [])];
+  const anchor = (active?.closest?.('[data-history-key]')) ?? rows.find(el => el.getBoundingClientRect().top >= (trace?.getBoundingClientRect().top ?? 0));
+  const parent = anchor?.closest?.('.provenance-step');
+  const key = center?.getAttribute?.('data-view-key') ?? screenViewKey();
+  if (center) screenScroll.set(key, center.scrollTop);
+  return { details, focus, parent: parent?.dataset.historyKey, parentOffset: parent ? parent.getBoundingClientRect().top : 0, anchor: anchor?.dataset.historyKey,
+    offset: anchor ? anchor.getBoundingClientRect().top : 0,
+    traceTop: trace?.scrollTop ?? 0, generation: trace?.getAttribute?.('data-generation') ?? String(sessionGeneration), key };
 }
 function restorePresentation(saved) {
   for (const el of app.querySelectorAll?.('details[data-state-key]') ?? []) {
     if (saved.details.has(el.dataset.stateKey)) el.open = saved.details.get(el.dataset.stateKey);
   }
-  if (saved.focus) {
-    const el = [...(app.querySelectorAll?.('[data-focus-key],[onchange]') ?? [])].find(el => (el.getAttribute('data-focus-key') ?? el.getAttribute('onchange')) === saved.focus);
-    el?.focus();
+  const trace = app.querySelector?.('.pane-trace'), center = app.querySelector?.('.screen-section');
+  const rows = [...(app.querySelectorAll?.('[data-history-key]') ?? [])];
+  const sameGeneration = saved.generation === String(sessionGeneration);
+  const anchor = rows.find(el => el.dataset.historyKey === saved.anchor) ?? rows.find(el => el.dataset.historyKey === saved.parent) ?? rows[0];
+  if (trace) {
+    trace.scrollTop = sameGeneration ? saved.traceTop : 0;
+    if (sameGeneration && saved.traceTop > 0 && anchor) trace.scrollTop += anchor.getBoundingClientRect().top - (anchor.dataset.historyKey === saved.anchor ? saved.offset : saved.parentOffset);
   }
+  if (center) center.scrollTop = screenScroll.get(screenViewKey()) ?? 0;
+  if (nextPresentationFocus || saved.focus) {
+    const controls = [...(app.querySelectorAll?.('[data-focus-key],[onchange]') ?? [])];
+    const el = controls.find(el => el.getAttribute('data-focus-key') === nextPresentationFocus && nextPresentationFocus !== null) ?? controls.find(el => (el.getAttribute('data-focus-key') ?? el.getAttribute('onchange')) === saved.focus) ?? controls.find(el => el.getAttribute('data-focus-key') === saved.parent) ?? controls.find(el=>el.getAttribute('data-focus-key') === 'current-position');
+    el?.focus({preventScroll:true});
+  }
+  nextPresentationFocus = null;
 }
 syncView();

@@ -1,0 +1,31 @@
+Browser tab: 1, Title: "履歴UI設計案 v3", URL: "http://127.0.0.1:8875/ui-proposal.html".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 134-137, 139-152, 167, 173
++		177 text 操作を続ける位置：記録7「再申請する」／条件：修正済み／結果1の後
++		178 text 見ている画面を切り替えました。操作を続ける位置は変わっていません。
++				179 text 後の履歴・戻れる
++				180 text 後の履歴・戻れる
++					181 text 後の履歴・戻れる
++				182 text 後の履歴・戻れる
++				183 text 後の履歴・戻れる
++					184 text ここから操作を続ける
++					185 text 画面を確認できる
++					186 text 画面を確認できる
++				187 text 画面を確認できる
++				188 text 画面を確認できる
++					189 text 画面を確認できる
++				190 text 画面を確認できる
++		191 container previewNotice
++			192 text 見ている時点：記録10「支払いを予約する」／条件：指定なし／結果1の後
++			193 text 見ている画面だけを切り替えています。操作を続ける位置は変わりません。参照画面内の当時の操作は実行できません。
++			194 button 操作を続ける画面に戻る, ID: return
++			195 button ここから操作を続ける…, ID: resume
+~			75 heading 当時の画面：申請詳細, Value: 2, ID: screenTitle
++				196 text 当時の画面：申請詳細
++			197 text 一万円
++			198 text 支払予定
++			199 text 保存済み
++			200 text 記録10「支払いを予約する」／条件：指定なし／結果1の後
++			201 text この枠は当時の画面を読むための表示です。当時の申請操作は実行できません。
++			202 text このデモで操作を続ける位置の資料：resumed.scenario.json
+The focused UI element is 176 button 記録10・結果1の画面を見る

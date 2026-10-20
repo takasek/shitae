@@ -1,0 +1,12 @@
+✔ accepted no-op closes preview while retained future remains accessible (0.326792ms)
+✔ material selection matches exact position and retained history (0.346375ms)
+✔ comparison changes viewed amount without moving continuation point (0.319667ms)
+✔ resume and branch remove unavailable preview, while no-op retains future (0.420458ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 41.06925

@@ -1,0 +1,110 @@
+Browser tab: 1, Title: "履歴UI設計案 v3", URL: "http://127.0.0.1:8875/ui-proposal.html".
+0 AXWebArea 履歴UI設計案 v3, URL: 127.0.0.1:8875/ui-proposal.html
+	1 container
+		2 heading 履歴を調べて、続きを選ぶ 設計案 v3, Value: 1
+			3 text 履歴を調べて、続きを選ぶ  設計案 v3
+		4 text 操作を続ける位置：記録12「支払いを完了する」／条件：指定なし／結果2の後
+		5 text 再現用モデルから取得した固定データです。この画面の操作は設計デモです。
+	6 container 操作履歴
+		7 heading 操作の履歴, Value: 2
+			8 text 操作の履歴
+		9 text 各操作を開くと、その操作で起きたことと直後の画面を調べられます。
+		10 container history
+			11 button (collapsed) 記録12：支払いを完了する 条件：指定なし · 2結果 · ここから操作を続ける, Secondary Actions: Expand
+				12 AXListMarker ▸ 
+				13 text 記録12：支払いを完了する
+				14 text 条件：指定なし · 2結果 ·
+				15 text ここから操作を続ける
+			16 button (collapsed) 記録11：領収書の更新を受け取る 条件：指定なし · 1結果 · 画面を確認できる, Secondary Actions: Expand
+				17 AXListMarker ▸ 
+				18 text 記録11：領収書の更新を受け取る
+				19 text 条件：指定なし · 1結果 ·
+				20 text 画面を確認できる
+			21 button (collapsed) 記録10：支払いを予約する 条件：指定なし · 1結果 · 画面を確認できる, Secondary Actions: Expand
+				22 AXListMarker ▸ 
+				23 text 記録10：支払いを予約する
+				24 text 条件：指定なし · 1結果 ·
+				25 text 画面を確認できる
+			26 button (collapsed) 記録9：保存する 条件：成功 · 1結果 · 画面を確認できる, Secondary Actions: Expand
+				27 AXListMarker ▸ 
+				28 text 記録9：保存する
+				29 text 条件：成功 · 1結果 ·
+				30 text 画面を確認できる
+			31 button (collapsed) 記録8：承認する 条件：問題なし · 1結果 · 画面を確認できる, Secondary Actions: Expand
+				32 AXListMarker ▸ 
+				33 text 記録8：承認する
+				34 text 条件：問題なし · 1結果 ·
+				35 text 画面を確認できる
+			36 button (collapsed) 記録7：再申請する 条件：修正済み · 2結果 · 画面を確認できる, Secondary Actions: Expand
+				37 AXListMarker ▸ 
+				38 text 記録7：再申請する
+				39 text 条件：修正済み · 2結果 ·
+				40 text 画面を確認できる
+			95 container
+				96 button (expanded) 記録6：金額を訂正する 条件：指定なし · 1結果 · 画面を確認できる, Secondary Actions: Collapse
+					97 AXListMarker ▾ 
+					98 text 記録6：金額を訂正する
+					99 text 条件：指定なし · 1結果 ·
+					100 text 画面を確認できる
+				101 text 結果1：申請額を更新
+				102 text 一万円
+				103 button 記録6・結果1の画面を見る
+			113 container
+				114 button (expanded) 記録5：差し戻す 条件：領収書不足 · 1結果 · 画面を確認できる, Secondary Actions: Collapse
+					115 AXListMarker ▾ 
+					116 text 記録5：差し戻す
+					117 text 条件：領収書不足 · 1結果 ·
+					118 text 画面を確認できる
+				119 text 結果1：申請状態を更新
+				120 text 要修正
+				121 button 記録5・結果1の画面を見る
+			51 button (collapsed) 記録4：申請する 条件：提出 · 1結果 · 画面を確認できる, Secondary Actions: Expand
+				52 AXListMarker ▸ 
+				53 text 記録4：申請する
+				54 text 条件：提出 · 1結果 ·
+				55 text 画面を確認できる
+			56 button (collapsed) 記録3：領収書を確認する 条件：指定なし · 1結果 · 画面を確認できる, Secondary Actions: Expand
+				57 AXListMarker ▸ 
+				58 text 記録3：領収書を確認する
+				59 text 条件：指定なし · 1結果 ·
+				60 text 画面を確認できる
+			104 container
+				105 button (expanded) 記録2：金額を入力する 条件：指定なし · 1結果 · 画面を確認できる, Secondary Actions: Collapse
+					106 AXListMarker ▾ 
+					107 text 記録2：金額を入力する
+					108 text 条件：指定なし · 1結果 ·
+					109 text 画面を確認できる
+				110 text 結果1：申請額を更新
+				111 text 一万二千円
+				112 button 記録2・結果1の画面を見る
+			66 button (collapsed) 記録1：下書きを作る 条件：指定なし · 1結果 · 画面を確認できる, Secondary Actions: Expand
+				67 AXListMarker ▸ 
+				68 text 記録1：下書きを作る
+				69 text 条件：指定なし · 1結果 ·
+				70 text 画面を確認できる
+		71 button (collapsed) 画面を残さなかった操作の例, Secondary Actions: Expand
+			72 text 画面を残さなかった操作の例
+	73 container 画面表示
+		74 container
+			75 heading 操作を続ける画面：申請詳細, Value: 2, ID: screenTitle
+				76 text 操作を続ける画面：申請詳細
+			77 text 申請 文書A：大阪出張の交通費 申請額
+			78 text 一万円
+			79 text 審査・支払
+			80 text 支払済み
+			81 text 保存状況
+			82 text 未保存
+			83 text 表示対象
+			84 text 記録12「支払いを完了する」／条件：指定なし／結果2の後
+		85 container loadSummary
+			86 heading 読み込んだ時点の要約, Value: 2
+				87 text 読み込んだ時点の要約
+			88 text 本体の画面に関係する共有状態：申請状態＝支払済み、申請額＝一万円、保存状況＝未保存。
+			89 text 同じ部品を別の場所で使うときも共通になる状態を「共有状態」と呼びます。この要約は読み込んだ時点の一部だけです。画面外の文書Bを含む全一覧ではありません。
+		90 button (collapsed) 画面外も含めて状態を確認する方法, ID: shared-guide, Secondary Actions: Expand
+			91 text 画面外も含めて状態を確認する方法
+		92 button (collapsed) モデルと処理系の版・再現用の資料, Secondary Actions: Expand
+			93 text モデルと処理系の版・再現用の資料
+		94 text 仕様用語の変更は未確定です。製品は変更していません。業務上の送信・支払い・保存は行いません。
+
+The focused UI element is 114 button (expanded) 記録5：差し戻す 条件：領収書不足 · 1結果 · 画面を確認できる, Secondary Actions: Collapse

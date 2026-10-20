@@ -1,0 +1,4 @@
+/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae:21: [warning] W103: component '申請状態' は要素もインタラクションも持たない
+/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae:31: [warning] W103: component '申請額' は要素もインタラクションも持たない
+/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae:36: [warning] W103: component '保存状況' は要素もインタラクションも持たない
+/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae:40: [warning] W103: component '文書B' は要素もインタラクションも持たない

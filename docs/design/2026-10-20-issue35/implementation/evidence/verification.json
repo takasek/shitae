@@ -1,0 +1,29 @@
+{
+  "sourceFiles": {
+    "packages/simulator/src/gui-session.js": "736c7e74b0efecfb89e6c4c8042f81922c4261d9f29df7310d5f2449b3e17f57",
+    "packages/simulator/src/simulator.ts": "03d20b20111fb554aaf65e88d4ea3736a204d88446d0840bb0e7cd3511cdd058",
+    "packages/simulator/test/history-preview.test.ts": "63e1e71b26a4d8c1f3955c32240f5d1ec2f2987f43b0c1bbb2369b7884e28c8b",
+    "docs/design/gui-history-contract.md": "3e69bc694fd3fcd7e9c6c9a7e9e65361cbb607f829924e13da59b072f51fdb4d",
+    "docs/adr/0025-history-preview-and-resume.md": "a18200d9b20df2a8bf2dca7016a6edcdbf23e47c3aea6d904a2e15e58ec52517"
+  },
+  "browserHtml": {
+    "expense.html": "d89c1294a62b88ba19236fb73f2b92cdba7aefcc5fb7cc11dcc9ec103f0b8985",
+    "expense-final.html": "b63a48a05895731a6be9eb2357509bdd2bf7ecf202e4487a230e052bd70ee9f4",
+    "expense-v2.html": "65e176a586ef2dca25d1013e9a672bdf7b2026956361db108bea3b6d6f7dd2a5",
+    "expense-v3.html": "fd5310a35d8cef0560d5b6a969d8944214371edaac035aba06c8554b09f07418"
+  },
+  "tests": {
+    "parser": 246,
+    "resolver": 37,
+    "runtime": 97,
+    "transpiler-xstate": 35,
+    "checker": 29,
+    "transpiler-mermaid": 20,
+    "session": 37,
+    "simulator": 257,
+    "cli": 36
+  },
+  "note": "Unchanged packages from fulltest2; simulator/CLI delivery logs; final wording verified with 17 targeted tests; design demo 4 tests separately. No commit/push/PR.",
+  "totalTests": 794,
+  "deliveredHtml": "b63a48a05895731a6be9eb2357509bdd2bf7ecf202e4487a230e052bd70ee9f4"
+}

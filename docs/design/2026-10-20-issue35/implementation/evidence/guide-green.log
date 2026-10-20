@@ -1,0 +1,12 @@
+
+ RUN  v3.2.4 /Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/simulator
+
+ ✓ test/presentation.test.ts (1 test) 10ms
+ ✓ test/history-preview.test.ts (8 tests) 57ms
+ ✓ test/load-summary.test.ts (13 tests) 266ms
+
+ Test Files  3 passed (3)
+      Tests  22 passed (22)
+   Start at  15:49:14
+   Duration  541ms (transform 116ms, setup 0ms, collect 238ms, tests 333ms, environment 0ms, prepare 116ms)
+

@@ -1,0 +1,629 @@
+{
+  "id": "25",
+  "ok": true,
+  "protocolVersion": 1,
+  "revision": 12,
+  "summary": {
+    "location": {
+      "module": "expense",
+      "component": "申請詳細",
+      "variant": null
+    },
+    "cursorObservationId": 15,
+    "latestObservationId": 15,
+    "observationCount": 15
+  },
+  "data": {
+    "history": {
+      "items": [
+        {
+          "id": 1,
+          "operationId": null,
+          "resultIndex": null,
+          "source": null,
+          "kind": "transition",
+          "label": "起動",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": false
+        },
+        {
+          "id": 2,
+          "operationId": 1,
+          "resultIndex": 0,
+          "source": {
+            "module": "expense",
+            "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae",
+            "span": {
+              "offset": 67,
+              "length": 26,
+              "line": 6,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(申請状態)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": false
+        },
+        {
+          "id": 3,
+          "operationId": 2,
+          "resultIndex": 0,
+          "source": {
+            "module": "expense",
+            "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae",
+            "span": {
+              "offset": 94,
+              "length": 28,
+              "line": 7,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(申請額)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": false
+        },
+        {
+          "id": 4,
+          "operationId": 3,
+          "resultIndex": 0,
+          "source": {
+            "module": "expense",
+            "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae",
+            "span": {
+              "offset": 123,
+              "length": 28,
+              "line": 8,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(文書B)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": false
+        },
+        {
+          "id": 5,
+          "operationId": 4,
+          "resultIndex": 0,
+          "source": {
+            "module": "expense",
+            "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae",
+            "span": {
+              "offset": 152,
+              "length": 29,
+              "line": 9,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(申請状態)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": false
+        },
+        {
+          "id": 6,
+          "operationId": 5,
+          "resultIndex": 0,
+          "source": {
+            "module": "expense",
+            "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae",
+            "span": {
+              "offset": 182,
+              "length": 32,
+              "line": 10,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(申請状態)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": false
+        },
+        {
+          "id": 7,
+          "operationId": 6,
+          "resultIndex": 0,
+          "source": {
+            "module": "expense",
+            "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae",
+            "span": {
+              "offset": 215,
+              "length": 26,
+              "line": 11,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(申請額)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": false
+        },
+        {
+          "id": 8,
+          "operationId": 7,
+          "resultIndex": 0,
+          "source": {
+            "module": "expense",
+            "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae",
+            "span": {
+              "offset": 242,
+              "length": 49,
+              "line": 12,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(申請状態)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": false
+        },
+        {
+          "id": 9,
+          "operationId": 7,
+          "resultIndex": 1,
+          "source": {
+            "module": "expense",
+            "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae",
+            "span": {
+              "offset": 242,
+              "length": 49,
+              "line": 12,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(保存状況)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": false
+        },
+        {
+          "id": 10,
+          "operationId": 8,
+          "resultIndex": 0,
+          "source": {
+            "module": "expense",
+            "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae",
+            "span": {
+              "offset": 292,
+              "length": 32,
+              "line": 13,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(申請状態)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": false
+        },
+        {
+          "id": 11,
+          "operationId": 9,
+          "resultIndex": 0,
+          "source": {
+            "module": "expense",
+            "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae",
+            "span": {
+              "offset": 325,
+              "length": 30,
+              "line": 14,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(保存状況)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": false
+        },
+        {
+          "id": 12,
+          "operationId": 10,
+          "resultIndex": 0,
+          "source": {
+            "module": "expense",
+            "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae",
+            "span": {
+              "offset": 356,
+              "length": 29,
+              "line": 15,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(申請状態)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": false
+        },
+        {
+          "id": 13,
+          "operationId": 11,
+          "resultIndex": 0,
+          "source": {
+            "module": "expense",
+            "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae",
+            "span": {
+              "offset": 386,
+              "length": 33,
+              "line": 16,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(文書B)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": false
+        },
+        {
+          "id": 14,
+          "operationId": 12,
+          "resultIndex": 0,
+          "source": {
+            "module": "expense",
+            "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae",
+            "span": {
+              "offset": 420,
+              "length": 46,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(申請状態)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": false
+        },
+        {
+          "id": 15,
+          "operationId": 12,
+          "resultIndex": 1,
+          "source": {
+            "module": "expense",
+            "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae",
+            "span": {
+              "offset": 420,
+              "length": 46,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(保存状況)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": false
+        }
+      ],
+      "nextAfter": null
+    },
+    "metadata": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "expense",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "expense",
+          "sourceSha256": "81a8737481b16fb310f40d49ea5e528ef704aaad7a11e57c5f52f08bee88a196",
+          "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae"
+        }
+      ],
+      "modelId": "874fc8c77588d712fc22b3701a2f25c4c1e8d998999bb72415409be1a088570a"
+    },
+    "state": {
+      "frames": [
+        {
+          "id": 0,
+          "parentId": null,
+          "stack": [
+            {
+              "module": "expense",
+              "component": "申請詳細",
+              "variant": null,
+              "singleton": false,
+              "scope": "frame-location",
+              "origin": "initial"
+            }
+          ],
+          "barrier": false,
+          "beginsSession": null,
+          "origin": "root"
+        }
+      ],
+      "activeFrameId": 0,
+      "nextFrameId": 1,
+      "activePath": [
+        0
+      ],
+      "overlays": [],
+      "sharedVariants": [
+        {
+          "module": "expense",
+          "component": "申請状態",
+          "variant": "支払済み",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "dsl"
+        },
+        {
+          "module": "expense",
+          "component": "申請額",
+          "variant": "一万円",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "dsl"
+        },
+        {
+          "module": "expense",
+          "component": "保存状況",
+          "variant": "未保存",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "dsl"
+        },
+        {
+          "module": "expense",
+          "component": "文書B",
+          "variant": "再確認が必要",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "dsl"
+        }
+      ],
+      "testVariants": [],
+      "componentValues": [
+        {
+          "module": "expense",
+          "component": "申請詳細",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "expense",
+          "component": "申請状態",
+          "variant": "支払済み",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "dsl"
+        },
+        {
+          "module": "expense",
+          "component": "申請額",
+          "variant": "一万円",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "dsl"
+        },
+        {
+          "module": "expense",
+          "component": "保存状況",
+          "variant": "未保存",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "dsl"
+        },
+        {
+          "module": "expense",
+          "component": "文書B",
+          "variant": "再確認が必要",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "dsl"
+        },
+        {
+          "module": "expense",
+          "component": "通知",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        }
+      ],
+      "gateTargets": [],
+      "inclusion": {
+        "main": {
+          "module": "expense",
+          "component": "申請詳細",
+          "root": "main",
+          "variant": null,
+          "singleton": false,
+          "scope": "frame-location",
+          "origin": "initial",
+          "source": {
+            "module": "expense",
+            "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae",
+            "span": {
+              "offset": 34,
+              "length": 6,
+              "line": 2,
+              "col": 1
+            }
+          },
+          "children": [
+            {
+              "name": "申請",
+              "root": "main",
+              "path": [
+                0
+              ],
+              "source": {
+                "module": "expense",
+                "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae",
+                "span": {
+                  "offset": 41,
+                  "length": 8,
+                  "line": 3,
+                  "col": 1
+                }
+              },
+              "collection": false,
+              "reference": {
+                "module": "expense",
+                "component": "申請状態"
+              },
+              "kind": "component",
+              "value": {
+                "variant": "支払済み",
+                "singleton": true,
+                "scope": "singleton-shared",
+                "origin": "dsl"
+              },
+              "componentSource": {
+                "module": "expense",
+                "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae",
+                "span": {
+                  "offset": 517,
+                  "length": 7,
+                  "line": 21,
+                  "col": 1
+                }
+              },
+              "children": []
+            },
+            {
+              "name": "金額",
+              "root": "main",
+              "path": [
+                1
+              ],
+              "source": {
+                "module": "expense",
+                "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae",
+                "span": {
+                  "offset": 50,
+                  "length": 7,
+                  "line": 4,
+                  "col": 1
+                }
+              },
+              "collection": false,
+              "reference": {
+                "module": "expense",
+                "component": "申請額"
+              },
+              "kind": "component",
+              "value": {
+                "variant": "一万円",
+                "singleton": true,
+                "scope": "singleton-shared",
+                "origin": "dsl"
+              },
+              "componentSource": {
+                "module": "expense",
+                "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae",
+                "span": {
+                  "offset": 585,
+                  "length": 6,
+                  "line": 31,
+                  "col": 1
+                }
+              },
+              "children": []
+            },
+            {
+              "name": "保存",
+              "root": "main",
+              "path": [
+                2
+              ],
+              "source": {
+                "module": "expense",
+                "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae",
+                "span": {
+                  "offset": 58,
+                  "length": 8,
+                  "line": 5,
+                  "col": 1
+                }
+              },
+              "collection": false,
+              "reference": {
+                "module": "expense",
+                "component": "保存状況"
+              },
+              "kind": "component",
+              "value": {
+                "variant": "未保存",
+                "singleton": true,
+                "scope": "singleton-shared",
+                "origin": "dsl"
+              },
+              "componentSource": {
+                "module": "expense",
+                "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae",
+                "span": {
+                  "offset": 616,
+                  "length": 7,
+                  "line": 36,
+                  "col": 1
+                }
+              },
+              "children": []
+            }
+          ]
+        },
+        "overlays": []
+      }
+    }
+  }
+}

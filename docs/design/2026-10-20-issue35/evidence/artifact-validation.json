@@ -1,0 +1,156 @@
+{
+  "markdownLinks": [
+    {
+      "source": "README.md",
+      "target": "A-history.md",
+      "exists": true
+    },
+    {
+      "source": "README.md",
+      "target": "models/v2/history-flow.shitae",
+      "exists": true
+    },
+    {
+      "source": "README.md",
+      "target": "B-position.md",
+      "exists": true
+    },
+    {
+      "source": "README.md",
+      "target": "C-load-summary.md",
+      "exists": true
+    },
+    {
+      "source": "README.md",
+      "target": "current-findings.md",
+      "exists": true
+    },
+    {
+      "source": "README.md",
+      "target": "model-expectations.md",
+      "exists": true
+    },
+    {
+      "source": "README.md",
+      "target": "ui-proposal.html",
+      "exists": true
+    },
+    {
+      "source": "README.md",
+      "target": "evaluation.md",
+      "exists": true
+    },
+    {
+      "source": "README.md",
+      "target": "review/brief.md",
+      "exists": true
+    },
+    {
+      "source": "README.md",
+      "target": "review/independent-v2.md",
+      "exists": true
+    },
+    {
+      "source": "README.md",
+      "target": "ui-proposal-v1.html",
+      "exists": true
+    },
+    {
+      "source": "README.md",
+      "target": "review/independent-v1.md",
+      "exists": true
+    },
+    {
+      "source": "README.md",
+      "target": "review/source-v1/",
+      "exists": true
+    },
+    {
+      "source": "README.md",
+      "target": "models/v2/history-flow.shitae",
+      "exists": true
+    },
+    {
+      "source": "README.md",
+      "target": "evidence/v2/model.html",
+      "exists": true
+    },
+    {
+      "source": "README.md",
+      "target": "evidence/v2/resume.scenario.json",
+      "exists": true
+    },
+    {
+      "source": "README.md",
+      "target": "evidence/v2/model-results.json",
+      "exists": true
+    },
+    {
+      "source": "README.md",
+      "target": "review/independent-v1.md",
+      "exists": true
+    },
+    {
+      "source": "README.md",
+      "target": "review-ready.md",
+      "exists": true
+    },
+    {
+      "source": "current-findings.md",
+      "target": "evidence/issue35.json",
+      "exists": true
+    },
+    {
+      "source": "current-findings.md",
+      "target": "evidence/issue27.json",
+      "exists": true
+    },
+    {
+      "source": "evaluation.md",
+      "target": "evidence/build.log",
+      "exists": true
+    }
+  ],
+  "html": [
+    {
+      "path": "ui-proposal.html",
+      "bytes": 10503,
+      "sha256": "e425a395a08453eb24fe7b2baf9d8a03dfd39736c8764546bb408a64e760291d",
+      "scriptSyntax": "passed"
+    },
+    {
+      "path": "evidence/model.html",
+      "bytes": 234912,
+      "sha256": "fa12da01e0524fdb39d07492ffe75f53883b922004f1a47f669963865c38ce87",
+      "scriptSyntax": "passed"
+    },
+    {
+      "path": "evidence/current.html",
+      "bytes": 218889,
+      "sha256": "2f286a33e8327c8abadebc40e67dc0409607cc4717d967db05d068545a4bc051",
+      "scriptSyntax": "passed"
+    },
+    {
+      "path": "evidence/v2/model.html",
+      "bytes": 239569,
+      "sha256": "3ad5a73f101a6885b936a342b48620f4baa19a432b6a901d37e7a7255dbbd823",
+      "scriptSyntax": "passed"
+    }
+  ],
+  "modelMetadata": {
+    "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+    "entryModule": "history-flow",
+    "sourceBasis": "source-bytes",
+    "manifest": [
+      {
+        "module": "history-flow",
+        "sourceSha256": "de8b8479f9df9e2990332ffa6d390313b5cd1101e02c3f028973756ff1990460",
+        "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/models/v2/history-flow.shitae"
+      }
+    ],
+    "modelId": "db12c8a83139d7ccefde730a3263513a2145d126684f7e2ad6af27b8ecd5670e"
+  },
+  "trackedChanges": [],
+  "untrackedFileCount": 77,
+  "allNewFilesInsideDesignDirectory": true
+}

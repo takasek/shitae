@@ -1,0 +1,117 @@
+Browser tab: 4, Title: "履歴UI設計案 v3.1", URL: "http://127.0.0.1:8875/ui-proposal.html".
+1 AXWebArea 履歴UI設計案 v3.1, URL: 127.0.0.1:8875/ui-proposal.html
+	2 container
+		3 heading 履歴を調べて、続きを選ぶ 設計案 v3.1, Value: 1
+			4 text 履歴を調べて、続きを選ぶ  設計案 v3.1
+		176 text 操作を続ける位置：記録3「領収書を確認する」／条件：指定なし／結果1の後
+		177 text 設計デモの続ける位置を変更しました。実際のseekは対応する保存資料で別に検証しています。
+	7 container 操作履歴
+		8 heading 操作の履歴, Value: 2
+			9 text 操作の履歴
+		10 text 各操作を開くと、その操作で起きたことと直後の画面を調べられます。
+		11 container history
+			12 button (collapsed) 記録12：支払いを完了する 条件：指定なし · 2結果 · 文章のみ, Secondary Actions: Expand
+				13 AXListMarker ▸ 
+				14 text 記録12：支払いを完了する
+				15 text 条件：指定なし · 2結果 ·
+				178 text 文章のみ
+			17 button (collapsed) 記録11：領収書の更新を受け取る 条件：指定なし · 1結果 · 文章のみ, Secondary Actions: Expand
+				18 AXListMarker ▸ 
+				19 text 記録11：領収書の更新を受け取る
+				20 text 条件：指定なし · 1結果 ·
+				179 text 文章のみ
+			135 container
+				136 button (expanded) 記録10：支払いを予約する 条件：指定なし · 1結果 · 文章のみ, Secondary Actions: Collapse
+					137 AXListMarker ▾ 
+					138 text 記録10：支払いを予約する
+					139 text 条件：指定なし · 1結果 ·
+					180 text 文章のみ
+				141 text 結果1：申請状態を更新
+				142 text 支払予定
+				143 button (disabled) 記録10・結果1の画面を見る
+				181 text 文章のみ：この時点の画面は残っていません
+			27 button (collapsed) 記録9：保存する 条件：成功 · 1結果 · 文章のみ, Secondary Actions: Expand
+				28 AXListMarker ▸ 
+				29 text 記録9：保存する
+				30 text 条件：成功 · 1結果 ·
+				182 text 文章のみ
+			32 button (collapsed) 記録8：承認する 条件：問題なし · 1結果 · 文章のみ, Secondary Actions: Expand
+				33 AXListMarker ▸ 
+				34 text 記録8：承認する
+				35 text 条件：問題なし · 1結果 ·
+				183 text 文章のみ
+			96 container
+				97 button (expanded) 記録7：再申請する 条件：修正済み · 2結果 · 後の履歴・戻れる, Secondary Actions: Collapse
+					98 AXListMarker ▾ 
+					99 text 記録7：再申請する
+					100 text 条件：修正済み · 2結果 ·
+					184 text 後の履歴・戻れる
+				102 text 結果1：申請状態を更新
+				103 text 審査中
+				104 button 記録7・結果1の画面を見る
+				105 text 結果2：保存状況を更新
+				106 text 未保存
+				107 button (disabled) 記録7・結果2の画面を見る
+				185 text 文章のみ：この時点の画面は残っていません
+			42 button (collapsed) 記録6：金額を訂正する 条件：指定なし · 1結果 · 後の履歴・戻れる, Secondary Actions: Expand
+				43 AXListMarker ▸ 
+				44 text 記録6：金額を訂正する
+				45 text 条件：指定なし · 1結果 ·
+				186 text 後の履歴・戻れる
+			47 button (collapsed) 記録5：差し戻す 条件：領収書不足 · 1結果 · 後の履歴・戻れる, Secondary Actions: Expand
+				48 AXListMarker ▸ 
+				49 text 記録5：差し戻す
+				50 text 条件：領収書不足 · 1結果 ·
+				187 text 後の履歴・戻れる
+			52 button (collapsed) 記録4：申請する 条件：提出 · 1結果 · 後の履歴・戻れる, Secondary Actions: Expand
+				53 AXListMarker ▸ 
+				54 text 記録4：申請する
+				55 text 条件：提出 · 1結果 ·
+				188 text 後の履歴・戻れる
+			167 container
+				168 button (expanded) 記録3：領収書を確認する 条件：指定なし · 1結果 · ここから操作を続ける, Secondary Actions: Collapse
+					169 AXListMarker ▾ 
+					170 text 記録3：領収書を確認する
+					171 text 条件：指定なし · 1結果 ·
+					189 text ここから操作を続ける
+				173 text 結果1：画面外の文書Bを更新
+				174 text 文書Bの状態を更新しました。値は共有状態の資料で確認できます。
+				175 button 記録3・結果1の画面を見る
+			62 button (collapsed) 記録2：金額を入力する 条件：指定なし · 1結果 · 画面を確認できる, Secondary Actions: Expand
+				63 AXListMarker ▸ 
+				64 text 記録2：金額を入力する
+				65 text 条件：指定なし · 1結果 ·
+				190 text 画面を確認できる
+			67 button (collapsed) 記録1：下書きを作る 条件：指定なし · 1結果 · 画面を確認できる, Secondary Actions: Expand
+				68 AXListMarker ▸ 
+				69 text 記録1：下書きを作る
+				70 text 条件：指定なし · 1結果 ·
+				191 text 画面を確認できる
+		72 button (collapsed) 画面を残さなかった操作の例, Secondary Actions: Expand
+			73 text 画面を残さなかった操作の例
+		160 button (collapsed) 戻れなくなった履歴, Secondary Actions: Expand
+			161 text 戻れなくなった履歴
+	74 container 画面表示
+		75 container
+			76 heading 操作を続ける画面：申請詳細, Value: 2, ID: screenTitle
+				192 text 操作を続ける画面：申請詳細
+			78 text 申請 文書A：大阪出張の交通費 申請額
+			193 text 一万二千円
+			80 text 審査・支払
+			194 text 下書き
+			82 text 保存状況
+			195 text 未保存
+			84 text 表示対象
+			196 text 記録3「領収書を確認する」／条件：指定なし／結果1の後
+		197 container
+			198 button (expanded) 画面外も含めて状態を確認する方法, ID: shared-guide, Secondary Actions: Collapse
+				199 text 画面外も含めて状態を確認する方法
+			200 text 確認したい時点を選び、同じモデルと処理系に対応する保存ファイルを使います。「見ている時点」と「操作を続ける位置」は別です。参照中でも、現在の状態を調べる資料は操作を続ける位置に対応するものを選びます。 今回の資料は揃っています。
+			201 link Description: 資料と照会手順を開く, Value: 127.0.0.1:8875/materials/guide.html
+			202 text 。文書Bの識別は module＝expense、component＝文書B です。
+			203 text このデモで操作を続ける位置の資料：この位置・履歴に対応する保存ファイルは今回未用意。任意の位置の保存機能は実装していません。
+		93 button (collapsed) モデルと処理系の版・再現用の資料, Secondary Actions: Expand
+			94 text モデルと処理系の版・再現用の資料
+		95 text 仕様用語の変更は未確定です。製品は変更していません。業務上の送信・支払い・保存は行いません。
+
+The focused UI element is 198 button (expanded) 画面外も含めて状態を確認する方法, ID: shared-guide, Secondary Actions: Collapse
