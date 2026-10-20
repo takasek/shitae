@@ -1,0 +1,35 @@
+{
+  "environment": {
+    "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "node": "v26.5.0",
+    "pnpm": "10.33.2"
+  },
+  "lockSHA256": "ae2f99eb35c4b144537e9087f3350d603892411d2be85c465f3d497007b8b8c1",
+  "mainBrowser": {
+    "name": "Codex In-app Browser",
+    "host": {
+      "version": "26.1007.30912",
+      "build": "20156",
+      "source": "/Applications/ChatGPT.app/Contents/Info.plist"
+    },
+    "engineVersion": "Chrome/155.0.0.0 (reduced User-Agent; exact patch not exposed)",
+    "userAgentObservation": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+      "vendor": "Google Inc.",
+      "platform": "MacIntel",
+      "viewport": [
+        1280,
+        720
+      ]
+    },
+    "screenshotDimensions": [
+      768,
+      1034
+    ]
+  },
+  "independentReplayBrowser": {
+    "version": "155.0.8059.40",
+    "build": "8059.40",
+    "source": "/Applications/Google Chrome.app/Contents/Info.plist"
+  }
+}

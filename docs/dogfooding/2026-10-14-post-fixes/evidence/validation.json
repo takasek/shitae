@@ -1,0 +1,315 @@
+{
+  "evaluationShitae": "e985f4ee58ab76339df5b0f59144e1f1a5da91c8",
+  "environment": {
+    "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "node": "v26.5.0",
+    "pnpm": "10.33.2"
+  },
+  "lockSHA256": "ae2f99eb35c4b144537e9087f3350d603892411d2be85c465f3d497007b8b8c1",
+  "models": [
+    {
+      "model": "astra/models/current.shitae",
+      "sha256": "05c29e9748933be7d8dd14f912a4a6c630b195bcec65fedc69d93778949baf7f",
+      "checkExit": 0,
+      "warningCodes": {},
+      "diagnostics": "",
+      "diagnosticsMatchOld": true,
+      "mermaidExit": 0,
+      "savedMermaidMatches": true,
+      "simulateFileExit": 0,
+      "htmlBytes": 135483,
+      "htmlSHA256": "fa50dd8a0d0978f0daa9d22d10d089c8f96275d534e5d84ef686f068a00712ea",
+      "completeHtml": true,
+      "validUtf8": true,
+      "scriptSyntaxExits": [
+        0
+      ]
+    },
+    {
+      "model": "astra/models/inline-repro.shitae",
+      "sha256": "b92d43daee3f9fe4ff5654e4061262cb64c58a1c9063b69bfa12c26bb4e354ab",
+      "checkExit": 0,
+      "warningCodes": {},
+      "diagnostics": "",
+      "diagnosticsMatchOld": true,
+      "mermaidExit": 0,
+      "savedMermaidMatches": true,
+      "simulateFileExit": 0,
+      "htmlBytes": 123775,
+      "htmlSHA256": "7c180a7ee91f85cf7644c8f2a3f3b5caf6e87f1ed675b3b7e1272ca9e69b964e",
+      "completeHtml": true,
+      "validUtf8": true,
+      "scriptSyntaxExits": [
+        0
+      ]
+    },
+    {
+      "model": "astra/models/proposed.shitae",
+      "sha256": "4df483ee831379ef3a52988950985072717e3cdba5a7e86181fad62568b8810a",
+      "checkExit": 0,
+      "warningCodes": {},
+      "diagnostics": "",
+      "diagnosticsMatchOld": true,
+      "mermaidExit": 0,
+      "savedMermaidMatches": true,
+      "simulateFileExit": 0,
+      "htmlBytes": 135043,
+      "htmlSHA256": "6deb082db5e6e30708fc19b91f87f6dd4cdae7048c5a498a2e11f090e1095565",
+      "completeHtml": true,
+      "validUtf8": true,
+      "scriptSyntaxExits": [
+        0
+      ]
+    },
+    {
+      "model": "sol/models/current.shitae",
+      "sha256": "4e0ae2bbac9557df599a2282b421beaac65dce4d33c36ef3c37f50e5c1a943da",
+      "checkExit": 0,
+      "warningCodes": {
+        "W103": 30
+      },
+      "diagnostics": "sol/models/current.shitae:78: [warning] W103: component 'RecentTargets' は要素もインタラクションも持たない\nsol/models/current.shitae:79: [warning] W103: component 'FolderFiles' は要素もインタラクションも持たない\nsol/models/current.shitae:80: [warning] W103: component 'New' は要素もインタラクションも持たない\nsol/models/current.shitae:81: [warning] W103: component 'OpenFile' は要素もインタラクションも持たない\nsol/models/current.shitae:82: [warning] W103: component 'OpenFolder' は要素もインタラクションも持たない\nsol/models/current.shitae:83: [warning] W103: component 'Save' は要素もインタラクションも持たない\nsol/models/current.shitae:84: [warning] W103: component 'SaveAs' は要素もインタラクションも持たない\nsol/models/current.shitae:85: [warning] W103: component 'FormatFlows' は要素もインタラクションも持たない\nsol/models/current.shitae:86: [warning] W103: component 'FormatFlat' は要素もインタラクションも持たない\nsol/models/current.shitae:87: [warning] W103: component 'FileName' は要素もインタラクションも持たない\nsol/models/current.shitae:88: [warning] W103: component 'Close' は要素もインタラクションも持たない\nsol/models/current.shitae:89: [warning] W103: component 'SourceText' は要素もインタラクションも持たない\nsol/models/current.shitae:90: [warning] W103: component 'Diagnostics' は要素もインタラクションも持たない\nsol/models/current.shitae:91: [warning] W103: component 'ZoomOut' は要素もインタラクションも持たない\nsol/models/current.shitae:92: [warning] W103: component 'ZoomLevel' は要素もインタラクションも持たない\nsol/models/current.shitae:93: [warning] W103: component 'ZoomIn' は要素もインタラクションも持たない\nsol/models/current.shitae:94: [warning] W103: component 'Fit' は要素もインタラクションも持たない\nsol/models/current.shitae:95: [warning] W103: component 'ActualSize' は要素もインタラクションも持たない\nsol/models/current.shitae:96: [warning] W103: component 'NodeActions' は要素もインタラクションも持たない\nsol/models/current.shitae:97: [warning] W103: component 'Help' は要素もインタラクションも持たない\nsol/models/current.shitae:98: [warning] W103: component 'Graph' は要素もインタラクションも持たない\nsol/models/current.shitae:99: [warning] W103: component 'DiskText' は要素もインタラクションも持たない\nsol/models/current.shitae:100: [warning] W103: component 'ReviewAndSaveHere' は要素もインタラクションも持たない\nsol/models/current.shitae:101: [warning] W103: component 'UseCurrentDiskVersion' は要素もインタラクションも持たない\nsol/models/current.shitae:102: [warning] W103: component 'SaveExplicitly' は要素もインタラクションも持たない\nsol/models/current.shitae:103: [warning] W103: component 'ErrorMessage' は要素もインタラクションも持たない\nsol/models/current.shitae:104: [warning] W103: component 'EdgeText' は要素もインタラクションも持たない\nsol/models/current.shitae:105: [warning] W103: component 'SelectedNode' は要素もインタラクションも持たない\nsol/models/current.shitae:106: [warning] W103: component 'CreateDefinition' は要素もインタラクションも持たない\nsol/models/current.shitae:107: [warning] W103: component 'AddConnection' は要素もインタラクションも持たない\n",
+      "diagnosticsMatchOld": true,
+      "mermaidExit": 0,
+      "savedMermaidMatches": true,
+      "simulateFileExit": 0,
+      "htmlBytes": 139281,
+      "htmlSHA256": "62dab1690386ffb08a14c0fe7448eb44d35d30e7a415f4e3f3ee4ce8772f2bf4",
+      "completeHtml": true,
+      "validUtf8": true,
+      "scriptSyntaxExits": [
+        0
+      ]
+    },
+    {
+      "model": "sol/models/proposed.shitae",
+      "sha256": "acc1cd09372ee07d350ae9cdb0283fd7080fa7f53263dc53cb1bf5cc166edc3b",
+      "checkExit": 0,
+      "warningCodes": {
+        "W103": 31
+      },
+      "diagnostics": "sol/models/proposed.shitae:112: [warning] W103: component 'Save' は要素もインタラクションも持たない\nsol/models/proposed.shitae:113: [warning] W103: component 'FormatMenu' は要素もインタラクションも持たない\nsol/models/proposed.shitae:114: [warning] W103: component 'NormalizeAction' は要素もインタラクションも持たない\nsol/models/proposed.shitae:115: [warning] W103: component 'ViewModes' は要素もインタラクションも持たない\nsol/models/proposed.shitae:116: [warning] W103: component 'OpenAction' は要素もインタラクションも持たない\nsol/models/proposed.shitae:117: [warning] W103: component 'NewAction' は要素もインタラクションも持たない\nsol/models/proposed.shitae:118: [warning] W103: component 'FolderIdentity' は要素もインタラクションも持たない\nsol/models/proposed.shitae:119: [warning] W103: component 'FileTree' は要素もインタラクションも持たない\nsol/models/proposed.shitae:120: [warning] W103: component 'RecentTargets' は要素もインタラクションも持たない\nsol/models/proposed.shitae:121: [warning] W103: component 'FileName' は要素もインタラクションも持たない\nsol/models/proposed.shitae:122: [warning] W103: component 'DocumentStateText' は要素もインタラクションも持たない\nsol/models/proposed.shitae:123: [warning] W103: component 'Close' は要素もインタラクションも持たない\nsol/models/proposed.shitae:124: [warning] W103: component 'ParentFolder' は要素もインタラクションも持たない\nsol/models/proposed.shitae:125: [warning] W103: component 'SourceText' は要素もインタラクションも持たない\nsol/models/proposed.shitae:126: [warning] W103: component 'Diagnostics' は要素もインタラクションも持たない\nsol/models/proposed.shitae:127: [warning] W103: component 'ZoomLevel' は要素もインタラクションも持たない\nsol/models/proposed.shitae:128: [warning] W103: component 'Fit' は要素もインタラクションも持たない\nsol/models/proposed.shitae:129: [warning] W103: component 'ActualSize' は要素もインタラクションも持たない\nsol/models/proposed.shitae:130: [warning] W103: component 'Graph' は要素もインタラクションも持たない\nsol/models/proposed.shitae:131: [warning] W103: component 'NodeActions' は要素もインタラクションも持たない\nsol/models/proposed.shitae:132: [warning] W103: component 'SavedOrUnsaved' は要素もインタラクションも持たない\nsol/models/proposed.shitae:133: [warning] W103: component 'DiagramUnavailable' は要素もインタラクションも持たない\nsol/models/proposed.shitae:134: [warning] W103: component 'ExternalChange' は要素もインタラクションも持たない\nsol/models/proposed.shitae:135: [warning] W103: component 'ReviewVersions' は要素もインタラクションも持たない\nsol/models/proposed.shitae:136: [warning] W103: component 'EditorVersion' は要素もインタラクションも持たない\nsol/models/proposed.shitae:137: [warning] W103: component 'DiskVersion' は要素もインタラクションも持たない\nsol/models/proposed.shitae:138: [warning] W103: component 'KeepEditing' は要素もインタラクションも持たない\nsol/models/proposed.shitae:139: [warning] W103: component 'SaveCopy' は要素もインタラクションも持たない\nsol/models/proposed.shitae:140: [warning] W103: component 'ReplaceReviewedDisk' は要素もインタラクションも持たない\nsol/models/proposed.shitae:141: [warning] W103: component 'UseDiskVersion' は要素もインタラクションも持たない\nsol/models/proposed.shitae:142: [warning] W103: component 'EdgeText' は要素もインタラクションも持たない\n",
+      "diagnosticsMatchOld": true,
+      "mermaidExit": 0,
+      "savedMermaidMatches": true,
+      "simulateFileExit": 0,
+      "htmlBytes": 146926,
+      "htmlSHA256": "2336c4b77e8c5c3f21cdc91870be0c9a15b9b240acb8f0ffbe40cea598c26f3e",
+      "completeHtml": true,
+      "validUtf8": true,
+      "scriptSyntaxExits": [
+        0
+      ]
+    },
+    {
+      "model": "sol/models/recovery.shitae",
+      "sha256": "8357da6b4d9241e44d9e028668f100ec82485e61b25f545852ea0c9bb5a92ae4",
+      "checkExit": 0,
+      "warningCodes": {
+        "W103": 9
+      },
+      "diagnostics": "sol/models/recovery.shitae:37: [warning] W103: component 'EditorVersion' は要素もインタラクションも持たない\nsol/models/recovery.shitae:38: [warning] W103: component 'ObservedDisk' は要素もインタラクションも持たない\nsol/models/recovery.shitae:39: [warning] W103: component 'ReviewAndSaveHere' は要素もインタラクションも持たない\nsol/models/recovery.shitae:40: [warning] W103: component 'SaveAs' は要素もインタラクションも持たない\nsol/models/recovery.shitae:41: [warning] W103: component 'UseCurrentDiskVersion' は要素もインタラクションも持たない\nsol/models/recovery.shitae:42: [warning] W103: component 'KeepEditing' は要素もインタラクションも持たない\nsol/models/recovery.shitae:43: [warning] W103: component 'ChooseAnotherFile' は要素もインタラクションも持たない\nsol/models/recovery.shitae:44: [warning] W103: component 'ReplaceObservedVersion' は要素もインタラクションも持たない\nsol/models/recovery.shitae:45: [warning] W103: component 'UseDiskVersion' は要素もインタラクションも持たない\n",
+      "diagnosticsMatchOld": true,
+      "mermaidExit": 0,
+      "savedMermaidMatches": true,
+      "simulateFileExit": 0,
+      "htmlBytes": 131774,
+      "htmlSHA256": "afa58a4fd48ab0c0011f439592a2b9295ceb8b36768d16ab6d5b2776605a9b61",
+      "completeHtml": true,
+      "validUtf8": true,
+      "scriptSyntaxExits": [
+        0
+      ]
+    },
+    {
+      "model": "reproductions/alias-member.shitae",
+      "sha256": "a66d49a3866cac39b7085e98f0fc66b251042b9b7d630c09de2bc4101cb8af7e",
+      "checkExit": 0,
+      "warningCodes": {},
+      "diagnostics": "",
+      "diagnosticsMatchOld": true,
+      "mermaidExit": 0,
+      "savedMermaidMatches": null,
+      "simulateFileExit": 0,
+      "htmlBytes": 124670,
+      "htmlSHA256": "f15357ed27f09e41beb574379b84651f34396c7c54f15615ab18d58a8bd05761",
+      "completeHtml": true,
+      "validUtf8": true,
+      "scriptSyntaxExits": [
+        0
+      ]
+    }
+  ],
+  "capturedPipe": [
+    {
+      "attempt": 1,
+      "exit": 0,
+      "bytes": 139281,
+      "sha256": "62dab1690386ffb08a14c0fe7448eb44d35d30e7a415f4e3f3ee4ce8772f2bf4",
+      "byteIdenticalToFile": true,
+      "validUtf8": true,
+      "completeHtml": true,
+      "scriptSyntaxExits": [
+        0
+      ]
+    },
+    {
+      "attempt": 2,
+      "exit": 0,
+      "bytes": 139281,
+      "sha256": "62dab1690386ffb08a14c0fe7448eb44d35d30e7a415f4e3f3ee4ce8772f2bf4",
+      "byteIdenticalToFile": true,
+      "validUtf8": true,
+      "completeHtml": true,
+      "scriptSyntaxExits": [
+        0
+      ]
+    },
+    {
+      "attempt": 3,
+      "exit": 0,
+      "bytes": 139281,
+      "sha256": "62dab1690386ffb08a14c0fe7448eb44d35d30e7a415f4e3f3ee4ce8772f2bf4",
+      "byteIdenticalToFile": true,
+      "validUtf8": true,
+      "completeHtml": true,
+      "scriptSyntaxExits": [
+        0
+      ]
+    }
+  ],
+  "runtimeProbes": {
+    "scope": "Generated JavaScript in node:vm with minimal DOM stubs; no new browser observation",
+    "aliasMember": {
+      "ready": [
+        {
+          "action": "Alias(diagram.graph)",
+          "gate": {
+            "name": "graph",
+            "kind": "member",
+            "targetComponent": "DiagramView",
+            "module": "alias-member"
+          },
+          "enabled": true
+        },
+        {
+          "action": "Named(DiagramView.graph)",
+          "gate": {
+            "name": "graph",
+            "kind": "member",
+            "targetComponent": "DiagramView",
+            "module": "alias-member"
+          },
+          "enabled": true
+        },
+        {
+          "action": "Undefined(Missing.graph)",
+          "gate": {
+            "name": "graph",
+            "kind": "member",
+            "targetComponent": "Missing",
+            "module": "alias-member"
+          },
+          "enabled": true
+        }
+      ],
+      "error": [
+        {
+          "action": "Alias(diagram.graph)",
+          "gate": {
+            "name": "graph",
+            "kind": "member",
+            "targetComponent": "DiagramView",
+            "module": "alias-member"
+          },
+          "enabled": false
+        },
+        {
+          "action": "Named(DiagramView.graph)",
+          "gate": {
+            "name": "graph",
+            "kind": "member",
+            "targetComponent": "DiagramView",
+            "module": "alias-member"
+          },
+          "enabled": false
+        },
+        {
+          "action": "Undefined(Missing.graph)",
+          "gate": {
+            "name": "graph",
+            "kind": "member",
+            "targetComponent": "Missing",
+            "module": "alias-member"
+          },
+          "enabled": true
+        }
+      ],
+      "restored": [
+        {
+          "action": "Alias(diagram.graph)",
+          "gate": {
+            "name": "graph",
+            "kind": "member",
+            "targetComponent": "DiagramView",
+            "module": "alias-member"
+          },
+          "enabled": true
+        },
+        {
+          "action": "Named(DiagramView.graph)",
+          "gate": {
+            "name": "graph",
+            "kind": "member",
+            "targetComponent": "DiagramView",
+            "module": "alias-member"
+          },
+          "enabled": true
+        },
+        {
+          "action": "Undefined(Missing.graph)",
+          "gate": {
+            "name": "graph",
+            "kind": "member",
+            "targetComponent": "Missing",
+            "module": "alias-member"
+          },
+          "enabled": true
+        }
+      ]
+    },
+    "inline": [
+      {
+        "element": {
+          "name": "inline群",
+          "ref": null,
+          "children": [
+            {
+              "name": "New",
+              "ref": null
+            },
+            {
+              "name": "Save",
+              "ref": null
+            },
+            {
+              "name": "Format",
+              "ref": null
+            }
+          ]
+        },
+        "rendered": "<details open class=\"element-hierarchy\"><summary class=\"element\">inline群</summary> <div class=\"element-children\"><div class=\"elements\"><div class=\"element\">New</div><div class=\"element\">Save</div><div class=\"element\">Format</div></div></div></details>"
+      },
+      {
+        "element": {
+          "name": "名前付き群",
+          "ref": {
+            "module": "inline-repro",
+            "name": "操作群"
+          }
+        },
+        "rendered": "<details open class=\"element-hierarchy\"><summary class=\"element\">名前付き群</summary> <div class=\"element-children\"><div class=\"elements\"><div class=\"element\">New</div><div class=\"element\">Save</div><div class=\"element\">Format</div></div></div></details>"
+      }
+    ]
+  }
+}

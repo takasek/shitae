@@ -1,0 +1,24 @@
+flowchart LR
+  Editing["# Editing"]
+  Conflict["# Conflict"]
+  OverwriteReview["# OverwriteReview"]
+  DiscardReview["# DiscardReview"]
+  EditorVersion["# EditorVersion"]
+  ObservedDisk["# ObservedDisk"]
+  ReviewAndSaveHere["# ReviewAndSaveHere"]
+  SaveAs["# SaveAs"]
+  UseCurrentDiskVersion["# UseCurrentDiskVersion"]
+  KeepEditing["# KeepEditing"]
+  ChooseAnotherFile["# ChooseAnotherFile"]
+  ReplaceObservedVersion["# ReplaceObservedVersion"]
+  UseDiskVersion["# UseDiskVersion"]
+
+  Editing -->|"ExternalChange"| Conflict
+  Conflict -->|"ReviewAndSaveHere"| OverwriteReview
+  Conflict -->|"UseCurrentDiskVersion"| DiscardReview
+  Conflict -->|"[ExistingDifferentTarget]SaveAs"| OverwriteReview
+  Conflict -->|"[NewTargetSaved]SaveAs"| Editing
+  OverwriteReview -->|"[Saved]ReplaceObservedVersion"| Editing
+  OverwriteReview -->|"[ExistingDifferentTarget]ChooseAnotherFile"| OverwriteReview
+  OverwriteReview -->|"[NewTargetSaved]ChooseAnotherFile"| Editing
+  DiscardReview -->|"[Fresh]UseDiskVersion"| Editing

@@ -1,0 +1,18 @@
+--- docs/dogfooding/2026-10-13-standalone/sol/models/proposed.shitae
++++ docs/dogfooding/2026-10-14-post-fixes/derived/sol-proposed-readable-status.shitae
+@@ -79,12 +79,12 @@
+ #! DocumentStatus
+ // A bounded single-document scenario, not shared status across real documents.
+ ## Valid
+-state: SavedOrUnsaved
++"Document state: valid": SavedOrUnsaved
+ ## Invalid
+-state: DiagramUnavailable
++"Document state: invalid": DiagramUnavailable
+ problems: Diagnostics
+ ## Conflict
+-state: ExternalChange
++"Document state: conflict": ExternalChange
+ 
+ # RecoveryNotice
+ state: ExternalChange

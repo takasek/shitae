@@ -1,0 +1,23 @@
+
+> shitae@ build /private/tmp/shitae-post-fixes-20261014
+> pnpm -r build
+
+Scope: 9 of 10 workspace projects
+packages/ast build$ tsc
+packages/ast build: Done
+packages/parser build$ tsc
+packages/parser build: Done
+packages/resolver build$ tsc
+packages/runtime build$ tsc
+packages/resolver build: Done
+packages/runtime build: Done
+packages/checker build$ tsc
+packages/simulator build$ tsc
+packages/transpiler-mermaid build$ tsc
+packages/transpiler-xstate build$ tsc
+packages/transpiler-mermaid build: Done
+packages/checker build: Done
+packages/transpiler-xstate build: Done
+packages/simulator build: Done
+packages/cli build$ tsc
+packages/cli build: Done
