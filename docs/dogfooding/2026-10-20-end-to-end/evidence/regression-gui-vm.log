@@ -1,0 +1,13 @@
+
+ RUN  v3.2.4 /private/tmp/shitae-e2e-20261020-01a1570c/packages/simulator
+
+ ✓ test/session-ui.test.ts (5 tests) 36ms
+ ✓ test/scenario-ui.test.ts (8 tests) 125ms
+ ✓ test/load-summary.test.ts (13 tests) 283ms
+ ✓ test/simulator.test.ts (143 tests) 446ms
+
+ Test Files  4 passed (4)
+      Tests  169 passed (169)
+   Start at  11:07:45
+   Duration  747ms (transform 167ms, setup 0ms, collect 410ms, tests 890ms, environment 0ms, prepare 150ms)
+

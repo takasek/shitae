@@ -1,0 +1,134 @@
+Browser tab: 1, Title: "shitae simulator", URL: "http://127.0.0.1:8765/evidence/astra-models-proposed.html".
+0 AXWebArea shitae simulator, URL: 127.0.0.1:8765/evidence/astra-models-proposed.html
+	1 container app
+		2 container
+			3 text 操作来歴（統合ログ） ナビゲーション履歴。実行された遷移の列を操作ごとに表示します。新しい記録が上。操作を展開すると結果と観測点を確認できます。完了点や途中の観測点を選ぶと巻戻し・やり直しできます。破棄済みの観測点へは移動できません。
+			4 checkbox (settable, integer) Description: イベントを表示, Value: 1
+			5 text 現在地: 切替(B) / 記録10 / 観測1 / 文書B 現在まで 11観測点 / ghost 0観測点 / 破棄済み 1観測点。記録には破棄経路・reset前・手動試験も含まれます。
+			6 button (collapsed) 10. 切替(B), Secondary Actions: Expand
+			7 text proposed::文書A / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点 分岐・破棄 1観測点（記録8 / 観測2）
+			8 button 完了点: switch → 文書B 文書B / 現在地
+				9 text 完了点: switch → 文書B 
+				10 text 文書B / 現在地
+			11 button (collapsed) 9. 巻戻し/やり直し, Secondary Actions: Expand
+			12 text proposed::文書A 0結果 / 0観測点 · 現在まで 0観測点 / ghost 0観測点 / 破棄済み 0観測点 巻戻し/やり直し先: ノードからソースへ / 記録8 / 観測1 / 結果1 / set(作業面A)
+			13 button (expanded) 8. ノードからソースへ, Secondary Actions: Collapse
+			14 text proposed::作業面A / 図中心 / 配置 main[3] 2結果 / 2観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 1観測点 完了点は破棄済み 結果1: set(作業面A##並列) · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点 結果2: 該当行へ移動しエディタへフォーカス · 現在まで 0観測点 / ghost 0観測点 / 破棄済み 1観測点
+			15 button 結果1 / 観測1（途中）: set(作業面A) 文書A
+				16 text 結果1 / 観測1（途中）: set(作業面A) 
+				17 text 文書A
+			18 button (collapsed) 7. 図のみ, Secondary Actions: Expand
+			19 text proposed::文書A / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			20 button 完了点: set(作業面A) 文書A
+				21 text 完了点: set(作業面A) 
+				22 text 文書A
+			23 button (collapsed) 6. 切替(A), Secondary Actions: Expand
+			24 text proposed::文書B / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			25 button 完了点: switch → 文書A 文書A
+				26 text 完了点: switch → 文書A 
+				27 text 文書A
+			28 button (collapsed) 5. 編集, Secondary Actions: Expand
+			29 text proposed::文書B / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			30 button 完了点: set(状態B) 文書B
+				31 text 完了点: set(状態B) 
+				32 text 文書B
+			33 button (collapsed) 4. 切替(B), Secondary Actions: Expand
+			34 text proposed::文書A / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			35 button 完了点: switch → 文書B 文書B
+				36 text 完了点: switch → 文書B 
+				37 text 文書B
+			38 button (collapsed) 3. 保存 / 条件: 成功, Secondary Actions: Expand
+			39 text proposed::文書A / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			40 button 完了点: set(状態A) 文書A
+				41 text 完了点: set(状態A) 
+				42 text 文書A
+			43 button (collapsed) 2. 編集, Secondary Actions: Expand
+			44 text proposed::文書A / 配置 main[] 2結果 / 2観測点 · 現在まで 2観測点 / ghost 0観測点 / 破棄済み 0観測点
+			45 button 完了点: set(正規化A) 文書A
+				46 text 完了点: set(正規化A) 
+				47 text 文書A
+			48 button (collapsed) 1. 開く(開始ボタン), Secondary Actions: Expand
+			49 text proposed::開始 / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			50 button 完了点: present → 文書A 文書A
+				51 text 完了点: present → 文書A 
+				52 text 文書A
+			53 button 起点: 起動 開始
+				54 text 起点: 起動 
+				55 text 開始
+			56 button (collapsed) 検討手順を表示, Secondary Actions: Expand
+			57 button 検討手順を書出し
+		58 container
+			59 text 現在の画面
+			60 button 初期状態へ
+			61 text このHTML: proposed · model 9500d179aec9 · engine 278103a97da5
+			62 button (collapsed) 版の詳細・共有するもの, Secondary Actions: Expand
+				63 text 版の詳細・共有するもの
+			64 text 保存範囲: dispatch 9件 / seek 1件 / reset 0件 / 手動試験 0件。条件選択はdispatchの内訳として操作来歴に表示します。破棄経路・reset前・ghost・手動試験も含む全記録を保存します。モデル本文・DOM・表示設定は含みません。読込後も現在の表示設定を使います。
+			65 button シナリオを保存
+			66 container
+				67 text シナリオを読み込む 
+				68 button シナリオを読み込む
+			69 text アクティブな frame の表示（本体）と掲示中カード
+			70 checkbox (settable, integer) Description: アクションを表示, Value: 1
+			71 checkbox (settable, integer) Description: 部品の状態を表示, Value: 1
+			72 button 画面外 component の姿切替（gate 試験用）
+			73 text 今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。
+			74 text 文書B
+			75 text 共有 (singleton) · 初期
+			76 container
+				77 button (expanded) 文書操作 → 文書操作群 · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					78 text 文書操作
+					79 text  → 文書操作群 · variantなし · 
+					80 text 包含の初期値 · 初期
+				81 text Open Save 文書名と親フォルダ
+			82 container
+				83 button (expanded) 表示操作 → 表示操作群 · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					84 text 表示操作
+					85 text  → 表示操作群 · variantなし · 
+					86 text 包含の初期値 · 初期
+				87 text Source Split Diagram Sidebar
+			88 container
+				89 button (expanded) 作業面 → 並列作業面 · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					90 text 作業面
+					91 text  → 並列作業面 · variantなし · 
+					92 text 包含の初期値 · 初期
+				93 text ソース 図
+			94 container
+				95 button (expanded) 保存状態 → 状態B · ##未保存 · 共有 (singleton) · DSL, Secondary Actions: Collapse
+					96 text 保存状態
+					97 text  → 状態B · ##未保存 · 
+					98 text 共有 (singleton) · DSL
+				99 text B.pfdsl — Edited
+			100 container
+				101 button (expanded) タブ → タブ一覧 · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					102 text タブ
+					103 text  → タブ一覧 · variantなし · 
+					104 text 包含の初期値 · 初期
+				105 text A B
+			106 button 切替(A) component common
+				107 text 切替(A)
+				108 text component common
+			109 button 編集 component common
+				110 text 編集
+				111 text component common
+			112 container
+				113 button (expanded) スタック, Help: スタック — 今積み重なっている画面。プッシュダウン構成として読める, Secondary Actions: Collapse
+					114 text スタック
+				115 text 今積み重なっている画面。プッシュダウン構成として読める。上が現在地
+				116 text ▌
+				117 text 文書B @b
+				118 text ▌
+				119 text 文書A @a 開始
+			120 container
+				121 button (expanded) 遷移マップ, Help: 遷移マップ — 画面間の遷移関係（表示のみ。状態遷移図として読める）, Secondary Actions: Collapse
+					122 text 遷移マップ
+				123 text 画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。
+				124 button 設定を保存
+				125 checkbox (settable, integer) Description: 全体を見る, Value: 0
+				126 image
+					127 text 開始
+					128 text 文書A
+					129 text 文書B
+					130 text 比較
+
+The focused UI element is 0 AXWebArea shitae simulator, URL: 127.0.0.1:8765/evidence/astra-models-proposed.html

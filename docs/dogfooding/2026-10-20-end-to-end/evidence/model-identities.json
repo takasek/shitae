@@ -1,0 +1,212 @@
+[
+  {
+    "model": "models/saved/astra/models/current.shitae",
+    "cli": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "current",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "current",
+          "sourceSha256": "05c29e9748933be7d8dd14f912a4a6c630b195bcec65fedc69d93778949baf7f",
+          "file": "/private/tmp/shitae-e2e-20261020-01a1570c/docs/dogfooding/2026-10-20-end-to-end/models/saved/astra/models/current.shitae"
+        }
+      ],
+      "modelId": "a0eba4bfc7b9130759aa2a1395603467a0db57c4f32330ea1537361216ebdd9f"
+    },
+    "gui": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "current",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "current",
+          "sourceSha256": "05c29e9748933be7d8dd14f912a4a6c630b195bcec65fedc69d93778949baf7f",
+          "file": "current.shitae"
+        }
+      ],
+      "modelId": "a0eba4bfc7b9130759aa2a1395603467a0db57c4f32330ea1537361216ebdd9f"
+    },
+    "sameEngineAndModel": true
+  },
+  {
+    "model": "models/saved/astra/models/inline-repro.shitae",
+    "cli": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "inline-repro",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "inline-repro",
+          "sourceSha256": "b92d43daee3f9fe4ff5654e4061262cb64c58a1c9063b69bfa12c26bb4e354ab",
+          "file": "/private/tmp/shitae-e2e-20261020-01a1570c/docs/dogfooding/2026-10-20-end-to-end/models/saved/astra/models/inline-repro.shitae"
+        }
+      ],
+      "modelId": "0c4e0d7b3b14275a376893618e424312a3510dc2b9bedf88dcbbdee42df5725b"
+    },
+    "gui": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "inline-repro",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "inline-repro",
+          "sourceSha256": "b92d43daee3f9fe4ff5654e4061262cb64c58a1c9063b69bfa12c26bb4e354ab",
+          "file": "inline-repro.shitae"
+        }
+      ],
+      "modelId": "0c4e0d7b3b14275a376893618e424312a3510dc2b9bedf88dcbbdee42df5725b"
+    },
+    "sameEngineAndModel": true
+  },
+  {
+    "model": "models/saved/astra/models/proposed.shitae",
+    "cli": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "proposed",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "proposed",
+          "sourceSha256": "4df483ee831379ef3a52988950985072717e3cdba5a7e86181fad62568b8810a",
+          "file": "/private/tmp/shitae-e2e-20261020-01a1570c/docs/dogfooding/2026-10-20-end-to-end/models/saved/astra/models/proposed.shitae"
+        }
+      ],
+      "modelId": "9500d179aec9b7f1dd819665bd7f2e7fa3aab73679200fb383cfe3308a5e50b6"
+    },
+    "gui": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "proposed",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "proposed",
+          "sourceSha256": "4df483ee831379ef3a52988950985072717e3cdba5a7e86181fad62568b8810a",
+          "file": "proposed.shitae"
+        }
+      ],
+      "modelId": "9500d179aec9b7f1dd819665bd7f2e7fa3aab73679200fb383cfe3308a5e50b6"
+    },
+    "sameEngineAndModel": true
+  },
+  {
+    "model": "models/saved/reproductions/alias-member.shitae",
+    "cli": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "alias-member",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "alias-member",
+          "sourceSha256": "a66d49a3866cac39b7085e98f0fc66b251042b9b7d630c09de2bc4101cb8af7e",
+          "file": "/private/tmp/shitae-e2e-20261020-01a1570c/docs/dogfooding/2026-10-20-end-to-end/models/saved/reproductions/alias-member.shitae"
+        }
+      ],
+      "modelId": "7896114bea28ef81d666e9a788b11f9d2ae8fa48357a384917b33975adbfcb88"
+    },
+    "gui": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "alias-member",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "alias-member",
+          "sourceSha256": "a66d49a3866cac39b7085e98f0fc66b251042b9b7d630c09de2bc4101cb8af7e",
+          "file": "alias-member.shitae"
+        }
+      ],
+      "modelId": "7896114bea28ef81d666e9a788b11f9d2ae8fa48357a384917b33975adbfcb88"
+    },
+    "sameEngineAndModel": true
+  },
+  {
+    "model": "models/saved/sol/models/current.shitae",
+    "cli": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "current",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "current",
+          "sourceSha256": "4e0ae2bbac9557df599a2282b421beaac65dce4d33c36ef3c37f50e5c1a943da",
+          "file": "/private/tmp/shitae-e2e-20261020-01a1570c/docs/dogfooding/2026-10-20-end-to-end/models/saved/sol/models/current.shitae"
+        }
+      ],
+      "modelId": "0c823b983f73054ca0eecd18318f3405f326942c984cc3184cd32b6372b1ceb3"
+    },
+    "gui": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "current",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "current",
+          "sourceSha256": "4e0ae2bbac9557df599a2282b421beaac65dce4d33c36ef3c37f50e5c1a943da",
+          "file": "current.shitae"
+        }
+      ],
+      "modelId": "0c823b983f73054ca0eecd18318f3405f326942c984cc3184cd32b6372b1ceb3"
+    },
+    "sameEngineAndModel": true
+  },
+  {
+    "model": "models/saved/sol/models/proposed.shitae",
+    "cli": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "proposed",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "proposed",
+          "sourceSha256": "acc1cd09372ee07d350ae9cdb0283fd7080fa7f53263dc53cb1bf5cc166edc3b",
+          "file": "/private/tmp/shitae-e2e-20261020-01a1570c/docs/dogfooding/2026-10-20-end-to-end/models/saved/sol/models/proposed.shitae"
+        }
+      ],
+      "modelId": "6ea6e57467bbff453b0aed74fc8e222ab07a99014557dfb23fb00d6e2c428fe5"
+    },
+    "gui": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "proposed",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "proposed",
+          "sourceSha256": "acc1cd09372ee07d350ae9cdb0283fd7080fa7f53263dc53cb1bf5cc166edc3b",
+          "file": "proposed.shitae"
+        }
+      ],
+      "modelId": "6ea6e57467bbff453b0aed74fc8e222ab07a99014557dfb23fb00d6e2c428fe5"
+    },
+    "sameEngineAndModel": true
+  },
+  {
+    "model": "models/saved/sol/models/recovery.shitae",
+    "cli": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "recovery",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "recovery",
+          "sourceSha256": "8357da6b4d9241e44d9e028668f100ec82485e61b25f545852ea0c9bb5a92ae4",
+          "file": "/private/tmp/shitae-e2e-20261020-01a1570c/docs/dogfooding/2026-10-20-end-to-end/models/saved/sol/models/recovery.shitae"
+        }
+      ],
+      "modelId": "1e6933bcad00391f9027fc9b28f537480ed429d27a828a1e046d3d70cc6126c9"
+    },
+    "gui": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "recovery",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "recovery",
+          "sourceSha256": "8357da6b4d9241e44d9e028668f100ec82485e61b25f545852ea0c9bb5a92ae4",
+          "file": "recovery.shitae"
+        }
+      ],
+      "modelId": "1e6933bcad00391f9027fc9b28f537480ed429d27a828a1e046d3d70cc6126c9"
+    },
+    "sameEngineAndModel": true
+  }
+]

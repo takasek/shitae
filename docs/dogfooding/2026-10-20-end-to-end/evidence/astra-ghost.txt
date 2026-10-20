@@ -1,0 +1,176 @@
+Browser tab: 1, Title: "shitae simulator", URL: "http://127.0.0.1:8765/evidence/astra-models-proposed.html".
+0 AXWebArea shitae simulator, URL: 127.0.0.1:8765/evidence/astra-models-proposed.html
+	1 container app
+		2 container
+			3 text 操作来歴（統合ログ） ナビゲーション履歴。実行された遷移の列を操作ごとに表示します。新しい記録が上。操作を展開すると結果と観測点を確認できます。完了点や途中の観測点を選ぶと巻戻し・やり直しできます。破棄済みの観測点へは移動できません。
+			4 checkbox (settable, integer) Description: イベントを表示, Value: 1
+			5 text 現在地: ノードからソースへ / 記録8 / 観測1 / 文書A 現在まで 10観測点 / ghost 1観測点 / 破棄済み 0観測点。記録には破棄経路・reset前・手動試験も含まれます。
+			6 button (collapsed) 9. 巻戻し/やり直し, Secondary Actions: Expand
+			7 text proposed::文書A 0結果 / 0観測点 · 現在まで 0観測点 / ghost 0観測点 / 破棄済み 0観測点 巻戻し/やり直し先: ノードからソースへ / 記録8 / 観測1 / 結果1 / set(作業面A)
+			8 button (expanded) 8. ノードからソースへ, Secondary Actions: Collapse
+			9 text proposed::作業面A / 図中心 / 配置 main[3] 2結果 / 2観測点 · 現在まで 1観測点 / ghost 1観測点 / 破棄済み 0観測点
+			10 button 完了点: effect: 該当行へ移動しエディタへフォーカス 文書A / ghost
+				11 text 完了点: effect: 該当行へ移動しエディタへフォーカス 
+				12 text 文書A / ghost
+			13 text 結果1: set(作業面A##並列) · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点 結果2: 該当行へ移動しエディタへフォーカス · 現在まで 0観測点 / ghost 1観測点 / 破棄済み 0観測点
+			14 button 結果1 / 観測1（途中）: set(作業面A) 文書A / 現在地
+				15 text 結果1 / 観測1（途中）: set(作業面A) 
+				16 text 文書A / 現在地
+			17 button 結果2 / 観測1（完了点）: effect: 該当行へ移動しエディタへフォーカス 文書A / ghost
+				18 text 結果2 / 観測1（完了点）: effect: 該当行へ移動しエディタへフォーカス 
+				19 text 文書A / ghost
+			20 button (collapsed) 7. 図のみ, Secondary Actions: Expand
+			21 text proposed::文書A / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			22 button 完了点: set(作業面A) 文書A
+				23 text 完了点: set(作業面A) 
+				24 text 文書A
+			25 button (collapsed) 6. 切替(A), Secondary Actions: Expand
+			26 text proposed::文書B / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			27 button 完了点: switch → 文書A 文書A
+				28 text 完了点: switch → 文書A 
+				29 text 文書A
+			30 button (collapsed) 5. 編集, Secondary Actions: Expand
+			31 text proposed::文書B / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			32 button 完了点: set(状態B) 文書B
+				33 text 完了点: set(状態B) 
+				34 text 文書B
+			35 button (collapsed) 4. 切替(B), Secondary Actions: Expand
+			36 text proposed::文書A / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			37 button 完了点: switch → 文書B 文書B
+				38 text 完了点: switch → 文書B 
+				39 text 文書B
+			40 button (collapsed) 3. 保存 / 条件: 成功, Secondary Actions: Expand
+			41 text proposed::文書A / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			42 button 完了点: set(状態A) 文書A
+				43 text 完了点: set(状態A) 
+				44 text 文書A
+			45 button (collapsed) 2. 編集, Secondary Actions: Expand
+			46 text proposed::文書A / 配置 main[] 2結果 / 2観測点 · 現在まで 2観測点 / ghost 0観測点 / 破棄済み 0観測点
+			47 button 完了点: set(正規化A) 文書A
+				48 text 完了点: set(正規化A) 
+				49 text 文書A
+			50 button (collapsed) 1. 開く(開始ボタン), Secondary Actions: Expand
+			51 text proposed::開始 / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			52 button 完了点: present → 文書A 文書A
+				53 text 完了点: present → 文書A 
+				54 text 文書A
+			55 button 起点: 起動 開始
+				56 text 起点: 起動 
+				57 text 開始
+			58 button (collapsed) 検討手順を表示, Secondary Actions: Expand
+			59 button 検討手順を書出し
+		60 container
+			61 text 現在の画面
+			62 button 初期状態へ
+			63 text このHTML: proposed · model 9500d179aec9 · engine 278103a97da5
+			64 button (collapsed) 版の詳細・共有するもの, Secondary Actions: Expand
+				65 text 版の詳細・共有するもの
+			66 text 保存範囲: dispatch 8件 / seek 1件 / reset 0件 / 手動試験 0件。条件選択はdispatchの内訳として操作来歴に表示します。破棄経路・reset前・ghost・手動試験も含む全記録を保存します。モデル本文・DOM・表示設定は含みません。読込後も現在の表示設定を使います。
+			67 button シナリオを保存
+			68 container
+				69 text シナリオを読み込む 
+				70 button シナリオを読み込む
+			71 text アクティブな frame の表示（本体）と掲示中カード
+			72 checkbox (settable, integer) Description: アクションを表示, Value: 1
+			73 checkbox (settable, integer) Description: 部品の状態を表示, Value: 1
+			74 button 画面外 component の姿切替（gate 試験用）
+			75 text 今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。
+			76 text 文書A
+			77 text 共有 (singleton) · 初期
+			78 container
+				79 button (expanded) 文書操作 → 文書操作群 · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					80 text 文書操作
+					81 text  → 文書操作群 · variantなし · 
+					82 text 包含の初期値 · 初期
+				83 text Open Save 文書名と親フォルダ
+			84 container
+				85 button (expanded) 表示操作 → 表示操作群 · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					86 text 表示操作
+					87 text  → 表示操作群 · variantなし · 
+					88 text 包含の初期値 · 初期
+				89 text Source Split Diagram Sidebar
+			90 container
+				91 button (expanded) 文書メニュー → 文書コマンド群 · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					92 text 文書メニュー
+					93 text  → 文書コマンド群 · variantなし · 
+					94 text 包含の初期値 · 初期
+				95 text FormatFlows FormatFlat InspectNormalizedEdges
+			96 container
+				97 button (expanded) 作業面 → 作業面A · ##並列 · 共有 (singleton) · DSL, Secondary Actions: Collapse
+					98 text 作業面
+					99 text  → 作業面A · ##並列 · 
+					100 text 共有 (singleton) · DSL
+				101 text ソース 図
+			102 container
+				103 button (expanded) 診断 → 図の状態A · ##最新 · 共有 (singleton) · 初期, Secondary Actions: Collapse
+					104 text 診断
+					105 text  → 図の状態A · ##最新 · 
+					106 text 共有 (singleton) · 初期
+				107 text 最新の図
+			108 container
+				109 button (expanded) 保存状態 → 状態A · ##保存済 · 共有 (singleton) · DSL, Secondary Actions: Collapse
+					110 text 保存状態
+					111 text  → 状態A · ##保存済 · 
+					112 text 共有 (singleton) · DSL
+				113 text A.pfdsl — Saved
+			114 button (expanded) 検査結果 → 正規化A · ##非表示 · 共有 (singleton) · DSL, Secondary Actions: Collapse
+				115 text 検査結果
+				116 text  → 正規化A · ##非表示 · 
+				117 text 共有 (singleton) · DSL
+			118 container
+				119 button (expanded) タブ → タブ一覧 · variantなし · 包含の初期値 · 初期, Secondary Actions: Collapse
+					120 text タブ
+					121 text  → タブ一覧 · variantなし · 
+					122 text 包含の初期値 · 初期
+				123 text A B
+			124 button 切替(B) component common
+				125 text 切替(B)
+				126 text component common
+			127 button 編集 component common
+				128 text 編集
+				129 text component common
+			130 button 図のみ component common
+				131 text 図のみ
+				132 text component common
+			133 button 並列 component common
+				134 text 並列
+				135 text component common
+			136 button ソースのみ component common
+				137 text ソースのみ
+				138 text component common
+			139 text 正規化
+			140 text component common
+			141 button [有効な入力]
+			142 button [入力エラー]
+			143 text 保存
+			144 text component common
+			145 button [成功]
+			146 button [外部変更]
+			147 button 入力エラー発生 component common
+				148 text 入力エラー発生
+				149 text component common
+			150 button 入力修正 component common
+				151 text 入力修正
+				152 text component common
+			153 button 外部変更確認 component common
+				154 text 外部変更確認
+				155 text component common
+			156 container
+				157 button (expanded) スタック, Help: スタック — 今積み重なっている画面。プッシュダウン構成として読める, Secondary Actions: Collapse
+					158 text スタック
+				159 text 今積み重なっている画面。プッシュダウン構成として読める。上が現在地
+				160 text ▌
+				161 text 文書A @a 開始
+			162 container
+				163 button (expanded) 遷移マップ, Help: 遷移マップ — 画面間の遷移関係（表示のみ。状態遷移図として読める）, Secondary Actions: Collapse
+					164 text 遷移マップ
+				165 text 画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。
+				166 button 設定を保存
+				167 checkbox (settable, integer) Description: 全体を見る, Value: 0
+				168 image
+					169 text 開始
+					170 text 文書A
+					171 text 文書B
+					172 text 比較
+
+The focused UI element is 0 AXWebArea shitae simulator, URL: 127.0.0.1:8765/evidence/astra-models-proposed.html

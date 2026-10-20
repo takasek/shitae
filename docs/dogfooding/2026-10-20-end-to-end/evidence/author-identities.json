@@ -1,0 +1,64 @@
+[
+  {
+    "model": "models/author/library-v1.shitae",
+    "html": "evidence/author/library-v1.html",
+    "cli": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "library-v1",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "library-v1",
+          "sourceSha256": "01588808b8a9c6f0946eaba171da015bf7e884cf9b2bd7b265795c627e6a464f",
+          "file": "/private/tmp/shitae-e2e-20261020-01a1570c/docs/dogfooding/2026-10-20-end-to-end/models/author/library-v1.shitae"
+        }
+      ],
+      "modelId": "01022bc25e3f18857b85ffff05f1833e25b14cd920e55a58615f958c527aae6b"
+    },
+    "gui": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "library-v1",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "library-v1",
+          "sourceSha256": "01588808b8a9c6f0946eaba171da015bf7e884cf9b2bd7b265795c627e6a464f",
+          "file": "library-v1.shitae"
+        }
+      ],
+      "modelId": "01022bc25e3f18857b85ffff05f1833e25b14cd920e55a58615f958c527aae6b"
+    },
+    "sameEngineAndModel": true
+  },
+  {
+    "model": "models/author/revised/library-v1.shitae",
+    "html": "evidence/author/library-v2.html",
+    "cli": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "library-v1",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "library-v1",
+          "sourceSha256": "3e03a38ee6f0d8f0396769c6573f2e46c64a2b2f0f1f8d6b13cec19398309ed6",
+          "file": "/private/tmp/shitae-e2e-20261020-01a1570c/docs/dogfooding/2026-10-20-end-to-end/models/author/revised/library-v1.shitae"
+        }
+      ],
+      "modelId": "3d6bd2f2364c9bc254a4742a1052ed9935dc0b326b730b117cb737be0aa8e236"
+    },
+    "gui": {
+      "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+      "entryModule": "library-v1",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "library-v1",
+          "sourceSha256": "3e03a38ee6f0d8f0396769c6573f2e46c64a2b2f0f1f8d6b13cec19398309ed6",
+          "file": "library-v1.shitae"
+        }
+      ],
+      "modelId": "3d6bd2f2364c9bc254a4742a1052ed9935dc0b326b730b117cb737be0aa8e236"
+    },
+    "sameEngineAndModel": true
+  }
+]

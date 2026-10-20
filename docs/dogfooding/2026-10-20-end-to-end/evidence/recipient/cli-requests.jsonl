@@ -1,0 +1,4 @@
+{"id":"before","command":"query","select":["state","actions","metadata","provenanceSummary","provenance"],"provenance":{"limit":20}}
+{"id":"resume","command":"dispatch","handle":"ecb34fbf-20c1-4c28-8d81-5549d0acfd87:9:0"}
+{"id":"after","command":"query","select":["state","provenanceSummary"]}
+{"id":"save","command":"exportScenario"}

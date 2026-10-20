@@ -1,0 +1,9 @@
+/private/tmp/shitae-e2e-20261020-01a1570c/docs/dogfooding/2026-10-20-end-to-end/models/saved/sol/models/recovery.shitae:37: [warning] W103: component 'EditorVersion' は要素もインタラクションも持たない
+/private/tmp/shitae-e2e-20261020-01a1570c/docs/dogfooding/2026-10-20-end-to-end/models/saved/sol/models/recovery.shitae:38: [warning] W103: component 'ObservedDisk' は要素もインタラクションも持たない
+/private/tmp/shitae-e2e-20261020-01a1570c/docs/dogfooding/2026-10-20-end-to-end/models/saved/sol/models/recovery.shitae:39: [warning] W103: component 'ReviewAndSaveHere' は要素もインタラクションも持たない
+/private/tmp/shitae-e2e-20261020-01a1570c/docs/dogfooding/2026-10-20-end-to-end/models/saved/sol/models/recovery.shitae:40: [warning] W103: component 'SaveAs' は要素もインタラクションも持たない
+/private/tmp/shitae-e2e-20261020-01a1570c/docs/dogfooding/2026-10-20-end-to-end/models/saved/sol/models/recovery.shitae:41: [warning] W103: component 'UseCurrentDiskVersion' は要素もインタラクションも持たない
+/private/tmp/shitae-e2e-20261020-01a1570c/docs/dogfooding/2026-10-20-end-to-end/models/saved/sol/models/recovery.shitae:42: [warning] W103: component 'KeepEditing' は要素もインタラクションも持たない
+/private/tmp/shitae-e2e-20261020-01a1570c/docs/dogfooding/2026-10-20-end-to-end/models/saved/sol/models/recovery.shitae:43: [warning] W103: component 'ChooseAnotherFile' は要素もインタラクションも持たない
+/private/tmp/shitae-e2e-20261020-01a1570c/docs/dogfooding/2026-10-20-end-to-end/models/saved/sol/models/recovery.shitae:44: [warning] W103: component 'ReplaceObservedVersion' は要素もインタラクションも持たない
+/private/tmp/shitae-e2e-20261020-01a1570c/docs/dogfooding/2026-10-20-end-to-end/models/saved/sol/models/recovery.shitae:45: [warning] W103: component 'UseDiskVersion' は要素もインタラクションも持たない

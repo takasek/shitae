@@ -1,0 +1,9 @@
+// 同じ内容の軽いグループをinlineと名前付きcomponentで比較する。
+# 比較画面
+inline群: { New; Save; Format }
+名前付き群: 操作群
+
+# 操作群
+New
+Save
+Format

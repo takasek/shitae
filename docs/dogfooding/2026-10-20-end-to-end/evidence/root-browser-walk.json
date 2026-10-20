@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-20",
+  "evaluator": "root Codex AI agent, familiar with prior evidence",
+  "surface": "real ChatGPT in-app browser via cua, loopback HTTP",
+  "astra": {
+    "html": "astra-models-proposed.html",
+    "steps": [
+      {"action":"開く(開始ボタン)","actual":"文書A"},
+      {"action":"編集","actual":"A未保存"},
+      {"action":"保存","branch":"成功","actual":"A保存済"},
+      {"action":"切替(B)","actual":"文書B"},
+      {"action":"編集","actual":"B.pfdsl — Edited、状態B##未保存、共有 singleton、DSL"},
+      {"display":"部品の状態を表示をon","actual":"scope/variant/originを表示"},
+      {"action":"切替(A)","actual":"A.pfdsl — Saved、状態A##保存済"},
+      {"action":"図のみ","actual":"作業面A##図中心"},
+      {"action":"ノードからソースへ","actual":"作業面A##並列、active文書A、後続effectは文字列"},
+      {"display":"操作8を展開","actual":"結果1=set、結果2=focusのeffect"},
+      {"seek":"結果1 / 観測1（途中）","actual":"cursor10、latest11、ghost1"},
+      {"save":"シナリオを保存","artifact":"../scenarios/astra-gui-ghost.scenario.json","actual":"download取得。browser tool呼出しは約680秒待機。製品の保存処理時間とは区別"}
+    ],
+    "screenshots":["astra-b-edited.png","astra-ghost.png"],
+    "observations":["astra-b-edited.txt","astra-a-saved.txt","astra-node-return.txt","astra-ghost.txt"]
+  },
+  "sol": {
+    "html":"sol-models-proposed.html",
+    "steps":[
+      {"action":"Conflict","actual":"DocumentStatus##Conflict、RecoveryNotice掲示"},
+      {"display":"部品の状態を表示をon","actual":"共有状態のvariantとDSL由来を表示"},
+      {"action":"Review","actual":"VersionReview、掲示カードなし"},
+      {"action":"KeepEditing","actual":"Workspace##Split、競合保持、RecoveryNotice再掲示"},
+      {"action":"ParseError","actual":"DocumentStatus##Invalid、DiagramView##Error"},
+      {"action":"DiagramOnly","actual":"Workspace##Diagram、NodeDoubleClickは操作ボタンでなく無効表示"},
+      {"action":"ValidInput","actual":"DocumentStatus##Valid、DiagramView##Ready、NodeDoubleClick有効"},
+      {"action":"NodeDoubleClick","actual":"Workspace##Split、RecoveryNotice残存。旧モデルの独立状態軸混同は既知#25"},
+      {"action":"CloseLastDocument","actual":"Workspace##NoDocument、navigation/startのみ、通知消失"}
+    ],
+    "screenshots":["sol-keep-editing.png","sol-empty.png"],
+    "observations":["sol-review.txt","sol-keep-editing.txt","sol-parse-error.txt","sol-valid-with-notice.txt","sol-empty.txt"]
+  },
+  "inlineRepro":{"html":"astra-models-inline-repro.html","actual":"inline群と名前付き群双方にNew Save Format","screenshot":"inline-repro.png","observation":"inline-repro.txt"},
+  "limits":["No native PFDSL operation, actual file save, focus move or network effect proven","No internal runtime function or DOM stub used for these browser actions","No timing improvement or general human usability inference"]
+}

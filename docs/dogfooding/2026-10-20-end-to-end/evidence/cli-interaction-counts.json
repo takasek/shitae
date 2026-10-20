@@ -1,0 +1,113 @@
+{
+  "alias-cli.jsonl": {
+    "requests": 3,
+    "responses": 3,
+    "commands": {
+      "query": 2,
+      "setTestVariant": 1
+    },
+    "querySelections": {
+      "actions,state,metadata": 1,
+      "actions": 1
+    },
+    "rejected": 0
+  },
+  "astra-cli.jsonl": {
+    "requests": 19,
+    "responses": 19,
+    "commands": {
+      "query": 10,
+      "dispatch": 8,
+      "exportScenario": 1
+    },
+    "querySelections": {
+      "actions,metadata": 1,
+      "actions": 7,
+      "state": 1,
+      "action": 1
+    },
+    "rejected": 0
+  },
+  "astra-current-cli.jsonl": {
+    "requests": 13,
+    "responses": 13,
+    "commands": {
+      "query": 7,
+      "dispatch": 5,
+      "exportScenario": 1
+    },
+    "querySelections": {
+      "actions": 6,
+      "state": 1
+    },
+    "rejected": 0
+  },
+  "astra-ghost-branched-replay.jsonl": {
+    "requests": 1,
+    "responses": 1,
+    "commands": {
+      "query": 1
+    },
+    "querySelections": {
+      "provenanceSummary": 1
+    },
+    "rejected": 0
+  },
+  "astra-ghost-replay.jsonl": {
+    "requests": 3,
+    "responses": 3,
+    "commands": {
+      "query": 1,
+      "dispatch": 1,
+      "exportScenario": 1
+    },
+    "querySelections": {
+      "actions,provenanceSummary,review": 1
+    },
+    "rejected": 0
+  },
+  "astra-replay.jsonl": {
+    "requests": 3,
+    "responses": 3,
+    "commands": {
+      "query": 1,
+      "dispatch": 1,
+      "exportScenario": 1
+    },
+    "querySelections": {
+      "actions,state": 1
+    },
+    "rejected": 0
+  },
+  "recovery-cli.jsonl": {
+    "requests": 9,
+    "responses": 9,
+    "commands": {
+      "query": 4,
+      "dispatch": 4,
+      "exportScenario": 1
+    },
+    "querySelections": {
+      "actions,metadata": 1,
+      "actions": 3
+    },
+    "rejected": 0
+  },
+  "sol-cli.jsonl": {
+    "requests": 19,
+    "responses": 19,
+    "commands": {
+      "query": 10,
+      "dispatch": 8,
+      "exportScenario": 1
+    },
+    "querySelections": {
+      "actions,metadata": 1,
+      "actions": 4,
+      "actions,state": 3,
+      "action": 1,
+      "state,history": 1
+    },
+    "rejected": 0
+  }
+}

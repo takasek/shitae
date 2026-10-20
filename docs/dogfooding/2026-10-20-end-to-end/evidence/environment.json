@@ -1,0 +1,11 @@
+{
+  "sha": "3c68321001771faab35a35fc212056f54bb02bf1",
+  "os": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434\n",
+  "arch": "arm64",
+  "node": "v26.5.0",
+  "pnpm": "10.33.2",
+  "lockSha256": "7913c3d67f06c818f70e61a07eb14a798956431a5dcdf2fcfbd36010066b6bf8",
+  "evaluator": "Codex root + isolated author and recipient AI agents; no human evaluation",
+  "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+  "browser": "ChatGPT in-app browser, ChatGPT.app 26.1013.40934 build 20770 (com.openai.codex); underlying engine version not exposed by browser tooling"
+}

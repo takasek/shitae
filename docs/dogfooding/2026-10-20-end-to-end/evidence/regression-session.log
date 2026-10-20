@@ -1,0 +1,11 @@
+
+ RUN  v3.2.4 /private/tmp/shitae-e2e-20261020-01a1570c/packages/session
+
+ ✓ test/provenance.test.ts (4 tests) 20ms
+ ✓ test/scenario.test.ts (11 tests) 103ms
+
+ Test Files  2 passed (2)
+      Tests  15 passed (15)
+   Start at  11:08:54
+   Duration  337ms (transform 79ms, setup 0ms, collect 144ms, tests 124ms, environment 0ms, prepare 75ms)
+

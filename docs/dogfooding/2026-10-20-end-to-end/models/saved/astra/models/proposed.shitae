@@ -1,0 +1,117 @@
+// 改善案。実装済み機能の記述ではない。寸法や実ディスク競合を検証しない。
+// 文書ごとの表示状態をsingletonで有限2文書に抽象化。
+# 開始
+開始ボタン
+> 開く(開始ボタン) -> present(文書A, @a)
+
+#! 文書A
+文書操作: 文書操作群
+表示操作: 表示操作群
+文書メニュー: 文書コマンド群
+作業面: 作業面A
+診断: 図の状態A
+保存状態: 状態A
+検査結果: 正規化A
+タブ: タブ一覧
+> 切替(B) -> switch(文書B, @b)
+> 編集 -> set(状態A##未保存) ; set(正規化A##非表示)
+> 図のみ -> set(作業面A##図中心)
+> 並列 -> set(作業面A##並列)
+> ソースのみ -> set(作業面A##編集中心)
+> 正規化 -> [有効な入力] set(正規化A##表示)
+>     [入力エラー] set(図の状態A##エラー) ; エラー箇所を示す
+> 保存 -> [成功] set(状態A##保存済)
+>     [外部変更] set(状態A##外部変更)
+> 入力エラー発生 -> set(図の状態A##エラー)
+> 入力修正 -> set(図の状態A##最新)
+> 外部変更確認 -> present(比較, @review)
+
+#! 文書B
+文書操作: 文書操作群
+表示操作: 表示操作群
+作業面: 並列作業面
+保存状態: 状態B
+タブ: タブ一覧
+> 切替(A) -> switch(文書A, @a)
+> 編集 -> set(状態B##未保存)
+
+#! 作業面A
+## 並列
+ソース
+図
+## 編集中心
+ソース
+図を表示
+## 図中心
+図
+ソースを表示
+> ノードからソースへ -> set(作業面A##並列) ; 該当行へ移動しエディタへフォーカス
+
+#! 状態A
+## 保存済
+"A.pfdsl — Saved"
+## 未保存
+"A.pfdsl — Edited"
+## 外部変更
+"A.pfdsl — Changed on disk"
+Review
+SaveCopy
+
+#! 状態B
+## 保存済
+"B.pfdsl — Saved"
+## 未保存
+"B.pfdsl — Edited"
+
+#! 図の状態A
+## 最新
+最新の図
+## エラー
+"Diagram unavailable — fix the source error"
+エラー位置へ
+> 移動(エラー位置へ) -> set(作業面A##並列) ; ソースの診断位置へフォーカス
+
+#! 正規化A
+## 非表示
+## 表示
+"Normalized edges — A.pfdsl"
+Copy
+Close
+> 閉じる(Close) -> set(正規化A##非表示) ; 起動項目へフォーカスを戻す
+> Escape -> set(正規化A##非表示) ; 起動項目へフォーカスを戻す
+
+# 比較
+対象名とパス
+編集内容とディスク内容の比較
+KeepEditing
+ReplaceDisk
+UseDisk
+> 取消(KeepEditing) -> dismiss(@review)
+> 保存(ReplaceDisk) -> [再確認一致] set(状態A##保存済) ; dismiss(@review)
+>     [再変更] 比較内容を最新へ更新し再確認を要求
+> 取込(UseDisk) -> [再確認一致] 編集内容を置換 ; set(状態A##保存済) ; dismiss(@review)
+// 置換と取込の明示確認、最新revision照合は実装の責任。
+
+# 文書操作群
+Open
+Save
+文書名と親フォルダ
+
+# 表示操作群
+Source
+Split
+Diagram
+Sidebar
+
+# 文書コマンド群
+FormatFlows
+FormatFlat
+InspectNormalizedEdges
+
+# タブ一覧
+A
+B
+
+# 並列作業面
+ソース
+図
