@@ -8,7 +8,7 @@ describe('state display presentation persistence', () => {
   it('preserves the specific duplicate-target control focus and inclusion fold, with no Session mutation', () => {
     let nodes: any[] = [];
     const document: any = {activeElement:null};
-    const app: any = {contains:(el:any)=>nodes.includes(el), querySelectorAll:(selector:string)=>nodes.filter(n => selector.startsWith('details') ? n.tag === 'details' && n.dataset.stateKey : n.attrs['data-focus-key'] || n.attrs.onchange)};
+    const app: any = {contains:(el:any)=>nodes.includes(el), querySelectorAll:(selector:string)=>nodes.filter(n => selector.includes('data-history-key') ? false : selector.startsWith('details') ? n.tag === 'details' && n.dataset.stateKey : n.attrs['data-focus-key'] || n.attrs.onchange)};
     Object.defineProperty(app,'innerHTML',{set(html:string){
       document.activeElement=null;
       nodes=[...html.matchAll(/<(details|input|select|button|div)\s+([^>]+)>/g)].map(m=>{

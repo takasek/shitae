@@ -1,0 +1,4 @@
+Browser tab: 1, Title: "履歴UI設計案 v3", URL: "http://127.0.0.1:8875/ui-proposal.html".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 190-199
+The focused UI element is 122 button ここから操作を続ける…, ID: resume

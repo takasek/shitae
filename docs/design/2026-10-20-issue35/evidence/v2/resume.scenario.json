@@ -1,0 +1,1565 @@
+{
+  "format": "shitae-scenario",
+  "formatVersion": 1,
+  "protocolVersion": 1,
+  "model": {
+    "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+    "modelId": "db12c8a83139d7ccefde730a3263513a2145d126684f7e2ad6af27b8ecd5670e",
+    "entryModule": "history-flow",
+    "sourceBasis": "source-bytes",
+    "manifest": [
+      {
+        "module": "history-flow",
+        "sourceSha256": "de8b8479f9df9e2990332ffa6d390313b5cd1101e02c3f028973756ff1990460"
+      }
+    ]
+  },
+  "initialDigest": "9916125d0ab5a7cbf6115e2ab195f8b4c24982677206b49d37350d2a4c6bfaca",
+  "steps": [
+    {
+      "step": 1,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "history-flow",
+            "component": "履歴作業場",
+            "variant": null
+          },
+          "source": {
+            "module": "history-flow",
+            "span": {
+              "offset": 201,
+              "length": 21,
+              "line": 9,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "1865a400c940972c1fb695b4c5a83b9cef5195aec77df44a5319f5a02b6ba16a"
+        },
+        "branch": null
+      },
+      "afterDigest": "f7ef277ce1e99f11492213d5faf2dd6dcd9e50130e03f7a1baff5b5963d91b2f",
+      "observations": [
+        {
+          "viewDigest": "5d5ab3e8b766279d463f41530dd14527b0c27d62bea1ed431ed89cdc6774a0be"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "overlays"
+        ]
+      },
+      "outputDigest": "4cd0a0d95765a7a1eec8255f5780ce1e54ff9288607da9d7d9a2932dd2be1e59"
+    },
+    {
+      "step": 2,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "history-flow",
+            "component": "操作詳細",
+            "variant": null
+          },
+          "source": {
+            "module": "history-flow",
+            "span": {
+              "offset": 485,
+              "length": 49,
+              "line": 40,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "overlay:操作詳細",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "eae90a1aabc2f8c0b8047e8dfa26856932f2a53245737405c6e21f058816ea58"
+        },
+        "branch": null
+      },
+      "afterDigest": "4c6c9f21002e206dc4f6cb2b40d0680cadc08def75fa5960e31eed33126494a4",
+      "observations": [
+        {
+          "viewDigest": "5d5ab3e8b766279d463f41530dd14527b0c27d62bea1ed431ed89cdc6774a0be"
+        },
+        {
+          "viewDigest": "9d6c8692cdd3e56e20dae825301d72ef491c9d97c780815c036291ab91d654d4"
+        },
+        {
+          "viewDigest": "73df1442d27c2422c1694dfdddc7f6716c410de053bbadbb08da75ca3740b6e8"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "overlays",
+          "sharedVariants",
+          "origins"
+        ]
+      },
+      "outputDigest": "c56b16529b02c007f28fb5ba5e35771af5e435dbca409c2f9c3eded4df78a5ac"
+    },
+    {
+      "step": 3,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "history-flow",
+            "component": "B参照",
+            "variant": null
+          },
+          "source": {
+            "module": "history-flow",
+            "span": {
+              "offset": 802,
+              "length": 27,
+              "line": 51,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "overlay:B参照",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "f89c84daf2d10b07d5ee7a05c0faf7d4d98d725f46a147d1692766892543e4bb"
+        },
+        "branch": null
+      },
+      "afterDigest": "6f5af5109ee30c5ab808da483482a0c8426e07a50687fd3e918d222dea45f751",
+      "observations": [
+        {
+          "viewDigest": "8e8d292a980f8b0fb61eea621cb55891b53a0efd4862d742b72a6e87f48b40b4"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 4,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "history-flow",
+            "component": "B移動確認",
+            "variant": null
+          },
+          "source": {
+            "module": "history-flow",
+            "span": {
+              "offset": 916,
+              "length": 89,
+              "line": 59,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "36b9a9d4b118d915e2ce4764bfd3a0d01a0dc4a4104539bdf4a16fff650d7917"
+        },
+        "branch": {
+          "label": "対象が保持中",
+          "results": [
+            {
+              "resultIndex": 0,
+              "source": {
+                "module": "history-flow",
+                "span": {
+                  "offset": 916,
+                  "length": 89,
+                  "line": 59,
+                  "col": 1
+                }
+              }
+            },
+            {
+              "resultIndex": 1,
+              "source": {
+                "module": "history-flow",
+                "span": {
+                  "offset": 916,
+                  "length": 89,
+                  "line": 59,
+                  "col": 1
+                }
+              }
+            },
+            {
+              "resultIndex": 2,
+              "source": {
+                "module": "history-flow",
+                "span": {
+                  "offset": 916,
+                  "length": 89,
+                  "line": 59,
+                  "col": 1
+                }
+              }
+            },
+            {
+              "resultIndex": 3,
+              "source": {
+                "module": "history-flow",
+                "span": {
+                  "offset": 916,
+                  "length": 89,
+                  "line": 59,
+                  "col": 1
+                }
+              }
+            },
+            {
+              "resultIndex": 4,
+              "source": {
+                "module": "history-flow",
+                "span": {
+                  "offset": 916,
+                  "length": 89,
+                  "line": 59,
+                  "col": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      "afterDigest": "4cf1eb79b438c5bf69b580838a22317fdd703e77a234c516537260f0a4f90e00",
+      "observations": [
+        {
+          "viewDigest": "17aa948d2b68b24b7ba1aea222f757949ba8c0ea7bc0fe8f11927979b3d4f9a7"
+        },
+        {
+          "viewDigest": "24cd34260915c8febd2cff7374f2f545d7bd1c79e3e1408988becb4ed68efab7"
+        },
+        {
+          "viewDigest": "a5594e45fa3cd9f9a53cb050fcc2ddcefdd12e95949a75fc309035c817548aa4"
+        },
+        {
+          "viewDigest": "a0e5c5b8971df2d41ca6c80ec416ead0b737996fd2777b8589f412a8b7ffa391"
+        },
+        {
+          "viewDigest": "6b068be62bc1b017ee02513bbd6c519e387cb9ba9cddcecd020bed2b2103ddeb"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames",
+          "overlays",
+          "sharedVariants",
+          "origins"
+        ]
+      },
+      "outputDigest": "620a3acc58bf103715bc9c137f3c55b29381a94b789770ce9da8cd5d7ce3cae3"
+    }
+  ],
+  "final": {
+    "view": {
+      "view": {
+        "location": {
+          "module": "history-flow",
+          "component": "履歴作業場",
+          "variant": null
+        },
+        "state": {
+          "frames": [
+            {
+              "id": 0,
+              "parentId": null,
+              "stack": [
+                {
+                  "module": "history-flow",
+                  "component": "履歴作業場",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                }
+              ],
+              "barrier": false,
+              "beginsSession": null,
+              "origin": "root"
+            }
+          ],
+          "activeFrameId": 0,
+          "nextFrameId": 2,
+          "activePath": [
+            0
+          ],
+          "overlays": [
+            {
+              "module": "history-flow",
+              "component": "操作詳細",
+              "variant": null,
+              "singleton": false,
+              "scope": "overlay-entry",
+              "origin": "initial"
+            },
+            {
+              "module": "history-flow",
+              "component": "Bで再開",
+              "variant": null,
+              "singleton": false,
+              "scope": "overlay-entry",
+              "origin": "initial"
+            }
+          ],
+          "sharedVariants": [
+            {
+              "module": "history-flow",
+              "component": "参照表示",
+              "variant": "現在",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "history-flow",
+              "component": "実行位置",
+              "variant": "B",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "history-flow",
+              "component": "未来の扱い",
+              "variant": "保持",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "initial"
+            }
+          ],
+          "testVariants": [],
+          "componentValues": [
+            {
+              "module": "history-flow",
+              "component": "Bで再開",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "history-flow",
+              "component": "B参照",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "history-flow",
+              "component": "B移動確認",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "history-flow",
+              "component": "C参照",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "history-flow",
+              "component": "C移動確認",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "history-flow",
+              "component": "全共有状態",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "history-flow",
+              "component": "全共有状態の案内",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "history-flow",
+              "component": "参照不可",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "history-flow",
+              "component": "参照表示",
+              "variant": "現在",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "history-flow",
+              "component": "実行位置",
+              "variant": "B",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "history-flow",
+              "component": "履歴作業場",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "history-flow",
+              "component": "操作詳細",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "history-flow",
+              "component": "未来の扱い",
+              "variant": "保持",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "initial"
+            },
+            {
+              "module": "history-flow",
+              "component": "無観測結果",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "history-flow",
+              "component": "破棄記録",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "history-flow",
+              "component": "読込要約",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            }
+          ],
+          "gateTargets": [],
+          "inclusion": {
+            "main": {
+              "module": "history-flow",
+              "component": "履歴作業場",
+              "root": "main",
+              "variant": null,
+              "singleton": false,
+              "scope": "frame-location",
+              "origin": "initial",
+              "source": {
+                "module": "history-flow",
+                "span": {
+                  "offset": 156,
+                  "length": 7,
+                  "line": 4,
+                  "col": 1
+                }
+              },
+              "children": [
+                {
+                  "name": "実行",
+                  "root": "main",
+                  "path": [
+                    0
+                  ],
+                  "source": {
+                    "module": "history-flow",
+                    "span": {
+                      "offset": 164,
+                      "length": 8,
+                      "line": 5,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "history-flow",
+                    "component": "実行位置"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": "B",
+                    "singleton": true,
+                    "scope": "singleton-shared",
+                    "origin": "dsl"
+                  },
+                  "componentSource": {
+                    "module": "history-flow",
+                    "span": {
+                      "offset": 283,
+                      "length": 7,
+                      "line": 13,
+                      "col": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "name": "記録2の結果1の後",
+                      "root": "main",
+                      "path": [
+                        0,
+                        0
+                      ],
+                      "source": {
+                        "module": "history-flow",
+                        "span": {
+                          "offset": 311,
+                          "length": 9,
+                          "line": 17,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "history-flow",
+                        "component": "記録2の結果1の後"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "name": "未来",
+                  "root": "main",
+                  "path": [
+                    1
+                  ],
+                  "source": {
+                    "module": "history-flow",
+                    "span": {
+                      "offset": 173,
+                      "length": 9,
+                      "line": 6,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "history-flow",
+                    "component": "未来の扱い"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": "保持",
+                    "singleton": true,
+                    "scope": "singleton-shared",
+                    "origin": "initial"
+                  },
+                  "componentSource": {
+                    "module": "history-flow",
+                    "span": {
+                      "offset": 338,
+                      "length": 8,
+                      "line": 21,
+                      "col": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "name": "Cは保持中",
+                      "root": "main",
+                      "path": [
+                        1,
+                        0
+                      ],
+                      "source": {
+                        "module": "history-flow",
+                        "span": {
+                          "offset": 353,
+                          "length": 5,
+                          "line": 23,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "history-flow",
+                        "component": "Cは保持中"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "name": "表示",
+                  "root": "main",
+                  "path": [
+                    2
+                  ],
+                  "source": {
+                    "module": "history-flow",
+                    "span": {
+                      "offset": 183,
+                      "length": 8,
+                      "line": 7,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "history-flow",
+                    "component": "参照表示"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": "現在",
+                    "singleton": true,
+                    "scope": "singleton-shared",
+                    "origin": "dsl"
+                  },
+                  "componentSource": {
+                    "module": "history-flow",
+                    "span": {
+                      "offset": 373,
+                      "length": 7,
+                      "line": 27,
+                      "col": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "name": "現在の実行画面",
+                      "root": "main",
+                      "path": [
+                        2,
+                        0
+                      ],
+                      "source": {
+                        "module": "history-flow",
+                        "span": {
+                          "offset": 387,
+                          "length": 7,
+                          "line": 29,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "history-flow",
+                        "component": "現在の実行画面"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "name": "要約",
+                  "root": "main",
+                  "path": [
+                    3
+                  ],
+                  "source": {
+                    "module": "history-flow",
+                    "span": {
+                      "offset": 192,
+                      "length": 8,
+                      "line": 8,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "history-flow",
+                    "component": "読込要約"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  "componentSource": {
+                    "module": "history-flow",
+                    "span": {
+                      "offset": 1813,
+                      "length": 6,
+                      "line": 94,
+                      "col": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "name": "読込時点の画面と操作条件に関係する共有状態のみ",
+                      "root": "main",
+                      "path": [
+                        3,
+                        0
+                      ],
+                      "source": {
+                        "module": "history-flow",
+                        "span": {
+                          "offset": 1820,
+                          "length": 23,
+                          "line": 95,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "history-flow",
+                        "component": "読込時点の画面と操作条件に関係する共有状態のみ"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    },
+                    {
+                      "name": "全共有状態ではない",
+                      "root": "main",
+                      "path": [
+                        3,
+                        1
+                      ],
+                      "source": {
+                        "module": "history-flow",
+                        "span": {
+                          "offset": 1844,
+                          "length": 9,
+                          "line": 96,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "history-flow",
+                        "component": "全共有状態ではない"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            "overlays": [
+              {
+                "module": "history-flow",
+                "component": "操作詳細",
+                "root": "overlay:操作詳細",
+                "variant": null,
+                "singleton": false,
+                "scope": "overlay-entry",
+                "origin": "initial",
+                "source": {
+                  "module": "history-flow",
+                  "span": {
+                    "offset": 452,
+                    "length": 6,
+                    "line": 37,
+                    "col": 1
+                  }
+                },
+                "children": [
+                  {
+                    "name": "条件は承認",
+                    "root": "overlay:操作詳細",
+                    "path": [
+                      0
+                    ],
+                    "source": {
+                      "module": "history-flow",
+                      "span": {
+                        "offset": 459,
+                        "length": 5,
+                        "line": 38,
+                        "col": 1
+                      }
+                    },
+                    "collection": false,
+                    "reference": {
+                      "module": "history-flow",
+                      "component": "条件は承認"
+                    },
+                    "kind": "unresolved",
+                    "children": []
+                  },
+                  {
+                    "name": "結果1と結果2は同じ画面名でも別の状態",
+                    "root": "overlay:操作詳細",
+                    "path": [
+                      1
+                    ],
+                    "source": {
+                      "module": "history-flow",
+                      "span": {
+                        "offset": 465,
+                        "length": 19,
+                        "line": 39,
+                        "col": 1
+                      }
+                    },
+                    "collection": false,
+                    "reference": {
+                      "module": "history-flow",
+                      "component": "結果1と結果2は同じ画面名でも別の状態"
+                    },
+                    "kind": "unresolved",
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "module": "history-flow",
+                "component": "Bで再開",
+                "root": "overlay:Bで再開",
+                "variant": null,
+                "singleton": false,
+                "scope": "overlay-entry",
+                "origin": "initial",
+                "source": {
+                  "module": "history-flow",
+                  "span": {
+                    "offset": 1084,
+                    "length": 6,
+                    "line": 62,
+                    "col": 1
+                  }
+                },
+                "children": [
+                  {
+                    "name": "Cは未来であり移動できる",
+                    "root": "overlay:Bで再開",
+                    "path": [
+                      0
+                    ],
+                    "source": {
+                      "module": "history-flow",
+                      "span": {
+                        "offset": 1091,
+                        "length": 12,
+                        "line": 63,
+                        "col": 1
+                      }
+                    },
+                    "collection": false,
+                    "reference": {
+                      "module": "history-flow",
+                      "component": "Cは未来であり移動できる"
+                    },
+                    "kind": "unresolved",
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "actions": {
+          "items": [
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "history-flow",
+                  "component": "履歴作業場",
+                  "variant": null
+                },
+                "source": {
+                  "module": "history-flow",
+                  "span": {
+                    "offset": 201,
+                    "length": 21,
+                    "line": 9,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "1865a400c940972c1fb695b4c5a83b9cef5195aec77df44a5319f5a02b6ba16a"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "history-flow",
+                  "component": "履歴作業場",
+                  "variant": null
+                },
+                "source": {
+                  "module": "history-flow",
+                  "span": {
+                    "offset": 223,
+                    "length": 30,
+                    "line": 10,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "a80894069b588a92b83b8abcebbefe3a8013b118e43819a8714574be23d92527"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "history-flow",
+                  "component": "履歴作業場",
+                  "variant": null
+                },
+                "source": {
+                  "module": "history-flow",
+                  "span": {
+                    "offset": 254,
+                    "length": 27,
+                    "line": 11,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "18f42f14f0506ecfcbed159bc17e2719d4bdf390003274098cc09259698d2742"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "history-flow",
+                  "component": "操作詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "history-flow",
+                  "span": {
+                    "offset": 485,
+                    "length": 49,
+                    "line": 40,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "overlay:操作詳細",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "eae90a1aabc2f8c0b8047e8dfa26856932f2a53245737405c6e21f058816ea58"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "history-flow",
+                  "component": "操作詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "history-flow",
+                  "span": {
+                    "offset": 535,
+                    "length": 55,
+                    "line": 41,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "overlay:操作詳細",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "ad6ee6ff3cb5da8579ed6b9b28ebdbfd786ac25f091fd9135c1df8ac69e4361d"
+              },
+              "branches": [
+                {
+                  "label": "保持中",
+                  "results": [
+                    {
+                      "resultIndex": 0,
+                      "source": {
+                        "module": "history-flow",
+                        "span": {
+                          "offset": 535,
+                          "length": 55,
+                          "line": 41,
+                          "col": 1
+                        }
+                      }
+                    },
+                    {
+                      "resultIndex": 1,
+                      "source": {
+                        "module": "history-flow",
+                        "span": {
+                          "offset": 535,
+                          "length": 55,
+                          "line": 41,
+                          "col": 1
+                        }
+                      }
+                    },
+                    {
+                      "resultIndex": 2,
+                      "source": {
+                        "module": "history-flow",
+                        "span": {
+                          "offset": 535,
+                          "length": 55,
+                          "line": 41,
+                          "col": 1
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "label": "破棄済み",
+                  "results": [
+                    {
+                      "resultIndex": 3,
+                      "source": {
+                        "module": "history-flow",
+                        "span": {
+                          "offset": 591,
+                          "length": 63,
+                          "line": 42,
+                          "col": 1
+                        }
+                      }
+                    },
+                    {
+                      "resultIndex": 4,
+                      "source": {
+                        "module": "history-flow",
+                        "span": {
+                          "offset": 591,
+                          "length": 63,
+                          "line": 42,
+                          "col": 1
+                        }
+                      }
+                    },
+                    {
+                      "resultIndex": 5,
+                      "source": {
+                        "module": "history-flow",
+                        "span": {
+                          "offset": 591,
+                          "length": 63,
+                          "line": 42,
+                          "col": 1
+                        }
+                      }
+                    },
+                    {
+                      "resultIndex": 6,
+                      "source": {
+                        "module": "history-flow",
+                        "span": {
+                          "offset": 591,
+                          "length": 63,
+                          "line": 42,
+                          "col": 1
+                        }
+                      }
+                    }
+                  ]
+                }
+              ],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "history-flow",
+                  "component": "操作詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "history-flow",
+                  "span": {
+                    "offset": 655,
+                    "length": 23,
+                    "line": 43,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "overlay:操作詳細",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "115a0d5a7659b13c9370ac641319a05f4063a32908581cd793c952245c69a5fc"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "history-flow",
+                  "component": "操作詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "history-flow",
+                  "span": {
+                    "offset": 679,
+                    "length": 26,
+                    "line": 44,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "overlay:操作詳細",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "e0567094fde3547cf3bda005548891642f5cc0443b42a7c7a1c1f4786b303e6c"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "history-flow",
+                  "component": "操作詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "history-flow",
+                  "span": {
+                    "offset": 706,
+                    "length": 22,
+                    "line": 45,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "overlay:操作詳細",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "1f871bc7cb67acb44b0de7fb5a1b26c5fa6d28db1eadc12744afafdddb15e6bb"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "history-flow",
+                  "component": "Bで再開",
+                  "variant": null
+                },
+                "source": {
+                  "module": "history-flow",
+                  "span": {
+                    "offset": 1104,
+                    "length": 49,
+                    "line": 64,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "overlay:Bで再開",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "3612fe679ad49ddd2705f3d3927765da629586929989cf19e59dc44f7f97d905"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "history-flow",
+                  "component": "Bで再開",
+                  "variant": null
+                },
+                "source": {
+                  "module": "history-flow",
+                  "span": {
+                    "offset": 1154,
+                    "length": 99,
+                    "line": 65,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "overlay:Bで再開",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "9d4ffc2710ac8feccac168dfc78986ba4d93b7f0dc7958be2a0009026b4005a7"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            }
+          ],
+          "back": {
+            "enabled": false,
+            "reason": "no-return-location"
+          }
+        }
+      },
+      "timeline": [
+        {
+          "resultIndex": null,
+          "source": null,
+          "kind": "transition",
+          "label": "起動",
+          "location": {
+            "module": "history-flow",
+            "component": "履歴作業場",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 0,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "history-flow",
+            "span": {
+              "offset": 201,
+              "length": 21,
+              "line": 9,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "show(操作詳細)",
+          "location": {
+            "module": "history-flow",
+            "component": "履歴作業場",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 1,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "history-flow",
+            "span": {
+              "offset": 485,
+              "length": 49,
+              "line": 40,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "hide(C参照)",
+          "location": {
+            "module": "history-flow",
+            "component": "履歴作業場",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 2,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "history-flow",
+            "span": {
+              "offset": 485,
+              "length": 49,
+              "line": 40,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(参照表示)",
+          "location": {
+            "module": "history-flow",
+            "component": "履歴作業場",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 2,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 2,
+          "source": {
+            "module": "history-flow",
+            "span": {
+              "offset": 485,
+              "length": 49,
+              "line": 40,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "show(B参照)",
+          "location": {
+            "module": "history-flow",
+            "component": "履歴作業場",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 2,
+            "observation": 2
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "history-flow",
+            "span": {
+              "offset": 802,
+              "length": 27,
+              "line": 51,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "present → B移動確認",
+          "location": {
+            "module": "history-flow",
+            "component": "B移動確認",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 3,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "history-flow",
+            "span": {
+              "offset": 916,
+              "length": 89,
+              "line": 59,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(実行位置)",
+          "location": {
+            "module": "history-flow",
+            "component": "B移動確認",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 4,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "history-flow",
+            "span": {
+              "offset": 916,
+              "length": 89,
+              "line": 59,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(参照表示)",
+          "location": {
+            "module": "history-flow",
+            "component": "B移動確認",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 4,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 2,
+          "source": {
+            "module": "history-flow",
+            "span": {
+              "offset": 916,
+              "length": 89,
+              "line": 59,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "hide(B参照)",
+          "location": {
+            "module": "history-flow",
+            "component": "B移動確認",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 4,
+            "observation": 2
+          }
+        },
+        {
+          "resultIndex": 3,
+          "source": {
+            "module": "history-flow",
+            "span": {
+              "offset": 916,
+              "length": 89,
+              "line": 59,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "dismiss → 履歴作業場",
+          "location": {
+            "module": "history-flow",
+            "component": "履歴作業場",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 4,
+            "observation": 3
+          }
+        },
+        {
+          "resultIndex": 4,
+          "source": {
+            "module": "history-flow",
+            "span": {
+              "offset": 916,
+              "length": 89,
+              "line": 59,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "show(Bで再開)",
+          "location": {
+            "module": "history-flow",
+            "component": "履歴作業場",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 4,
+            "observation": 4
+          }
+        }
+      ],
+      "cursor": {
+        "step": 4,
+        "observation": 4
+      }
+    },
+    "digest": "4cf1eb79b438c5bf69b580838a22317fdd703e77a234c516537260f0a4f90e00"
+  }
+}

@@ -1,0 +1,33 @@
+Browser tab: 1, Title: "履歴UI設計案 v3", URL: "http://127.0.0.1:8875/ui-proposal.html".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 177-192, 195-200
++		215 text 操作を続ける位置：記録15「申請を取り下げる」／条件：指定なし／結果1の後
++		216 text 見ている画面を切り替えました。操作を続ける位置は変わっていません。
++				217 text 文章のみ
++				218 text 文章のみ
++					219 text 文章のみ
++				220 text 文章のみ：この時点の画面は残っていません
++				221 text 文章のみ
++				222 text 文章のみ
++					223 text 画面を確認できる
++				224 text 文章のみ：この時点の画面は残っていません
++					225 text 画面を確認できる
++					226 text 画面を確認できる
++				227 text 画面を確認できる
++				228 text 画面を確認できる
++					229 text 画面を確認できる
++				230 text 画面を確認できる
++		231 container previewNotice
++			232 text 見ている時点：記録5「差し戻す」／条件：領収書不足／結果1の後
++			233 text 見ている画面だけを切り替えています。操作を続ける位置は変わりません。参照画面内の当時の操作は実行できません。
++			234 button 操作を続ける画面に戻る, ID: return
++			235 button ここから操作を続ける…, ID: resume
+~			75 heading 当時の画面：申請詳細, Value: 2, ID: screenTitle
++				236 text 当時の画面：申請詳細
++			237 text 一万二千円
++			238 text 要修正
++			239 text 未保存
++			240 text 記録5「差し戻す」／条件：領収書不足／結果1の後
++			241 text この枠は当時の画面を読むための表示です。当時の申請操作は実行できません。
++			242 text このデモで操作を続ける位置の資料：branched.scenario.json
+The focused UI element is 121 button 記録5・結果1の画面を見る

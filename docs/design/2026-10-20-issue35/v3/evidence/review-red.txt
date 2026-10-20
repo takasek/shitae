@@ -1,0 +1,57 @@
+✖ accepted no-op closes preview while retained future remains accessible (0.796084ms)
+✖ material selection matches exact position and retained history (0.074666ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 47.104125
+
+✖ failing tests:
+
+test at ../../../../../../private/tmp/shitae35-v3-fix/regression.test.mjs:6:1
+✖ accepted no-op closes preview while retained future remains accessible (0.796084ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + {
+  +   condition: '指定なし',
+  +   effect: 'set(申請状態)',
+  +   id: 12,
+  +   result: 1,
+  +   step: 10,
+  +   title: '支払いを予約する',
+  +   values: {
+  +     '保存状況': '保存済み',
+  +     '文書B': '確認済み',
+  +     '申請状態': '支払予定',
+  +     '申請額': '一万円'
+  +   }
+  + }
+  - null
+  
+      at TestContext.<anonymous> (file:///private/tmp/shitae35-v3-fix/regression.test.mjs:6:165)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { step: 10, result: 1, id: 12, title: '支払いを予約する', condition: '指定なし', effect: 'set(申請状態)', values: { '申請状態': '支払予定', '申請額': '一万円', '保存状況': '保存済み', '文書B': '確認済み' } },
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../private/tmp/shitae35-v3-fix/regression.test.mjs:7:1
+✖ material selection matches exact position and retained history (0.074666ms)
+  TypeError: t.scenarioName is not a function
+      at TestContext.<anonymous> (file:///private/tmp/shitae35-v3-fix/regression.test.mjs:7:114)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)

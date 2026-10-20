@@ -1,0 +1,21 @@
+Scope: 10 of 11 workspace projects
+packages/ast typecheck$ tsc --noEmit
+packages/ast typecheck: Done
+packages/parser typecheck$ tsc -p tsconfig.test.json
+packages/parser typecheck: Done
+packages/runtime typecheck$ tsc -p tsconfig.test.json
+packages/resolver typecheck$ tsc -p tsconfig.test.json
+packages/resolver typecheck: Done
+packages/runtime typecheck: Done
+packages/checker typecheck$ tsc -p tsconfig.test.json
+packages/session typecheck$ tsc -p tsconfig.test.json
+packages/transpiler-mermaid typecheck$ tsc -p tsconfig.test.json
+packages/transpiler-xstate typecheck$ tsc -p tsconfig.test.json
+packages/transpiler-xstate typecheck: Done
+packages/transpiler-mermaid typecheck: Done
+packages/checker typecheck: Done
+packages/session typecheck: Done
+packages/simulator typecheck$ tsc -p tsconfig.test.json
+packages/simulator typecheck: Done
+packages/cli typecheck$ tsc -p tsconfig.test.json
+packages/cli typecheck: Done

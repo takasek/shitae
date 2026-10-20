@@ -1,0 +1,11 @@
+{
+  "unchangedModelScenarioAndStateFiles": 9,
+  "localLinksValid": true,
+  "oldUiLabelsAbsent": true,
+  "existingStateTests": {
+    "pass": 4,
+    "fail": 0
+  },
+  "independentReview": "two wording findings corrected and independently rechecked",
+  "browser": "view, cancel, end viewing, resume, application navigation checked; no human acceptance"
+}

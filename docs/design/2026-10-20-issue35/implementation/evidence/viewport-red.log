@@ -1,0 +1,44 @@
+
+ RUN  v3.2.4 /Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/simulator
+
+ ❯ test/history-preview.test.ts (8 tests | 1 failed) 57ms
+   ✓ read-only history preview and explicit resume > keeps state, handles, revision, journal and export unchanged while previewing and cancelling 12ms
+   ✓ read-only history preview and explicit resume > resumes only after confirmation and rejects stale confirmation across load/reset 10ms
+   ✓ read-only history preview and explicit resume > retains preview on rejection/load failure but clears it on accepted no-op and branch 6ms
+   ✓ read-only history preview and explicit resume > shows partial load scope and a persistent executable state-query guide 6ms
+   × history presentation anchors > keeps a visible row at the same viewport offset and focuses its heading when a point is filtered 4ms
+     → expected 320 to be 340 // Object.is equality
+   ✓ result and snapshot boundaries > labels the saved point of an operation whose final result has no observation 6ms
+   ✓ result and snapshot boundaries > renders retained overlay and inclusion values without leaking current shared variants 8ms
+   ✓ focus across history controls > moves focus to the confirmation and back to an existing control on cancel and end 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/history-preview.test.ts > history presentation anchors > keeps a visible row at the same viewport offset and focuses its heading when a point is filtered
+AssertionError: expected 320 to be 340 // Object.is equality
+
+- Expected
++ Received
+
+- 340
++ 320
+
+ ❯ test/history-preview.test.ts:87:29
+     85|     filtered = true; top += 200; paneTop = 20;
+     86|     g.run('restorePresentation(savedPresentation)');
+     87|     expect(trace.scrollTop).toBe(340);
+       |                             ^
+     88|     expect(center.scrollTop).toBe(80);
+     89|     expect(focused).toBe('step:1');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  15:45:40
+   Duration  275ms (transform 58ms, setup 0ms, collect 65ms, tests 57ms, environment 0ms, prepare 35ms)
+
+undefined
+/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/simulator:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: vitest run test/history-preview.test.ts

@@ -1,0 +1,76 @@
+Browser tab: 2, Title: "再現用の資料と確認手順", URL: "http://127.0.0.1:8875/materials/guide.html".
+0 AXWebArea 再現用の資料と確認手順, URL: 127.0.0.1:8875/materials/guide.html
+	1 heading 再現用の資料と確認手順, Value: 1
+		2 text 再現用の資料と確認手順
+	3 text 文書Aは大阪出張の申請、文書Bは画面外の領収書です。共有状態は複数箇所で共通になる部品の状態で、全ての業務データを含む意味ではありません。
+	4 heading 1. 確認したい時点を選ぶ, Value: 2
+		5 text 1. 確認したい時点を選ぶ
+	6 table
+		7 row
+			8 cell
+				9 text 時点
+			10 cell
+				11 text 対応する保存ファイル
+		12 row
+			13 cell
+				14 text 読み込んだ時点（記録12・結果2）
+			15 cell
+				16 link Description: loaded.scenario.json, Value: 127.0.0.1:8875/materials/loaded.scenario.json
+		17 row
+			18 cell
+				19 text 記録7・結果1から続ける状態（後の履歴は保持）
+			20 cell
+				21 link Description: resumed.scenario.json, Value: 127.0.0.1:8875/materials/resumed.scenario.json
+		22 row
+			23 cell
+				24 text そこから「前の画面に戻る」を試した後
+			25 cell
+				26 link Description: noop.scenario.json, Value: 127.0.0.1:8875/materials/noop.scenario.json
+		27 row
+			28 cell
+				29 text さらに「申請を取り下げる」を行った後
+			30 cell
+				31 link Description: branched.scenario.json, Value: 127.0.0.1:8875/materials/branched.scenario.json
+	32 text 参照している画面と、操作を続ける位置は別です。現在の状態を調べるときは、操作を続ける位置に対応するファイルを選んでください。設計デモに任意の位置を保存する機能はありません。上記は同じモデルで事前に生成・再生確認した資料です。
+	33 heading 2. 同じモデルと処理系を用意する, Value: 2
+		34 text 2. 同じモデルと処理系を用意する
+	35 container
+		36 text モデル一式：
+		37 link Description: expense.shitae, Value: 127.0.0.1:8875/materials/expense.shitae
+		38 text （この1ファイル、importなし）。
+		39 link Description: 照合用の版情報, Value: 127.0.0.1:8875/materials/identity.json
+		40 text 。
+	41 text modelId: 874fc8c77588d712fc22b3701a2f25c4c1e8d998999bb72415409be1a088570a
+engineVersion: 278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116
+モデルの入口: /Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae
+利用できる処理系checkout: /Users/m5/.codex/worktrees/shitae-issue35-design/shitae
+処理系commit: 022e8493e4bea272a552a5908abbd844ae5b1569
+処理系入口: packages/cli/dist/index.js
+	42 text 今回の作業環境では上記checkoutにビルド済みの処理系と依存関係があります。別環境へ渡すときは同じcommitのshitae一式を用意し、そのcheckoutで pnpm install --frozen-lockfile と pnpm -r build を実行してください。モデル・シナリオだけを別版の処理系へ渡して一致すると仮定しないでください。
+	43 heading 3. 読み込んで状態を照会する, Value: 2
+		44 text 3. 読み込んで状態を照会する
+	45 text 以下は「読み込んだ時点」の例です。調べる時点に応じてファイル名を上の表から選びます。
+	46 text cd /Users/m5/.codex/worktrees/shitae-issue35-design/shitae
+node packages/cli/dist/index.js session /Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae --replay /Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/loaded.scenario.json
+	47 text 起動した同じprocessの標準入力へ、次のJSONを1行送ります。
+	48 text {"id":"shared","command":"query","select":["state","metadata"]}
+	49 text 応答の data.metadata のmodelIdとengineVersionが上記と一致し、okがtrueであることを確認します。data.state.sharedVariantsが、画面外を含む全共有部品の状態一覧です。文書Bは module＝expense と component＝文書B の両方が一致する項目のvariantを読みます。同名の別部品と取り違えないでください。
+	50 text 同じモデル・版を用意できない、読み込みが失敗する場合は照合を止め、必要な組合せを作成者に確認します。保存ファイルの識別情報を書き換えて回避しません。
+	51 heading 受け渡しのチェック項目, Value: 2
+		52 text 受け渡しのチェック項目
+	53 content list
+		54 container
+			55 AXListMarker • 
+			56 text 対象時点と対応するシナリオ
+		57 container
+			58 AXListMarker • 
+			59 text モデルの入口とimportを含む一式
+		60 container
+			61 AXListMarker • 
+			62 text modelIdとengineVersion、使える処理系
+		63 container
+			64 AXListMarker • 
+			65 text 対象部品のmoduleとcomponent
+	66 link Description: 設計案へ, Value: 127.0.0.1:8875/ui-proposal.html
+
+The focused UI element is 0 AXWebArea 再現用の資料と確認手順, URL: 127.0.0.1:8875/materials/guide.html

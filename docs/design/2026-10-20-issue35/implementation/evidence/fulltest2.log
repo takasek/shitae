@@ -1,0 +1,168 @@
+Scope: 10 of 11 workspace projects
+packages/parser test$ vitest run
+packages/parser test:  RUN  v3.2.4 /Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/parser
+packages/parser test:  ✓ test/lexer.test.ts (37 tests) 4ms
+packages/parser test:  ✓ test/integration.test.ts (36 tests) 17ms
+packages/parser test:  ✓ test/parser.test.ts (173 tests) 16ms
+packages/parser test:  Test Files  3 passed (3)
+packages/parser test:       Tests  246 passed (246)
+packages/parser test:    Start at  15:42:45
+packages/parser test:    Duration  321ms (transform 107ms, setup 0ms, collect 201ms, tests 37ms, environment 0ms, prepare 165ms)
+packages/parser test: Done
+packages/resolver test$ vitest run
+packages/runtime test$ vitest run
+packages/runtime test:  RUN  v3.2.4 /Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/runtime
+packages/resolver test:  RUN  v3.2.4 /Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/resolver
+packages/runtime test:  ✓ test/runtime.test.ts (97 tests) 6ms
+packages/resolver test:  ✓ test/resolver.test.ts (37 tests) 5ms
+packages/resolver test:  Test Files  1 passed (1)
+packages/resolver test:       Tests  37 passed (37)
+packages/resolver test:    Start at  15:42:46
+packages/resolver test:    Duration  474ms (transform 46ms, setup 0ms, collect 55ms, tests 5ms, environment 0ms, prepare 61ms)
+packages/runtime test:  Test Files  1 passed (1)
+packages/runtime test:       Tests  97 passed (97)
+packages/runtime test:    Start at  15:42:46
+packages/runtime test:    Duration  474ms (transform 52ms, setup 0ms, collect 56ms, tests 6ms, environment 0ms, prepare 53ms)
+packages/resolver test: Done
+packages/runtime test: Done
+packages/checker test$ vitest run
+packages/session pretest$ node scripts/build-engine.mjs
+packages/transpiler-mermaid test$ vitest run
+packages/transpiler-xstate test$ vitest run
+packages/session pretest: Done
+packages/session test$ vitest run
+packages/transpiler-xstate test:  RUN  v3.2.4 /Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/transpiler-xstate
+packages/checker test:  RUN  v3.2.4 /Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/checker
+packages/transpiler-mermaid test:  RUN  v3.2.4 /Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/transpiler-mermaid
+packages/session test:  RUN  v3.2.4 /Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/session
+packages/transpiler-xstate test:  ✓ test/integration.test.ts (11 tests) 5ms
+packages/transpiler-xstate test:  ✓ test/transpiler.test.ts (24 tests) 7ms
+packages/transpiler-xstate test:  Test Files  2 passed (2)
+packages/transpiler-xstate test:       Tests  35 passed (35)
+packages/transpiler-xstate test:    Start at  15:42:47
+packages/transpiler-xstate test:    Duration  920ms (transform 140ms, setup 0ms, collect 308ms, tests 12ms, environment 0ms, prepare 262ms)
+packages/checker test:  ✓ test/checker.test.ts (29 tests) 7ms
+packages/checker test:  Test Files  1 passed (1)
+packages/checker test:       Tests  29 passed (29)
+packages/checker test:    Start at  15:42:47
+packages/checker test:    Duration  933ms (transform 126ms, setup 0ms, collect 151ms, tests 7ms, environment 0ms, prepare 100ms)
+packages/transpiler-mermaid test:  ✓ test/mermaid.test.ts (20 tests) 5ms
+packages/transpiler-mermaid test:  Test Files  1 passed (1)
+packages/transpiler-mermaid test:       Tests  20 passed (20)
+packages/transpiler-mermaid test:    Start at  15:42:47
+packages/transpiler-mermaid test:    Duration  878ms (transform 80ms, setup 0ms, collect 103ms, tests 5ms, environment 0ms, prepare 111ms)
+packages/session test:  ✓ test/model.test.ts (1 test) 4ms
+packages/session test:  ✓ test/history.test.ts (6 tests) 19ms
+packages/session test:  ✓ test/session.test.ts (12 tests) 34ms
+packages/transpiler-xstate test: Done
+packages/session test:  ✓ test/provenance.test.ts (4 tests) 50ms
+packages/checker test: Done
+packages/transpiler-mermaid test: Done
+packages/session test:  ✓ test/scenario.test.ts (11 tests) 174ms
+packages/session test:  ✓ test/acceptance.test.ts (3 tests) 202ms
+packages/session test:  Test Files  6 passed (6)
+packages/session test:       Tests  37 passed (37)
+packages/session test:    Start at  15:42:47
+packages/session test:    Duration  808ms (transform 195ms, setup 0ms, collect 843ms, tests 484ms, environment 0ms, prepare 376ms)
+packages/session test: Done
+packages/simulator pretest$ pnpm --filter "@shitae/simulator..." build
+packages/simulator pretest: Scope: 6 of 11 workspace projects
+packages/simulator pretest: ../ast build$ tsc
+packages/simulator pretest: ../ast build: Done
+packages/simulator pretest: ../parser build$ tsc
+packages/simulator pretest: ../parser build: Done
+packages/simulator pretest: ../resolver build$ tsc
+packages/simulator pretest: ../runtime build$ tsc
+packages/simulator pretest: ../resolver build: Done
+packages/simulator pretest: ../runtime build: Done
+packages/simulator pretest: ../session build$ node scripts/build-engine.mjs && tsc
+packages/simulator pretest: ../session build: Done
+packages/simulator pretest: . build$ node scripts/build-browser.mjs && tsc
+packages/simulator pretest: . build: Done
+packages/simulator pretest: Done
+packages/simulator test$ vitest run
+packages/simulator test:  RUN  v3.2.4 /Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/simulator
+packages/simulator test:  ✓ test/portable-files.test.ts (3 tests) 4ms
+packages/simulator test:  ✓ test/presentation.test.ts (1 test) 9ms
+packages/simulator test:  ✓ test/extract.test.ts (75 tests) 17ms
+packages/simulator test:  ✓ test/session-ui.test.ts (5 tests) 36ms
+packages/simulator test:  ✓ test/history-preview.test.ts (5 tests) 67ms
+packages/simulator test:  ✓ test/scenario-ui.test.ts (8 tests) 172ms
+packages/simulator test:  ✓ test/load-summary.test.ts (13 tests) 371ms
+packages/simulator test:  ✓ test/simulator.test.ts (143 tests) 553ms
+packages/simulator test:  Test Files  8 passed (8)
+packages/simulator test:       Tests  253 passed (253)
+packages/simulator test:    Start at  15:42:50
+packages/simulator test:    Duration  838ms (transform 294ms, setup 0ms, collect 906ms, tests 1.23s, environment 1ms, prepare 362ms)
+packages/simulator test: Done
+packages/cli pretest$ pnpm --filter "@shitae/cli..." build
+packages/cli pretest: Scope: 9 of 11 workspace projects
+packages/cli pretest: ../ast build$ tsc
+packages/cli pretest: ../ast build: Done
+packages/cli pretest: ../parser build$ tsc
+packages/cli pretest: ../parser build: Done
+packages/cli pretest: ../resolver build$ tsc
+packages/cli pretest: ../runtime build$ tsc
+packages/cli pretest: ../resolver build: Done
+packages/cli pretest: ../runtime build: Done
+packages/cli pretest: ../transpiler-mermaid build$ tsc
+packages/cli pretest: ../checker build$ tsc
+packages/cli pretest: ../session build$ node scripts/build-engine.mjs && tsc
+packages/cli pretest: ../transpiler-mermaid build: Done
+packages/cli pretest: ../checker build: Done
+packages/cli pretest: ../session build: Done
+packages/cli pretest: ../simulator build$ node scripts/build-browser.mjs && tsc
+packages/cli pretest: ../simulator build: Done
+packages/cli pretest: . build$ tsc
+packages/cli pretest: . build: Done
+packages/cli pretest: Done
+packages/cli test$ vitest run
+packages/cli test:  RUN  v2.1.9 /Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/cli
+packages/cli test:  ❯ test/portable-html.test.ts (6 tests | 1 failed) 209ms
+packages/cli test:    × shared simulator HTML does not leak absolute paths (issue #28) > loads a CLI scenario from the other directory, and a scenario exported from the page replays through the CLI 67ms
+packages/cli test:      → expected '<div class="live-position">操作を続ける位置: …' to contain 'シナリオを読み込みました'
+packages/cli test:  ✓ test/stdout.test.ts (2 tests) 464ms
+packages/cli test:  ✓ test/cli.test.ts (17 tests) 724ms
+packages/cli test:  ✓ test/session.test.ts (11 tests) 998ms
+packages/cli test: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+packages/cli test:  FAIL  test/portable-html.test.ts > shared simulator HTML does not leak absolute paths (issue #28) > loads a CLI scenario from the other directory, and a scenario exported from the page replays through the CLI
+packages/cli test: AssertionError: expected '<div class="live-position">操作を続ける位置: …' to contain 'シナリオを読み込みました'
+packages/cli test: - Expected
+packages/cli test: + Received
+packages/cli test: - シナリオを読み込みました
+packages/cli test: + <div class="live-position">操作を続ける位置: 記録1「Open」 / 選んだ条件：なし / 結果2 / 状態1 / ScreenList <button onclick="focusCurrentHistory()">現在の操作位置を一覧で見る</button><p role="status">再生ファイルを読み込み、現在の操作位置を表示しました</p></div><aside class="pane pane-trace" data-generation="1"><div class="pane-title">操作来歴（統合ログ）</div><div class="pane-desc">ナビゲーション履歴。実行された遷移の列を操作ごとに表示します。新しい記録が上。記録の見出しで詳細を開閉し、結果ごとに画面を閲覧できます。操作を続ける位置の変更は別の確認で確定します。文章のみの地点は閲覧・再開できません。</div><label class="timeline-toggle"><input type="checkbox" checked onchange="toggleShowEvents()"> イベントを表示</label><p class="pane-desc">記録には位置の変更・reset前・手動試験も含みます。再開できる地点は、一つの結果の途中も含む保存された状態です。</p><details data-state-key="history-counts"><summary>技術詳細：履歴の保持件数</summary>現在まで 3地点 / 後の履歴 0地点 / 文章のみ 0地点</details><div class="provenance-step" data-history-key="step:1"><button data-focus-key="step:1" class="provenance-heading" aria-expanded="false" onclick="toggleProvenanceStep(1)">記録1 · 操作 · Open</button><p>選んだ条件：なし / 結果 2件 / 閲覧・再開可</p><button data-focus-key="last:1" onclick="previewObservation(3)">この操作の最後に保存された状態を見る</button></div><div class="history-point" data-history-key="point:1"><p>起点: 起動 / Home · 閲覧・再開可</p><button data-focus-key="preview:1" onclick="previewObservation(1)">画面を見る</button> <button data-focus-key="resume:1" onclick="requestResume(1)">この時点から続ける…</button></div><p><button onclick="toggleReview()" aria-expanded="false">検討手順を表示</button> <button onclick="saveReview()">検討手順を書出し</button></p></aside><main class="pane pane-center" data-view-key="1:live"><section class="screen-section" data-view-key="1:live"><div class="pane-title">操作を続ける画面</div><button onclick="resetSession()">初期状態へ</button><div class="scenario-controls"><p class="artifact-identity">このHTML: main · model dde0cd423aad · engine 278103a97da5</p><details class="identity-details"><summary>定義と実行プログラムの版・再現用の資料</summary><p>短縮IDは対応付けの補助です。読込時は完全な識別情報で厳密に照合します。</p><pre>{
+packages/cli test: +   &quot;engineVersion&quot;: &quot;278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116&quot;,
+packages/cli test: +   &quot;modelId&quot;: &quot;dde0cd423aadb5de02a2c027b44c76078f027c87d35ece344397f392bfe73bb4&quot;,
+packages/cli test: +   &quot;entryModule&quot;: &quot;main&quot;,
+packages/cli test: +   &quot;sourceBasis&quot;: &quot;source-bytes&quot;,
+packages/cli test: +   &quot;manifest&quot;: [
+packages/cli test: +     {
+packages/cli test: +       &quot;module&quot;: &quot;main&quot;,
+packages/cli test: +       &quot;sourceSha256&quot;: &quot;d1a912969183ae33fd4fd05e874e0ae2a2b15d07c2affa39a084dadea56e2eae&quot;
+packages/cli test: +     },
+packages/cli test: +     {
+packages/cli test: +       &quot;module&quot;: &quot;parts/list&quot;,
+packages/cli test: +       &quot;sourceSha256&quot;: &quot;d22d8e77cebd431f42cab2cd6ab4f6f5c35e4e022b86882bae35a2c0b5e090a8&quot;
+packages/cli test: +     },
+packages/cli test: +     {
+packages/cli test: +       &quot;module&quot;: &quot;screens/list&quot;,
+packages/cli test: +       &quot;sourceSha256&quot;: &quot;3a2fe5b80e42799c6ee0086a5aa791a4be3b8365ba61d3240e1da73f79e9a765&quot;
+packages/cli test: +     }
+packages/cli test: +   ]
+packages/cli test: + }</pre><p>再開には、このHTMLと完全一致するscenarioの組を渡してください。編集・再生成やCLIでの再開には全モデル・参照moduleと対応する処理系が必要です。遷移マップの分割設定も渡すならsimconfigを添えてください。</p><details data-state-key="state-query"><summary>画面外も含めて状態を確認する方法</summary><p>部品の共有状態は、同じ部品を別の場所で使うときも共通になる状態です。全業務データを意味しません。</p><p>読み込んだ時点を調べるには元の読込ファイル、現在の操作位置を調べるには「操作の再生ファイルを保存」で作ったファイルを使います。履歴の閲覧中も保存するのは操作を続ける位置です。</p><p>「定義と実行プログラムの版・再現用の資料」の完全なmodelId/engineVersionを照合し、対応する画面と操作の定義（モデル）の入口・import一式と実行プログラム（shitae）を用意します。このHTMLからモデル本文は取り出せません。なければ作成者から対応する定義・実行プログラムを受け取ってください。</p><p>次のパスを手元のファイルに置き換えて起動し、同じprocessへJSONを1行送信します。</p><pre>node packages/cli/dist/index.js session &lt;定義ファイルの入口&gt; --replay &lt;対象の再生ファイル&gt;</pre><pre>{"id":"shared","command":"query","select":["state"]}</pre><p>応答の data.state.sharedVariants が画面外を含む全singletonのvariant一覧です。module（所属）とcomponent（部品）の組で識別し、variant（選ばれている状態）を読みます。componentValuesは通常部品も含む別の一覧です。照合に失敗したら元の組合せを用意し、ファイル編集で回避しないでください。</p></details></details><p class="scenario-scope">保存範囲: dispatch 1件 / seek 0件 / reset 0件 / 手動試験 0件。条件選択はdispatchの内訳として操作来歴に表示します。破棄経路・reset前・ghost・手動試験も含む全記録を保存します。モデル本文・DOM・表示設定は含みません。読込後も現在の表示設定を使います。</p><button data-focus-key="save-scenario" onclick="saveScenario()">操作の再生ファイルを保存</button> <label>操作の再生ファイルを読み込む <input data-focus-key="load-scenario" type="file" accept=".scenario.json,application/json" onchange="loadScenarioFile(this)"></label><p role="status">操作の再生ファイルを読み込みました（dispatch 1件 / seek 0件 / reset 0件 / 手動試験 0件を照合）</p><p role="status">読み込んだ時点の状態（一部）: 画面・操作条件に関係する部品の共有状態はありません。画面外の部品の共有状態がないという意味ではありません。</p><p>読み込んだ時点の状態の一部です。画面外も含む全ての部品の共有状態の一覧ではありません。</p><details data-state-key="state-query"><summary>画面外も含めて状態を確認する方法</summary><p>部品の共有状態は、同じ部品を別の場所で使うときも共通になる状態です。全業務データを意味しません。</p><p>読み込んだ時点を調べるには元の読込ファイル、現在の操作位置を調べるには「操作の再生ファイルを保存」で作ったファイルを使います。履歴の閲覧中も保存するのは操作を続ける位置です。</p><p>「定義と実行プログラムの版・再現用の資料」の完全なmodelId/engineVersionを照合し、対応する画面と操作の定義（モデル）の入口・import一式と実行プログラム（shitae）を用意します。このHTMLからモデル本文は取り出せません。なければ作成者から対応する定義・実行プログラムを受け取ってください。</p><p>次のパスを手元のファイルに置き換えて起動し、同じprocessへJSONを1行送信します。</p><pre>node packages/cli/dist/index.js session &lt;定義ファイルの入口&gt; --replay &lt;対象の再生ファイル&gt;</pre><pre>{"id":"shared","command":"query","select":["state"]}</pre><p>応答の data.state.sharedVariants が画面外を含む全singletonのvariant一覧です。module（所属）とcomponent（部品）の組で識別し、variant（選ばれている状態）を読みます。componentValuesは通常部品も含む別の一覧です。照合に失敗したら元の組合せを用意し、ファイル編集で回避しないでください。</p></details></div><div class="pane-desc">アクティブな frame の表示（本体）と掲示中カード</div><label class="action-toggle"><input type="checkbox" checked onchange="toggleShowActions()"> アクションを表示</label><label class="action-toggle"><input type="checkbox"  onchange="toggleShowStates()"> 部品の状態を表示</label><div class="gate-toggle-block"><button class="gate-drawer-toggle" onclick="toggleGatePanel()">画面外 component の姿切替（gate 試験用）</button><p class="gate-panel-desc">今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。</p></div><div class="screen"><div class="screen-title">ScreenList</div><div class="elements"><div class="element">item</div></div><div class="action-list action-flat"><div class="action-row action-row-solo" data-focus-key="main::screens/list:18" role="button" tabindex="0" onkeydown="if(event.target === this && (event.key === &quot;Enter&quot; || event.key === &quot; &quot;)){event.preventDefault();this.click()}" onclick="handleInteraction('component',0,0, 'bec105cc-89ae-45e4-95b7-51bd2430e319:1:0')"><span class="action-text">Back</span><span class="scope-badge" title="この component のどの姿でも共通して有効な操作">component common</span></div></div><button class="back-btn" onclick="goBack(&quot;bec105cc-89ae-45e4-95b7-51bd2430e319:1:back&quot;)">← 前の画面へ（画面内の操作）</button></div></section><div class="lower-section"><details open class="stack-section" ontoggle="stackPanelOpen = this.open"><summary class="pane-title" title="スタック — 今積み重なっている画面。プッシュダウン構成として読める">スタック</summary><div class="pane-desc">今積み重なっている画面。プッシュダウン構成として読める。上が現在地</div><div class="stack-list"><div class="stack-item stack-item-current">ScreenList</div><div class="stack-item">Home</div></div></details><details open class="graph-section" ontoggle="mapPanelOpen = this.open"><summary class="pane-title" title="遷移マップ — 画面間の遷移関係（表示のみ。状態遷移図として読める）">遷移マップ</summary><div class="pane-desc">画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。</div><button class="graph-save-btn" onclick="saveGraphConfig()">設定を保存</button><label class="graph-scope-toggle"><input type="checkbox"  onchange="toggleGraphShowAll()"> 全体を見る</label><div class="graph-map-scroll"><svg class="graph-svg" width="192" height="276"><defs><marker id="graph-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z"></path></marker></defs><line x1="136" y1="54" x2="16" y2="142" marker-end="url(#graph-arrow)"></line><line x1="136" y1="54" x2="16" y2="230" marker-end="url(#graph-arrow)"></line><text class="graph-lane-title" x="16" y="32">main</text><g class="graph-node" onmouseenter="showNodeTooltip(0,16,72)" onmouseleave="hideNodeTooltip()" onclick="pinGraphTooltip(0)"><rect x="16" y="40" width="120" height="28" rx="4"></rect><text x="76" y="58" text-anchor="middle">Home</text></g><text class="graph-lane-title" x="16" y="120">screens/list</text><g class="graph-node graph-node-current" onmouseenter="showNodeTooltip(1,16,160)" onmouseleave="hideNodeTooltip()" onclick="pinGraphTooltip(1)"><rect x="16" y="128" width="120" height="28" rx="4"></rect><text x="76" y="146" text-anchor="middle">ScreenList</text></g><text class="graph-lane-title" x="16" y="208">parts/list</text><g class="graph-node" onmouseenter="showNodeTooltip(2,16,248)" onmouseleave="hideNodeTooltip()" onclick="pinGraphTooltip(2)"><rect x="16" y="216" width="120" height="28" rx="4"></rect><text x="76" y="234" text-anchor="middle">PartList</text></g></svg><div id="graph-tooltip" class="graph-tooltip"></div></div></details></div></main>
+packages/cli test:  ❯ test/portable-html.test.ts:142:32
+packages/cli test:     140|     const page = gui(htmlB);
+packages/cli test:     141|     await page.load(JSON.stringify(exported));
+packages/cli test:     142|     expect(page.app.innerHTML).toContain('シナリオを読み込みました');
+packages/cli test:        |                                ^
+packages/cli test:     143|     expect(page.app.innerHTML).not.toContain('MODEL_MISMATCH');
+packages/cli test:     144|     const fromPage = await page.run('buildScenarioJson()');
+packages/cli test: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+packages/cli test:  Test Files  1 failed | 3 passed (4)
+packages/cli test:       Tests  1 failed | 35 passed (36)
+packages/cli test:    Start at  15:42:53
+packages/cli test:    Duration  1.25s (transform 171ms, setup 0ms, collect 271ms, tests 2.40s, environment 0ms, prepare 116ms)
+packages/cli test: Failed
+/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/cli:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @shitae/cli@0.0.1 test: `vitest run`
+Exit status 1

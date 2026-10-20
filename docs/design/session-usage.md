@@ -69,7 +69,7 @@ node packages/cli/dist/index.js session docs/design/session-fixtures/trial-value
 
 起動中に全操作・分岐・観測・出力・最終状態を新Sessionで照合し、成功後に通常のJSON Linesを受け付ける。失敗はstderrと非0終了で伝え、部分的に再生したSessionでは操作を継続できない。再開後はactions queryで新しいhandleを得る。モデルを別directoryへ移せるが、entryの名前、参照moduleと全source bytes、engineVersionの一致が必要。空白だけのモデル変更も黙って補正しない。
 
-GUIでは「シナリオを保存」で同じ形式をダウンロードし、「シナリオを読み込む」でファイルを選ぶ。読込失敗時は現在のSessionを保つ。成功時だけ新Sessionに切り替え、照合した操作数を表示する。読取開始から照合終了までは後続読込と実行操作を排他する。CLIで保存したものをGUIへ渡すことも、GUIで保存したものをCLIの起動へ渡すこともできる。
+GUIでは「操作の再生ファイルを保存」で同じ形式をダウンロードし、「操作の再生ファイルを読み込む」でファイルを選ぶ。読込失敗時は現在のSessionを保つ。成功時だけ新Sessionに切り替え、照合した操作数を表示する。読取開始から照合終了までは後続読込と実行操作を排他する。CLIで保存したものをGUIへ渡すことも、GUIで保存したものをCLIの起動へ渡すこともできる。
 
 記録は起動からの受理操作、条件選択、手動試験、reset、結果途中のseekを含む。reset前や破棄したghostの経路も保存し、保存時のcursorとghostを再現する。query/拒否/表示設定は記録しない。DOM・画像・モデル本文は同梱せず、表示checkbox・fold/focus・graph設定は復元対象に含めない。自由文effectは保存やfocusの実処理にはならない。
 
@@ -88,7 +88,7 @@ metadataなし／AST-onlyのSessionでは `SCENARIO_UNSUPPORTED`。`replayScenar
 node packages/cli/dist/index.js simulate docs/design/session-fixtures/trial-values.shitae > trial-values.html
 ```
 
-生成 HTML に Session/runtime を埋め込み、外部 script や CDN を参照しない。既存の画面・包含・overlay・統合ログ・gate drawer・stack・map を維持した。組込み「戻る」も照会された handle を dispatch する。統合ログのクリックは Session.seek、試験用 select は setTestVariant、「初期状態へ」は reset に接続する。
+生成 HTML に Session/runtime を埋め込み、外部 script や CDN を参照しない。既存の画面・包含・overlay・統合ログ・gate drawer・stack・map を維持した。組込み「前の画面へ（画面内の操作）」も照会された handle を dispatch する。履歴見出しは詳細展開、「画面を見る」は読取専用query、「この時点から続ける…」は確認後にSession.seek、試験用 select は setTestVariant、「初期状態へ」は reset に接続する。
 
 「部品の状態を表示」は既定 off。on にすると参照先、variant、共有／画面／掲示／包含／部品試験の範囲と、初期／DSL／手動試験の由来を表示する。未定義参照と inline に架空の variant を付けない。切替は実行状態・履歴を変えず、包含の折畳みと対象 control の focus を保持する。古い描画から遅れて届いた操作は、描画時に保持した handle で拒否する。
 
@@ -123,3 +123,5 @@ node packages/cli/dist/index.js simulate docs/design/session-fixtures/trial-valu
 python3 -m http.server 8000 --bind 127.0.0.1 --directory "$preview_dir"
 # ブラウザで http://127.0.0.1:8000/trial-values.html を開く
 ```
+
+履歴閲覧中も保存対象は操作を続ける位置で、閲覧対象やスクロールは保存しない。読込成功時の「読み込んだ時点の状態（一部）」は、その画面・操作条件に関係する部品の共有状態だけを示す。画面外も含む確認方法は版・再現資料の案内からも開ける。表示・focus・閲覧寿命の詳細は [GUI履歴契約](gui-history-contract.md) を参照。

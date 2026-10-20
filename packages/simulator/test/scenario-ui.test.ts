@@ -74,12 +74,12 @@ describe('scenario GUI import/export', () => {
     expect(g.app.innerHTML).toContain('条件選択はdispatchの内訳として操作来歴');
     expect(g.app.innerHTML).toContain('破棄経路・reset前');
     expect(g.app.innerHTML).toContain('モデル本文・DOM・表示設定は含みません');
-    expect(g.app.innerHTML).toContain('ghost 2観測点');
-    expect(g.app.innerHTML).toContain('破棄済み 5観測点');
+    expect(g.app.innerHTML).toContain('後の履歴 2地点');
+    expect(g.app.innerHTML).toContain('文章のみ 5地点');
     const restored = gui(); restored.run('toggleShowEvents(); toggleShowActions(); toggleShowStates()');
     await restored.load(text);
     expect(restored.run('[showEvents,showActions,showStates]')).toEqual([false, false, true]);
-    expect(restored.app.innerHTML).toContain('シナリオを読み込みました（' + counts + 'を照合）');
+    expect(restored.app.innerHTML).toContain('操作の再生ファイルを読み込みました（' + counts + 'を照合）');
     expect(restored.app.innerHTML).not.toContain('6操作');
     expect(await restored.run('buildScenarioJson()')).toBe(text);
   });
@@ -89,25 +89,25 @@ describe('scenario GUI import/export', () => {
     g.run("setInstanceVariant('main','Card','Ready')");
     g.run("handleInteraction('component',0,0)");
     const before = g.query();
-    expect(g.app.innerHTML).toContain('完了点: manual-test(Card##Ready)');
+    expect(g.app.innerHTML).toContain('data-focus-key="last:1"');
     g.run('toggleShowEvents()');
-    expect(g.app.innerHTML).not.toContain('完了点: manual-test(Card##Ready)');
+    expect(g.app.innerHTML).not.toContain('data-focus-key="last:1"');
     expect(g.app.innerHTML).toContain('手動試験 main::Card##Ready');
     expect(g.query()).toEqual(before);
     g.run("setInstanceVariant('main','Card','Idle')");
-    expect(g.app.innerHTML).toContain('完了点: manual-test(Card##Idle)');
+    expect(g.app.innerHTML).toContain('data-focus-key="last:3"');
   });
 
   it('groups journal operations, exposes only retained points as destinations and exports readable review without mutation', async () => {
     const g = gui(); g.run("handleInteraction('component',0,0)");
     expect(g.app.innerHTML).toContain('操作来歴');
-    expect(g.app.innerHTML).toContain('Choose / 条件: ok');
+    expect(g.app.innerHTML).toContain('選んだ条件：ok');
     g.run('toggleProvenanceStep(1)');
-    expect(g.app.innerHTML).toContain('結果1 / 観測1');
+    expect(g.app.innerHTML).toContain('結果1 / 状態1');
     g.run('jumpToTimeline(1)');
-    expect(g.app.innerHTML).toContain('ghost 2観測点');
+    expect(g.app.innerHTML).toContain('後の履歴 2地点');
     g.run("setInstanceVariant('main','Card','Ready')");
-    expect(g.app.innerHTML).toContain('分岐・破棄 2観測点');
+    expect(g.app.innerHTML).toContain('文章のみ 2地点');
     expect(g.app.innerHTML).not.toMatch(/seekProvenancePoint\(4[,)]/);
     const before = await g.run('buildScenarioJson()');
     g.run('toggleReview()'); expect(g.app.innerHTML).toContain('版をまたぐ自動再生');
@@ -117,8 +117,8 @@ describe('scenario GUI import/export', () => {
     expect(text).toContain('Choose'); expect(text).toContain('巻戻し/やり直し先'); expect(text).toContain('破棄 2観測点');
     expect(await g.run('buildScenarioJson()')).toBe(before);
     const restored = gui(); await restored.load(before);
-    expect(restored.app.innerHTML).toContain('Choose / 条件: ok');
-    expect(restored.app.innerHTML).toContain('分岐・破棄 2観測点');
+    expect(restored.app.innerHTML).toContain('選んだ条件：ok');
+    expect(restored.app.innerHTML).toContain('文章のみ 2地点');
   });
 
   it('downloads one sidecar, imports into another generated page, preserves mid-result ghost and rejects old clicks', async () => {
@@ -134,14 +134,14 @@ describe('scenario GUI import/export', () => {
     expect(await a.downloads[0]!.blob.text()).toBe(text);
     const b = gui(); const oldClick = b.app.innerHTML.match(/onclick="(handleInteraction[^\"]+)"/)![1]!;
     await b.load(text);
-    expect(b.app.innerHTML).toContain('シナリオを読み込みました');
+    expect(b.app.innerHTML).toContain('操作の再生ファイルを読み込みました');
     expect(b.query().summary.location).toEqual(sourceBefore.summary.location);
     expect(b.query().data.history.items.map((i: any) => i.ghost)).toEqual(sourceBefore.data.history.items.map((i: any) => i.ghost));
     expect(await b.run('buildScenarioJson()')).toBe(text);
     b.run(oldClick); expect(b.app.innerHTML).toContain('UNKNOWN_HANDLE');
     const replayed = await replayScenario(a.prepared, JSON.parse(text));
     expect(await replayed.exportScenario()).toEqual(JSON.parse(text));
-    expect(b.app.innerHTML).toContain('シナリオを保存'); expect(b.app.innerHTML).toContain('シナリオを読み込む');
+    expect(b.app.innerHTML).toContain('操作の再生ファイルを保存'); expect(b.app.innerHTML).toContain('操作の再生ファイルを読み込む');
   });
 
   it('keeps the live Session and its handles on invalid/foreign imports, and accepts CLI/library output', async () => {

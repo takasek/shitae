@@ -1,0 +1,25 @@
+Browser tab: 1, Title: "履歴UI設計案 v3", URL: "http://127.0.0.1:8875/ui-proposal.html".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 177-190, 192, 196-200, 202
++		202 text 操作を続ける位置：記録7「再申請する」／条件：修正済み／結果1の後
++		203 text 戻り先がないため移動しませんでした。後の履歴は残っています。
++				204 text 後の履歴・戻れる
++				205 text 後の履歴・戻れる
++					206 text 後の履歴・戻れる
++				207 text 後の履歴・戻れる
++				208 text 後の履歴・戻れる
++					209 text ここから操作を続ける
++					210 text 画面を確認できる
++					211 text 画面を確認できる
++				212 text 画面を確認できる
++				213 text 画面を確認できる
++					214 text 画面を確認できる
++				215 text 画面を確認できる
++			216 text 見ている時点：記録10「支払いを予約する」／条件：指定なし／結果1の後
++				217 text 当時の画面：申請詳細
++			218 text 一万円
++			219 text 支払予定
++			220 text 保存済み
++			221 text 記録10「支払いを予約する」／条件：指定なし／結果1の後
++			222 text このデモで操作を続ける位置の資料：resumed.scenario.json
+The focused UI element is 157 button 前の画面に戻る, ID: noop

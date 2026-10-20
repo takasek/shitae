@@ -1,0 +1,55 @@
+
+ RUN  v3.2.4 /Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/simulator
+
+ ❯ test/history-preview.test.ts (8 tests | 1 failed) 63ms
+   ✓ read-only history preview and explicit resume > keeps state, handles, revision, journal and export unchanged while previewing and cancelling 13ms
+   ✓ read-only history preview and explicit resume > resumes only after confirmation and rejects stale confirmation across load/reset 15ms
+   ✓ read-only history preview and explicit resume > retains preview on rejection/load failure but clears it on accepted no-op and branch 6ms
+   × read-only history preview and explicit resume > shows partial load scope and a persistent executable state-query guide 9ms
+     → expected '<div class="scenario-controls"><p cla…' to contain '</details><details data-state-key="st…'
+   ✓ history presentation anchors > keeps a visible row at the same viewport offset and focuses its heading when a point is filtered 2ms
+   ✓ result and snapshot boundaries > labels the saved point of an operation whose final result has no observation 6ms
+   ✓ result and snapshot boundaries > renders retained overlay and inclusion values without leaking current shared variants 8ms
+   ✓ focus across history controls > moves focus to the confirmation and back to an existing control on cancel and end 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/history-preview.test.ts > read-only history preview and explicit resume > shows partial load scope and a persistent executable state-query guide
+AssertionError: expected '<div class="scenario-controls"><p cla…' to contain '</details><details data-state-key="st…'
+
+- Expected
++ Received
+
+- </details><details data-state-key="state-query">
++ <div class="scenario-controls"><p class="artifact-identity">このHTML: main · model d9e03239ecf1 · engine 278103a97da5</p><details class="identity-details"><summary>定義と実行プログラムの版・再現用の資料</summary><p>短縮IDは対応付けの補助です。読込時は完全な識別情報で厳密に照合します。</p><pre>{
++   &quot;engineVersion&quot;: &quot;278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116&quot;,
++   &quot;modelId&quot;: &quot;d9e03239ecf18d007d2965c087ff287dc14fdfbc94f9731eb86716b02bfb9001&quot;,
++   &quot;entryModule&quot;: &quot;main&quot;,
++   &quot;sourceBasis&quot;: &quot;source-bytes&quot;,
++   &quot;manifest&quot;: [
++     {
++       &quot;module&quot;: &quot;main&quot;,
++       &quot;sourceSha256&quot;: &quot;3140a9604b6d94056d8fd782377d17679da7cd5f3f8406d4cb411a01cd8be3ce&quot;
++     }
++   ]
++ }</pre><p>再開には、このHTMLと完全一致するscenarioの組を渡してください。編集・再生成やCLIでの再開には全モデル・参照moduleと対応する処理系が必要です。遷移マップの分割設定も渡すならsimconfigを添えてください。</p><details data-state-key="state-query"><summary>画面外も含めて状態を確認する方法</summary><p>部品の共有状態は、同じ部品を別の場所で使うときも共通になる状態です。全業務データを意味しません。</p><p>読み込んだ時点を調べるには元の読込ファイル、現在の操作位置を調べるには「操作の再生ファイルを保存」で作ったファイルを使います。履歴の閲覧中も保存するのは操作を続ける位置です。</p><p>「定義と実行プログラムの版・再現用の資料」の完全なmodelId/engineVersionを照合し、対応する画面と操作の定義（モデル）の入口・import一式と実行プログラム（shitae）を用意します。このHTMLからモデル本文は取り出せません。なければ作成者から対応する定義・実行プログラムを受け取ってください。</p><p>次のパスを手元のファイルに置き換えて起動し、同じprocessへJSONを1行送信します。</p><pre>node packages/cli/dist/index.js session &lt;定義ファイルの入口&gt; --replay &lt;対象の再生ファイル&gt;</pre><pre>{"id":"shared","command":"query","select":["state"]}</pre><p>応答の data.state.sharedVariants が画面外を含む全singletonのvariant一覧です。module（所属）とcomponent（部品）の組で識別し、variant（選ばれている状態）を読みます。componentValuesは通常部品も含む別の一覧です。照合に失敗したら元の組合せを用意し、ファイル編集で回避しないでください。</p></details></details><p class="scenario-scope">保存範囲: dispatch 0件 / seek 0件 / reset 0件 / 手動試験 0件。条件選択はdispatchの内訳として操作来歴に表示します。破棄経路・reset前・ghost・手動試験も含む全記録を保存します。モデル本文・DOM・表示設定は含みません。読込後も現在の表示設定を使います。</p><button data-focus-key="save-scenario" onclick="saveScenario()">操作の再生ファイルを保存</button> <label>操作の再生ファイルを読み込む <input data-focus-key="load-scenario" type="file" accept=".scenario.json,application/json" onchange="loadScenarioFile(this)"></label><p role="status">操作の再生ファイルを読み込みました（dispatch 0件 / seek 0件 / reset 0件 / 手動試験 0件を照合）</p><p role="status">読み込んだ時点の状態（一部）: 画面・操作条件に関係する部品の共有状態: 本体: Card ##Old</p><p>読み込んだ時点の状態の一部です。画面外も含む全ての部品の共有状態の一覧ではありません。</p><details data-state-key="state-query"><summary>画面外も含めて状態を確認する方法</summary><p>部品の共有状態は、同じ部品を別の場所で使うときも共通になる状態です。全業務データを意味しません。</p><p>読み込んだ時点を調べるには元の読込ファイル、現在の操作位置を調べるには「操作の再生ファイルを保存」で作ったファイルを使います。履歴の閲覧中も保存するのは操作を続ける位置です。</p><p>「定義と実行プログラムの版・再現用の資料」の完全なmodelId/engineVersionを照合し、対応する画面と操作の定義（モデル）の入口・import一式と実行プログラム（shitae）を用意します。このHTMLからモデル本文は取り出せません。なければ作成者から対応する定義・実行プログラムを受け取ってください。</p><p>次のパスを手元のファイルに置き換えて起動し、同じprocessへJSONを1行送信します。</p><pre>node packages/cli/dist/index.js session &lt;定義ファイルの入口&gt; --replay &lt;対象の再生ファイル&gt;</pre><pre>{"id":"shared","command":"query","select":["state"]}</pre><p>応答の data.state.sharedVariants が画面外を含む全singletonのvariant一覧です。module（所属）とcomponent（部品）の組で識別し、variant（選ばれている状態）を読みます。componentValuesは通常部品も含む別の一覧です。照合に失敗したら元の組合せを用意し、ファイル編集で回避しないでください。</p></details></div>
+
+ ❯ test/history-preview.test.ts:64:41
+     62|     expect(g.app.innerHTML).toContain('画面外も含む全て');
+     63|     expect(g.app.innerHTML).toContain('data.state.sharedVariants');
+     64|     expect(g.run('scenarioControls()')).toContain('</details><details …
+       |                                         ^
+     65|     expect(g.app.innerHTML.match(/data-state-key="state-query"/g)).toH…
+     66|     expect(g.app.innerHTML).toContain('data-state-key="load-state-quer…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  15:48:52
+   Duration  283ms (transform 64ms, setup 0ms, collect 70ms, tests 63ms, environment 0ms, prepare 48ms)
+
+undefined
+/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/simulator:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: vitest run test/history-preview.test.ts

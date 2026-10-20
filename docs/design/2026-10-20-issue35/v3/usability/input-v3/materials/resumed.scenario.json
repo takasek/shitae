@@ -1,0 +1,1812 @@
+{
+  "format": "shitae-scenario",
+  "formatVersion": 1,
+  "protocolVersion": 1,
+  "model": {
+    "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+    "modelId": "874fc8c77588d712fc22b3701a2f25c4c1e8d998999bb72415409be1a088570a",
+    "entryModule": "expense",
+    "sourceBasis": "source-bytes",
+    "manifest": [
+      {
+        "module": "expense",
+        "sourceSha256": "81a8737481b16fb310f40d49ea5e528ef704aaad7a11e57c5f52f08bee88a196"
+      }
+    ]
+  },
+  "initialDigest": "f6a995c472c1ac298b902d65ccf3f158956efc5c2ef6163315d32018572b5a1f",
+  "steps": [
+    {
+      "step": 1,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 67,
+              "length": 26,
+              "line": 6,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "a26c43c477ff645e20f7d411c33ffa46029dc5d74b3dfc3d8f206082882ca686"
+        },
+        "branch": null
+      },
+      "afterDigest": "a4b03e0d8e1986e850b71d066923eee9e65a0f6d4e7edcf2ebf7f3f2f3f48cb7",
+      "observations": [
+        {
+          "viewDigest": "1b81e8f87962baf7052d662e6c01755adda613c4714485cb1f9bd2bd27053d57"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "sharedVariants",
+          "origins"
+        ]
+      },
+      "outputDigest": "e4686d3267f5aa16ab06a44c78ece53960fa308798890cd999c892ca41cb04db"
+    },
+    {
+      "step": 2,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 94,
+              "length": 28,
+              "line": 7,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "3611d7cf78be7bf54ca4827960a06a470972c720a857a331a3602b2a90c4173f"
+        },
+        "branch": null
+      },
+      "afterDigest": "d490f8f8a4f35b788300e15297a2f7dd1c5431212ccd33b9452697a9f15b32f8",
+      "observations": [
+        {
+          "viewDigest": "2da755953080ae1b4f963e771ca0f09cd644115982f5a93ec53a6d25f730c5eb"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "sharedVariants",
+          "origins"
+        ]
+      },
+      "outputDigest": "e4686d3267f5aa16ab06a44c78ece53960fa308798890cd999c892ca41cb04db"
+    },
+    {
+      "step": 3,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 123,
+              "length": 28,
+              "line": 8,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "0f0bdc2fbfda0f2136b6ade7a670580b0e263044a4ea4e1be9d85b7db3cb91a0"
+        },
+        "branch": null
+      },
+      "afterDigest": "373e7aaecb146c66a9f7ab90f38ca0feae33ac18955d1d8226036343892e2f25",
+      "observations": [
+        {
+          "viewDigest": "bafd3fcacacd068213ad0d5b88cfba5c3f88708f756ab648450014dff3bda587"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "sharedVariants",
+          "origins"
+        ]
+      },
+      "outputDigest": "e4686d3267f5aa16ab06a44c78ece53960fa308798890cd999c892ca41cb04db"
+    },
+    {
+      "step": 4,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 152,
+              "length": 29,
+              "line": 9,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "9195241515bad3b9dbcb7cec069ebe1dc5a24339e9ce66ef6d34cf7ca5637e5f"
+        },
+        "branch": {
+          "label": "提出",
+          "results": [
+            {
+              "resultIndex": 0,
+              "source": {
+                "module": "expense",
+                "span": {
+                  "offset": 152,
+                  "length": 29,
+                  "line": 9,
+                  "col": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      "afterDigest": "7e585063c5dae7564b5711bc6350fca6e502e2ebabbf6180437d4d52711b00e0",
+      "observations": [
+        {
+          "viewDigest": "e3d8099ebd146fa31a732a160fe823b9ee85a5c59724c3961a942714abb71dce"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "sharedVariants"
+        ]
+      },
+      "outputDigest": "af7b49febd8c9b14cb20197629e4a31a977ed40c7dbe80d518db2b6964686948"
+    },
+    {
+      "step": 5,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 182,
+              "length": 32,
+              "line": 10,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "c95174cda5485fa8b9b008e4bddedfa1dd9aabe2b5804c295f5db2e369042b22"
+        },
+        "branch": {
+          "label": "領収書不足",
+          "results": [
+            {
+              "resultIndex": 0,
+              "source": {
+                "module": "expense",
+                "span": {
+                  "offset": 182,
+                  "length": 32,
+                  "line": 10,
+                  "col": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      "afterDigest": "bf27983087c30e33b174bea97d663f067d24168271a45e05dc534a0441335086",
+      "observations": [
+        {
+          "viewDigest": "0b3ce0bc52f2a7e9a76ef8a73c9b3459e1a37070c19ae320209fcc45846b6598"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "sharedVariants"
+        ]
+      },
+      "outputDigest": "af7b49febd8c9b14cb20197629e4a31a977ed40c7dbe80d518db2b6964686948"
+    },
+    {
+      "step": 6,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 215,
+              "length": 26,
+              "line": 11,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "e99d932c27891d845cb8dbadd5f4668e04d5b33750537cb4c9cd8e7b8df6304f"
+        },
+        "branch": null
+      },
+      "afterDigest": "fbd7ff061f649f6725cf934a76e28c85a1f0d276b4ecefab7c94b6e00df0877b",
+      "observations": [
+        {
+          "viewDigest": "84622f9847870e8e5029a53c24e0ba59203f18256c4638ed4712e6c10c1cbc9e"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "sharedVariants"
+        ]
+      },
+      "outputDigest": "af7b49febd8c9b14cb20197629e4a31a977ed40c7dbe80d518db2b6964686948"
+    },
+    {
+      "step": 7,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 242,
+              "length": 49,
+              "line": 12,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "10f32efc85db97158f755c24128e3ef7c7af1c4d631c00b2ded132d9410c0e76"
+        },
+        "branch": {
+          "label": "修正済み",
+          "results": [
+            {
+              "resultIndex": 0,
+              "source": {
+                "module": "expense",
+                "span": {
+                  "offset": 242,
+                  "length": 49,
+                  "line": 12,
+                  "col": 1
+                }
+              }
+            },
+            {
+              "resultIndex": 1,
+              "source": {
+                "module": "expense",
+                "span": {
+                  "offset": 242,
+                  "length": 49,
+                  "line": 12,
+                  "col": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      "afterDigest": "a1e8a086070825a4685b7d2970913c5a513b959216b43af1140f0970423fe824",
+      "observations": [
+        {
+          "viewDigest": "39c97c4fec00f6b0512b6b8bbc37b4b7b16aa87de876ca53fa9ff7c0eefb9b75"
+        },
+        {
+          "viewDigest": "f7969a8f823562bda6e94c2d1a1d18a40f3a1bae23a63ab4cd26cf155386d33c"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "sharedVariants",
+          "origins"
+        ]
+      },
+      "outputDigest": "e4686d3267f5aa16ab06a44c78ece53960fa308798890cd999c892ca41cb04db"
+    },
+    {
+      "step": 8,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 292,
+              "length": 32,
+              "line": 13,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "06ec15241d774e25f4718188044a00dab56e167afd2bf9714f893618e59e5ea4"
+        },
+        "branch": {
+          "label": "問題なし",
+          "results": [
+            {
+              "resultIndex": 0,
+              "source": {
+                "module": "expense",
+                "span": {
+                  "offset": 292,
+                  "length": 32,
+                  "line": 13,
+                  "col": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      "afterDigest": "2073d9583e718b55cd5657ae0cc98b2ad12ea224fdb2d25735b2720d7691b214",
+      "observations": [
+        {
+          "viewDigest": "642890412af6f13ac2623d55b0160c2aff591b88d742eb86f442a8a4149a3005"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "sharedVariants"
+        ]
+      },
+      "outputDigest": "af7b49febd8c9b14cb20197629e4a31a977ed40c7dbe80d518db2b6964686948"
+    },
+    {
+      "step": 9,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 325,
+              "length": 30,
+              "line": 14,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "c0be8d2337e1d8162b16f11922d977548698b7cd19d9e286fe14a79488ba352e"
+        },
+        "branch": {
+          "label": "成功",
+          "results": [
+            {
+              "resultIndex": 0,
+              "source": {
+                "module": "expense",
+                "span": {
+                  "offset": 325,
+                  "length": 30,
+                  "line": 14,
+                  "col": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      "afterDigest": "2c59c0e7c99750b7a48feee9a360ef22fd06f2dc0eb4ec9c406347496584501f",
+      "observations": [
+        {
+          "viewDigest": "862de4a5a8335f32ecb84bf76b598b773c04aee107a34e80703438ecf79adb91"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "sharedVariants"
+        ]
+      },
+      "outputDigest": "af7b49febd8c9b14cb20197629e4a31a977ed40c7dbe80d518db2b6964686948"
+    },
+    {
+      "step": 10,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 356,
+              "length": 29,
+              "line": 15,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "a3677b9126b26cc522cfb162d6cde53989e0b0e39a0fd1fbc8f37c3afae1832d"
+        },
+        "branch": null
+      },
+      "afterDigest": "89450daad477d294cc8c1f57d64099a7530879463640cb25d2c3aaee8cf12083",
+      "observations": [
+        {
+          "viewDigest": "d9238ced1633080df0474cab44f2e127831ebdac357005df382d0144b5e2743d"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "sharedVariants"
+        ]
+      },
+      "outputDigest": "af7b49febd8c9b14cb20197629e4a31a977ed40c7dbe80d518db2b6964686948"
+    },
+    {
+      "step": 11,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 386,
+              "length": 33,
+              "line": 16,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "bcb1ceeba41e1b5a62ded27c2d3899153aed8ea7a9ff86c6d4906bb5008290b1"
+        },
+        "branch": null
+      },
+      "afterDigest": "b824820ab360d7cb514e082a98d164416988f992ac1969a680e86ddca4d5ec8c",
+      "observations": [
+        {
+          "viewDigest": "e2188192a40ec4020a49e99ef0413ce113cd9752131989cc6d2fb2a5dca12ec1"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "sharedVariants"
+        ]
+      },
+      "outputDigest": "af7b49febd8c9b14cb20197629e4a31a977ed40c7dbe80d518db2b6964686948"
+    },
+    {
+      "step": 12,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 420,
+              "length": 46,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "28c14fe3dc1e36020960a16f5d76a1c463b02a3cb65801ba3ba53dac3da4435d"
+        },
+        "branch": null
+      },
+      "afterDigest": "bb5e14ed9e995e261872ed9ac3754bbee4545413c034498effe5b016e6488b4a",
+      "observations": [
+        {
+          "viewDigest": "0e21176eae3a0d7d4175725930c6ce249fe6bd0523abf371c4454cd4254f3765"
+        },
+        {
+          "viewDigest": "7c55309e59665a3cb262fd3df07bbb2d1d468a8a3c07b001f4f7792179df2110"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "sharedVariants"
+        ]
+      },
+      "outputDigest": "af7b49febd8c9b14cb20197629e4a31a977ed40c7dbe80d518db2b6964686948"
+    },
+    {
+      "step": 13,
+      "command": {
+        "kind": "seek",
+        "target": {
+          "step": 7,
+          "observation": 0
+        }
+      },
+      "afterDigest": "ba824a0729c5155d47cfe138d29e96c53fbf84d3f2a7dff40b9a9073e1932ac0",
+      "observations": [],
+      "output": null,
+      "outputDigest": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    }
+  ],
+  "final": {
+    "view": {
+      "view": {
+        "location": {
+          "module": "expense",
+          "component": "申請詳細",
+          "variant": null
+        },
+        "state": {
+          "frames": [
+            {
+              "id": 0,
+              "parentId": null,
+              "stack": [
+                {
+                  "module": "expense",
+                  "component": "申請詳細",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                }
+              ],
+              "barrier": false,
+              "beginsSession": null,
+              "origin": "root"
+            }
+          ],
+          "activeFrameId": 0,
+          "nextFrameId": 1,
+          "activePath": [
+            0
+          ],
+          "overlays": [],
+          "sharedVariants": [
+            {
+              "module": "expense",
+              "component": "保存状況",
+              "variant": "未保存",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "initial"
+            },
+            {
+              "module": "expense",
+              "component": "文書B",
+              "variant": "確認済み",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "expense",
+              "component": "申請状態",
+              "variant": "審査中",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "expense",
+              "component": "申請額",
+              "variant": "一万円",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            }
+          ],
+          "testVariants": [],
+          "componentValues": [
+            {
+              "module": "expense",
+              "component": "保存状況",
+              "variant": "未保存",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "initial"
+            },
+            {
+              "module": "expense",
+              "component": "文書B",
+              "variant": "確認済み",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "expense",
+              "component": "申請状態",
+              "variant": "審査中",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "expense",
+              "component": "申請詳細",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "expense",
+              "component": "申請額",
+              "variant": "一万円",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "expense",
+              "component": "通知",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            }
+          ],
+          "gateTargets": [],
+          "inclusion": {
+            "main": {
+              "module": "expense",
+              "component": "申請詳細",
+              "root": "main",
+              "variant": null,
+              "singleton": false,
+              "scope": "frame-location",
+              "origin": "initial",
+              "source": {
+                "module": "expense",
+                "span": {
+                  "offset": 34,
+                  "length": 6,
+                  "line": 2,
+                  "col": 1
+                }
+              },
+              "children": [
+                {
+                  "name": "申請",
+                  "root": "main",
+                  "path": [
+                    0
+                  ],
+                  "source": {
+                    "module": "expense",
+                    "span": {
+                      "offset": 41,
+                      "length": 8,
+                      "line": 3,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "expense",
+                    "component": "申請状態"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": "審査中",
+                    "singleton": true,
+                    "scope": "singleton-shared",
+                    "origin": "dsl"
+                  },
+                  "componentSource": {
+                    "module": "expense",
+                    "span": {
+                      "offset": 517,
+                      "length": 7,
+                      "line": 21,
+                      "col": 1
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "name": "金額",
+                  "root": "main",
+                  "path": [
+                    1
+                  ],
+                  "source": {
+                    "module": "expense",
+                    "span": {
+                      "offset": 50,
+                      "length": 7,
+                      "line": 4,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "expense",
+                    "component": "申請額"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": "一万円",
+                    "singleton": true,
+                    "scope": "singleton-shared",
+                    "origin": "dsl"
+                  },
+                  "componentSource": {
+                    "module": "expense",
+                    "span": {
+                      "offset": 585,
+                      "length": 6,
+                      "line": 31,
+                      "col": 1
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "name": "保存",
+                  "root": "main",
+                  "path": [
+                    2
+                  ],
+                  "source": {
+                    "module": "expense",
+                    "span": {
+                      "offset": 58,
+                      "length": 8,
+                      "line": 5,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "expense",
+                    "component": "保存状況"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": "未保存",
+                    "singleton": true,
+                    "scope": "singleton-shared",
+                    "origin": "initial"
+                  },
+                  "componentSource": {
+                    "module": "expense",
+                    "span": {
+                      "offset": 616,
+                      "length": 7,
+                      "line": 36,
+                      "col": 1
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            "overlays": []
+          }
+        },
+        "actions": {
+          "items": [
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "expense",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "expense",
+                  "span": {
+                    "offset": 67,
+                    "length": 26,
+                    "line": 6,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "a26c43c477ff645e20f7d411c33ffa46029dc5d74b3dfc3d8f206082882ca686"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "expense",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "expense",
+                  "span": {
+                    "offset": 94,
+                    "length": 28,
+                    "line": 7,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "3611d7cf78be7bf54ca4827960a06a470972c720a857a331a3602b2a90c4173f"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "expense",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "expense",
+                  "span": {
+                    "offset": 123,
+                    "length": 28,
+                    "line": 8,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "0f0bdc2fbfda0f2136b6ade7a670580b0e263044a4ea4e1be9d85b7db3cb91a0"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "expense",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "expense",
+                  "span": {
+                    "offset": 152,
+                    "length": 29,
+                    "line": 9,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "9195241515bad3b9dbcb7cec069ebe1dc5a24339e9ce66ef6d34cf7ca5637e5f"
+              },
+              "branches": [
+                {
+                  "label": "提出",
+                  "results": [
+                    {
+                      "resultIndex": 0,
+                      "source": {
+                        "module": "expense",
+                        "span": {
+                          "offset": 152,
+                          "length": 29,
+                          "line": 9,
+                          "col": 1
+                        }
+                      }
+                    }
+                  ]
+                }
+              ],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "expense",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "expense",
+                  "span": {
+                    "offset": 182,
+                    "length": 32,
+                    "line": 10,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "c95174cda5485fa8b9b008e4bddedfa1dd9aabe2b5804c295f5db2e369042b22"
+              },
+              "branches": [
+                {
+                  "label": "領収書不足",
+                  "results": [
+                    {
+                      "resultIndex": 0,
+                      "source": {
+                        "module": "expense",
+                        "span": {
+                          "offset": 182,
+                          "length": 32,
+                          "line": 10,
+                          "col": 1
+                        }
+                      }
+                    }
+                  ]
+                }
+              ],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "expense",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "expense",
+                  "span": {
+                    "offset": 215,
+                    "length": 26,
+                    "line": 11,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "e99d932c27891d845cb8dbadd5f4668e04d5b33750537cb4c9cd8e7b8df6304f"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "expense",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "expense",
+                  "span": {
+                    "offset": 242,
+                    "length": 49,
+                    "line": 12,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "10f32efc85db97158f755c24128e3ef7c7af1c4d631c00b2ded132d9410c0e76"
+              },
+              "branches": [
+                {
+                  "label": "修正済み",
+                  "results": [
+                    {
+                      "resultIndex": 0,
+                      "source": {
+                        "module": "expense",
+                        "span": {
+                          "offset": 242,
+                          "length": 49,
+                          "line": 12,
+                          "col": 1
+                        }
+                      }
+                    },
+                    {
+                      "resultIndex": 1,
+                      "source": {
+                        "module": "expense",
+                        "span": {
+                          "offset": 242,
+                          "length": 49,
+                          "line": 12,
+                          "col": 1
+                        }
+                      }
+                    }
+                  ]
+                }
+              ],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "expense",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "expense",
+                  "span": {
+                    "offset": 292,
+                    "length": 32,
+                    "line": 13,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "06ec15241d774e25f4718188044a00dab56e167afd2bf9714f893618e59e5ea4"
+              },
+              "branches": [
+                {
+                  "label": "問題なし",
+                  "results": [
+                    {
+                      "resultIndex": 0,
+                      "source": {
+                        "module": "expense",
+                        "span": {
+                          "offset": 292,
+                          "length": 32,
+                          "line": 13,
+                          "col": 1
+                        }
+                      }
+                    }
+                  ]
+                }
+              ],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "expense",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "expense",
+                  "span": {
+                    "offset": 325,
+                    "length": 30,
+                    "line": 14,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "c0be8d2337e1d8162b16f11922d977548698b7cd19d9e286fe14a79488ba352e"
+              },
+              "branches": [
+                {
+                  "label": "成功",
+                  "results": [
+                    {
+                      "resultIndex": 0,
+                      "source": {
+                        "module": "expense",
+                        "span": {
+                          "offset": 325,
+                          "length": 30,
+                          "line": 14,
+                          "col": 1
+                        }
+                      }
+                    }
+                  ]
+                }
+              ],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "expense",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "expense",
+                  "span": {
+                    "offset": 356,
+                    "length": 29,
+                    "line": 15,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "a3677b9126b26cc522cfb162d6cde53989e0b0e39a0fd1fbc8f37c3afae1832d"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "expense",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "expense",
+                  "span": {
+                    "offset": 386,
+                    "length": 33,
+                    "line": 16,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "bcb1ceeba41e1b5a62ded27c2d3899153aed8ea7a9ff86c6d4906bb5008290b1"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "expense",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "expense",
+                  "span": {
+                    "offset": 420,
+                    "length": 46,
+                    "line": 17,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "28c14fe3dc1e36020960a16f5d76a1c463b02a3cb65801ba3ba53dac3da4435d"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "expense",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "expense",
+                  "span": {
+                    "offset": 467,
+                    "length": 28,
+                    "line": 18,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "6953724900ed68fbd26b7b079f24083471cf091e98865ebcd6c95a3573521c7c"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "expense",
+                  "component": "申請詳細",
+                  "variant": null
+                },
+                "source": {
+                  "module": "expense",
+                  "span": {
+                    "offset": 496,
+                    "length": 19,
+                    "line": 19,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "c4b1727ea5cd4b5328a3e73198c7efeba67f2a5b31d5c97fda17552471c5d803"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            }
+          ],
+          "back": {
+            "enabled": false,
+            "reason": "no-return-location"
+          }
+        }
+      },
+      "timeline": [
+        {
+          "resultIndex": null,
+          "source": null,
+          "kind": "transition",
+          "label": "起動",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 0,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 67,
+              "length": 26,
+              "line": 6,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(申請状態)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 1,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 94,
+              "length": 28,
+              "line": 7,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(申請額)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 2,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 123,
+              "length": 28,
+              "line": 8,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(文書B)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 3,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 152,
+              "length": 29,
+              "line": 9,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(申請状態)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 4,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 182,
+              "length": 32,
+              "line": 10,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(申請状態)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 5,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 215,
+              "length": 26,
+              "line": 11,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(申請額)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 6,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 242,
+              "length": 49,
+              "line": 12,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(申請状態)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 7,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 242,
+              "length": 49,
+              "line": 12,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(保存状況)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": true,
+          "ref": {
+            "step": 7,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 292,
+              "length": 32,
+              "line": 13,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(申請状態)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": true,
+          "ref": {
+            "step": 8,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 325,
+              "length": 30,
+              "line": 14,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(保存状況)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": true,
+          "ref": {
+            "step": 9,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 356,
+              "length": 29,
+              "line": 15,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(申請状態)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": true,
+          "ref": {
+            "step": 10,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 386,
+              "length": 33,
+              "line": 16,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(文書B)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": true,
+          "ref": {
+            "step": 11,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 420,
+              "length": 46,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(申請状態)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": true,
+          "ref": {
+            "step": 12,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "expense",
+            "span": {
+              "offset": 420,
+              "length": 46,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(保存状況)",
+          "location": {
+            "module": "expense",
+            "component": "申請詳細",
+            "variant": null
+          },
+          "ghost": true,
+          "ref": {
+            "step": 12,
+            "observation": 1
+          }
+        }
+      ],
+      "cursor": {
+        "step": 7,
+        "observation": 0
+      }
+    },
+    "digest": "ba824a0729c5155d47cfe138d29e96c53fbf84d3f2a7dff40b9a9073e1932ac0"
+  }
+}

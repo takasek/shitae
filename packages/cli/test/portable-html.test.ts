@@ -139,7 +139,7 @@ describe('shared simulator HTML does not leak absolute paths (issue #28)', () =>
 
     const page = gui(htmlB);
     await page.load(JSON.stringify(exported));
-    expect(page.app.innerHTML).toContain('シナリオを読み込みました');
+    expect(page.app.innerHTML).toContain('操作の再生ファイルを読み込みました');
     expect(page.app.innerHTML).not.toContain('MODEL_MISMATCH');
     const fromPage = await page.run('buildScenarioJson()');
     expect(JSON.parse(fromPage)).toEqual(exported);

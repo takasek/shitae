@@ -1,0 +1,114 @@
+Browser tab: 2, Title: "#35 履歴UI設計案", URL: "http://127.0.0.1:8875/ui-proposal.html".
+1 AXWebArea #35 履歴UI設計案, URL: 127.0.0.1:8875/ui-proposal.html
+	2 container
+		3 heading 履歴を読み、続きを選ぶ 設計案 v1・架空データ, Value: 1
+			4 text 履歴を読み、続きを選ぶ  設計案 v1・架空データ
+		5 text 実行位置：記録12「申請を保存」／条件：成功／結果2の後
+		111 text 参照対象を変更しました。実行位置は記録12のままです。
+	7 container 操作履歴
+		8 heading 操作履歴, Value: 2
+			9 text 操作履歴
+		10 text 詳細を開く → 画面を見る → 必要なら再開
+		11 container history
+			12 button (collapsed) 記録12：申請を保存 条件：成功 · 2結果 · 実行位置, Secondary Actions: Expand
+				13 AXListMarker ▸ 
+				14 text 記録12：申請を保存
+				15 text 条件：成功 · 2結果 ·
+				16 text 実行位置
+			17 button (collapsed) 記録11：申請を保存 条件：成功 · 2結果 · 保持中, Secondary Actions: Expand
+				18 AXListMarker ▸ 
+				19 text 記録11：申請を保存
+				20 text 条件：成功 · 2結果 ·
+				21 text 保持中
+			22 button (collapsed) 記録10：申請を保存 条件：成功 · 2結果 · 保持中, Secondary Actions: Expand
+				23 AXListMarker ▸ 
+				24 text 記録10：申請を保存
+				25 text 条件：成功 · 2結果 ·
+				26 text 保持中
+			27 button (collapsed) 記録9：申請を保存 条件：成功 · 2結果 · 保持中, Secondary Actions: Expand
+				28 AXListMarker ▸ 
+				29 text 記録9：申請を保存
+				30 text 条件：成功 · 2結果 ·
+				31 text 保持中
+			32 button (collapsed) 記録8：申請を保存 条件：成功 · 2結果 · 保持中, Secondary Actions: Expand
+				33 AXListMarker ▸ 
+				34 text 記録8：申請を保存
+				35 text 条件：成功 · 2結果 ·
+				36 text 保持中
+			97 container
+				98 button (expanded) 記録7：申請を保存 条件：成功 · 2結果 · 保持中, Secondary Actions: Collapse
+					99 AXListMarker ▾ 
+					100 text 記録7：申請を保存
+					101 text 条件：成功 · 2結果 ·
+					102 text 保持中
+				103 text 結果1：申請状態を承認済みにする
+				104 text 申請詳細／結果1の後
+				105 button 記録7・結果1の画面を見る
+				106 text 結果2：保存通知を表示する
+				107 text 申請詳細／この操作の最後の状態
+				108 button 記録7・結果2の画面を見る
+				109 button (collapsed) 技術詳細, Secondary Actions: Expand
+					110 text 技術詳細
+			42 button (collapsed) 記録6：申請を保存 条件：成功 · 2結果 · 保持中, Secondary Actions: Expand
+				43 AXListMarker ▸ 
+				44 text 記録6：申請を保存
+				45 text 条件：成功 · 2結果 ·
+				46 text 保持中
+			47 button (collapsed) 記録5：申請を保存 条件：成功 · 2結果 · 保持中, Secondary Actions: Expand
+				48 AXListMarker ▸ 
+				49 text 記録5：申請を保存
+				50 text 条件：成功 · 2結果 ·
+				51 text 保持中
+			52 button (collapsed) 記録4：申請を保存 条件：成功 · 2結果 · 保持中, Secondary Actions: Expand
+				53 AXListMarker ▸ 
+				54 text 記録4：申請を保存
+				55 text 条件：成功 · 2結果 ·
+				56 text 保持中
+			57 button (collapsed) 記録3：申請を保存 条件：成功 · 2結果 · 保持中, Secondary Actions: Expand
+				58 AXListMarker ▸ 
+				59 text 記録3：申請を保存
+				60 text 条件：成功 · 2結果 ·
+				61 text 保持中
+			62 button (collapsed) 記録2：申請を保存 条件：成功 · 2結果 · 保持中, Secondary Actions: Expand
+				63 AXListMarker ▸ 
+				64 text 記録2：申請を保存
+				65 text 条件：成功 · 2結果 ·
+				66 text 保持中
+			67 button (collapsed) 記録1：申請を保存 条件：成功 · 2結果 · 保持中, Secondary Actions: Expand
+				68 AXListMarker ▸ 
+				69 text 記録1：申請を保存
+				70 text 条件：成功 · 2結果 ·
+				71 text 保持中
+		72 button (collapsed) 記録0：状態点のない操作 結果の文章だけを保持, Secondary Actions: Expand
+			73 AXListMarker ▸ 
+			74 text 記録0：状態点のない操作
+			75 text 結果の文章だけを保持
+		76 button (collapsed) 破棄された経路 3状態点・記録のみ, Secondary Actions: Expand
+			77 AXListMarker ▸ 
+			78 text 破棄された経路
+			79 text 3状態点・記録のみ
+	80 container 画面表示
+		112 container previewNotice
+			113 text 参照中：記録7「申請を保存」／条件：成功／結果1の後
+			114 text 実行位置は変えていません。以下の操作は説明のみです。
+			115 button 現在の表示へ戻る, ID: return
+			116 button この地点から再開…, ID: resume
+		81 container
+			82 heading 参照画面：申請詳細, Value: 2, ID: screenTitle
+				117 text 参照画面：申請詳細
+			84 text 申請 出張費・代表データ 審査状態
+			85 text 承認済み
+			86 text 表示対象
+			118 text 記録7／結果1の後
+			119 text 当時の操作：詳細を開く、申請を保存。参照中はここから実行できません。
+		88 container
+			89 heading 読込時点の要約, Value: 2
+				90 text 読込時点の要約
+			91 text 画面・操作条件に関係する共有状態：本体：申請状態 ##承認済み 読込時点の値です。画面外も含む全共有状態の一覧ではありません。
+			92 button (collapsed) 全共有状態を確認する方法, Secondary Actions: Expand
+				93 text 全共有状態を確認する方法
+		94 button (collapsed) 技術詳細・版の詳細・共有するもの, Secondary Actions: Expand
+			95 text 技術詳細・版の詳細・共有するもの
+		96 text モデルは状態と遷移、このHTMLは配置と表示位置を検討します。両者は製品実装・人向け受入ではありません。
+
+The focused UI element is 105 button 記録7・結果1の画面を見る

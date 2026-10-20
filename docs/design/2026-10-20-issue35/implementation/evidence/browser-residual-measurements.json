@@ -1,0 +1,52 @@
+{
+  "bottom": [
+    {
+      "case": "bottom-open",
+      "focus": "記録1 · 操作 · 下書きを作る",
+      "max": 1620,
+      "scroll": 1620,
+      "top": 340.5
+    },
+    {
+      "case": "bottom-closed",
+      "focus": "記録1 · 操作 · 下書きを作る",
+      "max": 1484,
+      "scroll": 1484.5,
+      "top": 476
+    },
+    {
+      "case": "bottom-reopened",
+      "focus": "記録1 · 操作 · 下書きを作る",
+      "max": 1620,
+      "scroll": 1484.5,
+      "top": 476
+    }
+  ],
+  "reset": {
+    "record": 13,
+    "preview": false,
+    "confirmation": false,
+    "traceScroll": 0,
+    "screenScroll": 0,
+    "view": "1:live",
+    "focus": "現在の操作位置を一覧で見る"
+  },
+  "zoom": {
+    "status": "unverified",
+    "before": {
+      "dpr": 2,
+      "font": "13.3333px",
+      "width": 1280
+    },
+    "after": {
+      "width": 1280,
+      "dpr": 2,
+      "scale": 1
+    },
+    "attempts": [
+      "super+plus",
+      "ctrl+plus"
+    ],
+    "reason": "viewport capability only supports width/height; shortcuts did not change zoom"
+  }
+}

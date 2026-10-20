@@ -1,0 +1,32 @@
+Browser tab: 1, Title: "履歴UI設計案 v3", URL: "http://127.0.0.1:8875/ui-proposal.html".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 85-89, 118, 120-122, 128, 184-185, 189-199
+~		170 text 操作を続ける位置：記録7「再申請する」／条件：修正済み／結果1の後
+~		171 text 設計デモの続ける位置を変更しました。実際のseekは対応する保存資料で別に検証しています。
+~			11 button (collapsed) 記録12：支払いを完了する 条件：指定なし · 2結果 · 後の履歴・戻れる, Secondary Actions: Expand
+~				172 text 後の履歴・戻れる
+~			16 button (collapsed) 記録11：領収書の更新を受け取る 条件：指定なし · 1結果 · 後の履歴・戻れる, Secondary Actions: Expand
+~				173 text 後の履歴・戻れる
+~			21 button (collapsed) 記録10：支払いを予約する 条件：指定なし · 1結果 · 後の履歴・戻れる, Secondary Actions: Expand
+~				174 text 後の履歴・戻れる
+~			26 button (collapsed) 記録9：保存する 条件：成功 · 1結果 · 後の履歴・戻れる, Secondary Actions: Expand
+~				175 text 後の履歴・戻れる
+~			31 button (collapsed) 記録8：承認する 条件：問題なし · 1結果 · 後の履歴・戻れる, Secondary Actions: Expand
+~				176 text 後の履歴・戻れる
+~				159 button (expanded) 記録7：再申請する 条件：修正済み · 2結果 · ここから操作を続ける, Secondary Actions: Collapse
+~					177 text ここから操作を続ける
+~			75 heading 操作を続ける画面：申請詳細, Value: 2, ID: screenTitle
++				184 text 操作を続ける画面：申請詳細
++			185 text 一万円
++			186 text 審査中
++			187 text 未保存
++			188 text 記録7「再申請する」／条件：修正済み／結果1の後
++		189 container continueActions
++			190 heading 記録7の結果1から操作を試す, Value: 2
++				191 text 記録7の結果1から操作を試す
++			192 text この設計デモでは、次の2操作を試せます。
++			193 button 前の画面に戻る, ID: noop
++			194 text この例には戻り先がないため移動せず、後の履歴も残ります。
++			195 button 申請を取り下げる, ID: branch
++			196 text 取下げ後は新しい経路になります。記録7の結果2以降の画面には戻れなくなり、参照中なら新しい画面へ切り替わります。文章の記録は残ります。
+The focused UI element is 166 button 記録7・結果1の画面を見る

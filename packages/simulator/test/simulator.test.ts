@@ -871,7 +871,7 @@ problem: Diagnostics
     );
     const appHtml = vm.runInContext('app.innerHTML', context);
     const transitionSpanMatch = appHtml.match(
-      /<span class="timeline-item timeline-item-transition current" onclick="jumpToTimeline\(1\)">([^<]*)<\/span>/,
+      /<div class="timeline-item timeline-item-transition current" data-observation-id="2">([^<]*)<button/,
     );
     expect(transitionSpanMatch).not.toBeNull();
     expect(transitionSpanMatch![1]).toBe('push → 検索'); // 画面名バッジ [検索] を併記しない
@@ -981,9 +981,9 @@ problem: Diagnostics
     expect(idxResult).toBeLessThan(idxSearch); // 最新（push→結果）が先(上)に出る
     expect(idxSearch).toBeLessThan(idxHome);
 
-    // onclick="jumpToTimeline(N)" の N は配列インデックスのまま（描画順は新→旧だが値は変わらない）
-    const clickIdxs = [...timelineHtml.matchAll(/jumpToTimeline\((\d+)\)/g)].map((m) => Number(m[1]));
-    expect(clickIdxs).toEqual([2, 1, 0]);
+    // 閲覧ボタンは安定した観測IDを使い、描画順だけを逆転する
+    const clickIdxs = [...timelineHtml.matchAll(/previewObservation\((\d+)\)/g)].map((m) => Number(m[1]));
+    expect(clickIdxs).toEqual([3, 2, 1]);
   });
 
   it('統合ログ: newest-on-top でも current（cursor 位置）・ghost（未来分）のハイライトは正しいエントリに付きクリックで redo できる（Task 14 受入基準d）', () => {
@@ -1009,15 +1009,15 @@ problem: Diagnostics
     const timelineHtml = appHtml.slice(timelineIdx);
 
     // 各 span を配列インデックス（onclick の引数）別に取り出して current/ghost を検証する
-    const spans = [...timelineHtml.matchAll(/<span class="([^"]*)" onclick="jumpToTimeline\((\d+)\)">/g)];
-    const classesByIdx = new Map(spans.map((m) => [Number(m[2]), m[1]!]));
+    const spans = [...timelineHtml.matchAll(/<div class="([^"]*)" data-observation-id="(\d+)">/g)];
+    const classesByIdx = new Map(spans.map((m) => [Number(m[2]) - 1, m[1]!]));
     expect(classesByIdx.get(0)).not.toMatch(/\bcurrent\b/); // 起動: 過去
     expect(classesByIdx.get(0)).not.toMatch(/\bghost\b/);
     expect(classesByIdx.get(1)).toMatch(/\bcurrent\b/); // push→検索: 現在地
     expect(classesByIdx.get(2)).toMatch(/\bghost\b/); // push→結果: 未来(ghost)
 
     // クリック（jumpToTimeline）で redo できる（描画順反転後もインデックス整合が実効することの確認）
-    vm.runInContext('jumpToTimeline(2); render()', context);
+    vm.runInContext('previewObservation(3); requestResume(3); confirmResume()', context);
     expect(vm.runInContext('cursor', context)).toBe(2);
     expect(vm.runInContext('currentFrame().component', context)).toBe('結果');
   });
@@ -2012,7 +2012,7 @@ problem: Diagnostics
     const graphIdx = sectionIdx('graph-section');
     expect(screenIdx).toBeLessThan(stackIdx);
     expect(stackIdx).toBeLessThan(graphIdx);
-    expect(centerSection.slice(screenIdx, stackIdx)).toContain('現在の画面');
+    expect(centerSection.slice(screenIdx, stackIdx)).toContain('操作を続ける画面');
     expect(centerSection.slice(stackIdx, graphIdx)).toContain('スタック');
     expect(centerSection.slice(graphIdx)).toContain('遷移マップ');
   });
@@ -2196,7 +2196,7 @@ problem: Diagnostics
     // 中央ペイン（pane-center）内で「現在の画面」の後に「スタック」が現れる（Task 14 受入基準a）
     const centerIdx = beforeHtml.indexOf('pane-center');
     const centerSection = beforeHtml.slice(centerIdx);
-    expect(centerSection.indexOf('現在の画面')).toBeLessThan(centerSection.indexOf('スタック'));
+    expect(centerSection.indexOf('操作を続ける画面')).toBeLessThan(centerSection.indexOf('スタック'));
 
     vm.runInContext(
       "fixtureResult({ type: 'transition', word: 'push', target: { module: 'main', component: 'ログイン', variant: null }, session: 'login' }); render()",

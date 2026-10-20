@@ -1,0 +1,13 @@
+{
+  "ui-proposal.html": "3c36678bb592ae64022cd94a14344dbe0385a1c9544fa86472ff06c701ed8758",
+  "trial-state.mjs": "72368f78ee2777d9a795adef4ff2caa9788ec1695886c59a181ccd55c7fbd011",
+  "materials/guide.html": "69c885434398778728b4d5e0aed4f3c75992ead297fa0ad1b50ed93c360f0e8c",
+  "materials/identity.json": "466ea196dcf9612ddf5231c4f0c3d197425b03019d97d091baf46293d4a65095",
+  "materials/history-data.json": "5c4dac7b8c063bc7a35565390420856385e87fb73b015bc5056d6dbb10bd4621",
+  "materials/resumed.scenario.json": "2fb30a43ab776d4600ecf104c92f9966c39b52b6a1b5685b78bd35fce06c92f3",
+  "materials/history-data.js": "a8b7dd427fe2ac1991e399a94a630b08d2f805557315dd68ec138689cccffa89",
+  "materials/branched.scenario.json": "681fdef8059738fa18fa4791b4d8173004a22fce44da6f0daa575a8c20892bbb",
+  "materials/expense.shitae": "81a8737481b16fb310f40d49ea5e528ef704aaad7a11e57c5f52f08bee88a196",
+  "materials/loaded.scenario.json": "287db948409281680ab16a6226051f93a087763e74c9baa7d7aaaf5e1677ec55",
+  "materials/noop.scenario.json": "54be6d0930e263c333feb0490925eacc3d9081ae82d26677b791bfe741161b89"
+}

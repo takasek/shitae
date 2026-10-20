@@ -1,0 +1,41 @@
+
+ RUN  v3.2.4 /Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/simulator
+
+ ❯ test/history-preview.test.ts (5 tests | 1 failed) 35ms
+   ✓ read-only history preview and explicit resume > keeps state, handles, revision, journal and export unchanged while previewing and cancelling 11ms
+   ✓ read-only history preview and explicit resume > resumes only after confirmation and rejects stale confirmation across load/reset 8ms
+   ✓ read-only history preview and explicit resume > retains preview on rejection/load failure but clears it on accepted no-op and branch 5ms
+   ✓ read-only history preview and explicit resume > shows partial load scope and a persistent executable state-query guide 5ms
+   × history presentation anchors > keeps a visible row at the same viewport offset and focuses its heading when a point is filtered 4ms
+     → expected 120 to be 320 // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/history-preview.test.ts > history presentation anchors > keeps a visible row at the same viewport offset and focuses its heading when a point is filtered
+AssertionError: expected 120 to be 320 // Object.is equality
+
+- Expected
++ Received
+
+- 320
++ 120
+
+ ❯ test/history-preview.test.ts:86:29
+     84|     filtered = true; top += 200;
+     85|     g.run('restorePresentation(savedPresentation)');
+     86|     expect(trace.scrollTop).toBe(320);
+       |                             ^
+     87|     expect(center.scrollTop).toBe(80);
+     88|     expect(focused).toBe('');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  15:36:15
+   Duration  223ms (transform 47ms, setup 0ms, collect 57ms, tests 35ms, environment 0ms, prepare 23ms)
+
+undefined
+/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/packages/simulator:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: vitest run test/history-preview.test.ts

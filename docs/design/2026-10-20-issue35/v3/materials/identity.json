@@ -1,0 +1,13 @@
+{
+  "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+  "entryModule": "expense",
+  "sourceBasis": "source-bytes",
+  "manifest": [
+    {
+      "module": "expense",
+      "sourceSha256": "81a8737481b16fb310f40d49ea5e528ef704aaad7a11e57c5f52f08bee88a196",
+      "file": "/Users/m5/.codex/worktrees/shitae-issue35-design/shitae/docs/design/2026-10-20-issue35/v3/materials/expense.shitae"
+    }
+  ],
+  "modelId": "874fc8c77588d712fc22b3701a2f25c4c1e8d998999bb72415409be1a088570a"
+}

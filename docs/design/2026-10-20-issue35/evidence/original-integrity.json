@@ -1,0 +1,37 @@
+[
+  {
+    "path": "docs/design/evidence/integrated-use/human-stage1-feedback.md",
+    "sha256": "a139d39714c02d19418dd129547843463ee2ed3183d41d2591b6045a314bb694",
+    "matchesHEAD": true
+  },
+  {
+    "path": "docs/design/evidence/integrated-use/models/s1-revised/expenses.shitae",
+    "sha256": "cac86de133e16cf9aa38a3296d8a712e0ff8f5256d2e8494267ce3280b05dbd5",
+    "matchesHEAD": true
+  },
+  {
+    "path": "docs/dogfooding/2026-10-20-end-to-end/README.md",
+    "sha256": "75598c30d4aea0242ded1a6d12a8e635c46a1a3d675551b3952028f8e3f96eaf",
+    "matchesHEAD": true
+  },
+  {
+    "path": "docs/dogfooding/2026-10-20-end-to-end/report.md",
+    "sha256": "42a339c6b3da247333c6ca9b27f04ca32cb1b465ba916cf7d65dcdc60fa72021",
+    "matchesHEAD": true
+  },
+  {
+    "path": "docs/dogfooding/2026-10-20-end-to-end/candidates.md",
+    "sha256": "ab146f15cae5069b1d29bfa27b93fb828e9f487d9b199517c25f6c9a8622418e",
+    "matchesHEAD": true
+  },
+  {
+    "path": "docs/AI_GUIDE.md",
+    "sha256": "3168b6ea8d90dd3ae819d082491c384142529b6e6ee0ef7009f61b98a1b5af41",
+    "matchesHEAD": true
+  },
+  {
+    "path": "docs/SPEC.md",
+    "sha256": "fc76076242b5bd8bab0797f6a29a1c3451262cc5b8f86c644038ee54efe51398",
+    "matchesHEAD": true
+  }
+]

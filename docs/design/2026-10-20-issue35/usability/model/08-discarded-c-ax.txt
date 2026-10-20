@@ -1,0 +1,140 @@
+Browser tab: 1, Title: "shitae simulator", URL: "http://127.0.0.1:8875/evidence/v2/model.html".
+0 AXWebArea shitae simulator, URL: 127.0.0.1:8875/evidence/v2/model.html
+	1 container app
+		2 container
+			3 text 操作来歴（統合ログ） ナビゲーション履歴。実行された遷移の列を操作ごとに表示します。新しい記録が上。操作を展開すると結果と観測点を確認できます。完了点や途中の観測点を選ぶと巻戻し・やり直しできます。破棄済みの観測点へは移動できません。
+			4 checkbox (settable, integer) Description: イベントを表示, Value: 1
+			5 text 現在地: Cの画面を見る / 記録9 / 観測4 / 履歴作業場 現在まで 26観測点 / ghost 0観測点 / 破棄済み 0観測点。記録には破棄経路・reset前・手動試験も含まれます。
+			6 button (collapsed) 9. Cの画面を見る / 条件: 破棄済み, Secondary Actions: Expand
+			7 text history-flow::操作詳細 / 配置 overlay:操作詳細[] 4結果 / 4観測点 · 現在まで 4観測点 / ghost 0観測点 / 破棄済み 0観測点
+			8 button 完了点: show(参照不可) 履歴作業場 / 現在地
+				9 text 完了点: show(参照不可) 
+				10 text 履歴作業場 / 現在地
+			11 button (collapsed) 8. 別の操作を実行する, Secondary Actions: Expand
+			12 text history-flow::Bで再開 / 配置 overlay:Bで再開[] 6結果 / 6観測点 · 現在まで 6観測点 / ghost 0観測点 / 破棄済み 0観測点
+			13 button 完了点: hide(Bで再開) 履歴作業場
+				14 text 完了点: hide(Bで再開) 
+				15 text 履歴作業場
+			16 button (collapsed) 7. Cの画面を見る, Secondary Actions: Expand
+			17 text history-flow::Bで再開 / 配置 overlay:Bで再開[] 3結果 / 3観測点 · 現在まで 3観測点 / ghost 0観測点 / 破棄済み 0観測点
+			18 button 完了点: show(C参照) 履歴作業場
+				19 text 完了点: show(C参照) 
+				20 text 履歴作業場
+			21 button (collapsed) 6. 移動を確定(確定) / 条件: 対象が保持中, Secondary Actions: Expand
+			22 text history-flow::B移動確認 / 配置 main[] 5結果 / 5観測点 · 現在まで 5観測点 / ghost 0観測点 / 破棄済み 0観測点
+			23 button 完了点: show(Bで再開) 履歴作業場
+				24 text 完了点: show(Bで再開) 
+				25 text 履歴作業場
+			26 button (collapsed) 5. Bから再開する, Secondary Actions: Expand
+			27 text history-flow::B参照 / 配置 overlay:B参照[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			28 button 完了点: present → B移動確認 B移動確認
+				29 text 完了点: present → B移動確認 
+				30 text B移動確認
+			31 button (collapsed) 4. 取り消す(取消), Secondary Actions: Expand
+			32 text history-flow::B移動確認 / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			33 button 完了点: dismiss → 履歴作業場 履歴作業場
+				34 text 完了点: dismiss → 履歴作業場 
+				35 text 履歴作業場
+			36 button (collapsed) 3. Bから再開する, Secondary Actions: Expand
+			37 text history-flow::B参照 / 配置 overlay:B参照[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			38 button 完了点: present → B移動確認 B移動確認
+				39 text 完了点: present → B移動確認 
+				40 text B移動確認
+			41 button (collapsed) 2. Bの画面を見る, Secondary Actions: Expand
+			42 text history-flow::操作詳細 / 配置 overlay:操作詳細[] 3結果 / 3観測点 · 現在まで 3観測点 / ghost 0観測点 / 破棄済み 0観測点
+			43 button 完了点: show(B参照) 履歴作業場
+				44 text 完了点: show(B参照) 
+				45 text 履歴作業場
+			46 button (collapsed) 1. 詳細を開く, Secondary Actions: Expand
+			47 text history-flow::履歴作業場 / 配置 main[] 1結果 / 1観測点 · 現在まで 1観測点 / ghost 0観測点 / 破棄済み 0観測点
+			48 button 完了点: show(操作詳細) 履歴作業場
+				49 text 完了点: show(操作詳細) 
+				50 text 履歴作業場
+			51 button 起点: 起動 履歴作業場
+				52 text 起点: 起動 
+				53 text 履歴作業場
+			54 button (collapsed) 検討手順を表示, Secondary Actions: Expand
+			55 button 検討手順を書出し
+		56 container
+			57 text 現在の画面
+			58 button 初期状態へ
+			59 text このHTML: history-flow · model db12c8a83139 · engine 278103a97da5
+			60 button (collapsed) 版の詳細・共有するもの, Secondary Actions: Expand
+				61 text 版の詳細・共有するもの
+			62 text 保存範囲: dispatch 9件 / seek 0件 / reset 0件 / 手動試験 0件。条件選択はdispatchの内訳として操作来歴に表示します。破棄経路・reset前・ghost・手動試験も含む全記録を保存します。モデル本文・DOM・表示設定は含みません。読込後も現在の表示設定を使います。
+			63 button シナリオを保存
+			64 container
+				65 text シナリオを読み込む 
+				66 button シナリオを読み込む
+			67 text アクティブな frame の表示（本体）と掲示中カード
+			68 checkbox (settable, integer) Description: アクションを表示, Value: 1
+			69 checkbox (settable, integer) Description: 部品の状態を表示, Value: 0
+			70 button 画面外 component の姿切替（gate 試験用）
+			71 text 今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。
+			72 text 履歴作業場
+			73 container
+				74 button (expanded) 実行, Secondary Actions: Collapse
+					75 text 実行
+				76 text 記録3の結果の後
+			77 container
+				78 button (expanded) 未来, Secondary Actions: Collapse
+					79 text 未来
+				80 text Cは破棄済み
+			81 container
+				82 button (expanded) 表示, Secondary Actions: Collapse
+					83 text 表示
+				84 text 現在の実行画面
+			85 container
+				86 button (expanded) 要約, Secondary Actions: Collapse
+					87 text 要約
+				88 text 読込時点の画面と操作条件に関係する共有状態のみ 全共有状態ではない
+			89 button 詳細を開く component common
+				90 text 詳細を開く
+				91 text component common
+			92 button 読込要約の案内を開く component common
+				93 text 読込要約の案内を開く
+				94 text component common
+			95 button 全共有状態を確認する component common
+				96 text 全共有状態を確認する
+				97 text component common
+			98 text 掲示中
+			99 text 操作詳細
+			100 text 条件は承認
+			101 text 結果1と結果2は同じ画面名でも別の状態
+			102 button Bの画面を見る component common
+				103 text Bの画面を見る
+				104 text component common
+			105 text Cの画面を見る
+			106 text component common
+			107 button [保持中]
+			108 button [破棄済み]
+			109 button Dの記録を読む component common
+				110 text Dの記録を読む
+				111 text component common
+			112 button 無観測の結果を読む component common
+				113 text 無観測の結果を読む
+				114 text component common
+			115 button 詳細を閉じる component common
+				116 text 詳細を閉じる
+				117 text component common
+			118 text 掲示中
+			119 text 参照不可
+			120 text 対象はすでに破棄されたか読込で置き換わった
+			121 text 現在の実行位置を変えず履歴を更新する
+			122 button 閉じる component common
+				123 text 閉じる
+				124 text component common
+			125 container
+				126 button (expanded) スタック, Help: スタック — 今積み重なっている画面。プッシュダウン構成として読める, Secondary Actions: Collapse
+					127 text スタック
+				128 text 今積み重なっている画面。プッシュダウン構成として読める。上が現在地 履歴作業場
+			129 container
+				130 button (expanded) 遷移マップ, Help: 遷移マップ — 画面間の遷移関係（表示のみ。状態遷移図として読める）, Secondary Actions: Collapse
+					131 text 遷移マップ
+				132 text 画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。
+				133 button 設定を保存
+				134 checkbox (settable, integer) Description: 全体を見る, Value: 0
+				135 image
+					136 text 履歴作業場
+
+The focused UI element is 108 button [破棄済み]
