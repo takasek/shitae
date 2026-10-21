@@ -53,7 +53,7 @@ spec だけを読ませた subagent を被験者に、CLI を正解器として�
 
 **プロトコル（固定）**:
 - 被験者: general-purpose subagent、実験ごと独立コンテキスト。モデル勾配を測るなら 1 体を haiku に。
-- 入力制限を prompt に明記: 「読んでよいのは `docs/SPEC.md` のみ。GLOSSARY・AI_GUIDE・examples・packages・.claude・docs/stress-test の参照禁止。CLI・テスト実行禁止」
+- 入力制限を prompt に明記: 「読んでよいのは `docs/SPEC.md` のみ。GLOSSARY・AI_GUIDE・examples・packages・.claude・.agents・docs/stress-test の参照禁止。CLI・テスト実行禁止」
 - 課題: 実在アプリの画面フロー（音楽/送金/メッセンジャー/動画/語学/予約 等、各 stress 軸を分散）。
 - 出力: `.shitae` + notes.md（参照節・曖昧点・確信度 高/中/低・**書けなくて諦めた表現／欲しかった記法** ← DSL 改善アイデアの主経路）。
 - 採点（`probes/<product>/grading.md`）: CLI check/mermaid/simulate + 自分の SPEC 照合。**正誤だけでなく「どう正解したか」を読む** — 回避行動（表現を捨てて通す）や類推による正答は pass でも spec 欠陥の証拠。**複数被験者が独立に同じ回避に至ったら最強シグナル**。
