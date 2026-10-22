@@ -6,7 +6,9 @@ import { createMetadata } from '@shitae/session/model';
 import { toSimulator } from '../src/simulator.js';
 
 function gui(source = '# Home\ncard: Card\n> Change -> set(Card##New) ; effect\n> Nothing -> back()\n#! Card\n## Old\nold\n## New\nnew\n') {
-  const documents = new Map([['main', parse(source).document]]);
+  const parsed = parse(source);
+  expect(parsed.diagnostics.filter(d => d.severity === 'error')).toEqual([]);
+  const documents = new Map([['main', parsed.document]]);
   const files = new Map([['main', '/test/main.shitae']]);
   const metadata = createMetadata(documents, 'main', files, new Map([['main', new TextEncoder().encode(source)]]));
   const app = { innerHTML: '' };
@@ -152,5 +154,53 @@ describe('long-history rendering', () => {
     for (let n = 0; n < 30; n++) g.run("handleInteraction('component',0,0)");
     g.run('globalThis.detailQueries = 0; const originalQuery = SESSION.query.bind(SESSION); SESSION.query = options => { if (options?.select?.includes("provenanceStep")) detailQueries++; return originalQuery(options); }; render();');
     expect(g.run('detailQueries')).toBeLessThanOrEqual(90);
+  });
+});
+
+
+describe('report usability safeguards', () => {
+  it('keeps reset cancellation completely non-destructive, including an open preview', async () => {
+    const g = gui(); g.run("handleInteraction('component',0,0); previewObservation(1)");
+    const before = g.snapshot(), saved = await g.run('buildScenarioJson()');
+    let message = '';
+    Object.assign(g.ctx, { confirm: (text: string) => { message = text; return false; } });
+    g.run('requestReset()');
+    expect(message).toContain('過去の画面は再表示・再開できなくなります');
+    expect(message).toContain('先に保存');
+    expect(g.snapshot()).toBe(before);
+    expect(await g.run('buildScenarioJson()')).toBe(saved);
+    expect(g.run('historySelection.id')).toBe(1);
+    Object.assign(g.ctx, { confirm: () => true });
+    g.run('requestReset()');
+    expect(g.run('historySelection')).toBeNull();
+    expect(g.run('view.data.state.sharedVariants[0].variant')).toBe('Old');
+    expect(g.run('SESSION.query({select:["provenanceSummary"]}).data.provenanceSummary.observations.discarded')).toBeGreaterThan(0);
+  });
+  it('does not ask or reset while a scenario is being checked', () => {
+    const g = gui(); const before = g.snapshot();
+    Object.assign(g.ctx, { confirm: () => { throw new Error('unexpected confirmation'); } });
+    g.run('scenarioBusy = true; requestReset()');
+    expect(g.snapshot()).toBe(before);
+  });
+  it('makes branch buttons explicit and executes the selected branch once', () => {
+    const g = gui('# Home\n> Choose -> [Yes] goto(Done) ; [No] stay\n# Done\nfinished\n');
+    const row = g.app.innerHTML.match(/<div class="action-row action-row-conditional">[\s\S]*?<\/div>/)?.[0];
+    expect(row).toBeDefined();
+    expect(row).toContain('[Yes]で実行');
+    expect(row).toContain('[No]で実行');
+    const handler = row!.match(/<button[^>]*onclick="([^"]+)"/)![1]!;
+    g.run(handler);
+    expect(g.run('view.summary.location.component')).toBe('Done');
+    expect(g.run('SESSION.query({select:["provenance"]}).data.provenance.items.length')).toBe(1);
+  });
+  it('keeps initial actions before optional controls and folds technical explanations', () => {
+    const g = gui(); const html = g.app.innerHTML;
+    expect(html).toContain('画面の流れと、状態が残る範囲を試します');
+    expect(html.indexOf('class="action-row')).toBeLessThan(html.indexOf('class="action-toggle"'));
+    const controls = g.run('scenarioControls()');
+    expect(controls).toMatch(/<details data-state-key="scenario-details"><summary>/);
+    expect(controls.indexOf('save-scenario')).toBeLessThan(controls.indexOf('scenario-details'));
+    expect(html).toContain('onclick="requestReset()"');
+    expect(html).not.toContain('onclick="resetSession()"');
   });
 });
