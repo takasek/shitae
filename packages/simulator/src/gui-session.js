@@ -152,11 +152,12 @@ function recordedOperationDetails(detail) {
 function resultTargetHtml(result) {
   const body = definitionAt(result.source, result.resultIndex)?.result;
   if (body?.kind === 'effect') return '<p class="result-target">自由文の結果（状態変更の記録ではありません）</p>';
-  if (result.observations.some(p => /^R[0-9]{3}:/.test(p.label))) return '<p class="result-target">警告があるため、変更先は確定表示しません。結果と警告を確認してください。</p>';
+  const warnings = result.observations.filter(p => /^R[0-9]{3}:/.test(p.label));
+  const warningHtml = warnings.length ? '<div class="history-diagnostics">警告<ul>' + warnings.map(p => '<li>' + esc(p.label) + '</li>').join('') + '</ul></div>' : '';
   const point = result.observations.find(p => p.kind === 'transition' || !/^R[0-9]{3}:/.test(p.label));
-  if (!point) return '<p class="result-target">状態の変更記録なし。作用先の変更は確認できません。</p>';
+  if (!point) return '<p class="result-target">状態の変更記録なし。作用先の変更は確認できません。</p>' + warningHtml;
   const observation = retainedObservation(point.id);
-  if (!observation) return '<p class="result-target">当時の状態は文章のみのため、変更先と共有範囲の詳細は確認できません。</p>';
+  if (!observation) return '<p class="result-target">当時の状態は文章のみのため、変更先と共有範囲の詳細は確認できません。</p>' + warningHtml;
   const state = observation.view.state;
   let value, prefix = '変更先: ';
   if (body?.kind === 'state' || body?.kind === 'overlay') {
@@ -172,7 +173,12 @@ function resultTargetHtml(result) {
   }
   if (!value) return '<p class="result-target">変更先を確認できません。結果と警告を確認してください。</p>';
   const scope = value.singleton ? '同じ実行内の同じ定義の全使用箇所（singleton）' : value.scope === 'overlay-entry' ? 'この独立表示の状態' : 'この画面の状態';
-  return '<p class="result-target">' + esc(prefix + value.module + '::' + locationLabel(value)) + '<br>' + esc('共有範囲: ' + scope) + (prefix === '実行後の画面: ' ? '<br>戻り先・作業の終了を含む結果です。表示中の画面への書換えを意味するものではありません。' : '') + '</p>';
+  // A resumed switch ignores the navigation target, but its explicit singleton
+  // variant is still written. Read both values from this result's observation.
+  const sharedTarget = body?.kind === 'transition' && body.word === 'switch' && body.target?.kind === 'component' && body.target.variant != null
+    ? state.sharedVariants.find(v => v.module === sourceModule(result.source.module, body.target.module) && v.component === body.target.name) : null;
+  const sharedHtml = sharedTarget ? '<p class="result-target">' + esc('共有状態の書換え先: ' + sharedTarget.module + '::' + locationLabel(sharedTarget)) + '<br>共有範囲: 同じ実行内の同じ定義の全使用箇所（singleton）</p>' : '';
+  return '<p class="result-target">' + esc(prefix + value.module + '::' + locationLabel(value)) + '<br>' + esc('共有範囲: ' + scope) + (prefix === '実行後の画面: ' ? '<br>戻り先・作業の終了を含む結果です。表示中の画面への書換えを意味するものではありません。' : '') + '</p>' + sharedHtml + warningHtml;
 }
 function renderProvenance(fallback) {
   const summary = SESSION.query({ select: ['provenanceSummary'] }).data.provenanceSummary;

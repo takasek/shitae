@@ -97,4 +97,35 @@ describe('operation definition and actual result targets', () => {
     expect(target).toContain('実行後の画面: main::B');
     expect(target).not.toContain('作用先: main::B');
   });
+
+  it('shows a successful transition target alongside its warning even with events hidden', () => {
+    const g = gui('# Home\n> Open -> push(A, @s)\n# A\n> Again -> push(B, @s)\n# B\n');
+    g.run("handleInteraction('component',0,0); handleInteraction('component',0,0); toggleProvenanceStep(2); toggleShowEvents()");
+    const target = g.run('resultTargetHtml(SESSION.query({select:["provenanceStep"],step:2}).data.provenanceStep.results[0])');
+    expect(target).toContain('実行後の画面: main::B');
+    expect(target).toContain('共有範囲: この画面の状態');
+    expect(target).toContain('R005:');
+    expect(g.app.innerHTML).toContain('実行後の画面: main::B');
+    expect(target).not.toContain('変更先は確定表示しません');
+  });
+
+  it.each([
+    ['s::Shared##New', true],
+    ['s::Shared', false],
+    ['Ordinary##New', false],
+  ])('shows resumed screen and any explicit singleton write for %s', async (target, sharedWrite) => {
+    const g = gui('import shared as s\n# Home\n> Open -> switch(A, @a)\n# A\n> Detail -> push(Detail)\n# Detail\n> Other -> switch(B, @b)\n# B\n> Resume -> switch(' + target + ', @a)\n# Ordinary\n## Old\n## New\n', { shared: '#! Shared\n## Old\n## New\n' });
+    g.run("handleInteraction('component',0,0); handleInteraction('component',0,0); handleInteraction('component',0,0); handleInteraction('component',0,0); toggleProvenanceStep(4)");
+    const html = g.run('resultTargetHtml(SESSION.query({select:["provenanceStep"],step:4}).data.provenanceStep.results[0])');
+    expect(html).toContain('実行後の画面: main::Detail');
+    if (sharedWrite) {
+      expect(html).toContain('共有状態の書換え先: shared::Shared / New');
+      expect(html).toContain('共有範囲: 同じ実行内の同じ定義の全使用箇所（singleton）');
+    } else expect(html).not.toContain('共有状態の書換え先:');
+    const before = g.run('JSON.stringify(SESSION.query({select:["state","history","provenance"]}))');
+    const saved = await g.run('buildScenarioJson()');
+    g.run('render(); toggleProvenanceStep(4); toggleProvenanceStep(4)');
+    expect(g.run('JSON.stringify(SESSION.query({select:["state","history","provenance"]}))')).toBe(before);
+    expect(await g.run('buildScenarioJson()')).toBe(saved);
+  });
 });
