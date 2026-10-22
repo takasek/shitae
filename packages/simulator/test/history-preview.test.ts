@@ -204,3 +204,54 @@ describe('report usability safeguards', () => {
     expect(html).not.toContain('onclick="resetSession()"');
   });
 });
+
+
+describe('addendum warning and remaining-work inspection', () => {
+  it('counts real diagnostics in collapsed headings, independent of event visibility and retained snapshots', async () => {
+    const g = gui('# Home\n> Warn -> exit(@missing) ; exit(@another)\n> Explain -> R002: explanation\n');
+    g.run("handleInteraction('component',0,0)");
+    expect(g.app.innerHTML).toMatch(/aria-expanded="false"[^>]*>記録1[^<]*<span[^>]*>要確認 2件/);
+    g.run('toggleShowEvents(); toggleProvenanceStep(1)');
+    expect(g.app.innerHTML).toContain('R002:');
+    expect(g.app.innerHTML).toContain('対象セッション');
+    const before = g.snapshot(), saved = await g.run('buildScenarioJson()');
+    g.run('toggleProvenanceStep(1); renderRemainingWork()');
+    expect(g.snapshot()).toBe(before); expect(await g.run('buildScenarioJson()')).toBe(saved);
+    g.run('resetSession()');
+    expect(g.app.innerHTML).toMatch(/aria-expanded="false"[^>]*>記録1[^<]*<span[^>]*>要確認 2件/);
+    g.run("handleInteraction('component',1,0)");
+    expect(g.app.innerHTML).not.toMatch(/記録3[^<]*要確認/);
+    await g.run('buildScenarioJson().then(loadScenarioText)');
+    expect(g.app.innerHTML).toMatch(/記録1[^<]*<span[^>]*>要確認 2件/);
+  });
+  it('shows inactive children and current-path parents without moving execution, and removes exited subtrees', async () => {
+    const g = gui('# Home\n> Start -> present(Work, @member)\n# Work\n> Search -> switch(Search, @search)\n# Search\n> Confirm -> present(Confirm, @confirm)\n> End -> exit(@member)\n# Confirm\n> Search -> switch(Search, @search)\n');
+    for (let n=0;n<4;n++) g.run("handleInteraction('component',0,0)");
+    const before=g.snapshot(), saved=await g.run('buildScenarioJson()');
+    const panel=g.run('renderRemainingWork()');
+    expect(panel).toContain('残っている作業（画面外 1件）');
+    expect(panel).toContain('main::Confirm');
+    expect(panel).toContain('@confirm');
+    expect(panel).toContain('親: #2');
+    expect(panel).toContain('画面外で保持');
+    expect(panel).toContain('現在の経路');
+    expect(panel).not.toMatch(/onclick|onchange|seek|switch\(/);
+    expect(g.snapshot()).toBe(before); expect(await g.run('buildScenarioJson()')).toBe(saved);
+    g.run('previewObservation(1)');
+    expect(g.run('renderRemainingWork()')).toContain('main::Confirm');
+    expect(g.run('renderRemainingWork()')).toContain('現在の操作位置');
+    g.run('endHistoryPreview(); handleInteraction("component",1,0)');
+    const after=g.run('renderRemainingWork()');
+    expect(after).not.toContain('main::Confirm'); expect(after).not.toContain('@member');
+    expect(after).toContain('画面外 0件');
+  });
+  it('keeps independent displays and shared state separate from ended work', () => {
+    const g=gui('# Home\n> Start -> present(Work, @member) ; show(Notice) ; set(State##Ready)\n# Work\n> End -> exit(@member)\n# Notice\nnotice\n#! State\n## Idle\n## Ready\n');
+    g.run("handleInteraction('component',0,0); handleInteraction('component',0,0)");
+    const panel=g.run('renderRemainingWork()');
+    expect(panel).toContain('独立表示'); expect(panel).toContain('main::Notice');
+    expect(panel).toContain('共有状態'); expect(panel).toContain('main::State / Ready');
+    expect(panel).not.toContain('main::Work');
+    expect(panel).toContain('hide'); expect(panel).toContain('exit');
+  });
+});

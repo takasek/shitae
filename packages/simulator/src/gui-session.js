@@ -105,10 +105,16 @@ function renderProvenance(fallback) {
   html += '<details data-state-key="history-counts"><summary>技術詳細：履歴の保持件数</summary>' + esc(provenanceCounts(summary.observations)) + '</details>';
   html += items.reverse().map(item => {
     const open = provenanceOpen.has(item.step);
+    const detail = SESSION.query({ select: ['provenanceStep'], step: item.step }).data.provenanceStep;
+    // Session records runtime warnings as `Rnnn: message` event labels. Effects always
+    // have the distinct `effect: ` prefix. Use journal points so discarded warnings
+    // remain discoverable, independent of the event-visibility toggle.
+    const warnings = detail.observations.filter(p => p.kind === 'event' && /^R[0-9]{3}:/.test(p.label));
+    const warningBadge = warnings.length ? ' <span class="history-warning">要確認 ' + warnings.length + '件</span>' : '';
     const c = item.counts, available = c.retained + c.ghost;
     const status = c.discarded ? (available ? '一部の結果は文章のみ' : '文章のみ') : available ? '閲覧・再開可' : '再開できる地点なし';
     const kind = {dispatch:'操作',seek:'位置の変更',reset:'初期化',setTestVariant:'手動試験'}[item.kind];
-    let body = '<div class="provenance-step" data-history-key="step:' + item.step + '"><button data-focus-key="step:' + item.step + '" class="provenance-heading" aria-expanded="' + open + '" onclick="toggleProvenanceStep(' + item.step + ')">記録' + item.step + ' · ' + kind + ' · ' + esc(item.actionText) + '</button>';
+    let body = '<div class="provenance-step" data-history-key="step:' + item.step + '"><button data-focus-key="step:' + item.step + '" class="provenance-heading" aria-expanded="' + open + '" onclick="toggleProvenanceStep(' + item.step + ')">記録' + item.step + ' · ' + kind + ' · ' + esc(item.actionText) + warningBadge + '</button>';
     body += '<p>試した条件：' + esc(item.branch ?? 'なし') + ' / 結果 ' + item.resultCount + '件 / ' + status + '</p>';
     if (item.discarded.length) body += '<p>この記録で文章のみになった地点: ' + item.discarded.length + '件</p>';
     if (item.target) body += '<p>変更先: ' + esc(item.target.actionText + ' / ' + pointRef(item.target.ref)) + '</p>';
@@ -118,7 +124,8 @@ function renderProvenance(fallback) {
     }
     if (open) {
       body += '<p>この操作で起きたことを順に表示します。</p>';
-      const d = SESSION.query({ select: ['provenanceStep'], step: item.step }).data.provenanceStep;
+      const d = detail;
+      if (warnings.length) body += '<div class="history-diagnostics"><strong>実行時の警告</strong><ul>' + warnings.map(p => '<li>' + esc(p.label) + '</li>').join('') + '</ul></div>';
       for (const r of d.results) {
         body += '<p>結果' + (r.position + 1) + ': ' + esc(r.label) + (r.observations.length ? '' : ' / 再開できる地点なし') + '</p>';
         for (const p of r.observations) if (showEvents || p.kind !== 'event' || p.current) body += pointButton(p, '結果' + (r.position + 1) + ' / 状態' + (p.ordinal + 1) + ': ');
@@ -423,3 +430,22 @@ function restorePresentation(saved) {
   nextPresentationFocus = null;
 }
 syncView();
+
+
+function renderRemainingWork() {
+  const state = view.data.state, active = new Set(state.activePath);
+  const outside = state.frames.filter(f => !active.has(f.id)).length;
+  const location = v => esc(v.module + '::' + locationLabel(v));
+  const values = items => items.length ? '<ul>' + items.map(v => '<li>' + location(v) + ' · ' + valueDescription(v) + '</li>').join('') + '</ul>' : '<p>なし</p>';
+  return '<details class="remaining-work" data-state-key="remaining-work"><summary class="pane-title">残っている作業（画面外 ' + outside + '件）</summary>' +
+    '<p>現在の操作位置に対応する全ての作業です。履歴の閲覧中も現在の状態を示します。開閉は閲覧だけで、画面移動や履歴からの再開はしません。</p>' +
+    state.frames.map(f => {
+      const status = f.id === state.activeFrameId ? '操作中' : active.has(f.id) ? '現在の経路' : '画面外で保持';
+      const name = f.beginsSession ? (f.beginsSession.name ? '@' + f.beginsSession.name : '無名の作業区切り') : '起点';
+      return '<details data-state-key="work:' + sessionGeneration + ':' + f.id + '"><summary>#' + f.id + ' · ' + esc(name) + ' · ' + status + ' · ' + location(f.stack.at(-1)) + '</summary>' +
+        '<p>親: ' + (f.parentId === null ? 'なし' : '#' + f.parentId) + ' / back の境界: ' + (f.barrier ? 'あり' : 'なし') + '</p>' +
+        '<p>この作業内の画面（下から上の順）</p>' + values(f.stack) + '</details>';
+    }).join('') +
+    '<h3>独立表示</h3><p>画面の作業とは別に残ります。exit だけでは消えず、hide で閉じます。</p>' + values(state.overlays) +
+    '<h3>共有状態</h3><p>同じ実行内の全使用箇所で共有します。画面の作業を閉じても残ります。</p>' + values(state.sharedVariants) + '</details>';
+}

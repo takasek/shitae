@@ -223,6 +223,11 @@ summary.pane-title { cursor: pointer; }
   #app .pane-trace { grid-row: 3; }
   #app .lower-section { max-height: 15vh; }
 }
+.history-warning { color: #713f00; background: #fff1c2; border-radius: 4px; padding: 2px 5px; }
+.history-diagnostics { border-left: 3px solid #a66b00; padding-left: 8px; }
+.remaining-work { border-top: 1px solid #ddd; padding-top: 8px; font-size: 12px; overflow-wrap: anywhere; }
+.remaining-work details { margin: 8px 0; padding-left: 8px; }
+.remaining-work summary { cursor: pointer; }
 </style>
 </head>
 <body>
@@ -1297,6 +1302,7 @@ function render() {
       '</section>' +
       '<div class="lower-section">' +
         stackSectionHtml +
+        renderRemainingWork() +
         graphSectionHtml +
       '</div>' +
     '</main>' +
