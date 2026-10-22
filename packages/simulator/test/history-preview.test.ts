@@ -255,3 +255,54 @@ describe('addendum warning and remaining-work inspection', () => {
     expect(panel).toContain('hide'); expect(panel).toContain('exit');
   });
 });
+
+
+describe('concept guide contract', () => {
+  it('separates definitions, lifetimes and trial semantics in a closed, read-only guide', async () => {
+    const g = gui();
+    const before = g.snapshot(), saved = await g.run('buildScenarioJson()');
+    const guide = g.app.innerHTML.match(/<details data-state-key="concept-guide">([\s\S]*?)<\/details>/)?.[1];
+    expect(guide).toBeDefined();
+    expect(guide).toContain('<h3>下書きを書く</h3>');
+    expect(guide).toContain('<h3>動かしたときの残り方を決める</h3>');
+    expect(guide).toContain('<h3>設計を確かめる</h3>');
+    expect(guide).toContain('共有は同じ実行内で、永続保存ではありません');
+    expect(guide).toContain('成功・失敗を自動判定しません');
+    expect(guide).toContain('対象要素があるかを処理系が調べます');
+    expect(guide).toContain('履歴を見るだけでは操作位置は変わらず');
+    expect(guide).not.toMatch(/on(?:click|toggle|change)=|<button|<select/);
+    g.run('render()');
+    expect(g.snapshot()).toBe(before);
+    expect(await g.run('buildScenarioJson()')).toBe(saved);
+  });
+
+  it('pairs operation roles with canonical scope names without changing dispatch', () => {
+    const g = gui();
+    expect(g.app.innerHTML).toContain('定義内の共通操作（component common）');
+    // The same existing operation exercises each scope presentation; scope labels must not change its handler.
+    for (const [scope, label] of [
+      ['variant', 'この状態で定義（variant固有）'],
+      ['component', '定義内の共通操作（component common）'],
+      ['document', '文書の共通操作（document common）'],
+    ]) {
+      const row = g.run(`renderActionRow({...mainTopLevelItems()[0], scope:${JSON.stringify(scope)}}, () => 'unchangedHandler()')`);
+      expect(row).toContain(label);
+      expect(row).toContain('unchangedHandler(');
+    }
+    g.run("handleInteraction('component',0,0)");
+    expect(g.run('historicalPreview')).toBeNull();
+    expect(g.run('view.data.state.sharedVariants[0].variant')).toBe('New');
+  });
+
+  it('explains manual state setting before opening trials, including structural rather than visual presence', () => {
+    const g = gui();
+    expect(g.app.innerHTML).toContain('参照先の状態パターンを手動で変える（presence gate の試験）');
+    expect(g.app.innerHTML).toContain('下書きに書いた操作の実行とは別です');
+    expect(g.app.innerHTML).toContain('画面上の可視性は判定しません');
+    const before = g.snapshot();
+    g.run('toggleGatePanel()');
+    expect(g.app.innerHTML).toContain('gate-drawer-header');
+    expect(g.app.innerHTML).toContain('参照先の状態パターンを手動で変える（presence gate の試験）');
+    expect(g.snapshot()).toBe(before);
+  });
+});

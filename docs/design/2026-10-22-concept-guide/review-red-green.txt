@@ -1,0 +1,17 @@
+RED (selected output; same final test file)
+ FAIL  test/history-preview.test.ts > concept guide contract > separates definitions, lifetimes and trial semantics in a closed, read-only guide
+AssertionError: expected undefined to be defined
+ FAIL  test/history-preview.test.ts > concept guide contract > pairs operation roles with canonical scope names without changing dispatch
+AssertionError: expected '<div class="live-position">操作を続ける位置: …' to contain '定義内の共通操作（component common）'
+ FAIL  test/history-preview.test.ts > concept guide contract > explains manual state setting before opening trials, including structural rather than visual presence
+AssertionError: expected '<div class="live-position">操作を続ける位置: …' to contain '参照先の状態パターンを手動で変える（presence gate の試験）'
+ Test Files  1 failed (1)
+      Tests  3 failed | 16 skipped (19)
+   Start at  04:39:45
+   Duration  240ms (transform 55ms, setup 0ms, collect 67ms, tests 23ms, environment 0ms, prepare 29ms)
+
+GREEN (selected output; same final test file)
+ Test Files  1 passed (1)
+      Tests  3 passed | 16 skipped (19)
+   Start at  04:39:55
+   Duration  303ms (transform 57ms, setup 0ms, collect 72ms, tests 16ms, environment 0ms, prepare 33ms)
