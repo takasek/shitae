@@ -1,0 +1,24 @@
+built-in browser / http://127.0.0.1:8765/evidence/astra-models-proposed.html
+GUI で 8 操作（開く→編集→切替(B)→編集→切替(A)→保存[外部変更]→外部変更確認→取込(UseDisk)[再確認一致]）の後、記録8 を展開し、「結果2: set(状態A##保存済)」の「画面を見る」を押した直後の get_page_text（抜粋、表示順）。
+
+履歴の閲覧・位置の変更
+保存範囲: dispatch 8件 / seek 0件 / reset 0件 / 手動試験 0件。…
+見ている履歴の画面: 記録8「取込(UseDisk)」 / 選んだ条件：再確認一致 / 結果2 / 状態1 / 比較
+閲覧は表示だけを切り替えます。操作を続ける位置は変わりません。当時の操作は説明として表示し、ここでは実行できません。
+履歴の閲覧を終える この時点から続ける…
+proposed::比較
+対象名とパス / proposed::対象名とパス
+編集内容とディスク内容の比較 / proposed::編集内容とディスク内容の比較
+KeepEditing / proposed::KeepEditing
+ReplaceDisk / proposed::ReplaceDisk
+UseDisk / proposed::UseDisk
+当時の操作（説明のみ）
+取消(KeepEditing) / main / 有効 / 条件: なし
+保存(ReplaceDisk) / main / 有効 / 条件: 再確認一致、再変更
+取込(UseDisk) / main / 有効 / 条件: 再確認一致
+スタック
+今積み重なっている画面。プッシュダウン構成として読める。上が現在地
+▌文書A@a
+開始
+
+観察: 閲覧中の画面は「比較」だが、スタック欄は操作を続ける位置（文書A@a）のまま。比較の画面には状態A が含まれないため、この時点で状態A が保存済になっていることはこの表示から読めない。

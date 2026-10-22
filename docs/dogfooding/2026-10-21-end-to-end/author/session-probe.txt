@@ -1,0 +1,19 @@
+# session 照会: library-v2b-barrier.shitae（モーダルに '戻る -> back()' を足した検証用）
+STEP タップ(結果) -> {"id": "r2", "ok": true, "protocolVersion": 1, "revision": 1, "summary": {"location": {"module": "library-v2b-barrier", "component": "蔵書詳細", "variant": null}, "cursorObservationId": 2, "latestObservationId": 2, "observationCount": 2}, "receipt": {"operationId": 1, "changed": ["frames"], "observation
+  actions: ['戻る', 'タップ(予約する)']
+STEP タップ(予約する) -> {"id": "r5", "ok": true, "protocolVersion": 1, "revision": 2, "summary": {"location": {"module": "library-v2b-barrier", "component": "予約確認", "variant": null}, "cursorObservationId": 3, "latestObservationId": 3, "observationCount": 3}, "receipt": {"operationId": 2, "changed": ["frames"], "observation
+  actions: ['タップ(確定)', 'タップ(取消)', '戻る']
+STEP 戻る -> {"id": "r8", "ok": true, "protocolVersion": 1, "revision": 3, "summary": {"location": {"module": "library-v2b-barrier", "component": "予約確認", "variant": null}, "cursorObservationId": 4, "latestObservationId": 4, "observationCount": 4}, "receipt": {"operationId": 3, "changed": [], "observations": {"co
+  actions: ['タップ(確定)', 'タップ(取消)', '戻る']
+
+# session 照会: library-v2.shitae で 予約→戻る→開き直し
+STEP タップ(結果) -> {"id": "r2", "ok": true, "protocolVersion": 1, "revision": 1, "summary": {"location": {"module": "library-v2", "component": "蔵書詳細", "variant": null}, "cursorObservationId": 2, "latestObservationId": 2, "observationCount": 2}, "receipt": {"operationId": 1, "changed": ["frames"], "observations": {"cou
+  actions: ['戻る', 'タップ(予約する)']
+STEP タップ(予約する) -> {"id": "r5", "ok": true, "protocolVersion": 1, "revision": 2, "summary": {"location": {"module": "library-v2", "component": "予約確認", "variant": null}, "cursorObservationId": 3, "latestObservationId": 3, "observationCount": 3}, "receipt": {"operationId": 2, "changed": ["frames"], "observations": {"cou
+  actions: ['タップ(確定)', 'タップ(取消)']
+STEP タップ(確定)|成功 -> {"id": "r8", "ok": true, "protocolVersion": 1, "revision": 3, "summary": {"location": {"module": "library-v2", "component": "蔵書詳細", "variant": null}, "cursorObservationId": 6, "latestObservationId": 6, "observationCount": 6}, "receipt": {"operationId": 3, "changed": ["frames", "sharedVariants", "ori
+  actions: ['戻る', 'タップ(予約を取り消す)']
+STEP 戻る -> {"id": "r11", "ok": true, "protocolVersion": 1, "revision": 4, "summary": {"location": {"module": "library-v2", "component": "検索", "variant": null}, "cursorObservationId": 7, "latestObservationId": 7, "observationCount": 7}, "receipt": {"operationId": 4, "changed": ["frames"], "observations": {"coun
+  actions: ['検索する', 'タップ(結果)']
+STEP タップ(結果) -> {"id": "r14", "ok": true, "protocolVersion": 1, "revision": 5, "summary": {"location": {"module": "library-v2", "component": "蔵書詳細", "variant": null}, "cursorObservationId": 8, "latestObservationId": 8, "observationCount": 8}, "receipt": {"operationId": 5, "changed": ["frames"], "observations": {"co
+  actions: ['戻る', 'タップ(予約を取り消す)']

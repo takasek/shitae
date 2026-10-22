@@ -1,0 +1,12 @@
+built-in browser / http://127.0.0.1:8765/evidence/sol-recovery-target.html（変更後 modelId 3570a420dd27…）
+
+1. ExternalChange → ReviewAndSaveHere の後: 本体 OverwriteReview に「target / Overwrite the file open in this editor」。保存範囲: dispatch 2件。
+2. 利用者が pane 上で「ファイルを選択」から変更前の scenarios/sol-recovery-v1.scenario.json を選んだ直後:
+MODEL_MISMATCH: source bytesが異なるmodule: recovery（空白・コメントも照合対象）
+次の行動:
+完全一致する保存時のHTMLが残っていれば、そのHTMLとscenarioの組で再開してください。任意の古いHTMLでは再開できません。
+CLIでの再開には、対応する元モデル一式と処理系が必要です。engineのhashだけからcommitは特定できません。
+変更後のモデル・処理系で検討する場合は新しく記録してください。旧版の検討手順は人が選び直すための参照に使えます。
+完全な期待/実際の識別情報
+（保存範囲は dispatch 2件のまま、本体は OverwriteReview のまま）
+3. 続けて ChooseAnotherFile[ExistingDifferentTarget]: 保存範囲 dispatch 3件、target は「Overwrite the other existing file you chose」。

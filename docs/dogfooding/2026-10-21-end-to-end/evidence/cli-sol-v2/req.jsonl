@@ -1,0 +1,15 @@
+{"id":"a0","command":"query","select":["actions","metadata"]}
+{"id":"q1","command":"query","select":["actions"]}
+{"id":"d1","command":"dispatch","handle":"b8194c73-3c6b-403b-9235-990a481389c1:0:0"}
+{"id":"q2","command":"query","select":["actions"]}
+{"id":"d2","command":"dispatch","handle":"b8194c73-3c6b-403b-9235-990a481389c1:1:0"}
+{"id":"st2","command":"query","select":["state"]}
+{"id":"q3","command":"query","select":["actions"]}
+{"id":"d3","command":"dispatch","handle":"b8194c73-3c6b-403b-9235-990a481389c1:2:2","branch":"b0"}
+{"id":"st3","command":"query","select":["state"]}
+{"id":"q4","command":"query","select":["actions"]}
+{"id":"d4","command":"dispatch","handle":"b8194c73-3c6b-403b-9235-990a481389c1:3:3","branch":"b0"}
+{"id":"st4","command":"query","select":["state"]}
+{"id":"q5","command":"query","select":["actions"]}
+{"id":"d5","command":"dispatch","handle":"b8194c73-3c6b-403b-9235-990a481389c1:4:2","branch":"b2"}
+{"id":"save","command":"exportScenario"}

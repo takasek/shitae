@@ -1,0 +1,1274 @@
+{
+ "format": "shitae-scenario",
+ "formatVersion": 1,
+ "protocolVersion": 1,
+ "model": {
+  "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+  "modelId": "3570a420dd27cc0c64727eb44d104c812f6cec6b2684dc4f6691a44f62320346",
+  "entryModule": "recovery",
+  "sourceBasis": "source-bytes",
+  "manifest": [
+   {
+    "module": "recovery",
+    "sourceSha256": "46aa4f7db0fdfcb222dec14bb20de59179e862e59b0b9c22f5225ef8b398e59f"
+   }
+  ]
+ },
+ "initialDigest": "934e2db111afcfde574107ceefa15ecfa82647463d98116341798343b79fa2b3",
+ "steps": [
+  {
+   "step": 1,
+   "command": {
+    "kind": "dispatch",
+    "operation": {
+     "kind": "interaction",
+     "scope": "component",
+     "host": {
+      "module": "recovery",
+      "component": "Editing",
+      "variant": null
+     },
+     "source": {
+      "module": "recovery",
+      "span": {
+       "offset": 355,
+       "length": 34,
+       "line": 6,
+       "col": 1
+      }
+     },
+     "placement": {
+      "root": "main",
+      "path": [],
+      "source": null
+     },
+     "definitionDigest": "34ddf9af376940a17c74fb3cc785be3ec5bdc39c5c2342782328a53aacf61a5d"
+    },
+    "branch": null
+   },
+   "afterDigest": "a62443fe4de51ea4955580e0edffad8bf7b5558883456de0e37adfb7a97ed777",
+   "observations": [
+    {
+     "viewDigest": "3a4e7549c7c7ffab02de011a426f5a00e442a4e31fd602193d25038ae28feec3"
+    }
+   ],
+   "output": {
+    "effects": [],
+    "diagnostics": [],
+    "changed": [
+     "frames"
+    ]
+   },
+   "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+  },
+  {
+   "step": 2,
+   "command": {
+    "kind": "dispatch",
+    "operation": {
+     "kind": "interaction",
+     "scope": "component",
+     "host": {
+      "module": "recovery",
+      "component": "Conflict",
+      "variant": null
+     },
+     "source": {
+      "module": "recovery",
+      "span": {
+       "offset": 509,
+       "length": 79,
+       "line": 12,
+       "col": 1
+      }
+     },
+     "placement": {
+      "root": "main",
+      "path": [],
+      "source": null
+     },
+     "definitionDigest": "e0d20926c5be6e4fb53d0be09b62bf175e1e3623d944072b22c96d9393aebc1b"
+    },
+    "branch": null
+   },
+   "afterDigest": "02c0215c5ec733636c660298cc910e1287f4d3d69bca980d4766c9d6bdbed641",
+   "observations": [
+    {
+     "viewDigest": "96a20dadbf2e5d82301b342b6db84bfd52ec707fe744d3d2a54418456725deb1"
+    },
+    {
+     "viewDigest": "b1b678101f8b711a5a92595ec82fc70e8bf4c32d4625e84cb0f9de7276611f02"
+    }
+   ],
+   "output": {
+    "effects": [],
+    "diagnostics": [],
+    "changed": [
+     "frames",
+     "sharedVariants",
+     "origins"
+    ]
+   },
+   "outputDigest": "27c020a580dd146bbfd58ed553a07bb17d39788327efcd8c69e4c314ba723908"
+  },
+  {
+   "step": 3,
+   "command": {
+    "kind": "dispatch",
+    "operation": {
+     "kind": "interaction",
+     "scope": "component",
+     "host": {
+      "module": "recovery",
+      "component": "OverwriteReview",
+      "variant": null
+     },
+     "source": {
+      "module": "recovery",
+      "span": {
+       "offset": 1199,
+       "length": 138,
+       "line": 26,
+       "col": 1
+      }
+     },
+     "placement": {
+      "root": "main",
+      "path": [],
+      "source": null
+     },
+     "definitionDigest": "39e2ad96f8251e2ef6474dc13718b0d3b80fd6c002156686e46ac025d78c3fb1"
+    },
+    "branch": {
+     "label": "ExistingDifferentTarget",
+     "results": [
+      {
+       "resultIndex": 0,
+       "source": {
+        "module": "recovery",
+        "span": {
+         "offset": 1199,
+         "length": 138,
+         "line": 26,
+         "col": 1
+        }
+       }
+      },
+      {
+       "resultIndex": 1,
+       "source": {
+        "module": "recovery",
+        "span": {
+         "offset": 1199,
+         "length": 138,
+         "line": 26,
+         "col": 1
+        }
+       }
+      },
+      {
+       "resultIndex": 2,
+       "source": {
+        "module": "recovery",
+        "span": {
+         "offset": 1199,
+         "length": 138,
+         "line": 26,
+         "col": 1
+        }
+       }
+      },
+      {
+       "resultIndex": 3,
+       "source": {
+        "module": "recovery",
+        "span": {
+         "offset": 1199,
+         "length": 138,
+         "line": 26,
+         "col": 1
+        }
+       }
+      }
+     ]
+    }
+   },
+   "afterDigest": "b4b60cd0ffed190b366d57376d5bb47ec8c94e06b1ac1caa5411ee5fc74e8de8",
+   "observations": [
+    {
+     "viewDigest": "b1b678101f8b711a5a92595ec82fc70e8bf4c32d4625e84cb0f9de7276611f02"
+    },
+    {
+     "viewDigest": "733772c7b3b47985a03c0d0bd8d330df97d4062b80f5714464df1c4ff7dd5f3e"
+    },
+    {
+     "viewDigest": "d54cfc2acdb141a8111c1eb467407f9c440a278cc8ca39f510c558417901afca"
+    },
+    {
+     "viewDigest": "a61a023501992d1ea77794247b5dcab373a3b9fe5e90e7d77dc5c06c6bdaf514"
+    }
+   ],
+   "output": {
+    "effects": [
+     {
+      "resultIndex": 0,
+      "source": {
+       "module": "recovery",
+       "span": {
+        "offset": 1199,
+        "length": 138,
+        "line": 26,
+        "col": 1
+       }
+      },
+      "text": "Choose another target"
+     }
+    ],
+    "diagnostics": [],
+    "changed": [
+     "frames",
+     "sharedVariants"
+    ]
+   },
+   "outputDigest": "33a3d8255cf140cd111bfc4b2dcc4b33beb35076ace184033765a84b21a2eab8"
+  },
+  {
+   "step": 4,
+   "command": {
+    "kind": "dispatch",
+    "operation": {
+     "kind": "interaction",
+     "scope": "component",
+     "host": {
+      "module": "recovery",
+      "component": "OverwriteReview",
+      "variant": null
+     },
+     "source": {
+      "module": "recovery",
+      "span": {
+       "offset": 1421,
+       "length": 70,
+       "line": 28,
+       "col": 1
+      }
+     },
+     "placement": {
+      "root": "main",
+      "path": [],
+      "source": null
+     },
+     "definitionDigest": "d9cb59ac83014e38503d764a0b73f52da0ea4ab548fa9b1743da526b943349e9"
+    },
+    "branch": {
+     "label": "NewRevision",
+     "results": [
+      {
+       "resultIndex": 0,
+       "source": {
+        "module": "recovery",
+        "span": {
+         "offset": 1421,
+         "length": 70,
+         "line": 28,
+         "col": 1
+        }
+       }
+      },
+      {
+       "resultIndex": 1,
+       "source": {
+        "module": "recovery",
+        "span": {
+         "offset": 1421,
+         "length": 70,
+         "line": 28,
+         "col": 1
+        }
+       }
+      }
+     ]
+    }
+   },
+   "afterDigest": "a4965b1a6b0ec87c2f3ed4b4a38e82d9c8fb8b1b9c4412f963ce1bf709e0a6e8",
+   "observations": [
+    {
+     "viewDigest": "a61a023501992d1ea77794247b5dcab373a3b9fe5e90e7d77dc5c06c6bdaf514"
+    },
+    {
+     "viewDigest": "bc183e565272d555b460ad56027d3a0d773da92ca179971a89ec988deab70e63"
+    }
+   ],
+   "output": {
+    "effects": [
+     {
+      "resultIndex": 0,
+      "source": {
+       "module": "recovery",
+       "span": {
+        "offset": 1421,
+        "length": 70,
+        "line": 28,
+        "col": 1
+       }
+      },
+      "text": "Show fresh disk observation"
+     }
+    ],
+    "diagnostics": [],
+    "changed": [
+     "frames"
+    ]
+   },
+   "outputDigest": "b8b046c22bdbc6b16bc0ec8d6b09fb1864aac43ee34947386db70a05c976905e"
+  },
+  {
+   "step": 5,
+   "command": {
+    "kind": "dispatch",
+    "operation": {
+     "kind": "interaction",
+     "scope": "component",
+     "host": {
+      "module": "recovery",
+      "component": "Conflict",
+      "variant": null
+     },
+     "source": {
+      "module": "recovery",
+      "span": {
+       "offset": 639,
+       "length": 112,
+       "line": 14,
+       "col": 1
+      }
+     },
+     "placement": {
+      "root": "main",
+      "path": [],
+      "source": null
+     },
+     "definitionDigest": "0f711b4865de081002f94920a71e17af844876aa5d28fc0f36423df6551a3ae7"
+    },
+    "branch": {
+     "label": "Cancelled",
+     "results": [
+      {
+       "resultIndex": 5,
+       "source": {
+        "module": "recovery",
+        "span": {
+         "offset": 824,
+         "length": 62,
+         "line": 16,
+         "col": 1
+        }
+       }
+      }
+     ]
+    }
+   },
+   "afterDigest": "53d3074a0ca324815cea8512b316d15836a6bf6eab5ebc92f99d690277127383",
+   "observations": [
+    {
+     "viewDigest": "bc183e565272d555b460ad56027d3a0d773da92ca179971a89ec988deab70e63"
+    }
+   ],
+   "output": {
+    "effects": [
+     {
+      "resultIndex": 5,
+      "source": {
+       "module": "recovery",
+       "span": {
+        "offset": 824,
+        "length": 62,
+        "line": 16,
+        "col": 1
+       }
+      },
+      "text": "Keep the current editor and pending conflict"
+     }
+    ],
+    "diagnostics": [],
+    "changed": []
+   },
+   "outputDigest": "78a11a1445e1e08c4dae69ca7683295bc0cec992abccd54c9b93b3d961d90c1c"
+  }
+ ],
+ "final": {
+  "view": {
+   "view": {
+    "location": {
+     "module": "recovery",
+     "component": "Conflict",
+     "variant": null
+    },
+    "state": {
+     "frames": [
+      {
+       "id": 0,
+       "parentId": null,
+       "stack": [
+        {
+         "module": "recovery",
+         "component": "Conflict",
+         "variant": null,
+         "singleton": false,
+         "scope": "frame-location",
+         "origin": "initial"
+        }
+       ],
+       "barrier": false,
+       "beginsSession": null,
+       "origin": "root"
+      }
+     ],
+     "activeFrameId": 0,
+     "nextFrameId": 3,
+     "activePath": [
+      0
+     ],
+     "overlays": [],
+     "sharedVariants": [
+      {
+       "module": "recovery",
+       "component": "ReviewTarget",
+       "variant": "ChosenFile",
+       "singleton": true,
+       "scope": "singleton-shared",
+       "origin": "dsl"
+      }
+     ],
+     "testVariants": [],
+     "componentValues": [
+      {
+       "module": "recovery",
+       "component": "ChooseAnotherFile",
+       "variant": null,
+       "singleton": false,
+       "scope": "inclusion-initial",
+       "origin": "initial"
+      },
+      {
+       "module": "recovery",
+       "component": "Conflict",
+       "variant": null,
+       "singleton": false,
+       "scope": "inclusion-initial",
+       "origin": "initial"
+      },
+      {
+       "module": "recovery",
+       "component": "DiscardReview",
+       "variant": null,
+       "singleton": false,
+       "scope": "inclusion-initial",
+       "origin": "initial"
+      },
+      {
+       "module": "recovery",
+       "component": "Editing",
+       "variant": null,
+       "singleton": false,
+       "scope": "inclusion-initial",
+       "origin": "initial"
+      },
+      {
+       "module": "recovery",
+       "component": "EditorVersion",
+       "variant": null,
+       "singleton": false,
+       "scope": "inclusion-initial",
+       "origin": "initial"
+      },
+      {
+       "module": "recovery",
+       "component": "KeepEditing",
+       "variant": null,
+       "singleton": false,
+       "scope": "inclusion-initial",
+       "origin": "initial"
+      },
+      {
+       "module": "recovery",
+       "component": "ObservedDisk",
+       "variant": null,
+       "singleton": false,
+       "scope": "inclusion-initial",
+       "origin": "initial"
+      },
+      {
+       "module": "recovery",
+       "component": "OverwriteReview",
+       "variant": null,
+       "singleton": false,
+       "scope": "inclusion-initial",
+       "origin": "initial"
+      },
+      {
+       "module": "recovery",
+       "component": "ReplaceObservedVersion",
+       "variant": null,
+       "singleton": false,
+       "scope": "inclusion-initial",
+       "origin": "initial"
+      },
+      {
+       "module": "recovery",
+       "component": "ReviewAndSaveHere",
+       "variant": null,
+       "singleton": false,
+       "scope": "inclusion-initial",
+       "origin": "initial"
+      },
+      {
+       "module": "recovery",
+       "component": "ReviewTarget",
+       "variant": "ChosenFile",
+       "singleton": true,
+       "scope": "singleton-shared",
+       "origin": "dsl"
+      },
+      {
+       "module": "recovery",
+       "component": "SaveAs",
+       "variant": null,
+       "singleton": false,
+       "scope": "inclusion-initial",
+       "origin": "initial"
+      },
+      {
+       "module": "recovery",
+       "component": "UseCurrentDiskVersion",
+       "variant": null,
+       "singleton": false,
+       "scope": "inclusion-initial",
+       "origin": "initial"
+      },
+      {
+       "module": "recovery",
+       "component": "UseDiskVersion",
+       "variant": null,
+       "singleton": false,
+       "scope": "inclusion-initial",
+       "origin": "initial"
+      }
+     ],
+     "gateTargets": [],
+     "inclusion": {
+      "main": {
+       "module": "recovery",
+       "component": "Conflict",
+       "root": "main",
+       "variant": null,
+       "singleton": false,
+       "scope": "frame-location",
+       "origin": "initial",
+       "source": {
+        "module": "recovery",
+        "span": {
+         "offset": 391,
+         "length": 10,
+         "line": 8,
+         "col": 1
+        }
+       },
+       "children": [
+        {
+         "name": "buffer",
+         "root": "main",
+         "path": [
+          0
+         ],
+         "source": {
+          "module": "recovery",
+          "span": {
+           "offset": 402,
+           "length": 21,
+           "line": 9,
+           "col": 1
+          }
+         },
+         "collection": false,
+         "reference": {
+          "module": "recovery",
+          "component": "EditorVersion"
+         },
+         "kind": "component",
+         "value": {
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+         },
+         "componentSource": {
+          "module": "recovery",
+          "span": {
+           "offset": 1896,
+           "length": 15,
+           "line": 44,
+           "col": 1
+          }
+         },
+         "children": []
+        },
+        {
+         "name": "observed",
+         "root": "main",
+         "path": [
+          1
+         ],
+         "source": {
+          "module": "recovery",
+          "span": {
+           "offset": 424,
+           "length": 22,
+           "line": 10,
+           "col": 1
+          }
+         },
+         "collection": false,
+         "reference": {
+          "module": "recovery",
+          "component": "ObservedDisk"
+         },
+         "kind": "component",
+         "value": {
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+         },
+         "componentSource": {
+          "module": "recovery",
+          "span": {
+           "offset": 1912,
+           "length": 14,
+           "line": 45,
+           "col": 1
+          }
+         },
+         "children": []
+        },
+        {
+         "name": "choices",
+         "root": "main",
+         "path": [
+          2
+         ],
+         "source": {
+          "module": "recovery",
+          "span": {
+           "offset": 447,
+           "length": 61,
+           "line": 11,
+           "col": 1
+          }
+         },
+         "collection": false,
+         "kind": "inline",
+         "children": [
+          {
+           "name": "ReviewAndSaveHere",
+           "root": "main",
+           "path": [
+            2,
+            0
+           ],
+           "source": {
+            "module": "recovery",
+            "span": {
+             "offset": 447,
+             "length": 17,
+             "line": 11,
+             "col": 1
+            }
+           },
+           "collection": false,
+           "reference": {
+            "module": "recovery",
+            "component": "ReviewAndSaveHere"
+           },
+           "kind": "component",
+           "value": {
+            "variant": null,
+            "singleton": false,
+            "scope": "inclusion-initial",
+            "origin": "initial"
+           },
+           "componentSource": {
+            "module": "recovery",
+            "span": {
+             "offset": 1927,
+             "length": 19,
+             "line": 46,
+             "col": 1
+            }
+           },
+           "children": []
+          },
+          {
+           "name": "SaveAs",
+           "root": "main",
+           "path": [
+            2,
+            1
+           ],
+           "source": {
+            "module": "recovery",
+            "span": {
+             "offset": 447,
+             "length": 6,
+             "line": 11,
+             "col": 1
+            }
+           },
+           "collection": false,
+           "reference": {
+            "module": "recovery",
+            "component": "SaveAs"
+           },
+           "kind": "component",
+           "value": {
+            "variant": null,
+            "singleton": false,
+            "scope": "inclusion-initial",
+            "origin": "initial"
+           },
+           "componentSource": {
+            "module": "recovery",
+            "span": {
+             "offset": 1947,
+             "length": 8,
+             "line": 47,
+             "col": 1
+            }
+           },
+           "children": []
+          },
+          {
+           "name": "UseCurrentDiskVersion",
+           "root": "main",
+           "path": [
+            2,
+            2
+           ],
+           "source": {
+            "module": "recovery",
+            "span": {
+             "offset": 447,
+             "length": 21,
+             "line": 11,
+             "col": 1
+            }
+           },
+           "collection": false,
+           "reference": {
+            "module": "recovery",
+            "component": "UseCurrentDiskVersion"
+           },
+           "kind": "component",
+           "value": {
+            "variant": null,
+            "singleton": false,
+            "scope": "inclusion-initial",
+            "origin": "initial"
+           },
+           "componentSource": {
+            "module": "recovery",
+            "span": {
+             "offset": 1956,
+             "length": 23,
+             "line": 48,
+             "col": 1
+            }
+           },
+           "children": []
+          }
+         ]
+        }
+       ]
+      },
+      "overlays": []
+     }
+    },
+    "actions": {
+     "items": [
+      {
+       "operation": {
+        "kind": "interaction",
+        "scope": "component",
+        "host": {
+         "module": "recovery",
+         "component": "Conflict",
+         "variant": null
+        },
+        "source": {
+         "module": "recovery",
+         "span": {
+          "offset": 509,
+          "length": 79,
+          "line": 12,
+          "col": 1
+         }
+        },
+        "placement": {
+         "root": "main",
+         "path": [],
+         "source": null
+        },
+        "definitionDigest": "e0d20926c5be6e4fb53d0be09b62bf175e1e3623d944072b22c96d9393aebc1b"
+       },
+       "branches": [],
+       "enabled": true,
+       "gate": null
+      },
+      {
+       "operation": {
+        "kind": "interaction",
+        "scope": "component",
+        "host": {
+         "module": "recovery",
+         "component": "Conflict",
+         "variant": null
+        },
+        "source": {
+         "module": "recovery",
+         "span": {
+          "offset": 589,
+          "length": 49,
+          "line": 13,
+          "col": 1
+         }
+        },
+        "placement": {
+         "root": "main",
+         "path": [],
+         "source": null
+        },
+        "definitionDigest": "6f66c05c75ba18b965c64b3f4601bf54a94e5502c07d9d41da5add201082f9b6"
+       },
+       "branches": [],
+       "enabled": true,
+       "gate": null
+      },
+      {
+       "operation": {
+        "kind": "interaction",
+        "scope": "component",
+        "host": {
+         "module": "recovery",
+         "component": "Conflict",
+         "variant": null
+        },
+        "source": {
+         "module": "recovery",
+         "span": {
+          "offset": 639,
+          "length": 112,
+          "line": 14,
+          "col": 1
+         }
+        },
+        "placement": {
+         "root": "main",
+         "path": [],
+         "source": null
+        },
+        "definitionDigest": "0f711b4865de081002f94920a71e17af844876aa5d28fc0f36423df6551a3ae7"
+       },
+       "branches": [
+        {
+         "label": "ExistingDifferentTarget",
+         "results": [
+          {
+           "resultIndex": 0,
+           "source": {
+            "module": "recovery",
+            "span": {
+             "offset": 639,
+             "length": 112,
+             "line": 14,
+             "col": 1
+            }
+           }
+          },
+          {
+           "resultIndex": 1,
+           "source": {
+            "module": "recovery",
+            "span": {
+             "offset": 639,
+             "length": 112,
+             "line": 14,
+             "col": 1
+            }
+           }
+          },
+          {
+           "resultIndex": 2,
+           "source": {
+            "module": "recovery",
+            "span": {
+             "offset": 639,
+             "length": 112,
+             "line": 14,
+             "col": 1
+            }
+           }
+          }
+         ]
+        },
+        {
+         "label": "NewTargetSaved",
+         "results": [
+          {
+           "resultIndex": 3,
+           "source": {
+            "module": "recovery",
+            "span": {
+             "offset": 752,
+             "length": 71,
+             "line": 15,
+             "col": 1
+            }
+           }
+          },
+          {
+           "resultIndex": 4,
+           "source": {
+            "module": "recovery",
+            "span": {
+             "offset": 752,
+             "length": 71,
+             "line": 15,
+             "col": 1
+            }
+           }
+          }
+         ]
+        },
+        {
+         "label": "Cancelled",
+         "results": [
+          {
+           "resultIndex": 5,
+           "source": {
+            "module": "recovery",
+            "span": {
+             "offset": 824,
+             "length": 62,
+             "line": 16,
+             "col": 1
+            }
+           }
+          }
+         ]
+        }
+       ],
+       "enabled": true,
+       "gate": null
+      },
+      {
+       "operation": {
+        "kind": "interaction",
+        "scope": "component",
+        "host": {
+         "module": "recovery",
+         "component": "Conflict",
+         "variant": null
+        },
+        "source": {
+         "module": "recovery",
+         "span": {
+          "offset": 887,
+          "length": 48,
+          "line": 17,
+          "col": 1
+         }
+        },
+        "placement": {
+         "root": "main",
+         "path": [],
+         "source": null
+        },
+        "definitionDigest": "2fd464fdd0bcc804f2aeb5a56ab701c520ab0e44fe7753757e06df4524c37f55"
+       },
+       "branches": [],
+       "enabled": true,
+       "gate": null
+      }
+     ],
+     "back": {
+      "enabled": false,
+      "reason": "no-return-location"
+     }
+    }
+   },
+   "timeline": [
+    {
+     "resultIndex": null,
+     "source": null,
+     "kind": "transition",
+     "label": "起動",
+     "location": {
+      "module": "recovery",
+      "component": "Editing",
+      "variant": null
+     },
+     "ghost": false,
+     "ref": {
+      "step": 0,
+      "observation": 0
+     }
+    },
+    {
+     "resultIndex": 0,
+     "source": {
+      "module": "recovery",
+      "span": {
+       "offset": 355,
+       "length": 34,
+       "line": 6,
+       "col": 1
+      }
+     },
+     "kind": "transition",
+     "label": "goto → Conflict",
+     "location": {
+      "module": "recovery",
+      "component": "Conflict",
+      "variant": null
+     },
+     "ghost": false,
+     "ref": {
+      "step": 1,
+      "observation": 0
+     }
+    },
+    {
+     "resultIndex": 0,
+     "source": {
+      "module": "recovery",
+      "span": {
+       "offset": 509,
+       "length": 79,
+       "line": 12,
+       "col": 1
+      }
+     },
+     "kind": "event",
+     "label": "set(ReviewTarget)",
+     "location": {
+      "module": "recovery",
+      "component": "Conflict",
+      "variant": null
+     },
+     "ghost": false,
+     "ref": {
+      "step": 2,
+      "observation": 0
+     }
+    },
+    {
+     "resultIndex": 1,
+     "source": {
+      "module": "recovery",
+      "span": {
+       "offset": 509,
+       "length": 79,
+       "line": 12,
+       "col": 1
+      }
+     },
+     "kind": "transition",
+     "label": "present → OverwriteReview",
+     "location": {
+      "module": "recovery",
+      "component": "OverwriteReview",
+      "variant": null
+     },
+     "ghost": false,
+     "ref": {
+      "step": 2,
+      "observation": 1
+     }
+    },
+    {
+     "resultIndex": 0,
+     "source": {
+      "module": "recovery",
+      "span": {
+       "offset": 1199,
+       "length": 138,
+       "line": 26,
+       "col": 1
+      }
+     },
+     "kind": "event",
+     "label": "effect: Choose another target",
+     "location": {
+      "module": "recovery",
+      "component": "OverwriteReview",
+      "variant": null
+     },
+     "ghost": false,
+     "ref": {
+      "step": 3,
+      "observation": 0
+     }
+    },
+    {
+     "resultIndex": 1,
+     "source": {
+      "module": "recovery",
+      "span": {
+       "offset": 1199,
+       "length": 138,
+       "line": 26,
+       "col": 1
+      }
+     },
+     "kind": "event",
+     "label": "set(ReviewTarget)",
+     "location": {
+      "module": "recovery",
+      "component": "OverwriteReview",
+      "variant": null
+     },
+     "ghost": false,
+     "ref": {
+      "step": 3,
+      "observation": 1
+     }
+    },
+    {
+     "resultIndex": 2,
+     "source": {
+      "module": "recovery",
+      "span": {
+       "offset": 1199,
+       "length": 138,
+       "line": 26,
+       "col": 1
+      }
+     },
+     "kind": "transition",
+     "label": "dismiss → Conflict",
+     "location": {
+      "module": "recovery",
+      "component": "Conflict",
+      "variant": null
+     },
+     "ghost": false,
+     "ref": {
+      "step": 3,
+      "observation": 2
+     }
+    },
+    {
+     "resultIndex": 3,
+     "source": {
+      "module": "recovery",
+      "span": {
+       "offset": 1199,
+       "length": 138,
+       "line": 26,
+       "col": 1
+      }
+     },
+     "kind": "transition",
+     "label": "present → OverwriteReview",
+     "location": {
+      "module": "recovery",
+      "component": "OverwriteReview",
+      "variant": null
+     },
+     "ghost": false,
+     "ref": {
+      "step": 3,
+      "observation": 3
+     }
+    },
+    {
+     "resultIndex": 0,
+     "source": {
+      "module": "recovery",
+      "span": {
+       "offset": 1421,
+       "length": 70,
+       "line": 28,
+       "col": 1
+      }
+     },
+     "kind": "event",
+     "label": "effect: Show fresh disk observation",
+     "location": {
+      "module": "recovery",
+      "component": "OverwriteReview",
+      "variant": null
+     },
+     "ghost": false,
+     "ref": {
+      "step": 4,
+      "observation": 0
+     }
+    },
+    {
+     "resultIndex": 1,
+     "source": {
+      "module": "recovery",
+      "span": {
+       "offset": 1421,
+       "length": 70,
+       "line": 28,
+       "col": 1
+      }
+     },
+     "kind": "transition",
+     "label": "dismiss → Conflict",
+     "location": {
+      "module": "recovery",
+      "component": "Conflict",
+      "variant": null
+     },
+     "ghost": false,
+     "ref": {
+      "step": 4,
+      "observation": 1
+     }
+    },
+    {
+     "resultIndex": 5,
+     "source": {
+      "module": "recovery",
+      "span": {
+       "offset": 824,
+       "length": 62,
+       "line": 16,
+       "col": 1
+      }
+     },
+     "kind": "event",
+     "label": "effect: Keep the current editor and pending conflict",
+     "location": {
+      "module": "recovery",
+      "component": "Conflict",
+      "variant": null
+     },
+     "ghost": false,
+     "ref": {
+      "step": 5,
+      "observation": 0
+     }
+    }
+   ],
+   "cursor": {
+    "step": 5,
+    "observation": 0
+   }
+  },
+  "digest": "53d3074a0ca324815cea8512b316d15836a6bf6eab5ebc92f99d690277127383"
+ }
+}

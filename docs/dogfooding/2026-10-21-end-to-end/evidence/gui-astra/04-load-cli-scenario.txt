@@ -1,0 +1,13 @@
+built-in browser / 新しいタブ（記録 0 件の新 GUI Session）で astra-models-proposed.html を開き、利用者が pane 上で「ファイルを選択」を押してファイル選択ダイアログから scenarios/astra-cli.scenario.json を選んだ（Claude 側のクリックではダイアログが出なかったため、ファイル選択だけ人が行った）。
+
+読込直後の表示（get_page_text 抜粋）
+保存範囲: dispatch 8件 / seek 0件 / reset 0件 / 手動試験 0件。
+操作の再生ファイルを読み込みました（dispatch 8件 / seek 0件 / reset 0件 / 手動試験 0件を照合）
+読み込んだ時点の状態（一部）: 画面・操作条件に関係する部品の共有状態: 本体: 文書A variantなし, 作業面A ##並列, 図の状態A ##最新, 状態A ##保存済, 正規化A ##非表示
+読み込んだ時点の状態の一部です。画面外も含む全ての部品の共有状態の一覧ではありません。
+画面外も含めて状態を確認する方法
+（展開後）node packages/cli/dist/index.js session <定義ファイルの入口> --replay <対象の再生ファイル>
+応答の data.state.sharedVariants が画面外を含む全singletonのvariant一覧です。module（所属）とcomponent（部品）の組で識別し、variant（選…
+画面: 文書A（保存状態 A.pfdsl — Saved）、スタック ▌文書A@a / 開始
+
+読込要約は状態B を含まない（予想 Q5 と一致）。CLI の同じ地点（evidence/cli-astra-replay/resp.jsonl の r2）では 状態B=未保存。

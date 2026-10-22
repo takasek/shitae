@@ -1,0 +1,2 @@
+{"id":"q-state","command":"query","select":["state","actions","metadata"]}
+{"id":"q-hist","command":"query","select":["history"],"history":{"limit":100}}

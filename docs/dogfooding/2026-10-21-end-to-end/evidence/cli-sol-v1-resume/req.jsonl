@@ -1,0 +1,2 @@
+{"id":"q","command":"query"}
+{"id":"rv","command":"query","select":["review"]}

@@ -1,0 +1,6 @@
+Error: MODEL_MISMATCH: source bytesが異なるmodule: recovery（空白・コメントも照合対象）
+次の行動:
+完全一致する保存時のHTMLが残っていれば、そのHTMLとscenarioの組で再開してください。任意の古いHTMLでは再開できません。
+CLIでの再開には、対応する元モデル一式と処理系が必要です。engineのhashだけからcommitは特定できません。
+変更後のモデル・処理系で検討する場合は新しく記録してください。旧版の検討手順は人が選び直すための参照に使えます。
+詳細: Expected {"engineVersion":"278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116","entryModule":"recovery","manifest":[{"module":"recovery","sourceSha256":"8357da6b4d9241e44d9e028668f100ec82485e61b25f545852ea0c9bb5a92ae4"}],"modelId":"1e6933bcad00391f9027fc9b28f537480ed429d27a828a1e046d3d70cc6126c9","sourceBasis":"source-bytes"}; actual {"engineVersion":"278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116","entryModule":"recovery","manifest":[{"module":"recovery","sourceSha256":"46aa4f7db0fdfcb222dec14bb20de59179e862e59b0b9c22f5225ef8b398e59f"}],"modelId":"3570a420dd27cc0c64727eb44d104c812f6cec6b2684dc4f6691a44f62320346","sourceBasis":"source-bytes"}
