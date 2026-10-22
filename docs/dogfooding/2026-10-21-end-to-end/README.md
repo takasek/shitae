@@ -62,6 +62,8 @@ node packages/cli/dist/index.js session docs/dogfooding/2026-10-13-standalone/as
 
 `tools/run-session.sh <出力dir> <model> [--replay <file>]` は要求ファイルへの追記を stdin にして CLI session を起動し、`tools/send.mjs <出力dir> '<json>' [path]` は 1 要求を送って同じ id の応答を待つだけの薄い client。出力先は引数で指定し、このディレクトリの evidence を上書きしないこと。
 
+補助スクリプトの終了処理は `node --test docs/dogfooding/2026-10-21-end-to-end/tools/run-session.test.mjs` で検証できる。CLI の終了時に入力監視を停止し、終了コードを `stderr.txt` に記録して同じコードで終了する。これは PR レビュー後に加えた回帰テストであり、評価当日の証拠とは別の検証である。
+
 生成 HTML を開くときは、このディレクトリを一時配信して利用後に停止する。
 
 ```sh
