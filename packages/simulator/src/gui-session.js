@@ -113,8 +113,9 @@ function renderProvenance(fallback) {
     const warningBadge = warnings.length ? ' <span class="history-warning">要確認 ' + warnings.length + '件</span>' : '';
     const c = item.counts, available = c.retained + c.ghost;
     const status = c.discarded ? (available ? '一部の結果は文章のみ' : '文章のみ') : available ? '閲覧・再開可' : '再開できる地点なし';
-    const kind = {dispatch:'操作',seek:'位置の変更',reset:'初期化',setTestVariant:'手動試験'}[item.kind];
-    let body = '<div class="provenance-step" data-history-key="step:' + item.step + '"><button data-focus-key="step:' + item.step + '" class="provenance-heading" aria-expanded="' + open + '" onclick="toggleProvenanceStep(' + item.step + ')">記録' + item.step + ' · ' + kind + ' · ' + esc(item.actionText) + warningBadge + '</button>';
+    const kind = {dispatch:'操作',seek:'操作を続ける位置の変更',reset:'初期化',setTestVariant:'手動試験'}[item.kind];
+    const action = item.kind === 'seek' ? '' : ' · ' + esc(item.actionText);
+    let body = '<div class="provenance-step" data-history-key="step:' + item.step + '"><button data-focus-key="step:' + item.step + '" class="provenance-heading" aria-expanded="' + open + '" onclick="toggleProvenanceStep(' + item.step + ')">記録' + item.step + ' · ' + kind + action + warningBadge + '</button>';
     body += '<p>試した条件：' + esc(item.branch ?? 'なし') + ' / 結果 ' + item.resultCount + '件 / ' + status + '</p>';
     if (item.discarded.length) body += '<p>この記録で文章のみになった地点: ' + item.discarded.length + '件</p>';
     if (item.target) body += '<p>変更先: ' + esc(item.target.actionText + ' / ' + pointRef(item.target.ref)) + '</p>';
@@ -137,7 +138,7 @@ function renderProvenance(fallback) {
   }).join('');
   const initial = timeline.find(p => p.id === 1);
   if (initial) html += pointButton({ ...initial, current: initial.id === view.summary.cursorObservationId, status: initial.ghost ? 'ghost' : 'retained' }, '起点: ');
-  html += '<p><button onclick="toggleReview()" aria-expanded="' + reviewOpen + '">検討手順を表示</button> <button onclick="saveReview()">検討手順を書出し</button></p>';
+  html += '<p class="pane-desc">検討手順は、修正版を人が試し直すための文章です。自動移行や初回入門用ではありません。</p><p><button onclick="toggleReview()" aria-expanded="' + reviewOpen + '">検討手順を表示</button> <button onclick="saveReview()">検討手順を書出し</button></p>';
   if (reviewOpen) html += '<label>変更後モデルと見比べる検討手順<textarea class="review-text" readonly rows="14">' + esc(SESSION.query({ select: ['review'] }).data.review.text) + '</textarea></label>';
   return html;
 }
@@ -386,8 +387,8 @@ function stateLabel(node) {
     esc(v.variant === null ? 'variantなし' : '##' + v.variant) + ' · ' + valueDescription(v) + '</span>';
 }
 function valueDescription(v) {
-  const scopes = {'singleton-shared':'共有 (singleton)', 'frame-location':'画面の値', 'overlay-entry':'掲示の値', 'inclusion-initial':'包含の初期値', 'component-test':'部品の試験値'};
-  const origins = {initial:'初期', dsl:'DSL', 'manual-test':'手動試験'};
+  const scopes = {'singleton-shared':'同じ実行内で共有する状態 (singleton)', 'frame-location':'この画面の状態', 'overlay-entry':'この独立表示の状態', 'inclusion-initial':'この配置の初期状態', 'component-test':'参照先部品の検討用の状態'};
+  const origins = {initial:'定義の初期値', dsl:'定義した操作で設定', 'manual-test':'検討用に手動設定'};
   return '<span title="' + esc(v.scope + ' / ' + v.origin) + '">' + esc(scopes[v.scope]) + ' · ' + esc(origins[v.origin]) + '</span>';
 }
 function rootStateLabel(root) { return showStates ? '<div class="component-state-value">' + valueDescription(root) + '</div>' : ''; }

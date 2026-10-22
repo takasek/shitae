@@ -145,6 +145,8 @@ summary.pane-title { cursor: pointer; }
    ことが要件。select はバッジと違い操作可能なので pointer-events は殺さない。 */
 .gate-inline-badge { font-size: 10px; color: #7c5cbf; background: #f3f0fb; border-radius: 8px; padding: 1px 6px; white-space: nowrap; }
 .gate-inline-select { font-size: 11px; }
+.gate-inline-setting { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 4px; max-width: 100%; font-size: 11px; }
+.gate-inline-select { max-width: 100%; }
 .gate-off-mark { font-size: 11px; color: #c0392b; }
 .action-row-disabled { background: #f5f5f5; opacity: .7; }
 .action-row-disabled.action-row-solo { cursor: not-allowed; }
@@ -307,8 +309,8 @@ function renderVariantSelect(module, component, variantNames, current, focusKey)
   const options = variantNames.map((v) =>
     '<option value="' + esc(v) + '"' + (v === current ? ' selected' : '') + '>' + esc(v) + '</option>'
   ).join('');
-  return '<select class="gate-inline-select" data-focus-key="' + esc(focusKey ?? ('gate:' + module + ':' + component)) + '" onclick="event.stopPropagation()" onchange="setInstanceVariant(' +
-    esc(JSON.stringify(module)) + ', ' + esc(JSON.stringify(component)) + ', this.value)">' + options + '</select>';
+  return '<label class="gate-inline-setting" onclick="event.stopPropagation()">検討用の手動設定 <select class="gate-inline-select" aria-label="' + esc(component + ' の状態パターンを検討用に手動設定') + '" data-focus-key="' + esc(focusKey ?? ('gate:' + module + ':' + component)) + '" onclick="event.stopPropagation()" onchange="setInstanceVariant(' +
+    esc(JSON.stringify(module)) + ', ' + esc(JSON.stringify(component)) + ', this.value)">' + options + '</select></label>';
 }
 
 function renderGateInlineControls(gate, focusKey) {
@@ -337,7 +339,7 @@ function renderActionRow(item, buildOnclick) {
   const focusKey = operationKey(inter);
   const gateHtml = isMemberGate ? renderGateInlineControls(inter.gate, focusKey + ':gate') : '';
   const gateOff = isMemberGate && !gateEnabled(inter);
-  const offMark = gateOff ? '<span class="gate-off-mark">対象要素がないため無効（presence gate）</span>' : '';
+  const offMark = gateOff ? '<span class="gate-off-mark">' + esc(inter.gate.targetComponent + '.' + inter.gate.name) + ' が参照先の状態パターンにないため無効（presence gate：画面上の可視性ではなく構造を判定）</span>' : '';
   const rowClass = 'action-row' + (gateOff ? ' action-row-disabled' : '');
   if (inter.choices.length === 0) {
     const onclickAttr = gateOff ? '' : ' onclick="' + renderedClick(item, 0, buildOnclick) + '"';
@@ -484,7 +486,7 @@ function renderOverlayCard(name, cardIdx) {
     stateHtml: rootStateLabel(view.data.state.inclusion.overlays[cardIdx]),
     elementsHtml,
     actionsHtml,
-    badgeHtml: '<div class="overlay-badge">掲示中</div>',
+    badgeHtml: '<div class="overlay-badge">独立表示中（hide するまで残ります）</div>',
     extraClass: 'overlay-card',
   });
 }
@@ -1099,7 +1101,8 @@ function renderGraphSection() {
   // のになぜクリックで何か起きるのか」と読めてしまう（UX round2 指摘、Task 16 項目3）。
   return '<details' + (mapPanelOpen ? ' open' : '') + ' class="graph-section" ontoggle="mapPanelOpen = this.open">' +
     '<summary class="pane-title" title="遷移マップ — 画面間の遷移関係（表示のみ。状態遷移図として読める）">遷移マップ</summary>' +
-    '<div class="pane-desc">画面間の遷移関係を表示します。状態遷移図として読める。遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。</div>' +
+    '<div class="pane-desc">定義から得られる関係の静的な概観です。状態遷移図として読める一方、back・dismiss の戻り先や set による状態変更を含む、現在の試行の完全な実行経路ではありません。戻り先は操作と履歴、状態変更は状態表示、残存作業は「残っている作業」で確認します。</div>' +
+    '<div class="pane-desc">遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。</div>' +
     '<button class="graph-save-btn" onclick="saveGraphConfig()">設定を保存</button>' +
     '<label class="graph-scope-toggle"><input type="checkbox" ' + (graphShowAll ? 'checked' : '') +
       ' onchange="toggleGraphShowAll()"> 全体を見る</label>' +

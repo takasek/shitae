@@ -184,7 +184,7 @@ problem: Diagnostics
       context,
     );
     const appHtml = vm.runInContext('app.innerHTML', context);
-    expect(appHtml).toContain('掲示中');
+    expect(appHtml).toContain('独立表示中（hide するまで残ります）');
     expect(appHtml).toContain('ミニ');
     expect(appHtml).toContain('共通要素');
     expect(appHtml).toContain('共通操作');

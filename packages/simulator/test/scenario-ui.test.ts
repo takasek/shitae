@@ -130,6 +130,8 @@ describe('scenario GUI import/export', () => {
     const text = await a.run('buildScenarioJson()');
     expect(a.query()).toEqual(sourceBefore);
     await a.run('saveScenario()');
+    expect(a.app.innerHTML).toContain('操作の再生ファイルを作成しました');
+    expect(a.app.innerHTML).not.toContain('シナリオの保存ファイル');
     expect(a.downloads).toHaveLength(1); expect(a.downloads[0]!.name).toBe(`main.${a.prepared.metadata.modelId.slice(0, 12)}.${a.prepared.metadata.engineVersion.slice(0, 12)}.scenario.json`);
     expect(await a.downloads[0]!.blob.text()).toBe(text);
     const b = gui(); const oldClick = b.app.innerHTML.match(/onclick="(handleInteraction[^\"]+)"/)![1]!;
