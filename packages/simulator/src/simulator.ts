@@ -59,7 +59,7 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
 .history-preview p, .history-preview li { margin: 8px 0; }
 .history-preview ul { padding-left: 20px; }
 button:focus-visible { outline: 3px solid #285bd4; }
-@media (max-width: 680px) { #app { grid-template-columns: minmax(0,1fr); grid-template-rows: auto minmax(160px,35vh) minmax(0,1fr); } }
+
 .pane { padding: 16px; overflow-y: auto; }
 .pane-trace { background: #fff; border-right: 1px solid #e0e0e0; }
 /* 中央ペインは自身を単一スクロール領域にしない（.pane の overflow-y: auto を上書き）——
@@ -217,6 +217,12 @@ summary.pane-title { cursor: pointer; }
 .graph-tooltip-backdrop { position: fixed; inset: 0; z-index: 1; }
 .graph-save-btn { align-self: flex-start; margin-bottom: 6px; background: none; border: 1px solid #ccc; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 11px; color: #555; }
 .graph-save-btn:hover { background: #f0f0f0; }
+@media (max-width: 680px) {
+  #app { grid-template-columns: minmax(0,1fr); grid-template-rows: auto minmax(0,1fr) minmax(120px,20vh); }
+  #app .pane-center { grid-row: 2; }
+  #app .pane-trace { grid-row: 3; }
+  #app .lower-section { max-height: 15vh; }
+}
 </style>
 </head>
 <body>
