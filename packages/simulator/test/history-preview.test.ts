@@ -258,6 +258,60 @@ describe('addendum warning and remaining-work inspection', () => {
 
 
 describe('concept guide contract', () => {
+  it('explains gate targets and manual settings at the control before use', async () => {
+    const g = gui('# Home\ncard: Card\n> Check(card.signal?) -> checked\n# Card\n## Idle\nx\n## Ready\nsignal\n');
+    const before = g.snapshot(), saved = await g.run('buildScenarioJson()');
+    const row = g.app.innerHTML.match(/<div class="action-row action-row-disabled[\s\S]*?<\/div>/)![0];
+    expect(row).toContain('Card.signal が参照先の状態パターンにないため無効');
+    expect(row).toContain('画面上の可視性ではなく構造を判定');
+    expect(row).toMatch(/<label[^>]*>検討用の手動設定[\s\S]*<select/);
+    expect(row).toContain('aria-label="Card の状態パターンを検討用に手動設定"');
+    g.run('render()');
+    expect(g.snapshot()).toBe(before); expect(await g.run('buildScenarioJson()')).toBe(saved);
+    g.run("setInstanceVariant('main','Card','Ready')");
+    expect(g.app.innerHTML).not.toContain('gate-off-mark');
+    expect(g.app.innerHTML).toContain('検討用に手動設定');
+  });
+
+  it('separates state location, source and independent display lifetime', () => {
+    const g = gui('# Home\n> Start -> show(Notice) ; goto(##Changed)\n## Initial\n## Changed\n# Notice\nnotice\n');
+    g.run('toggleShowStates()');
+    expect(g.app.innerHTML).toContain('この画面の状態');
+    expect(g.app.innerHTML).toContain('定義の初期値');
+    g.run("handleInteraction('component',0,0)");
+    expect(g.app.innerHTML).toContain('定義した操作で設定');
+    expect(g.app.innerHTML).toContain('frame-location / dsl');
+    expect(g.app.innerHTML).toContain('独立表示中（hide するまで残ります）');
+    expect(g.app.innerHTML).toContain('この独立表示の状態');
+  });
+
+  it('names resume headings without exposing the journal technical action name', () => {
+    const g = gui(); g.run("handleInteraction('component',0,0); jumpToTimeline(1)");
+    const heading = g.app.innerHTML.match(/<button[^>]*data-focus-key="step:2"[^>]*>(.*?)<\/button>/)![1];
+    expect(heading).toBe('記録2 · 操作を続ける位置の変更');
+    expect(g.app.innerHTML).toContain('修正版を人が試し直すための文章です');
+    expect(g.app.innerHTML).toContain('自動移行や初回入門用ではありません');
+  });
+
+  it('describes map limits alongside a back/dismiss/set trial', () => {
+    const g = gui('# Home\n> Open -> push(Detail)\n# Detail\n> Modal -> present(Confirm)\n> Return -> back()\n# Confirm\n> Accept -> set(State##Ready) ; dismiss()\n#! State\n## Idle\n## Ready\n');
+    expect(g.app.innerHTML).toContain('定義から得られる関係の静的な概観');
+    expect(g.app.innerHTML).toContain('現在の試行の完全な実行経路ではありません');
+    expect(g.app.innerHTML).toContain('戻り先は操作と履歴、状態変更は状態表示、残存作業は「残っている作業」');
+    expect(g.app.innerHTML).toContain('ノードをクリックしても画面は遷移しません');
+    g.run('graphShowAll = true; render()');
+    const graph = () => g.app.innerHTML.match(/<svg class="graph-svg"[\s\S]*?<\/svg>/)![0];
+    // Only Home -> Detail (push) and Detail -> Confirm (present) are static edges.
+    expect(graph().match(/<line /g)).toHaveLength(2);
+    expect(graph()).toContain('State');
+    g.run("handleInteraction('component',0,0); handleInteraction('component',0,0); handleInteraction('component',0,0)");
+    expect(g.run('view.summary.location.component')).toBe('Detail');
+    expect(g.run('view.data.state.sharedVariants[0].variant')).toBe('Ready');
+    g.run("handleInteraction('component',1,0)");
+    expect(g.run('view.summary.location.component')).toBe('Home');
+    expect(graph().match(/<line /g)).toHaveLength(2);
+  });
+
   it('separates definitions, lifetimes and trial semantics in a closed, read-only guide', async () => {
     const g = gui();
     const before = g.snapshot(), saved = await g.run('buildScenarioJson()');
