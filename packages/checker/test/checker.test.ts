@@ -251,3 +251,93 @@ describe('r4 B4: W106 — singleton への show(X##v)（明示 variant）', () =
     expect(diags.filter(d => d.code === 'W106')).toHaveLength(0);
   });
 });
+
+
+describe('issue #42: 逐次適用後の裸 goto の W105', () => {
+  function warnings(results: string) {
+    const source = `# 元
+## 初期
+> 実行 -> ${results}
+## 元だけ
+# 次
+## 通常
+## 次だけ
+#! 状態
+## 通常
+`;
+    const { document, diagnostics } = parse(source);
+    expect(diagnostics.filter(d => d.severity === 'error')).toEqual([]);
+    return check(document, resolve(document)).filter(d => d.code === 'W105');
+  }
+
+  it('Issue の最小再現: dismiss 後は閉じた component に照合しない', () => {
+    const { document, diagnostics } = parse('# 詳細\n## 未確定\n> 開く -> present(確認)\n## 確定済み\n# 確認\n> 確定 -> dismiss() ; goto(##確定済み)\n');
+    expect(diagnostics).toEqual([]);
+    expect(check(document, resolve(document)).filter(d => d.code === 'W105')).toEqual([]);
+  });
+
+  it.each(['goto(次)', 'push(次)', 'push(次, @flow)', 'present(次)', 'present(次, @flow)'])(
+    '%s の後は遷移先を検査する', transition => {
+      expect(warnings(`${transition} ; goto(##次だけ)`)).toEqual([]);
+      const diags = warnings(`${transition} ; goto(##元だけ)`);
+      expect(diags).toHaveLength(1);
+      expect(diags[0].message).toContain("'次'");
+      expect(diags[0].span.line).toBe(3);
+    }
+  );
+
+  it.each(['dismiss()', 'dismiss(@flow)', 'exit(@flow)', 'back()', 'back(次)', 'switch(次, @tab)'])(
+    '%s の後は履歴依存のため保留する', transition => {
+      expect(warnings(`${transition} ; goto(##不明) ; goto(##さらに不明)`)).toEqual([]);
+    }
+  );
+
+  it('確定する遷移で検査を再開する', () => {
+    const diags = warnings('dismiss() ; goto(##不明) ; push(次) ; goto(##元だけ)');
+    expect(diags).toHaveLength(1);
+    expect(diags[0].message).toContain("'次'");
+  });
+
+  it('未定義 component への遷移後は元の component に照合しない', () => {
+    expect(warnings('goto(未定義) ; goto(##不明)')).toEqual([]);
+  });
+
+  it('副作用・overlay・set と裸 variant 遷移は component を変えない', () => {
+    expect(warnings('保存する ; show(次) ; set(状態##通常) ; hide(次) ; push(##元だけ) ; goto(##初期)')).toEqual([]);
+    expect(warnings('goto(##元だけ) ; goto(##不明)')).toHaveLength(1);
+    expect(warnings('dismiss() ; set(状態##不明) ; goto(##不明)')).toHaveLength(1);
+  });
+
+  it('別 interaction へ不明状態を持ち越さない', () => {
+    const diags = warnings('dismiss()\n> 別の行動 -> goto(##不明)');
+    expect(diags).toHaveLength(1);
+    expect(diags[0].span.line).toBe(4);
+  });
+
+  it('条件分岐を独立に追跡し、同じラベルが再登場したら続きとして扱う', () => {
+    const diags = warnings('[成功] goto(次) ; goto(##次だけ) ; [失敗] goto(##元だけ) ; [成功] goto(##元だけ)');
+    expect(diags).toHaveLength(1);
+    expect(diags[0].message).toContain("'次'");
+  });
+
+  it('全分岐が共通の先行結果を引き継ぐ', () => {
+    expect(warnings('push(次) ; [成功] goto(##次だけ) ; [失敗] goto(##元だけ)')).toHaveLength(1);
+    expect(warnings('dismiss() ; [成功] goto(##不明) ; [失敗] goto(##不明)')).toEqual([]);
+    expect(warnings('[成功] dismiss() ; goto(##不明) ; [失敗] goto(##不明)')).toHaveLength(1);
+  });
+
+  it.each(['goto', 'push', 'present'])('別モジュールへの %s 後は定義先を検査する', word => {
+    const entry = parse(`import mod as m
+# 元
+## 元だけ
+> 実行 -> ${word}(m::次) ; goto(##次だけ) ; goto(##元だけ)
+`).document;
+    const mod = parse('# 次\n## 次だけ\n').document;
+    const project = resolveProject(new Map([['entry', entry], ['mod', mod]]));
+    const diags = check(entry, resolve(entry), { project }).filter(d => d.code === 'W105');
+    expect(diags).toHaveLength(1);
+    expect(diags[0].message).toContain('元だけ');
+    expect(diags[0].message).toContain("'次'");
+    expect(check(entry, resolve(entry)).filter(d => d.code === 'W105')).toEqual([]);
+  });
+});
