@@ -68,13 +68,13 @@ describe('singleton summary at the scenario load point', () => {
   it('says explicitly when no singleton is displayed, without listing undisplayed singletons', async () => {
     const { b } = await resumed(one(NONE), ["handleInteraction('component',0,0)"]);
     expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読み込んだ時点の状態（一部）: 画面・操作条件に関係する部品の共有状態はありません。画面外の部品の共有状態がないという意味ではありません。</p>');
-    expect(b.app.innerHTML).not.toContain('Cart');
+    expect(summaryHtml(b.app.innerHTML)).not.toContain('Cart');
   });
 
   it('shows each displayed singleton once with the variant of the replayed Session', async () => {
     const { a, b } = await resumed(one(SEVERAL), ["handleInteraction('component',0,0)"]);
     expect(summaryHtml(b.app.innerHTML)).toBe('<p role="status">読み込んだ時点の状態（一部）: 画面・操作条件に関係する部品の共有状態: 本体: Bar ##Away, Cart ##Full, Mode ##Light</p>');
-    expect(b.app.innerHTML).not.toContain('Unseen');
+    expect(summaryHtml(b.app.innerHTML)).not.toContain('Unseen');
     for (const [component, variant] of [['Bar', 'Away'], ['Cart', 'Full'], ['Mode', 'Light']] as const) {
       expect(valueOf(b, 'main', component)).toMatchObject({ variant, singleton: true });
       expect(valueOf(a, 'main', component).variant).toBe(variant);

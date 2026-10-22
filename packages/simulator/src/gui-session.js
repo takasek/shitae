@@ -58,7 +58,7 @@ function pointDescription(id, knownStep) {
     for (const item of page.items) {
       const d = SESSION.query({select:['provenanceStep'],step:item.step}).data.provenanceStep;
       const o = d.observations.find(o=>o.id===id);
-      if (o) return '記録' + d.step + '「' + d.actionText + '」 / 選んだ条件：' + (d.branch ?? 'なし') +
+      if (o) return '記録' + d.step + '「' + d.actionText + '」 / 試した条件：' + (d.branch ?? 'なし') +
         (o.resultPosition === null ? '' : ' / 結果' + (o.resultPosition + 1)) + ' / 状態' + (o.ordinal + 1) + ' / ' + locationLabel(p.location);
     }
     after = page.nextAfter;
@@ -74,7 +74,7 @@ function historyPreviewHtml() {
   const o = historicalPreview, state = o.view.state;
   const nodes = children => '<ul>' + children.map(n => '<li>' + esc((n.collection ? '*' : '') + n.name + (n.reference ? ' / ' + n.reference.module + '::' + n.reference.component + (n.value?.variant ? ' / ' + n.value.variant : '') : '')) + nodes(n.children) + '</li>').join('') + '</ul>';
   const card = r => '<div class="screen"><h3>' + esc(r.module + '::' + locationLabel(r)) + '</h3>' + nodes(r.children) + '</div>';
-  return '<section class="history-preview"><h2>見ている履歴の画面: ' + esc(pointDescription(o.id)) + '</h2><p>閲覧は表示だけを切り替えます。操作を続ける位置は変わりません。当時の操作は説明として表示し、ここでは実行できません。</p>' +
+  return '<section class="history-preview"><h2>見ている履歴の画面: ' + esc(pointDescription(o.id)) + '</h2><p>当時の表示部品と使えた操作を示します。閲覧は表示だけを切り替えます。操作を続ける位置は変わりません。当時の操作は説明として表示し、ここでは実行できません。</p>' +
     '<button data-focus-key="end-preview" onclick="endHistoryPreview()">履歴の閲覧を終える</button> <button data-focus-key="request-resume" onclick="requestResume(' + o.id + ')"' + (o.id === view.summary.cursorObservationId ? ' disabled title="現在の操作位置と同じ地点です"' : '') + '>この時点から続ける…</button>' +
     card(state.inclusion.main) + state.inclusion.overlays.map(card).join('') +
     '<h3>当時の操作（説明のみ）</h3><ul>' + o.view.actions.items.map(a => '<li>' + esc(a.actionText + ' / ' + a.placement.root + ' / ' + (a.enabled ? '有効' : '無効') + ' / 条件: ' + (a.branches.map(b=>b.label ?? 'なし').join('、') || 'なし')) + '</li>').join('') + '</ul></section>';
@@ -105,11 +105,17 @@ function renderProvenance(fallback) {
   html += '<details data-state-key="history-counts"><summary>技術詳細：履歴の保持件数</summary>' + esc(provenanceCounts(summary.observations)) + '</details>';
   html += items.reverse().map(item => {
     const open = provenanceOpen.has(item.step);
+    const detail = SESSION.query({ select: ['provenanceStep'], step: item.step }).data.provenanceStep;
+    // Session records runtime warnings as `Rnnn: message` event labels. Effects always
+    // have the distinct `effect: ` prefix. Use journal points so discarded warnings
+    // remain discoverable, independent of the event-visibility toggle.
+    const warnings = detail.observations.filter(p => p.kind === 'event' && /^R[0-9]{3}:/.test(p.label));
+    const warningBadge = warnings.length ? ' <span class="history-warning">要確認 ' + warnings.length + '件</span>' : '';
     const c = item.counts, available = c.retained + c.ghost;
     const status = c.discarded ? (available ? '一部の結果は文章のみ' : '文章のみ') : available ? '閲覧・再開可' : '再開できる地点なし';
     const kind = {dispatch:'操作',seek:'位置の変更',reset:'初期化',setTestVariant:'手動試験'}[item.kind];
-    let body = '<div class="provenance-step" data-history-key="step:' + item.step + '"><button data-focus-key="step:' + item.step + '" class="provenance-heading" aria-expanded="' + open + '" onclick="toggleProvenanceStep(' + item.step + ')">記録' + item.step + ' · ' + kind + ' · ' + esc(item.actionText) + '</button>';
-    body += '<p>選んだ条件：' + esc(item.branch ?? 'なし') + ' / 結果 ' + item.resultCount + '件 / ' + status + '</p>';
+    let body = '<div class="provenance-step" data-history-key="step:' + item.step + '"><button data-focus-key="step:' + item.step + '" class="provenance-heading" aria-expanded="' + open + '" onclick="toggleProvenanceStep(' + item.step + ')">記録' + item.step + ' · ' + kind + ' · ' + esc(item.actionText) + warningBadge + '</button>';
+    body += '<p>試した条件：' + esc(item.branch ?? 'なし') + ' / 結果 ' + item.resultCount + '件 / ' + status + '</p>';
     if (item.discarded.length) body += '<p>この記録で文章のみになった地点: ' + item.discarded.length + '件</p>';
     if (item.target) body += '<p>変更先: ' + esc(item.target.actionText + ' / ' + pointRef(item.target.ref)) + '</p>';
     if (item.completionObservationId !== null) {
@@ -117,7 +123,9 @@ function renderProvenance(fallback) {
       if (p && (showEvents || p.kind !== 'event' || p.id === view.summary.cursorObservationId)) body += '<button data-focus-key="last:' + item.step + '" onclick="previewObservation(' + p.id + ')">この操作の最後に保存された状態を見る: ' + esc(pointDescription(p.id, item.step)) + '</button>';
     }
     if (open) {
-      const d = SESSION.query({ select: ['provenanceStep'], step: item.step }).data.provenanceStep;
+      body += '<p>この操作で起きたことを順に表示します。</p>';
+      const d = detail;
+      if (warnings.length) body += '<div class="history-diagnostics"><strong>実行時の警告</strong><ul>' + warnings.map(p => '<li>' + esc(p.label) + '</li>').join('') + '</ul></div>';
       for (const r of d.results) {
         body += '<p>結果' + (r.position + 1) + ': ' + esc(r.label) + (r.observations.length ? '' : ' / 再開できる地点なし') + '</p>';
         for (const p of r.observations) if (showEvents || p.kind !== 'event' || p.current) body += pointButton(p, '結果' + (r.position + 1) + ' / 状態' + (p.ordinal + 1) + ': ');
@@ -202,7 +210,7 @@ async function saveScenario() {
     const link = document.createElement('a');
     link.href = url; link.download = scenarioFileName(); link.click(); link.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    sessionError = ''; scenarioErrorDetails = null; scenarioNotice = 'シナリオの保存ファイルを作成しました'; loadSummary = null;
+    sessionError = ''; scenarioErrorDetails = null; scenarioNotice = '操作の再生ファイルを作成しました'; loadSummary = null;
   } catch (e) { sessionError = e.message; scenarioNotice = ''; loadSummary = null; }
   render();
 }
@@ -238,13 +246,15 @@ function scenarioControls() {
   const identity = { engineVersion: m.engineVersion, modelId: m.modelId, entryModule: m.entryModule, sourceBasis: m.sourceBasis,
     manifest: m.manifest.map(({ module, sourceSha256 }) => ({ module, sourceSha256 })) };
   return '<div class="scenario-controls">' +
+    '<button data-focus-key="save-scenario" onclick="saveScenario()"' + (scenarioBusy ? ' disabled' : '') + '>操作の再生ファイルを保存</button> ' +
+    '<label>操作の再生ファイルを読み込む <input data-focus-key="load-scenario" type="file" accept=".scenario.json,application/json" onchange="loadScenarioFile(this)"' + (scenarioBusy ? ' disabled' : '') + '></label>' +
+    '<details data-state-key="scenario-details"><summary>保存範囲・版・再開方法</summary><p>再読込すると初期状態になります。残したい試行は操作の再生ファイルに保存し、このHTMLと組にして保管してください。修正版を試すときは、検討手順を参考に新しく操作します。</p>' +
     '<p class="artifact-identity">このHTML: ' + esc(m.entryModule) + ' · model ' + esc(m.modelId.slice(0, 12)) + ' · engine ' + esc(m.engineVersion.slice(0, 12)) + '</p>' +
     '<details class="identity-details"><summary>定義と実行プログラムの版・再現用の資料</summary><p>短縮IDは対応付けの補助です。読込時は完全な識別情報で厳密に照合します。</p><pre>' + esc(JSON.stringify(identity, null, 2)) + '</pre>' +
     '<p>再開には、このHTMLと完全一致するscenarioの組を渡してください。編集・再生成やCLIでの再開には全モデル・参照moduleと対応する処理系が必要です。遷移マップの分割設定も渡すならsimconfigを添えてください。</p></details>' + stateQueryGuide() +
     '<p class="scenario-scope">保存範囲: ' + esc(scenarioCounts()) + '。条件選択はdispatchの内訳として操作来歴に表示します。破棄経路・reset前・ghost・手動試験も含む全記録を保存します。モデル本文・DOM・表示設定は含みません。読込後も現在の表示設定を使います。</p>' +
-    '<button data-focus-key="save-scenario" onclick="saveScenario()"' + (scenarioBusy ? ' disabled' : '') + '>操作の再生ファイルを保存</button> ' +
-    '<label>操作の再生ファイルを読み込む <input data-focus-key="load-scenario" type="file" accept=".scenario.json,application/json" onchange="loadScenarioFile(this)"' + (scenarioBusy ? ' disabled' : '') + '></label>' +
-    (scenarioBusy ? '<p role="status">シナリオを照合しています</p>' : scenarioNotice ? '<p role="status">' + esc(scenarioNotice) + '</p>' + loadSummaryHtml() : '') + '</div>';
+    '</details>' +
+    (scenarioBusy ? '<p role="status">操作の再生ファイルを照合しています</p>' : scenarioNotice ? '<p role="status">' + esc(scenarioNotice) + '</p>' + loadSummaryHtml() : '') + '</div>';
 }
 function scenarioError() {
   return (sessionError ? '<p role="alert">' + esc(sessionError) + '</p>' : '') +
@@ -309,6 +319,10 @@ function toggleGatePanel() { gatePanelOpen = !gatePanelOpen; render(); }
 function toggleShowEvents() { showEvents = !showEvents; render(); }
 function toggleShowActions() { showActions = !showActions; render(); }
 function toggleShowStates() { showStates = !showStates; render(); }
+function requestReset() {
+  if (scenarioBusy) return;
+  if (confirm('初期状態から新しく試しますか？\n今までの操作・条件・結果の文章は残りますが、過去の画面は再表示・再開できなくなります。必要なら先に保存してください。')) resetSession();
+}
 function resetSession() { command(() => { SESSION.reset(); sessionGeneration++; }); }
 function jumpToTimeline(idx) { const entry = timeline[idx]; if (entry) command(() => SESSION.seek(entry.id)); }
 function goBack(handle) { command(() => SESSION.dispatch({ handle: handle ?? view.data.actions.controls.back.handle })); }
@@ -416,3 +430,22 @@ function restorePresentation(saved) {
   nextPresentationFocus = null;
 }
 syncView();
+
+
+function renderRemainingWork() {
+  const state = view.data.state, active = new Set(state.activePath);
+  const outside = state.frames.filter(f => !active.has(f.id)).length;
+  const location = v => esc(v.module + '::' + locationLabel(v));
+  const values = items => items.length ? '<ul>' + items.map(v => '<li>' + location(v) + ' · ' + valueDescription(v) + '</li>').join('') + '</ul>' : '<p>なし</p>';
+  return '<details class="remaining-work" data-state-key="remaining-work"><summary class="pane-title">残っている作業（画面外 ' + outside + '件）</summary>' +
+    '<p>現在の操作位置に対応する全ての作業です。履歴の閲覧中も現在の状態を示します。開閉は閲覧だけで、画面移動や履歴からの再開はしません。</p>' +
+    state.frames.map(f => {
+      const status = f.id === state.activeFrameId ? '操作中' : active.has(f.id) ? '現在の経路' : '画面外で保持';
+      const name = f.beginsSession ? (f.beginsSession.name ? '@' + f.beginsSession.name : '無名の作業区切り') : '起点';
+      return '<details data-state-key="work:' + sessionGeneration + ':' + f.id + '"><summary>#' + f.id + ' · ' + esc(name) + ' · ' + status + ' · ' + location(f.stack.at(-1)) + '</summary>' +
+        '<p>親: ' + (f.parentId === null ? 'なし' : '#' + f.parentId) + ' / back の境界: ' + (f.barrier ? 'あり' : 'なし') + '</p>' +
+        '<p>この作業内の画面（下から上の順）</p>' + values(f.stack) + '</details>';
+    }).join('') +
+    '<h3>独立表示</h3><p>画面の作業とは別に残ります。exit だけでは消えず、hide で閉じます。</p>' + values(state.overlays) +
+    '<h3>共有状態</h3><p>同じ実行内の全使用箇所で共有します。画面の作業を閉じても残ります。</p>' + values(state.sharedVariants) + '</details>';
+}

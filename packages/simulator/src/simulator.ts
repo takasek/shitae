@@ -59,7 +59,7 @@ body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5;
 .history-preview p, .history-preview li { margin: 8px 0; }
 .history-preview ul { padding-left: 20px; }
 button:focus-visible { outline: 3px solid #285bd4; }
-@media (max-width: 680px) { #app { grid-template-columns: minmax(0,1fr); grid-template-rows: auto minmax(160px,35vh) minmax(0,1fr); } }
+
 .pane { padding: 16px; overflow-y: auto; }
 .pane-trace { background: #fff; border-right: 1px solid #e0e0e0; }
 /* 中央ペインは自身を単一スクロール領域にしない（.pane の overflow-y: auto を上書き）——
@@ -124,7 +124,8 @@ summary.pane-title { cursor: pointer; }
 /* アクション行は「押せるもの」と分かる見た目にし、要素行（.element、静的表示）と視覚的に
    区別する（UX round2・Task 15）。枠・背景・角丸でボタン風の境界を持たせる。 */
 .action-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding: 8px 10px; margin: 4px 0; background: #eef4ff; border: 1px solid #c7d7f5; border-radius: 8px; }
-.action-row:hover { background: #e2ecff; }
+.action-row-conditional { background: #fff; border-color: #ddd; }
+.action-row-conditional .action-text { font-weight: 600; }
 /* ラベル無し操作（choices 空）はチップを出さず行全体をボタンにする——「[TRUE] は押せる
    ボタンなのか内部フラグ表示なのか分からない」という指摘（UX round2）を、行自体に
    cursor: pointer を与え押せることを明示することで解消する（Task 15）。 */
@@ -216,6 +217,17 @@ summary.pane-title { cursor: pointer; }
 .graph-tooltip-backdrop { position: fixed; inset: 0; z-index: 1; }
 .graph-save-btn { align-self: flex-start; margin-bottom: 6px; background: none; border: 1px solid #ccc; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 11px; color: #555; }
 .graph-save-btn:hover { background: #f0f0f0; }
+@media (max-width: 680px) {
+  #app { grid-template-columns: minmax(0,1fr); grid-template-rows: auto minmax(0,1fr) minmax(120px,20vh); }
+  #app .pane-center { grid-row: 2; }
+  #app .pane-trace { grid-row: 3; }
+  #app .lower-section { max-height: 15vh; }
+}
+.history-warning { color: #713f00; background: #fff1c2; border-radius: 4px; padding: 2px 5px; }
+.history-diagnostics { border-left: 3px solid #a66b00; padding-left: 8px; }
+.remaining-work { border-top: 1px solid #ddd; padding-top: 8px; font-size: 12px; overflow-wrap: anywhere; }
+.remaining-work details { margin: 8px 0; padding-left: 8px; }
+.remaining-work summary { cursor: pointer; }
 </style>
 </head>
 <body>
@@ -334,9 +346,9 @@ function renderActionRow(item, buildOnclick) {
   }
   const buttons = inter.choices.map((c, choiceIdx) =>
     '<button class="choice-chip" data-focus-key="' + esc(focusKey + ':' + c.id) + '" onclick="' + renderedClick(item, choiceIdx, buildOnclick) + '"' + (gateOff ? ' disabled' : '') + '>' +
-    esc('[' + c.label + ']') + '</button>'
+    esc('[' + c.label + ']で実行') + '</button>'
   ).join('');
-  return '<div class="' + rowClass + '"><span class="action-text">' + esc(inter.actionText) + '</span>' +
+  return '<div class="' + rowClass + ' action-row-conditional"><span class="action-text">' + esc(inter.actionText) + '</span>' +
     gateHtml + offMark + badge + '<span class="action-choices">' + buttons + '</span></div>';
 }
 
@@ -420,7 +432,7 @@ function renderElementsAndActions(els, items, buildOnclick, visitedBase, cardIdx
   let actionsHtml = '';
   if (showActions) {
     if (items.length === 0) {
-      if (showEmptyState) actionsHtml = '<div class="no-actions">アクションなし</div>';
+      if (showEmptyState) actionsHtml = '<div class="no-actions">この画面自身の操作はありません</div>';
     } else if (flat.length > 0) {
       actionsHtml = '<div class="action-list action-flat">' + flat.map((item) => renderActionRow(item, buildOnclick)).join('') + '</div>';
     }
@@ -1123,7 +1135,7 @@ function renderStackList() {
 function renderStackSection() {
   const stackHtml = renderStackList();
   return '<details' + (stackPanelOpen ? ' open' : '') + ' class="stack-section" ontoggle="stackPanelOpen = this.open">' +
-    '<summary class="pane-title" title="スタック — 今積み重なっている画面。プッシュダウン構成として読める">スタック</summary>' +
+    '<summary class="pane-title" title="スタック — 今積み重なっている画面。プッシュダウン構成として読める">現在の操作位置のスタック</summary>' +
     '<div class="pane-desc">今積み重なっている画面。プッシュダウン構成として読める。上が現在地</div>' +
     '<div class="stack-list">' + stackHtml + '</div>' +
   '</details>';
@@ -1278,16 +1290,19 @@ function render() {
     '<main class="pane pane-center" data-view-key="' + screenViewKey() + '">' +
       '<section class="screen-section" data-view-key="' + screenViewKey() + '">' +
         '<div class="pane-title">' + (historySelection || resumeConfirmation ? '履歴の閲覧・位置の変更' : '操作を続ける画面') + '</div>' +
-        '<button onclick="resetSession()">初期状態へ</button>' +
+        '<p class="pane-desc">画面の流れと、状態が残る範囲を試します。商品や入力内容は模式表示で、読込完了や成功・失敗も自分で発生させます。</p>' +
         scenarioControls() +
         scenarioError() +
-        '<div class="pane-desc">アクティブな frame の表示（本体）と掲示中カード</div>' +
+        (historySelection || resumeConfirmation ? historyPreviewHtml() : mainCardHtml + externalEventsHtml + overlayCardsHtml) +
+        '<details data-state-key="display-trials"><summary>表示設定・検討用に状態を設定</summary>' +
         '<label class="action-toggle"><input type="checkbox" ' + (showActions ? 'checked' : '') + ' onchange="toggleShowActions()"> アクションを表示</label>' +
         '<label class="action-toggle"><input type="checkbox" ' + (showStates ? 'checked' : '') + ' onchange="toggleShowStates()"> 部品の状態を表示</label>' +
-        (historySelection || resumeConfirmation ? historyPreviewHtml() : gateToggleHtml + mainCardHtml + externalEventsHtml + overlayCardsHtml) +
+        (historySelection || resumeConfirmation ? '' : gateToggleHtml) + '</details>' +
+        '<button data-focus-key="reset-session" onclick="requestReset()"' + (scenarioBusy ? ' disabled' : '') + '>初期状態から新しく試す…</button>' +
       '</section>' +
       '<div class="lower-section">' +
         stackSectionHtml +
+        renderRemainingWork() +
         graphSectionHtml +
       '</div>' +
     '</main>' +

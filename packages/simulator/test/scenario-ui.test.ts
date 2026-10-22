@@ -101,7 +101,7 @@ describe('scenario GUI import/export', () => {
   it('groups journal operations, exposes only retained points as destinations and exports readable review without mutation', async () => {
     const g = gui(); g.run("handleInteraction('component',0,0)");
     expect(g.app.innerHTML).toContain('操作来歴');
-    expect(g.app.innerHTML).toContain('選んだ条件：ok');
+    expect(g.app.innerHTML).toContain('試した条件：ok');
     g.run('toggleProvenanceStep(1)');
     expect(g.app.innerHTML).toContain('結果1 / 状態1');
     g.run('jumpToTimeline(1)');
@@ -117,7 +117,7 @@ describe('scenario GUI import/export', () => {
     expect(text).toContain('Choose'); expect(text).toContain('巻戻し/やり直し先'); expect(text).toContain('破棄 2観測点');
     expect(await g.run('buildScenarioJson()')).toBe(before);
     const restored = gui(); await restored.load(before);
-    expect(restored.app.innerHTML).toContain('選んだ条件：ok');
+    expect(restored.app.innerHTML).toContain('試した条件：ok');
     expect(restored.app.innerHTML).toContain('文章のみ 2地点');
   });
 
