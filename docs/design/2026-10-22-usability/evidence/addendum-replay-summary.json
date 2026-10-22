@@ -1,0 +1,112 @@
+[
+  {
+    "scenario": "gui-v5-cancelled.json",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "scenario": "gui-v5-manual-gate.json",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "scenario": "gui-v6-cancelled.json",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "scenario": "v5-accepted.json",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "scenario": "v5-cancelled-collapsed.json",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "scenario": "v5-cancelled-hidden.json",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "scenario": "v5-cancelled-open.json",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "scenario": "v5-confirm-collapsed.json",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "scenario": "v5-confirm-hidden.json",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "scenario": "v5-confirm-open.json",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "scenario": "v5-overlay-escape.json",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "scenario": "v5-ready-completed-exited.json",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "scenario": "v5-regression.json",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "scenario": "v6-accepted.json",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "scenario": "v6-cancelled-collapsed.json",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "scenario": "v6-cancelled-hidden.json",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "scenario": "v6-cancelled-open.json",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "scenario": "v6-confirm-collapsed.json",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "scenario": "v6-confirm-hidden.json",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "scenario": "v6-confirm-open.json",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "scenario": "v6-ready-completed-exited.json",
+    "exit": 0,
+    "errors": []
+  },
+  {
+    "scenario": "v6-regression.json",
+    "exit": 0,
+    "errors": []
+  }
+]
