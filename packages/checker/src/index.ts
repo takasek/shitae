@@ -1,6 +1,6 @@
 import type { Document, Component, Body, Diagnostic, Span, Interaction } from '@shitae/ast';
 import type { ResolveResult, ProjectResolveResult } from '@shitae/resolver';
-import { resolveModuleRef } from '@shitae/resolver';
+import { effectiveResults, resolveModuleRef } from '@shitae/resolver';
 
 /**
  * プロジェクト単位の検査に要る情報（ADR-0021 A2+B2）。渡されたときだけ module 修飾つき参照の
@@ -68,7 +68,7 @@ export function check(
 
     // W105（goto(##X) の未定義 variant）・W105/E030（set）
     for (const it of interactionsOf(comp)) {
-      checkBareVariantGoto(it, comp, diags);
+      checkBareVariantGoto(it, comp, document, resolved, projectCtx, diags);
       checkStateWrites(it, document, resolved, projectCtx, diags);
     }
 
@@ -202,26 +202,45 @@ function checkVariantAsComponent(
   }
 }
 
-/** W105（goto(##X) — 裸 variant が host component に定義されていない。SPEC「診断コード」） */
+/**
+ * W105: 裸 goto の作用先を結果列の逐次適用に沿って追跡する。
+ * back/exit/dismiss/switch の後は履歴依存なので保留し、明示的な遷移で再開する。
+ * interaction 開始時は従来の host を使う（包含部品・overlay の呼出元解析は行わない）。
+ */
 function checkBareVariantGoto(
   interaction: Interaction,
   host: Component,
+  document: Document,
+  resolved: ResolveResult,
+  projectCtx: ProjectCheckContext | undefined,
   diags: Diagnostic[]
 ): void {
-  const variantNames = new Set(host.variants.map((v) => v.name));
-  for (const result of interaction.results) {
-    if (result.body.kind !== 'transition') continue;
-    if (result.body.word !== 'goto') continue;
-    const target = result.body.target;
-    if (!target || target.kind !== 'variant') continue;
-    if (!variantNames.has(target.name)) {
+  // null は共通の先行結果。同じラベルが再登場した場合もその経路の続きを適用する。
+  const targets = new Map<string | null, Component | undefined>([[null, host]]);
+  for (const { label, result } of effectiveResults(interaction)) {
+    let active = targets.has(label) ? targets.get(label) : targets.get(null);
+    const body = result.body;
+    if (body.kind !== 'transition') continue;
+    const target = body.target;
+    if (body.word === 'goto' && target?.kind === 'variant' && active &&
+        !active.variants.some(v => v.name === target.name)) {
       diags.push({
         severity: 'warning',
         code: 'W105',
-        message: `goto(##${target.name}) の '${target.name}' は '${host.name}' に定義されていない variant`,
-        span: result.body.span,
+        message: `goto(##${target.name}) の '${target.name}' は '${active.name}' に定義されていない variant`,
+        span: body.span,
       });
     }
+
+    if (body.word === 'back' || body.word === 'exit' ||
+        body.word === 'dismiss' || body.word === 'switch') {
+      active = undefined;
+    } else if (target?.kind === 'component') {
+      const targetResolved = target.module === null
+        ? resolved : resolveCrossModule(target.module, document, projectCtx);
+      active = targetResolved?.componentIndex.get(target.name);
+    }
+    targets.set(label, active);
   }
 }
 
