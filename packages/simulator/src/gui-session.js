@@ -89,6 +89,91 @@ function saveReview() {
 }
 function pointRef(ref) { return '記録' + ref.step + ' / 観測' + (ref.observation + 1); }
 function provenanceCounts(counts) { return '現在まで ' + counts.retained + '地点 / 後の履歴 ' + counts.ghost + '地点 / 文章のみ ' + counts.discarded + '地点'; }
+// Resolve source annotations against the embedded model, never against the current
+// active screen: an operation may have been defined in an included component.
+function definitionAt(source, resultIndex = null) {
+  const doc = MODEL.documents.find(([module]) => module === source?.module)?.[1];
+  if (!doc) return null;
+  const bodies = [{ body: doc.common, component: null, variant: null }];
+  for (const c of doc.components) {
+    bodies.push({ body: c.common, component: c.name, variant: null });
+    for (const v of c.variants) bodies.push({ body: v.body, component: c.name, variant: v.name });
+  }
+  for (const entry of bodies) for (const inter of entry.body.interactions) {
+    if (resultIndex === null && inter.span.offset === source.span.offset) return { ...entry, inter };
+    const r = resultIndex === null ? null : inter.results[resultIndex];
+    if (r?.span.offset === source.span.offset) return { ...entry, inter, result: r.body };
+  }
+  return null;
+}
+function sourceModule(module, alias) {
+  if (!alias) return module;
+  return MODEL.documents.find(([name]) => name === module)?.[1].imports.find(i => i.alias === alias)?.module ?? alias;
+}
+function placementNode(placement, state = view.data.state) {
+  let node = [state.inclusion.main, ...state.inclusion.overlays].find(r => r.root === placement.root);
+  for (const index of placement.path) node = node?.children[index];
+  return node;
+}
+function operationDetails(op, state = view.data.state, context = 'live') {
+  const definition = definitionAt(op.source);
+  if (!definition) return '';
+  const origin = op.source.module + (definition.component ? '::' + definition.component : '（文書共通）') + (definition.variant ? ' / ' + definition.variant : '');
+  const placed = placementNode(op.placement, state);
+  const pathNames = []; let path = [];
+  for (const index of op.placement.path) { path.push(index); pathNames.push(placementNode({ ...op.placement, path }, state)?.name ?? String(index)); }
+  let role = op.placement.path.length ? '部品の既定操作' : 'この定義の操作';
+  const target = op.action.target;
+  if (target?.member) {
+    const alias = target.module == null ? definition.body.elements.find(e => e.alias === target.name) : null;
+    const child = placed?.children.find(n => alias ? n.source.module === op.source.module && n.source.span.offset === alias.span.offset : n.reference?.component === target.name && n.reference.module === sourceModule(op.source.module, target.module));
+    const ref = child?.reference;
+    const comp = ref && MODEL.documents.find(([module]) => module === ref.module)?.[1].components.find(c => c.name === ref.component);
+    const defaults = comp ? [...comp.common.interactions, ...(comp.variants.find(v => v.name === child.value?.variant)?.body.interactions ?? [])] : [];
+    const actionText = text => text.replace(/\s+/g, ' ').trim();
+    if (defaults.some(({ action: a }) => a.target?.name === target.member && a.target.module == null && a.target.member == null && a.target.collection === target.collection && actionText(a.text) === actionText(op.action.text))) role = '局所上書き: ' + ref.module + '::' + ref.component + ' の既定操作';
+  }
+  return '<details class="operation-details" data-state-key="operation:' + esc(context + ':' + operationKey(op)) + '"><summary>操作の詳細</summary>' +
+    '<p>' + esc('定義元: ' + origin) + '</p><p>' + esc(role) + '</p><p>' + esc('配置: ' + op.placement.root + (pathNames.length ? ' / ' + pathNames.join(' / ') : '（画面・独立表示の本体）')) + '</p>' +
+    '<p>定義元・配置と作用先は別です。goto(##状態) は各結果の適用時点のアクティブ画面を変えます。包含部品自身の局所状態を変える指定ではありません。singleton 化すると共有範囲も変わります。</p>' +
+    '<p>' + esc('定義位置: ' + (op.source.file ?? op.source.module) + ':' + op.source.span.line + ':' + op.source.span.col) + '</p></details>';
+}
+function recordedOperationDetails(detail) {
+  if (detail.kind !== 'dispatch') return '';
+  const first = detail.results.find(r => r.source);
+  const definition = first && definitionAt(first.source, first.resultIndex);
+  if (!definition) return '';
+  const from = detail.from.step === 0 ? { id: 1 } : SESSION.query({select:['provenanceStep'],step:detail.from.step}).data.provenanceStep.observations.find(p => p.ref.observation === detail.from.observation);
+  const before = from && retainedObservation(from.id);
+  const operation = before?.view.actions.items.find(op => op.source.module === first.source.module && op.source.span.offset === definition.inter.span.offset && op.placement.root === detail.placement?.root && JSON.stringify(op.placement.path) === JSON.stringify(detail.placement.path));
+  if (operation) return operationDetails(operation, before.view.state, 'record:' + detail.step);
+  return '<p>' + esc('定義元: ' + first.source.module + (definition.component ? '::' + definition.component : '（文書共通）') + (definition.variant ? ' / ' + definition.variant : '')) + '</p><p>操作前の画面は残っていません。配置と局所上書きの詳細は確認できません。</p>';
+}
+function resultTargetHtml(result) {
+  const body = definitionAt(result.source, result.resultIndex)?.result;
+  if (body?.kind === 'effect') return '<p class="result-target">自由文の結果（状態変更の記録ではありません）</p>';
+  if (result.observations.some(p => /^R[0-9]{3}:/.test(p.label))) return '<p class="result-target">警告があるため、変更先は確定表示しません。結果と警告を確認してください。</p>';
+  const point = result.observations.find(p => p.kind === 'transition' || !/^R[0-9]{3}:/.test(p.label));
+  if (!point) return '<p class="result-target">状態の変更記録なし。作用先の変更は確認できません。</p>';
+  const observation = retainedObservation(point.id);
+  if (!observation) return '<p class="result-target">当時の状態は文章のみのため、変更先と共有範囲の詳細は確認できません。</p>';
+  const state = observation.view.state;
+  let value, prefix = '変更先: ';
+  if (body?.kind === 'state' || body?.kind === 'overlay') {
+    // Lexical module aliases are resolved by the same model inventory used by
+    // the simulator; do not interpret a set target as the active screen.
+    const module = sourceModule(result.source.module, body.target.module);
+    const values = body.kind === 'state' ? state.sharedVariants : state.overlays;
+    value = values.find(v => v.module === module && v.component === body.target.name);
+    if (!value && body.kind === 'overlay' && body.verb === 'hide') return '<p class="result-target">' + esc('独立表示の解除先: ' + module + '::' + body.target.name + ' / 共有状態と画面の作業は別に保持') + '</p>';
+  } else if (point.kind === 'transition') {
+    value = state.frames.find(f => f.id === state.activeFrameId)?.stack.at(-1);
+    prefix = body?.kind === 'transition' && body.word === 'goto' ? '実行後の作用先: ' : '実行後の画面: ';
+  }
+  if (!value) return '<p class="result-target">変更先を確認できません。結果と警告を確認してください。</p>';
+  const scope = value.singleton ? '同じ実行内の同じ定義の全使用箇所（singleton）' : value.scope === 'overlay-entry' ? 'この独立表示の状態' : 'この画面の状態';
+  return '<p class="result-target">' + esc(prefix + value.module + '::' + locationLabel(value)) + '<br>' + esc('共有範囲: ' + scope) + (prefix === '実行後の画面: ' ? '<br>戻り先・作業の終了を含む結果です。表示中の画面への書換えを意味するものではありません。' : '') + '</p>';
+}
 function renderProvenance(fallback) {
   const summary = SESSION.query({ select: ['provenanceSummary'] }).data.provenanceSummary;
   if (!summary.available) return '<p>操作来歴を利用できません: ' + esc(summary.reason) + '</p><div class="timeline-log">' + fallback + '</div>';
@@ -124,11 +209,13 @@ function renderProvenance(fallback) {
       if (p && (showEvents || p.kind !== 'event' || p.id === view.summary.cursorObservationId)) body += '<button data-focus-key="last:' + item.step + '" onclick="previewObservation(' + p.id + ')">この操作の最後に保存された状態を見る: ' + esc(pointDescription(p.id, item.step)) + '</button>';
     }
     if (open) {
+      body += recordedOperationDetails(detail);
       body += '<p>この操作で起きたことを順に表示します。</p>';
       const d = detail;
       if (warnings.length) body += '<div class="history-diagnostics"><strong>実行時の警告</strong><ul>' + warnings.map(p => '<li>' + esc(p.label) + '</li>').join('') + '</ul></div>';
       for (const r of d.results) {
         body += '<p>結果' + (r.position + 1) + ': ' + esc(r.label) + (r.observations.length ? '' : ' / 再開できる地点なし') + '</p>';
+        body += resultTargetHtml(r);
         for (const p of r.observations) if (showEvents || p.kind !== 'event' || p.current) body += pointButton(p, '結果' + (r.position + 1) + ' / 状態' + (p.ordinal + 1) + ': ');
       }
       for (const p of d.observations.filter(p=>p.resultPosition === null)) if (showEvents || p.kind !== 'event' || p.current) body += pointButton(p);

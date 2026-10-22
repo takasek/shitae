@@ -230,6 +230,10 @@ summary.pane-title { cursor: pointer; }
 .remaining-work { border-top: 1px solid #ddd; padding-top: 8px; font-size: 12px; overflow-wrap: anywhere; }
 .remaining-work details { margin: 8px 0; padding-left: 8px; }
 .remaining-work summary { cursor: pointer; }
+.operation-details { margin: 3px 0 10px 12px; font-size: 12px; overflow-wrap: anywhere; }
+.operation-details summary { cursor: pointer; color: #444; }
+.operation-details p, .result-target { margin: 6px 0; line-height: 1.5; }
+.result-target { border-left: 3px solid #768ca1; padding-left: 8px; overflow-wrap: anywhere; }
 </style>
 </head>
 <body>
@@ -344,14 +348,14 @@ function renderActionRow(item, buildOnclick) {
   if (inter.choices.length === 0) {
     const onclickAttr = gateOff ? '' : ' onclick="' + renderedClick(item, 0, buildOnclick) + '"';
     return '<div class="' + rowClass + ' action-row-solo" data-focus-key="' + esc(focusKey) + '"' + (gateOff ? '' : ' role="button" tabindex="0" onkeydown="if(event.target === this && (event.key === &quot;Enter&quot; || event.key === &quot; &quot;)){event.preventDefault();this.click()}"') + onclickAttr + '>' +
-      '<span class="action-text">' + esc(inter.actionText) + '</span>' + gateHtml + offMark + badge + '</div>';
+      '<span class="action-text">' + esc(inter.actionText) + '</span>' + gateHtml + offMark + badge + '</div>' + operationDetails(inter);
   }
   const buttons = inter.choices.map((c, choiceIdx) =>
     '<button class="choice-chip" data-focus-key="' + esc(focusKey + ':' + c.id) + '" onclick="' + renderedClick(item, choiceIdx, buildOnclick) + '"' + (gateOff ? ' disabled' : '') + '>' +
     esc('[' + c.label + ']で実行') + '</button>'
   ).join('');
   return '<div class="' + rowClass + ' action-row-conditional"><span class="action-text">' + esc(inter.actionText) + '</span>' +
-    gateHtml + offMark + badge + '<span class="action-choices" title="試すケースを選んで実行（condition label）。業務条件の自動判定ではありません">' + buttons + '</span></div>';
+    gateHtml + offMark + badge + '<span class="action-choices" title="試すケースを選んで実行（condition label）。業務条件の自動判定ではありません">' + buttons + '</span></div>' + operationDetails(inter);
 }
 
 // 要素サブツリー 1 件。ref を持つ要素（project 内の定義済み component への参照）は参照先の
