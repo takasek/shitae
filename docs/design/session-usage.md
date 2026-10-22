@@ -40,7 +40,7 @@ dispatch は summary と今回の receipt、既定 query は summary だけを�
 {"id":"o1","command":"query","select":["observation"],"observationId":2}
 ```
 
-history は既定20件、最大100件。`nextAfter` が null でなければ、その ID を次の history query の `after` に渡す。operationId は今回の receipt から得る。observation はその結果直後の state と handle を含まない actions を返し、現在状態を変えない。ID は手元の response から選ぶ。上の ID は形式の説明用で、別の Session での存在を保証しない。
+history は既定20件、最大100件。`nextAfter` が null でなければ、その ID を次の history query の `after` に渡す。operationId は今回の receipt から得る。observation は `data.observation.view` の下に、その結果直後の `location`・`state`・handle を含まない `actions` を返し、現在状態を変えない。状態は `data.observation.view.state`、操作は `data.observation.view.actions` から読む。ID は手元の response から選ぶ。上の ID は形式の説明用で、別の Session での存在を保証しない。
 
 member gate の定義済み試験対象は、state の `gateTargets` を照会して選ぶ。
 
