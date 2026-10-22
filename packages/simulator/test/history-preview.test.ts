@@ -195,7 +195,7 @@ describe('report usability safeguards', () => {
   });
   it('keeps initial actions before optional controls and folds technical explanations', () => {
     const g = gui(); const html = g.app.innerHTML;
-    expect(html).toContain('画面の流れと、状態が残る範囲を試します');
+    expect(html).toContain('操作して、表示・戻り先・状態の残り方を確かめる');
     expect(html.indexOf('class="action-row')).toBeLessThan(html.indexOf('class="action-toggle"'));
     const controls = g.run('scenarioControls()');
     expect(controls).toMatch(/<details data-state-key="scenario-details"><summary>/);

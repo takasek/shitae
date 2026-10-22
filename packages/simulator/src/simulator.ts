@@ -277,13 +277,13 @@ function attachGraphMapResizeObserver(el) {
 let docEventsPanelOpen = null;
 
 // scope バッジの表示ラベル（有効範囲の明示。旧カテゴリ見出しの置き換え——Task 8 / ADR-0022 5）
-const SCOPE_BADGE_LABELS = { variant: 'variant固有', component: 'component common', document: 'document common' };
+const SCOPE_BADGE_LABELS = { variant: 'この状態で定義（variant固有）', component: '定義内の共通操作（component common）', document: '文書の共通操作（document common）' };
 // scope バッジの title 属性（hover での一言説明。3種の見分けが初見では自明でないという
 // 指摘への対応——UX round2 2-1、Task 18 受入基準c）
 const SCOPE_BADGE_TITLES = {
-  variant: 'この姿（variant）でだけ有効な操作',
-  component: 'この component のどの姿でも共通して有効な操作',
-  document: 'この文書のどの画面でも常に有効な操作（外部イベント。document common 由来）',
+  variant: 'この状態パターン（variant）で定義された操作。対象の存在判定は別に行います',
+  component: 'この画面・部品の定義（component）の全状態パターンに共通する操作。対象の存在判定は別に行います',
+  document: 'この文書の画面に共通する操作（document common）。上書きや対象の存在判定により有効性が変わります',
 };
 
 // 操作行 1 件（行動テキスト + scope バッジ + 選択肢ボタン横並び）。item は { inter, scope, idx }
@@ -337,7 +337,7 @@ function renderActionRow(item, buildOnclick) {
   const focusKey = operationKey(inter);
   const gateHtml = isMemberGate ? renderGateInlineControls(inter.gate, focusKey + ':gate') : '';
   const gateOff = isMemberGate && !gateEnabled(inter);
-  const offMark = gateOff ? '<span class="gate-off-mark">gate off で無効</span>' : '';
+  const offMark = gateOff ? '<span class="gate-off-mark">対象要素がないため無効（presence gate）</span>' : '';
   const rowClass = 'action-row' + (gateOff ? ' action-row-disabled' : '');
   if (inter.choices.length === 0) {
     const onclickAttr = gateOff ? '' : ' onclick="' + renderedClick(item, 0, buildOnclick) + '"';
@@ -349,7 +349,7 @@ function renderActionRow(item, buildOnclick) {
     esc('[' + c.label + ']で実行') + '</button>'
   ).join('');
   return '<div class="' + rowClass + ' action-row-conditional"><span class="action-text">' + esc(inter.actionText) + '</span>' +
-    gateHtml + offMark + badge + '<span class="action-choices">' + buttons + '</span></div>';
+    gateHtml + offMark + badge + '<span class="action-choices" title="試すケースを選んで実行（condition label）。業務条件の自動判定ではありません">' + buttons + '</span></div>';
 }
 
 // 要素サブツリー 1 件。ref を持つ要素（project 内の定義済み component への参照）は参照先の
@@ -1159,7 +1159,7 @@ function renderExternalEventsSection() {
   const isOpen = docEventsPanelOpen !== null ? docEventsPanelOpen : showActions;
   const ontoggle = "docEventsPanelOpen = this.open; if (this.open) this.scrollIntoView({ block: 'nearest' })";
   return '<details' + (isOpen ? ' open' : '') + ' class="doc-events-section" ontoggle="' + ontoggle + '">' +
-    '<summary class="pane-title" title="外部イベントを発生させる — この文書のどの画面でも常に有効な操作（document common）。プッシュ通知やセッション切れなど、稀に起こる外的要因を模す">外部イベントを発生させる</summary>' +
+    '<summary class="pane-title" title="外部イベントを発生させる — この文書の画面に共通する操作（document common）。対象の存在判定や上書きにより有効性は変わります。プッシュ通知やセッション切れなど、稀に起こる外的要因を模す">外部イベントを発生させる</summary>' +
     '<div class="action-list">' + rowsHtml + '</div>' +
   '</details>';
 }
@@ -1245,14 +1245,14 @@ function render() {
     ? '<div class="gate-panel-body">' + memberGateRowsHtml + hostGateInfoHtml + '</div>'
     : '<div class="gate-panel-body"><p class="gate-panel-empty">この画面で切り替えられる presence gate（対象.要素?）の参照先はありません。切り替えられる試験対象なし。</p></div>';
   const gateToggleHtml = '<div class="gate-toggle-block">' +
-    '<button class="gate-drawer-toggle" onclick="toggleGatePanel()">画面外 component の姿切替（gate 試験用）</button>' +
-    '<p class="gate-panel-desc">今の画面に出ていない component の variant を手動で切り替え、presence gate（?）の効きをその場で試せます。</p>' +
+    '<button class="gate-drawer-toggle" onclick="toggleGatePanel()">参照先の状態パターンを手動で変える（presence gate の試験）</button>' +
+    '<p class="gate-panel-desc">参照先の状態パターン（variant）を検討用に設定します。下書きに書いた操作の実行とは別です。presence gate（?）は参照先に対象要素があるかを判定し、画面上の可視性は判定しません。</p>' +
   '</div>';
   const gateDrawerHtml = gatePanelOpen
     ? '<div class="gate-drawer-backdrop" onclick="toggleGatePanel()"></div>' +
       '<div class="gate-drawer">' +
         '<div class="gate-drawer-header">' +
-          '<span class="pane-title">画面外 component の姿切替（gate 試験用）</span>' +
+          '<span class="pane-title">参照先の状態パターンを手動で変える（presence gate の試験）</span>' +
           '<button class="gate-drawer-close" onclick="toggleGatePanel()">閉じる</button>' +
         '</div>' +
         gatePanelBodyHtml +
@@ -1290,7 +1290,11 @@ function render() {
     '<main class="pane pane-center" data-view-key="' + screenViewKey() + '">' +
       '<section class="screen-section" data-view-key="' + screenViewKey() + '">' +
         '<div class="pane-title">' + (historySelection || resumeConfirmation ? '履歴の閲覧・位置の変更' : '操作を続ける画面') + '</div>' +
-        '<p class="pane-desc">画面の流れと、状態が残る範囲を試します。商品や入力内容は模式表示で、読込完了や成功・失敗も自分で発生させます。</p>' +
+        '<p class="pane-desc">操作して、表示・戻り先・状態の残り方を確かめるUIフローの下書きです。商品や入力内容は模式表示です。</p>' +
+        '<details data-state-key="concept-guide"><summary>下書き・残り方・試し方を理解する</summary>' +
+        '<h3>下書きを書く</h3><p>画面・部品の定義（component）に、状態パターン（variant）ごとの表示内容と操作を書きます。画面と部品は同じ定義単位です。</p>' +
+        '<h3>動かしたときの残り方を決める</h3><p>作業のまとまり（session）は内側の作業と一緒に終了します。状態を共有する部品（singleton）と、画面とは独立して残る表示（overlay）は別に残ります。共有は同じ実行内で、永続保存ではありません。</p>' +
+        '<h3>設計を確かめる</h3><p>分岐の目印（condition label）は試すケースを人が選びます。成功・失敗を自動判定しません。対象の存在判定（presence gate）は、参照先の状態パターンに対象要素があるかを処理系が調べます。</p><p>状態の手動設定は検討用の試験です。履歴を見るだけでは操作位置は変わらず、そこから続けるには別の確認が必要です。</p></details>' +
         scenarioControls() +
         scenarioError() +
         (historySelection || resumeConfirmation ? historyPreviewHtml() : mainCardHtml + externalEventsHtml + overlayCardsHtml) +

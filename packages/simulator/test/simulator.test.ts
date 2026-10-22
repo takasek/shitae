@@ -431,7 +431,7 @@ problem: Diagnostics
     const beforeToggleHtml = vm.runInContext('app.innerHTML', context);
     // 対象ゼロでも見出し・説明文は常時表示される（無言の空白をなくす。旧実装は
     // gateTargetsWithVariants.length===0 のとき何も描画せず右ペイン全体が白紙だった）
-    expect(beforeToggleHtml).toContain('画面外 component の姿切替（gate 試験用）');
+    expect(beforeToggleHtml).toContain('参照先の状態パターンを手動で変える（presence gate の試験）');
     expect(beforeToggleHtml).toContain('gate-panel-desc');
 
     vm.runInContext('toggleGatePanel(); render()', context);
@@ -1167,9 +1167,9 @@ problem: Diagnostics
     const appHtml = vm.runInContext('app.innerHTML', context);
     const badgeMatches = [...appHtml.matchAll(/<span class="scope-badge" title="([^"]+)">([^<]+)<\/span>/g)];
     const titleByLabel = new Map(badgeMatches.map((m) => [m[2], m[1]]));
-    expect(titleByLabel.get('variant固有')).toBeTruthy();
-    expect(titleByLabel.get('component common')).toBeTruthy();
-    expect(titleByLabel.get('document common')).toBeTruthy();
+    expect(titleByLabel.get('この状態で定義（variant固有）')).toBeTruthy();
+    expect(titleByLabel.get('定義内の共通操作（component common）')).toBeTruthy();
+    expect(titleByLabel.get('文書の共通操作（document common）')).toBeTruthy();
     // 3種とも異なる説明文を持つ（同じ文言の使い回しではない）
     const titles = new Set(titleByLabel.values());
     expect(titles.size).toBe(3);
@@ -2026,7 +2026,7 @@ problem: Diagnostics
 
     const closedHtml = vm.runInContext('app.innerHTML', context);
     // トグルボタン・説明は既定閉でも常時見える（Task 12 の empty state 継承の前提）
-    expect(closedHtml).toContain('画面外 component の姿切替（gate 試験用）');
+    expect(closedHtml).toContain('参照先の状態パターンを手動で変える（presence gate の試験）');
     expect(closedHtml).toContain('gate-panel-desc');
     // 対象一覧の本体（gate-row）・ドロワーのオーバーレイ要素は閉状態では出ない
     expect(closedHtml).not.toContain('gate-row-label');
@@ -2178,8 +2178,8 @@ problem: Diagnostics
     const appHtml = vm.runInContext('app.innerHTML', context);
     expect(appHtml).toContain('統合ログ');
     expect(appHtml).toContain('ナビゲーション履歴');
-    expect(appHtml).toContain('画面外 component の姿切替');
-    expect(appHtml).toContain('gate 試験用');
+    expect(appHtml).toContain('参照先の状態パターンを手動で変える');
+    expect(appHtml).toContain('presence gate の試験');
     expect(appHtml).toContain('遷移マップ');
     expect(appHtml).toContain('閲覧専用');
   });
@@ -2352,15 +2352,15 @@ problem: Diagnostics
     expect(vm.runInContext('stack.filter(f => f.sessionName).map(f => f.sessionName).join()', context)).toBe('tabHome,nowPlaying');
   });
 
-  it('gate パネル改名: 画面外 component の姿切替（gate 試験用）という用途が伝わる見出し・説明を持つ（設計者確定事項 2026-07-19）', () => {
+  it('gate パネル改名: 参照先の状態パターンを手動で変える（presence gate の試験）という用途が伝わる見出し・説明を持つ（設計者確定事項 2026-07-19）', () => {
     const doc = parseOk(
       '# 予約\n*日付\n> タップ(日付.選択可能?) -> push(時間選択)\n\n# 日付\n## 選択可能\n選択可能\n## 満席\n満席\n\n# 時間選択\n本文\n',
     );
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
     const appHtml = vm.runInContext('app.innerHTML', context);
-    expect(appHtml).toContain('画面外 component の姿切替');
-    expect(appHtml).toContain('gate 試験用');
+    expect(appHtml).toContain('参照先の状態パターンを手動で変える');
+    expect(appHtml).toContain('presence gate の試験');
     // 機能（トグル・variant 切替）は現状維持
     expect(html).toContain('function setInstanceVariant(');
     expect(html).toContain('function toggleGatePanel(');
