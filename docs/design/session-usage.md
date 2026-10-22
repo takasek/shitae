@@ -40,7 +40,7 @@ dispatch は summary と今回の receipt、既定 query は summary だけを�
 {"id":"o1","command":"query","select":["observation"],"observationId":2}
 ```
 
-history は既定20件、最大100件。`nextAfter` が null でなければ、その ID を次の history query の `after` に渡す。operationId は今回の receipt から得る。observation はその結果直後の state と handle を含まない actions を返し、現在状態を変えない。ID は手元の response から選ぶ。上の ID は形式の説明用で、別の Session での存在を保証しない。
+history は既定20件、最大100件。`nextAfter` が null でなければ、その ID を次の history query の `after` に渡す。operationId は今回の receipt から得る。observation は `data.observation.view` の下に、その結果直後の `location`・`state`・handle を含まない `actions` を返し、現在状態を変えない。状態は `data.observation.view.state`、操作は `data.observation.view.actions` から読む。ID は手元の response から選ぶ。上の ID は形式の説明用で、別の Session での存在を保証しない。
 
 member gate の定義済み試験対象は、state の `gateTargets` を照会して選ぶ。
 
@@ -52,6 +52,68 @@ member gate の定義済み試験対象は、state の `gateTargets` を照会�
 通常 Card の試験値は包含と member gate に作用し、frame と overlay の実値は上書きしない。singleton の試験値は共有値に作用する。値の scope と origin は state に明記し、DSL の同値書込みでも由来を DSL へ更新する。reset は初期状態と履歴に戻す。seek は GUI・内部 API 専用で、CLI command には公開しない。CLI でも保持中の ghost と結果途中を read-only で照会できる。
 
 操作名・条件・巻戻し・破棄済み経路を含む読取専用の照会と、変更後モデルで参照する手順の書出しは [操作来歴の使い方](session-provenance.md) を参照。
+
+## エージェントから同じ process に要求を送り続ける
+
+ツール呼出しごとに stdin が閉じる環境では、要求ファイルへの追記を `tail` で同じ CLI process に送り続けられる。以下は POSIX shell と `jq` を使う例。リポジトリ root で `pnpm build` を済ませ、最初のブロックを長時間実行できるツールセッション（または別端末）で起動したまま、後続のブロックを別のツール呼出しから実行する。毎回 CLI を起動し直すと状態と handle を引き継げない。
+
+```sh
+(
+  session_dir=$(mktemp -d)
+  printf 'session_dir=%s\n' "$session_dir"
+  : > "$session_dir/req.jsonl"
+  : > "$session_dir/resp.jsonl"
+  mkfifo "$session_dir/input" || exit 1
+  feeder=
+  cleanup() {
+    if [ -n "$feeder" ]; then
+      kill "$feeder" 2>/dev/null || :
+      wait "$feeder" 2>/dev/null || :
+    fi
+    rm -f "$session_dir/input"
+  }
+  trap cleanup 0
+  trap 'exit 130' INT
+  trap 'exit 143' TERM
+  tail -n +1 -f "$session_dir/req.jsonl" > "$session_dir/input" &
+  feeder=$!
+  node packages/cli/dist/index.js session docs/design/session-fixtures/trial-values.shitae \
+    < "$session_dir/input" > "$session_dir/resp.jsonl" 2> "$session_dir/stderr.txt"
+  cli_status=$?
+  exit "$cli_status"
+)
+```
+
+`session_dir` の表示値を控え、以降の**各ツール呼出しで**その絶対パスを設定する。要求は必ず改行付きで追記し、同じ process 内で重複しない `id` を付ける。最初に操作一覧を照会する。
+
+```sh
+session_dir='/最初のブロックが表示した絶対パス'
+printf '%s\n' '{"id":"q1","command":"query","select":["actions"]}' >> "$session_dir/req.jsonl"
+jq -ec 'select(.id == "q1")' "$session_dir/resp.jsonl"
+```
+
+追記と応答は非同期なので、まだ行がなければ追記を繰り返さず、同じ `jq` 読取だけを再実行して待つ。待機には上限（例: 10 秒）を設け、応答がなければ起動元の終了状態と `stderr.txt` を確認する。応答は `id` で対応付け、`ok:true` を確認してから使う。
+
+この fixture の `open-card` を選び、応答の handle から dispatch 要求を組み立てる。handle を固定値で書かず、条件分岐のある操作なら同じ一覧の `branches` から選んだ ID も渡す。
+
+```sh
+session_dir='/最初のブロックが表示した絶対パス'
+jq -ce 'select(.id == "q1" and .ok == true)
+  | .data.actions.items[] | select(.actionText == "open-card" and .enabled == true)
+  | {id:"d1", command:"dispatch", handle:.handle}' \
+  "$session_dir/resp.jsonl" >> "$session_dir/req.jsonl"
+jq -ec 'select(.id == "d1")' "$session_dir/resp.jsonl"
+```
+
+`d1` の `ok:true` と `summary.location` が `Card` / `Ready` になったことを確認する（まだ応答がなければ読取だけを再実行する）。続けて同じ process に新しい query を送る。
+
+```sh
+session_dir='/最初のブロックが表示した絶対パス'
+printf '%s\n' '{"id":"q2","command":"query","select":["state","actions"]}' >> "$session_dir/req.jsonl"
+jq -ec 'select(.id == "q2")' "$session_dir/resp.jsonl"
+```
+
+`q2` でも現在地は `Card` / `Ready` のまま。次の操作には `q2` の新しい handle を使い、`q1` の handle は再利用しない。要求ファイルを空にしても EOF にはならない。終了時は起動元のツールセッションを中断（端末なら Ctrl-C）する。CLI 終了時・中断時には trap が `tail` も停止する。要求・応答・stderr のファイルは確認用に残るので、不要になったら表示された専用ディレクトリを削除する。
 
 ## シナリオの保存と別processでの再生
 
