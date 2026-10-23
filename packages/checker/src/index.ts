@@ -25,6 +25,7 @@ export function check(
   for (const it of document.common.interactions) {
     checkStateWrites(it, document, resolved, projectCtx, diags);
     checkSingletonCollectionTarget(it, document, singletons, projectCtx, diags);
+    checkSingletonExplicitShow(it, document, singletons, projectCtx, diags);
   }
   checkSingletonCollectionElements(document.common, singletons, diags);
 

@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
-import { writeFileSync, unlinkSync, mkdirSync, rmSync } from 'fs';
+import { writeFileSync, unlinkSync, mkdirSync, rmSync, mkdtempSync } from 'fs';
+import { tmpdir } from 'os';
 import { join } from 'path';
 
 const execFileAsync = promisify(execFile);
@@ -9,6 +10,29 @@ const CLI = join(import.meta.dirname, '../dist/index.js');
 const BATTLE = join(import.meta.dirname, '../../../docs/examples/battle.shitae');
 const ECOMMERCE = join(import.meta.dirname, '../../../docs/examples/ecommerce.shitae');
 const SMARTHOME_MAIN = join(import.meta.dirname, '../../../docs/examples/smarthome/main.shitae');
+
+describe('issue #65: public check W106', () => {
+  it.each([
+    ['show(Status##Clean)', '#!', 1],
+    ['show(Status)', '#!', 0],
+    ['show(Status##Clean)', '#', 0],
+    ['show(ui::Status##Clean)', '#!', 1],
+  ])('%s (%s) reports %i warning', async (result, header, count) => {
+    const dir = mkdtempSync(join(tmpdir(), 'shitae-65-'));
+    const main = join(dir, 'main.shitae');
+    const definition = `${header} Status\n## Clean\nCleanLabel\n## Saved\nSavedLabel\n`;
+    writeFileSync(join(dir, 'library.shitae'), definition);
+    writeFileSync(main, `import library as ui\n> Notify -> ${result}\n# Editor\nLabel\n# Preview\nLabel\n${definition}`);
+    try {
+      const { code, stderr } = await runCli(['check', main]);
+      expect(code).toBe(0);
+      expect(stderr.match(/W106/g) ?? []).toHaveLength(count);
+      if (count) expect(stderr).toContain(`${main}:2:`);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
 
 async function runCli(args: string[]): Promise<{ stdout: string; stderr: string; code: number }> {
   try {
