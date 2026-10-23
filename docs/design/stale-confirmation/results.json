@@ -1,0 +1,296 @@
+{
+  "cases": 9,
+  "results": [
+    {
+      "model": "unsafe",
+      "path": "StartB",
+      "kind": "normal",
+      "enabled": true,
+      "before": {
+        "work": [
+          "workB"
+        ],
+        "active": "DraftB",
+        "values": {
+          "RowA": "None",
+          "RowB": "Desk",
+          "ReturnIndex": "B",
+          "CommittedA": "Reserved"
+        },
+        "overlays": [
+          "ConfirmA"
+        ]
+      },
+      "after": {
+        "work": [
+          "workB"
+        ],
+        "active": "DraftB",
+        "values": {
+          "RowA": "None",
+          "RowB": "Desk",
+          "ReturnIndex": "None",
+          "CommittedA": "Reserved"
+        },
+        "overlays": []
+      }
+    },
+    {
+      "model": "guarded",
+      "path": "StartB",
+      "kind": "normal",
+      "enabled": false,
+      "before": {
+        "work": [
+          "workB"
+        ],
+        "active": "DraftB",
+        "values": {
+          "RowA": "None",
+          "RowB": "Desk",
+          "ReturnIndex": "B",
+          "CommittedA": "Reserved"
+        },
+        "overlays": [
+          "ConfirmA"
+        ]
+      },
+      "after": {
+        "work": [
+          "workB"
+        ],
+        "active": "DraftB",
+        "values": {
+          "RowA": "None",
+          "RowB": "Desk",
+          "ReturnIndex": "B",
+          "CommittedA": "Reserved"
+        },
+        "overlays": [
+          "ConfirmA"
+        ]
+      }
+    },
+    {
+      "model": "guarded",
+      "path": "StartAOther",
+      "kind": "normal",
+      "enabled": false,
+      "before": {
+        "work": [
+          "workA"
+        ],
+        "active": "DraftA",
+        "values": {
+          "RowA": "Phone",
+          "RowB": "None",
+          "ReturnIndex": "A",
+          "CommittedA": "Reserved"
+        },
+        "overlays": [
+          "ConfirmA"
+        ]
+      },
+      "after": {
+        "work": [
+          "workA"
+        ],
+        "active": "DraftA",
+        "values": {
+          "RowA": "Phone",
+          "RowB": "None",
+          "ReturnIndex": "A",
+          "CommittedA": "Reserved"
+        },
+        "overlays": [
+          "ConfirmA"
+        ]
+      }
+    },
+    {
+      "model": "guarded",
+      "path": "StartA",
+      "kind": "normal",
+      "enabled": true,
+      "before": {
+        "work": [
+          "workA"
+        ],
+        "active": "DraftA",
+        "values": {
+          "RowA": "Desk",
+          "RowB": "None",
+          "ReturnIndex": "A",
+          "CommittedA": "Reserved"
+        },
+        "overlays": [
+          "ConfirmA"
+        ]
+      },
+      "after": {
+        "work": [],
+        "active": "Home",
+        "values": {
+          "RowA": "None",
+          "RowB": "None",
+          "ReturnIndex": "None",
+          "CommittedA": "Reserved"
+        },
+        "overlays": []
+      }
+    },
+    {
+      "model": "maintained",
+      "path": "StartB",
+      "kind": "normal",
+      "enabled": false,
+      "before": {
+        "work": [
+          "workB"
+        ],
+        "active": "DraftB",
+        "values": {
+          "RowA": "None",
+          "RowB": "Desk",
+          "ReturnIndex": "B",
+          "CommittedA": "Reserved"
+        },
+        "overlays": [
+          "ConfirmA"
+        ]
+      },
+      "after": {
+        "work": [
+          "workB"
+        ],
+        "active": "DraftB",
+        "values": {
+          "RowA": "None",
+          "RowB": "Desk",
+          "ReturnIndex": "B",
+          "CommittedA": "Reserved"
+        },
+        "overlays": [
+          "ConfirmA"
+        ]
+      }
+    },
+    {
+      "model": "maintained",
+      "path": "StartAOther",
+      "kind": "normal",
+      "enabled": false,
+      "before": {
+        "work": [
+          "workA"
+        ],
+        "active": "DraftA",
+        "values": {
+          "RowA": "Phone",
+          "RowB": "None",
+          "ReturnIndex": "A",
+          "CommittedA": "Reserved"
+        },
+        "overlays": [
+          "ConfirmA"
+        ]
+      },
+      "after": {
+        "work": [
+          "workA"
+        ],
+        "active": "DraftA",
+        "values": {
+          "RowA": "Phone",
+          "RowB": "None",
+          "ReturnIndex": "A",
+          "CommittedA": "Reserved"
+        },
+        "overlays": [
+          "ConfirmA"
+        ]
+      }
+    },
+    {
+      "model": "maintained",
+      "path": "StartA",
+      "kind": "normal",
+      "enabled": true,
+      "before": {
+        "work": [
+          "workA"
+        ],
+        "active": "DraftA",
+        "values": {
+          "RowA": "Desk",
+          "RowB": "None",
+          "ReturnIndex": "A",
+          "CommittedA": "Reserved"
+        },
+        "overlays": [
+          "ConfirmA"
+        ]
+      },
+      "after": {
+        "work": [],
+        "active": "Home",
+        "values": {
+          "RowA": "None",
+          "RowB": "None",
+          "ReturnIndex": "None",
+          "CommittedA": "Reserved"
+        },
+        "overlays": []
+      }
+    },
+    {
+      "model": "guarded",
+      "path": "StartB",
+      "kind": "manual-test",
+      "enabled": true,
+      "before": {
+        "work": [
+          "workB"
+        ],
+        "active": "DraftB",
+        "values": {
+          "RowA": "Desk",
+          "RowB": "Desk",
+          "ReturnIndex": "B",
+          "CommittedA": "Reserved"
+        },
+        "overlays": [
+          "ConfirmA"
+        ]
+      },
+      "after": {
+        "work": [
+          "workB"
+        ],
+        "active": "DraftB",
+        "values": {
+          "RowA": "None",
+          "RowB": "Desk",
+          "ReturnIndex": "None",
+          "CommittedA": "Reserved"
+        },
+        "overlays": []
+      }
+    },
+    {
+      "model": "maintained",
+      "path": "local cancellation",
+      "after": {
+        "work": [],
+        "active": "Home",
+        "values": {
+          "RowA": "None",
+          "RowB": "None",
+          "ReturnIndex": "None",
+          "CommittedA": "Unreserved"
+        },
+        "overlays": []
+      }
+    }
+  ]
+}
