@@ -1,0 +1,251 @@
+[
+  {
+    "id": "19-cross-collection-valid",
+    "status": "SPEC_PASS",
+    "known_failure_at_pinned_sha": true,
+    "observed": {
+      "exit": 0,
+      "E028": false,
+      "W106": false,
+      "location": [
+        "main",
+        "Screen"
+      ],
+      "shared": [
+        [
+          "main",
+          "Card",
+          "Ready"
+        ]
+      ],
+      "overlays": []
+    },
+    "failures": []
+  },
+  {
+    "id": "20-cross-collection-invalid",
+    "status": "SPEC_PASS",
+    "known_failure_at_pinned_sha": true,
+    "observed": {
+      "exit": 1,
+      "E028": true,
+      "W106": false
+    },
+    "failures": []
+  },
+  {
+    "id": "25-local-collection-invalid",
+    "status": "SPEC_PASS",
+    "known_failure_at_pinned_sha": false,
+    "observed": {
+      "exit": 1,
+      "E028": true,
+      "W106": false
+    },
+    "failures": []
+  },
+  {
+    "id": "26-cross-action-valid",
+    "status": "SPEC_PASS",
+    "known_failure_at_pinned_sha": false,
+    "observed": {
+      "exit": 0,
+      "E028": false,
+      "W106": false
+    },
+    "failures": []
+  },
+  {
+    "id": "27-cross-action-invalid",
+    "status": "SPEC_PASS",
+    "known_failure_at_pinned_sha": false,
+    "observed": {
+      "exit": 1,
+      "E028": true,
+      "W106": false
+    },
+    "failures": []
+  },
+  {
+    "id": "31-component-show-control",
+    "status": "SPEC_PASS",
+    "known_failure_at_pinned_sha": false,
+    "observed": {
+      "exit": 0,
+      "E028": false,
+      "W106": true,
+      "location": [
+        "main",
+        "Editor"
+      ],
+      "shared": [
+        [
+          "main",
+          "Status",
+          "Clean"
+        ]
+      ],
+      "overlays": [
+        [
+          "main",
+          "Status",
+          "Clean"
+        ]
+      ]
+    },
+    "failures": []
+  },
+  {
+    "id": "38-common-show-rollback",
+    "status": "SPEC_PASS",
+    "known_failure_at_pinned_sha": true,
+    "observed": {
+      "exit": 0,
+      "E028": false,
+      "W106": true,
+      "location": [
+        "main",
+        "Preview"
+      ],
+      "shared": [
+        [
+          "main",
+          "Status",
+          "Clean"
+        ]
+      ],
+      "overlays": [
+        [
+          "main",
+          "Status",
+          "Clean"
+        ]
+      ]
+    },
+    "failures": []
+  },
+  {
+    "id": "39-common-show-retain",
+    "status": "SPEC_PASS",
+    "known_failure_at_pinned_sha": false,
+    "observed": {
+      "exit": 0,
+      "E028": false,
+      "W106": false,
+      "location": [
+        "main",
+        "Preview"
+      ],
+      "shared": [
+        [
+          "main",
+          "Status",
+          "Saved"
+        ]
+      ],
+      "overlays": [
+        [
+          "main",
+          "Status",
+          "Saved"
+        ]
+      ]
+    },
+    "failures": []
+  },
+  {
+    "id": "40-common-show-regular",
+    "status": "SPEC_PASS",
+    "known_failure_at_pinned_sha": false,
+    "observed": {
+      "exit": 0,
+      "E028": false,
+      "W106": false,
+      "location": [
+        "main",
+        "Editor"
+      ],
+      "shared": [],
+      "overlays": [
+        [
+          "main",
+          "Notice",
+          "Displayed"
+        ]
+      ]
+    },
+    "failures": []
+  },
+  {
+    "id": "49-qualified-back-collision",
+    "status": "SPEC_FAIL",
+    "known_failure_at_pinned_sha": true,
+    "observed": {
+      "exit": 0,
+      "E028": false,
+      "W106": false,
+      "location": [
+        "b",
+        "Home"
+      ],
+      "shared": [],
+      "overlays": []
+    },
+    "failures": [
+      "location: expected ['a', 'Home']; observed ['b', 'Home']"
+    ]
+  },
+  {
+    "id": "50-qualified-back-absent",
+    "status": "SPEC_FAIL",
+    "known_failure_at_pinned_sha": true,
+    "observed": {
+      "exit": 0,
+      "E028": false,
+      "W106": false,
+      "location": [
+        "a",
+        "Home"
+      ],
+      "shared": [],
+      "overlays": []
+    },
+    "failures": [
+      "location: expected ['main', 'Details']; observed ['a', 'Home']"
+    ]
+  },
+  {
+    "id": "51-qualified-back-unique-control",
+    "status": "SPEC_PASS",
+    "known_failure_at_pinned_sha": false,
+    "observed": {
+      "exit": 0,
+      "E028": false,
+      "W106": false,
+      "location": [
+        "a",
+        "Home"
+      ],
+      "shared": [],
+      "overlays": []
+    },
+    "failures": []
+  },
+  {
+    "id": "58-back-samefile-alias-control",
+    "status": "SPEC_PASS",
+    "known_failure_at_pinned_sha": false,
+    "observed": {
+      "exit": 0,
+      "E028": false,
+      "W106": false,
+      "location": [
+        "shared",
+        "Home"
+      ],
+      "shared": [],
+      "overlays": []
+    },
+    "failures": []
+  }
+]

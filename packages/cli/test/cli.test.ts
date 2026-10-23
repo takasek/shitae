@@ -43,6 +43,33 @@ async function runCli(args: string[]): Promise<{ stdout: string; stderr: string;
   }
 }
 
+describe('issue #64: public check E028', () => {
+  it.each([
+    ['*ui::Card', '#', '#!', 0],
+    ['*ui::Card', '#!', '#', 1],
+    ['panel: { *ui::Card }', '#!', '#', 1],
+    ['*panel: { badge: ui::Card }', '#!', '#', 0],
+    ['badge: ui::Card\n> Tap(*badge) -> Done', '#!', '#', 1],
+    ['Card: Regular\n> Tap(*Card) -> Done', '#', '#!', 0],
+    ['panel: { badge: ui::Card }\n> Tap(*panel.badge) -> Done', '#!', '#', 1],
+    ['> Tap(*ui::Card) -> Done', '#', '#!', 0],
+    ['> Tap(*ui::Card) -> Done', '#!', '#', 1],
+  ])('%s (import %s / local %s) exits %i', async (body, remoteHeader, localHeader, code) => {
+    const dir = mkdtempSync(join(tmpdir(), 'shitae-64-'));
+    const main = join(dir, 'main.shitae');
+    writeFileSync(join(dir, 'library.shitae'), `${remoteHeader} Card\nLabel\n`);
+    writeFileSync(main, `import library as ui\n# Screen\n${body}\n${localHeader} Card\nLabel\n# Regular\nLabel\n`);
+    try {
+      const result = await runCli(['check', main]);
+      expect(result.code).toBe(code);
+      expect(result.stderr.match(/E028/g) ?? []).toHaveLength(code);
+      if (code) expect(result.stderr).toContain(main);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
+
 describe('shitae check', () => {
   it('battle サンプルで exit 0', async () => {
     const { code, stderr } = await runCli(['check', BATTLE]);
