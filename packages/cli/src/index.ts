@@ -1,16 +1,15 @@
 #!/usr/bin/env node
 import { readFileSync } from 'fs';
 import { resolve as resolvePath, dirname, basename } from 'path';
-import { parse } from '@shitae/parser';
 import { resolveProject } from '@shitae/resolver';
 import { check } from '@shitae/checker';
 import { toMermaid } from '@shitae/transpiler-mermaid';
 import { toSimulator } from '@shitae/simulator';
-import { Session, ScenarioError, replayScenario, type ModelMetadata } from '@shitae/session';
+import { Session, ScenarioError, replayScenario } from '@shitae/session';
 import { serveSession } from './session.js';
 import { loadModel } from './model.js';
 import type { SimulatorConfig } from '@shitae/simulator';
-import type { Document, Diagnostic } from '@shitae/ast';
+import type { Diagnostic } from '@shitae/ast';
 
 const [, , command, filePath] = process.argv;
 
@@ -20,46 +19,6 @@ if (!command || !filePath) {
 }
 
 const entryPath = resolvePath(filePath);
-let entryModule = basename(entryPath, '.shitae');
-
-function loadDocuments(): {
-  documents: Map<string, Document>;
-  diagnostics: Map<string, Diagnostic[]>;
-  modulePaths: Map<string, string>;
-  failed: boolean;
-} {
-  const documents = new Map<string, Document>();
-  const diagnosticsMap = new Map<string, Diagnostic[]>();
-  const modulePaths = new Map<string, string>();
-  let failed = false;
-
-  function load(moduleName: string, absPath: string, visited: Set<string>): void {
-    if (visited.has(moduleName)) return;
-    visited.add(moduleName);
-
-    let source: string;
-    try {
-      source = readFileSync(absPath, 'utf8');
-    } catch {
-      process.stderr.write(`Error: cannot read '${absPath}'\n`);
-      failed = true;
-      return;
-    }
-
-    modulePaths.set(moduleName, absPath);
-    const { document, diagnostics } = parse(source);
-    documents.set(moduleName, document);
-    diagnosticsMap.set(moduleName, diagnostics);
-
-    const baseDir = dirname(absPath);
-    for (const imp of document.imports) {
-      load(imp.module, resolvePath(baseDir, imp.module + '.shitae'), visited);
-    }
-  }
-
-  load(entryModule, entryPath, new Set());
-  return { documents, diagnostics: diagnosticsMap, modulePaths, failed };
-}
 
 function printDiags(items: Array<{ diag: Diagnostic; path: string }>): void {
   for (const { diag, path } of items) {
@@ -67,19 +26,12 @@ function printDiags(items: Array<{ diag: Diagnostic; path: string }>): void {
   }
 }
 
-let loaded;
-let modelMetadata: ModelMetadata | null = null;
+let loaded: ReturnType<typeof loadModel>;
 try {
-  if (command === 'session' || command === 'simulate') {
-    loaded = loadModel(entryPath); entryModule = loaded.entryModule; modelMetadata = loaded.metadata;
-  } else loaded = loadDocuments();
+  loaded = loadModel(entryPath);
 }
 catch (error) { process.stderr.write(`Error: ${error instanceof Error ? error.message : String(error)}\n`); process.exit(1); }
-const { documents, diagnostics: diagnosticsMap, modulePaths, failed } = loaded;
-
-if (failed) {
-  process.exit(1);
-}
+const { documents, entryModule, diagnostics: diagnosticsMap, modulePaths, metadata: modelMetadata } = loaded;
 
 const parseDiags = diagnosticsMap.get(entryModule) ?? [];
 
@@ -159,7 +111,7 @@ if (command === 'check') {
       process.stderr.write(`Warning: '${configPath}' は不正な JSON のため simconfig を無視します\n`);
     }
   }
-  process.stdout.write(toSimulator(documents, entryModule, simConfig, modelMetadata ? { files: modulePaths, metadata: modelMetadata } : undefined) + '\n');
+  process.stdout.write(toSimulator(documents, entryModule, simConfig, { files: modulePaths, metadata: modelMetadata }) + '\n');
   // pipe の非同期 write が完了するまで、イベントループの自然終了に任せる。
 } else {
   process.stderr.write(`Error: unknown command '${command}'. Use 'check', 'mermaid', 'simulate', or 'session'.\n`);
