@@ -1,0 +1,38 @@
+[
+  {
+    "filename": "shitae-deep-repro-20261023.zip",
+    "sha256": "ffc313aef2c9caf113e95d99f6a61383a2fa612c1ad729d6034355e2247cf362",
+    "scenarios": [
+      {
+        "file": "workshop/r2/stale-A.scenario.json",
+        "steps": 15,
+        "modelId": "b226159125fb9ade270fe98076728d6201d2f8c2d7bd6658283a8e87fcf9211f",
+        "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116"
+      },
+      {
+        "file": "workshop/r2_1/handoff-38-gui.scenario.json",
+        "steps": 38,
+        "modelId": "88789ce38767530fd605c87247e26ed1a0d5122317222a6f1a10a695561f8a68",
+        "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116"
+      },
+      {
+        "file": "workshop/r2_1/stale-A-blocked.scenario.json",
+        "steps": 14,
+        "modelId": "88789ce38767530fd605c87247e26ed1a0d5122317222a6f1a10a695561f8a68",
+        "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116"
+      },
+      {
+        "file": "workshop/refactor_candidate/handoff-38-cli.scenario.json",
+        "steps": 38,
+        "modelId": "4414378de007989846245b95fbd8488f675ae52ebb9259485b0915bafb8e433e",
+        "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116"
+      },
+      {
+        "file": "workshop/refactor_candidate/replayed-and-continued-cli.scenario.json",
+        "steps": 22,
+        "modelId": "4414378de007989846245b95fbd8488f675ae52ebb9259485b0915bafb8e433e",
+        "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116"
+      }
+    ]
+  }
+]

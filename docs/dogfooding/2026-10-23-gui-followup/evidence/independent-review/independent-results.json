@@ -1,0 +1,22 @@
+[
+  {
+    "case": "module-ghost-gui",
+    "exit": 0,
+    "fullFinalAndStepsEqual": true,
+    "cursor": {
+      "step": 4,
+      "observation": 0
+    },
+    "ghost": 3
+  },
+  {
+    "case": "module-branched-gui",
+    "exit": 0,
+    "fullFinalAndStepsEqual": true,
+    "cursor": {
+      "step": 7,
+      "observation": 0
+    },
+    "ghost": 0
+  }
+]
