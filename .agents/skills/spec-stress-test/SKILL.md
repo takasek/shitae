@@ -56,14 +56,14 @@ spec だけを読ませた subagent を被験者に、CLI を正解器として�
 参照禁止の prompt だけでは、起動時に渡る skill の説明・プロジェクト指示・メモリを除けない。被験者は親の会話を継承しない新規セッションで起動し、この skill 本文や採点結果も渡さない。
 
 - リポジトリ外に実験ごとの一時ディレクトリを作り、対象版の `docs/SPEC.md` だけを同じ相対パスでコピーする。元の commit とコピーのハッシュを記録し、課題は prompt で渡す。親ディレクトリも含め、shitae 関連 skill や指示が探索される場所を避ける。
-- 共通メモリの注入と Web 検索を無効にする。Codex CLI の起動例は下記を使う（永続設定は変えない）。履歴の resume / fork は使わない。他のハーネスでも同等の独立性を確認する。読取専用 sandbox は Web・MCP 等による外部情報取得を防ぐものではない。
+- ユーザー設定（`$CODEX_HOME/config.toml`）の読込を `--ignore-user-config` で無効にし、同ファイル由来の `developer_instructions`・`model_instructions_file`・MCP/app 設定などを被験者へ持ち込まない。認証は引き続き `CODEX_HOME` を使う。共通メモリの注入と Web 検索も無効にする。Codex CLI の起動例は下記を使う（永続設定は変えない）。履歴の resume / fork は使わない。他のハーネスでも同等の独立性を確認する。読取専用 sandbox は Web・MCP 等による外部情報取得を防ぐものではない。
 - 起動時に見える関連 skill の名前・説明、プロジェクト指示、メモリ要約の有無と、実際に読んだファイル・使ったツールを被験者に記録させる。親は保存したツール履歴を必ず照合し、取得可能ならモデル入力も確認する。起動時の情報など自己申告だけで確認した項目はその限界を残す。無関係な共通運用指示の残存と、shitae の補助知識の混入を区別する。
 - 関連 skill の本文を読まなくても、説明や指示・メモリに shitae の補助知識があれば SPEC 単独の評価として採用しない。Web 検索・ブラウザー・外部 MCP・ネットワーク経由の取得を試みた実行も、結果が空や失敗でも採点対象から外す。ツール履歴の欠落・破損や隔離を確認できない実行も同様に扱い、理由を記録して起動条件を直す。過去の結果は一律に無効にせず、各実行へ渡った情報から判断する。
 
 Codex CLI の例。`subject_dir` は SPEC だけを置いた隔離先、`artifacts_dir` はその外側に作る実験固有の保存先とし、どちらも絶対パスを設定する。親が課題・入力制限・観測記録の要求を `artifacts_dir/prompt.txt` に用意してから実行する。保存先は既存実験と重複させない。
 
 ```sh
-codex exec --skip-git-repo-check -s read-only --json \
+codex exec --ignore-user-config --skip-git-repo-check -s read-only --json \
   -c memories.use_memories=false -c memories.generate_memories=false \
   -c 'web_search="disabled"' -C "$subject_dir" \
   -o "$artifacts_dir/answer.md" - < "$artifacts_dir/prompt.txt" \
