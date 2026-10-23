@@ -1,0 +1,9 @@
+# Home
+BLabel
+# Notice
+> Close -> hide(Notice)
+> Check(signal?) -> checked B
+## Idle
+BLabel
+## Ready
+signal

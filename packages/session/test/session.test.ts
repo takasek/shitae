@@ -215,7 +215,7 @@ y
     expect(r.receipt.changed).toEqual(expect.arrayContaining(['sharedVariants', 'overlays']));
     expect(r.receipt.diagnostics.map((d) => d.diagnostic.code)).toEqual(['R002']);
     expect(r.receipt.observations.count).toBe(3);
-    expect(details(s).items.some((i) => i.actionText === 'Inspect' && i.placement.root === 'overlay:Badge')).toBe(true);
+    expect(details(s).items.some((i) => i.actionText === 'Inspect' && i.placement.root === 'overlay:' + JSON.stringify(['main', 'Badge']))).toBe(true);
   });
 
   it('qualified outer references suppress the imported component action', () => {
@@ -247,5 +247,36 @@ button
     ]);
     const result = s.dispatch({ handle: list[1]!.handle });
     expect(result.receipt.effects.map((e) => e.text)).toEqual(['other-inner']);
+  });
+});
+
+
+describe('issue #66: canonical overlay placements', () => {
+  it('isolates state, handles, lexical hide, gates, history and alias re-show', () => {
+    const s = session('import a as a\nimport a as x\nimport b as b\n# Screen\n> ShowA -> show(a::Notice)\n> HideB -> hide(b::Notice)\n> Both -> show(b::Notice) ; show(a::Controller)\n> Again -> show(x::Notice##Ready)\n', {
+      a: '# Notice\n> Close -> hide(Notice)\n> Check(signal?) -> checked A\n## Idle\na label\n## Ready\nsignal\n# Controller\n> Hide -> hide(Notice)\n',
+      b: '# Notice\n> Close -> hide(Notice)\n> Check(signal?) -> checked B\n## Idle\nb label\n## Ready\nsignal\n',
+    });
+    const act = (text: string, module?: string) => {
+      const op = details(s).items.find(a => a.actionText === text && (!module || a.host.module === module))!;
+      return s.dispatch({ handle: op.handle });
+    };
+    const state = () => s.query({ select: ['state'] }).data!.state!;
+    act('ShowA'); act('HideB');
+    expect(state().overlays.map(o => o.module)).toEqual(['a']);
+    act('Both'); act('Again');
+    expect(state().overlays.map(o => [o.module, o.component, o.variant])).toEqual([
+      ['a', 'Notice', 'Ready'], ['b', 'Notice', 'Idle'], ['a', 'Controller', null],
+    ]);
+    const notice = details(s).items.filter(a => a.actionText === 'Check(signal?)');
+    expect(notice.map(a => [a.host.module, a.enabled])).toEqual([['a', true], ['b', false]]);
+    expect(new Set(notice.map(a => a.placement.root)).size).toBe(2);
+    expect(state().inclusion.overlays.map(o => o.root)).toEqual([...new Set(details(s).items.filter(a => a.placement.root !== 'main').map(a => a.placement.root))]);
+    const beforeHide = s.query().summary.cursorObservationId;
+    act('Hide', 'a');
+    expect(state().overlays.map(o => o.module)).toEqual(['b', 'a']);
+    act('Close', 'b'); expect(state().overlays.map(o => o.component)).toEqual(['Controller']);
+    s.seek(beforeHide); expect(state().overlays).toHaveLength(3);
+    expect(s.query({ select: ['history'] }).data!.history!.items.length).toBeGreaterThan(4);
   });
 });

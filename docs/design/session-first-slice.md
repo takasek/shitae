@@ -38,7 +38,7 @@ dispatch が返す summary の現在地は `完了` になり、最後の query 
 | `summary` | `location`（module/component/表示 variant）、cursor/latest の観測点 ID、保持観測点数 |
 | `data.actions.items[]` | handle、構造化 action、actionText、scope、source、placement、host、enabled、gate、prelude、branches |
 | `branches[]` | id、label、results の resultIndex/source。空配列なら branch を指定しない |
-| `placement` | root（本体 `main` または `overlay:<component>`）、包含 element index の path、配置 source。定義 source と区別する |
+| `placement` | root（本体 `main` または `overlay:` に定義moduleとcomponentのJSON配列を続けた識別子。例: `overlay:["main","Card"]`。ADR-0026）、包含 element index の path、配置 source。定義 source と区別する |
 | `data.actions.controls.back` | 組込み戻るの handle、kind、source:null、enabled、reason。モデルに back interaction がなくても使える |
 | `receipt` | operationId、前後で変わった領域名、今回の観測点 count/firstId/lastId、今回の effects/diagnostics |
 | `effects[]` | resultIndex/source/text。自由文の記録であり実 I/O は行わない |

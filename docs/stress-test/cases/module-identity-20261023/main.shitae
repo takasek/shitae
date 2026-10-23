@@ -1,0 +1,11 @@
+import a as a
+import a as x
+import b as b
+# Screen
+> ShowA -> show(a::Notice)
+> HideB -> hide(b::Notice)
+> Both -> show(b::Notice) ; show(a::Controller)
+> Again -> show(x::Notice##Ready)
+> BackFlow -> push(a::Home) ; push(b::Home) ; push(Details)
+# Details
+> ReturnA -> back(a::Home)

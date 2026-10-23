@@ -285,10 +285,11 @@ export class Session {
       walkElements(this.elements(host, includeDocument), path);
     };
     collect(this.location(context), 'main', [], null, true, new Set());
-    for (const [name, overlay] of context.runtime.overlays) {
+    for (const overlay of context.runtime.overlays.values()) {
+      const name = overlay.component;
       const key = singletonKey(overlay.module, name);
       const variant = context.runtime.singletons.has(key) ? context.runtime.sharedVariants.get(key) ?? null : overlay.variant;
-      collect(this.display({ module: overlay.module, component: name, variant }), `overlay:${name}`, [], null, false, new Set());
+      collect(this.display({ module: overlay.module, component: name, variant }), `overlay:${JSON.stringify([overlay.module, name])}`, [], null, false, new Set());
     }
     const frame = activeFrame(context.runtime);
     const enabled = frame.stack.length > 1 || (!frame.barrier && frame.parentId != null);
@@ -419,8 +420,8 @@ export class Session {
     for (let id: number | null = rt.activeFrameId; id != null;) {
       activePath.unshift(id); id = rt.frames.find((f) => f.id === id)!.parentId;
     }
-    const overlays = [...rt.overlays].map(([component, o]) => ({ module: o.module!, component,
-      ...this.value(o.module!, component, o.variant, 'overlay-entry', context) }));
+    const overlays = [...rt.overlays.values()].map(o => ({ module: o.module!, component: o.component,
+      ...this.value(o.module!, o.component, o.variant, 'overlay-entry', context) }));
     const root = (loc: Location, root: string, scope: VariantValue['scope']): InclusionRoot => ({
       module: loc.module!, component: loc.component, root,
       ...this.value(loc.module!, loc.component, loc.variant, scope, context),
@@ -443,7 +444,7 @@ export class Session {
     return { frames, activeFrameId: rt.activeFrameId, nextFrameId: rt.nextFrameId, activePath, overlays,
       sharedVariants: all.filter((c) => c.singleton), testVariants: all.filter((c) => c.scope === 'component-test'), componentValues: all,
       gateTargets: this.gateTargets(context), inclusion: { main: root(activeLocation(rt), 'main', 'frame-location'),
-        overlays: [...rt.overlays].map(([component, o]) => root({ module: o.module, component, variant: o.variant }, `overlay:${component}`, 'overlay-entry')) } };
+        overlays: [...rt.overlays.values()].map(o => root({ module: o.module, component: o.component, variant: o.variant }, `overlay:${JSON.stringify([o.module, o.component])}`, 'overlay-entry')) } };
   }
   private observationIndex(id: number | undefined): number {
     if (!Number.isSafeInteger(id) || id! < 1) fail('INVALID_REQUEST', 'observationId must be a positive integer');

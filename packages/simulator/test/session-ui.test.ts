@@ -68,3 +68,22 @@ describe('GUI consumes the common Session', () => {
     expect(g.html.match(/<\/script>/g)).toHaveLength(1);
   });
 });
+
+
+describe('issue #66: same-name overlay cards', () => {
+  it('renders distinct module titles and routes each card gate and close operation', () => {
+    const g = gui('import a as a\nimport b as b\n# Screen\n> Show -> show(a::Notice##Ready) ; show(b::Notice)\n', {
+      a: '# Notice\n> Close -> hide(Notice)\n> Check(signal?) -> A\n## Idle\na label\n## Ready\nsignal\n',
+      b: '# Notice\n> Close -> hide(Notice)\n> Check(signal?) -> B\n## Idle\nb label\n## Ready\nsignal\n',
+    });
+    g.run("handleInteraction('component',0,0)");
+    expect(g.view().data.state.overlays).toHaveLength(2);
+    expect(g.app.innerHTML).toContain('a::Notice'); expect(g.app.innerHTML).toContain('b::Notice');
+    const checks = g.view().data.actions.items.filter((a: any) => a.actionText === 'Check(signal?)');
+    expect(checks.map((a: any) => a.enabled)).toEqual([true, false]);
+    g.run("handleOverlayInteraction(1,'component',0,0)");
+    expect(g.view().data.state.overlays.map((o: any) => o.module)).toEqual(['a']);
+    g.run("handleOverlayInteraction(0,'component',0,0)");
+    expect(g.view().data.state.overlays).toEqual([]);
+  });
+});

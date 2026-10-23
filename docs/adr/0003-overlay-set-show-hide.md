@@ -1,5 +1,6 @@
 # ADR-0003: オーバーレイ集合 — show/hide（語は仮）で component を常時表示層に掲示する
 
+> ID の単位は ADR-0026 で「解決済みの定義ファイル＋component 名」に明確化された。以下は当初の判断を残す。
 - Status: accepted（2026-07-12、設計者合意。動詞の正式名は SPEC 改訂時に確定）
 - 出典: stress-test 2026-07 — music/video プローブ（PiP・ミニプレイヤー・トースト等が表現不能）
 
