@@ -51,9 +51,20 @@ normative 制約ごとに境界カテゴリを機械的に列挙し具体例 `.s
 
 spec だけを読ませた subagent を被験者に、CLI を正解器として採点する。
 
+### 被験者の隔離（Phase 2・2b 共通）
+
+参照禁止の prompt だけでは、起動時に渡る skill の説明・プロジェクト指示・メモリを除けない。被験者は親の会話を継承しない新規セッションで起動し、この skill 本文や採点結果も渡さない。
+
+- リポジトリ外に実験ごとの一時ディレクトリを作り、対象版の `docs/SPEC.md` だけを同じ相対パスでコピーする。元の commit とコピーのハッシュを記録し、課題は prompt で渡す。親ディレクトリも含め、shitae 関連 skill や指示が探索される場所を避ける。
+- 共通メモリの注入も無効にする。Codex CLI では、隔離先を cwd にして `codex exec --skip-git-repo-check -s read-only -c memories.use_memories=false -c memories.generate_memories=false` を使い、課題と SPEC 参照制限を渡す（永続設定は変えない）。履歴の resume / fork は使わない。他のハーネスでも同等の独立性を確認する。
+- 起動時に見える関連 skill の名前・説明、プロジェクト指示、メモリ要約の有無と、実際に読んだファイルを被験者に記録させる。取得可能ならモデル入力とツール履歴でも照合し、自己申告だけで確認した項目はその限界を残す。無関係な共通運用指示の残存と、shitae の補助知識の混入を区別する。
+- 関連 skill の本文を読まなくても、説明や指示・メモリに shitae の補助知識があれば SPEC 単独の評価として採用しない。隔離を確認できない実行も採点対象から外し、理由を記録して起動条件を直す。過去の結果は一律に無効にせず、各実行へ渡った情報から判断する。
+
+被験者は成果物を回答に出力し、親が `probes/<product>/` または `oracle/` に保存する。起動コマンド・ハーネスとモデルの版・課題全文・対象 SPEC の版・観測記録・ツール履歴を成果物と対応付ける。正解器の実行と採点は親の開発 checkout で行う。
+
 **プロトコル（固定）**:
 - 被験者: general-purpose subagent、実験ごと独立コンテキスト。モデル勾配を測るなら 1 体を haiku に。
-- 入力制限を prompt に明記: 「読んでよいのは `docs/SPEC.md` のみ。GLOSSARY・AI_GUIDE・examples・packages・.claude・.agents・docs/stress-test の参照禁止。CLI・テスト実行禁止」
+- 入力制限を prompt に明記: 「読んでよいファイルは `docs/SPEC.md` のみ。GLOSSARY・AI_GUIDE・examples・packages・.claude・.agents・docs/stress-test の参照禁止。shitae の処理系（check / mermaid / simulate）、runtime、テストの実行禁止。SPEC の読取に cat・rg・Node のファイル API を使うことは許可する。ファイルを書き換えず、成果物は回答に出力する」
 - 課題: 実在アプリの画面フロー（音楽/送金/メッセンジャー/動画/語学/予約 等、各 stress 軸を分散）。
 - 出力: `.shitae` + notes.md（参照節・曖昧点・確信度 高/中/低・**書けなくて諦めた表現／欲しかった記法** ← DSL 改善アイデアの主経路）。
 - 採点（`probes/<product>/grading.md`）: CLI check/mermaid/simulate + 自分の SPEC 照合。**正誤だけでなく「どう正解したか」を読む** — 回避行動（表現を捨てて通す）や類推による正答は pass でも spec 欠陥の証拠。**複数被験者が独立に同じ回避に至ったら最強シグナル**。
@@ -61,6 +72,8 @@ spec だけを読ませた subagent を被験者に、CLI を正解器として�
 ## Phase 2b: frame 意味論オラクル
 
 runtime `reduce` を正解器に、「遷移列 → 最終アクティブ画面・frame 木・警告」の予測課題を作る。正解は `reduce` を直呼びする mjs（`oracle/run-oracle.mjs` を踏襲）で確定。subagent に SPEC のみで予測させ確信度を自己申告させる — **確信度「高」で実装と乖離した設問が最も危険**（読者期待と実装の衝突）。「決められない」の申告は曖昧座標の正解報告。
+
+被験者には Phase 2 の隔離条件と入力制限を適用する。予測対象の遷移列は課題として渡し、正解器のコード・実行結果は渡さない。
 
 ## Phase 3: findings 集約 →【設計者レビューで停止】
 
