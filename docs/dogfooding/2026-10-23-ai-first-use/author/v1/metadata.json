@@ -1,0 +1,13 @@
+{
+  "engineVersion": "683237908597a9e4f75adbb85d54f4a48397f388a4d5d60fb45f9a8b1ad950c7",
+  "entryModule": "equipment",
+  "sourceBasis": "source-bytes",
+  "manifest": [
+    {
+      "module": "equipment",
+      "sourceSha256": "fc89c64c220334d45e53e23273ee3f08ff49fed94fce585c19a68674d2d6963c",
+      "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-ai-first-use/author/v1/equipment.shitae"
+    }
+  ],
+  "modelId": "76edb3872794697449c185aa88c51022452186d982824403d3b5ffa76fc26996"
+}

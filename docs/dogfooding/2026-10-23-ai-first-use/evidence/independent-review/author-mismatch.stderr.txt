@@ -1,0 +1,6 @@
+Error: MODEL_MISMATCH: source bytesが異なるmodule: equipment（空白・コメントも照合対象）
+次の行動:
+完全一致する保存時のHTMLが残っていれば、そのHTMLとscenarioの組で再開してください。任意の古いHTMLでは再開できません。
+CLIでの再開には、対応する元モデル一式と処理系が必要です。engineのhashだけからcommitは特定できません。
+変更後のモデル・処理系で検討する場合は新しく記録してください。旧版の検討手順は人が選び直すための参照に使えます。
+詳細: Expected {"engineVersion":"683237908597a9e4f75adbb85d54f4a48397f388a4d5d60fb45f9a8b1ad950c7","entryModule":"equipment","manifest":[{"module":"equipment","sourceSha256":"fc89c64c220334d45e53e23273ee3f08ff49fed94fce585c19a68674d2d6963c"}],"modelId":"76edb3872794697449c185aa88c51022452186d982824403d3b5ffa76fc26996","sourceBasis":"source-bytes"}; actual {"engineVersion":"683237908597a9e4f75adbb85d54f4a48397f388a4d5d60fb45f9a8b1ad950c7","entryModule":"equipment","manifest":[{"module":"equipment","sourceSha256":"ca1e6011267db773d89b921f429112bf105acfafd25f87635666bae0fd9b7db8"}],"modelId":"5ab2070225935b01d3e0e5e8f318d282f6687198530256fac57a34a0be59f649","sourceBasis":"source-bytes"}

@@ -1,0 +1,27 @@
+[
+  {
+    "version": "v1",
+    "command": "check",
+    "exitCode": 0
+  },
+  {
+    "version": "v1",
+    "command": "replay",
+    "exitCode": 0
+  },
+  {
+    "version": "v2",
+    "command": "check",
+    "exitCode": 0
+  },
+  {
+    "version": "v2",
+    "command": "replay",
+    "exitCode": 0
+  },
+  {
+    "version": "v2",
+    "command": "replay-v1",
+    "exitCode": 1
+  }
+]

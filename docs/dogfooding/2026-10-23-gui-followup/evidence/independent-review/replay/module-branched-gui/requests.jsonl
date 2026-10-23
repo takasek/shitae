@@ -1,0 +1,6 @@
+{"id": "1", "command": "query", "select": ["state", "history", "metadata"]}
+{"id": "2", "command": "exportScenario"}
+{"id": "3", "command": "query", "select": ["actions"]}
+{"id": "4", "command": "dispatch", "handle": "9c7be51e-f3ca-4764-89f4-3abec786472c:7:2"}
+{"id": "5", "command": "query", "select": ["state"]}
+{"id": "6", "command": "exportScenario"}

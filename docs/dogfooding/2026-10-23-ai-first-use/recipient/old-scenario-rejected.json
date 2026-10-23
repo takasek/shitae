@@ -1,0 +1,13 @@
+{
+  "command": [
+    "node",
+    "packages/cli/dist/index.js",
+    "session",
+    "docs/dogfooding/2026-10-23-ai-first-use/recipient/changed/visit.shitae",
+    "--replay",
+    "docs/dogfooding/2026-10-23-end-to-end/author/v2/visit.scenario.json"
+  ],
+  "exitCode": 1,
+  "stdoutBytes": 0,
+  "stderr": "Error: MODEL_MISMATCH: source bytesが異なるmodule: visit（空白・コメントも照合対象）\n次の行動:\n完全一致する保存時のHTMLが残っていれば、そのHTMLとscenarioの組で再開してください。任意の古いHTMLでは再開できません。\nCLIでの再開には、対応する元モデル一式と処理系が必要です。engineのhashだけからcommitは特定できません。\n変更後のモデル・処理系で検討する場合は新しく記録してください。旧版の検討手順は人が選び直すための参照に使えます。\n詳細: Expected {\"engineVersion\":\"683237908597a9e4f75adbb85d54f4a48397f388a4d5d60fb45f9a8b1ad950c7\",\"entryModule\":\"visit\",\"manifest\":[{\"module\":\"visit\",\"sourceSha256\":\"dea714b8e174477ba9de45dca5a6144d86b0f242dcdd4323e920ff70c40a2b43\"}],\"modelId\":\"7ef9850699ebed510a533e2a94cce1a08855549befe37d496cb201c7b86f9963\",\"sourceBasis\":\"source-bytes\"}; actual {\"engineVersion\":\"683237908597a9e4f75adbb85d54f4a48397f388a4d5d60fb45f9a8b1ad950c7\",\"entryModule\":\"visit\",\"manifest\":[{\"module\":\"visit\",\"sourceSha256\":\"afb44e5cf3ffb3adc64cf89e8705b640c09619110378562edc053f4fcf092ace\"}],\"modelId\":\"5b0ec2e92478960104415d9c28c8c6c20bfbdadbaf6d6362e49f75b3bd743047\",\"sourceBasis\":\"source-bytes\"}\n"
+}

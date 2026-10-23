@@ -1,0 +1,46 @@
+[
+  {
+    "version": "v1",
+    "checkExit": 0,
+    "replayExit": 0,
+    "dispatch": 9,
+    "location": {
+      "module": "equipment",
+      "component": "備品詳細",
+      "variant": null
+    },
+    "shared": [
+      {
+        "module": "equipment",
+        "component": "依頼状況",
+        "variant": "ロッカー依頼済",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      }
+    ],
+    "modelSha256": "fc89c64c220334d45e53e23273ee3f08ff49fed94fce585c19a68674d2d6963c"
+  },
+  {
+    "version": "v2",
+    "checkExit": 0,
+    "replayExit": 0,
+    "dispatch": 8,
+    "location": {
+      "module": "equipment",
+      "component": "備品詳細",
+      "variant": null
+    },
+    "shared": [
+      {
+        "module": "equipment",
+        "component": "依頼状況",
+        "variant": "ロッカー依頼済",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      }
+    ],
+    "modelSha256": "ca1e6011267db773d89b921f429112bf105acfafd25f87635666bae0fd9b7db8"
+  }
+]

@@ -1,0 +1,16 @@
+{"id": "a1", "command": "query", "select": ["state", "actions", "history", "metadata"], "history": {"limit": 100}}
+{"id": "a2", "command": "query", "select": ["observation"], "observationId": 5}
+{"id": "a3", "command": "query", "select": ["observation"], "observationId": 6}
+{"id": "a4", "command": "dispatch", "handle": "1c79e563-0fbb-4ba8-ac4d-ee091f03e233:8:1"}
+{"id": "a5", "command": "query", "select": ["actions"]}
+{"id": "a6", "command": "dispatch", "handle": "1c79e563-0fbb-4ba8-ac4d-ee091f03e233:9:1"}
+{"id": "a7", "command": "query", "select": ["actions"]}
+{"id": "a8", "command": "dispatch", "handle": "1c79e563-0fbb-4ba8-ac4d-ee091f03e233:10:0"}
+{"id": "a9", "command": "query", "select": ["state", "actions"]}
+{"id": "a10", "command": "dispatch", "handle": "1c79e563-0fbb-4ba8-ac4d-ee091f03e233:11:0"}
+{"id": "a11", "command": "query", "select": ["state", "actions"]}
+{"id": "a12", "command": "dispatch", "handle": "1c79e563-0fbb-4ba8-ac4d-ee091f03e233:12:0"}
+{"id": "a13", "command": "query", "select": ["state", "actions"]}
+{"id": "a14", "command": "dispatch", "handle": "1c79e563-0fbb-4ba8-ac4d-ee091f03e233:13:1"}
+{"id": "a15", "command": "query", "select": ["state", "actions"]}
+{"id": "a16", "command": "exportScenario"}

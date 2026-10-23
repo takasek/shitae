@@ -1,0 +1,19 @@
+{
+  "inputHashesUnchanged": true,
+  "jsonWholeEqual": true,
+  "byteEqual": true,
+  "sha256A": "fe08f483426784f48e4ae56ece2eacf9dbe7f31f1bb433117ec9ff10eeafd16a",
+  "sha256B": "fe08f483426784f48e4ae56ece2eacf9dbe7f31f1bb433117ec9ff10eeafd16a",
+  "originalSteps": 8,
+  "continuedSteps": 14,
+  "exitA": {
+    "pid": 87779,
+    "exitCode": 0
+  },
+  "exitB": {
+    "pid": 89491,
+    "exitCode": 0
+  },
+  "stderrABytes": 0,
+  "stderrBBytes": 0
+}

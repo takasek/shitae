@@ -1,0 +1,2 @@
+{"id": "b1", "command": "query", "select": ["actions"]}
+{"id": "b2", "command": "exportScenario"}
