@@ -1,0 +1,9 @@
+{"id": "1", "command": "query", "select": ["state", "metadata"]}
+{"id": "2", "command": "query", "select": ["actions"]}
+{"id": "3", "command": "dispatch", "handle": "3b2c35c3-78ce-4812-aea2-1eb4eda9d420:14:1"}
+{"id": "4", "command": "query", "select": ["actions"]}
+{"id": "5", "command": "dispatch", "handle": "3b2c35c3-78ce-4812-aea2-1eb4eda9d420:15:2"}
+{"id": "6", "command": "query", "select": ["actions"]}
+{"id": "7", "command": "dispatch", "handle": "3b2c35c3-78ce-4812-aea2-1eb4eda9d420:16:1", "branch": "b0"}
+{"id": "8", "command": "query", "select": ["state", "metadata"]}
+{"id": "9", "command": "exportScenario"}

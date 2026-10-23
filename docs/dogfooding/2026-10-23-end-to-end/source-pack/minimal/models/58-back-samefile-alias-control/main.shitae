@@ -1,0 +1,6 @@
+import shared as x
+import shared as y
+# Start
+> Open -> push(x::Home) ; push(Details)
+# Details
+> Return -> back(y::Home)

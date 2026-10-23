@@ -1,0 +1,901 @@
+{
+  "format": "shitae-scenario",
+  "formatVersion": 1,
+  "protocolVersion": 1,
+  "model": {
+    "engineVersion": "683237908597a9e4f75adbb85d54f4a48397f388a4d5d60fb45f9a8b1ad950c7",
+    "modelId": "a0aafb42614ce449c93c650b85ff494e37cd660f0c94d63ccd49d63eebd4a845",
+    "entryModule": "main",
+    "sourceBasis": "source-bytes",
+    "manifest": [
+      {
+        "module": "a",
+        "sourceSha256": "c387d8cd9de34f17ff1a62d0e899061c5d297298b00b1de3e79cc2f3d92f2df3"
+      },
+      {
+        "module": "b",
+        "sourceSha256": "49ee26767532f9e9c074af1eea91ac700bb64e173409c0a8cebb5c0978442836"
+      },
+      {
+        "module": "main",
+        "sourceSha256": "1c55a4d2aa9c484b7cbe5410d43a0f27a1288a93f7392574028d60ae9943fc07"
+      }
+    ]
+  },
+  "initialDigest": "d567202c124ef3b80ce8faa4eed0b44bce101a87af52771e0d368bc0c2b27ca9",
+  "steps": [
+    {
+      "step": 1,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "main",
+            "component": "Screen",
+            "variant": null
+          },
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 51,
+              "length": 26,
+              "line": 5,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "ccd8c576bdcd45509b29afcd9a19ac52543cba6e29ab8f3bb86a3506b03e40c1"
+        },
+        "branch": null
+      },
+      "afterDigest": "72743c67fa3e2ce20d7bbb1a55cda725fa65150d494d7e16aacbbebca7da725a",
+      "observations": [
+        {
+          "viewDigest": "cd8b0f300075cf8ee009815f18e3728a9c2caff9947cfc8cebe55cfeb4c4bd30"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "overlays"
+        ]
+      },
+      "outputDigest": "4cd0a0d95765a7a1eec8255f5780ce1e54ff9288607da9d7d9a2932dd2be1e59"
+    },
+    {
+      "step": 2,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "main",
+            "component": "Screen",
+            "variant": null
+          },
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 78,
+              "length": 26,
+              "line": 6,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "93aa19498a3b3d838a76ff592fc4ce8854c015be6bbc34f223682cefb923b8c0"
+        },
+        "branch": null
+      },
+      "afterDigest": "87be2262448c889ebe43b5a4f0a3b342ad865d9337a914203dfda02da441c417",
+      "observations": [
+        {
+          "viewDigest": "cd8b0f300075cf8ee009815f18e3728a9c2caff9947cfc8cebe55cfeb4c4bd30"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": []
+      },
+      "outputDigest": "c33095ad62b7fb0a29ae3d9c4e0b01d455089050ac2d8ff127636b9790682af3"
+    },
+    {
+      "step": 3,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "main",
+            "component": "Screen",
+            "variant": null
+          },
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 105,
+              "length": 47,
+              "line": 7,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "e0fa6d19f61edbb5d9eb49b3d83665e45b42c44c1dd61dca4f45fd9351381dae"
+        },
+        "branch": null
+      },
+      "afterDigest": "ad21146e0b68a9530f10fb9fc9e3dc9012f126316700fb87b756dcb70751c3ec",
+      "observations": [
+        {
+          "viewDigest": "72ed110ef5f7329ae5b8a46640138af64d676e0f808866d2c9c7f3710b6fecb8"
+        },
+        {
+          "viewDigest": "5e52979f30afd85cd32b4534bafc6b98e5cb0ca731e36a2f11b3211f66ddb784"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "overlays"
+        ]
+      },
+      "outputDigest": "4cd0a0d95765a7a1eec8255f5780ce1e54ff9288607da9d7d9a2932dd2be1e59"
+    },
+    {
+      "step": 4,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "main",
+            "component": "Screen",
+            "variant": null
+          },
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 153,
+              "length": 33,
+              "line": 8,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "3947022d1a0d1bbc09ac6be7899ca1d2c016aa512e5ec4c26b57159f4e8708fc"
+        },
+        "branch": null
+      },
+      "afterDigest": "7f92480988993f3cba42820d4dd003733b550444495488807e977e4ca0a37fad",
+      "observations": [
+        {
+          "viewDigest": "b8b218fc09119eb6cdea8677498c06adba91acc309b240972e13370a3a0e7dd5"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "overlays"
+        ]
+      },
+      "outputDigest": "4cd0a0d95765a7a1eec8255f5780ce1e54ff9288607da9d7d9a2932dd2be1e59"
+    },
+    {
+      "step": 5,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "a",
+            "component": "Controller",
+            "variant": null
+          },
+          "source": {
+            "module": "a",
+            "span": {
+              "offset": 121,
+              "length": 23,
+              "line": 11,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "overlay:[\"a\",\"Controller\"]",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "9b6e2f6ee543cb7182f7afa8f16346008988b5c2fb6e30476d7d3a66d9ff62b0"
+        },
+        "branch": null
+      },
+      "afterDigest": "b964413eb8ecae4b973b3c5fce301e692584347ccb60c8e63d307e5bbe51c854",
+      "observations": [
+        {
+          "viewDigest": "0e2b108cd84ae4e841b7280d350030136f9de15cf27e95b5709ea742b4d4fd84"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "overlays"
+        ]
+      },
+      "outputDigest": "4cd0a0d95765a7a1eec8255f5780ce1e54ff9288607da9d7d9a2932dd2be1e59"
+    },
+    {
+      "step": 6,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "main",
+            "component": "Screen",
+            "variant": null
+          },
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 187,
+              "length": 59,
+              "line": 9,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "c0a054f57a32bdc07136e587059e6503bc8d19f9870747fd364dd91de26fc407"
+        },
+        "branch": null
+      },
+      "afterDigest": "67c0d0eb3a2c0ea58c05d969ee6db33c7a539c08193fa313f27be9a628b314fa",
+      "observations": [
+        {
+          "viewDigest": "2026dbd0dad2eb4113589fc76eb45d8117ca029d3c984f9ed4fce979caef09ee"
+        },
+        {
+          "viewDigest": "126358e4584c00520381bed057cf1611497ff0d4a4b1f5a92c9bf3cff173f227"
+        },
+        {
+          "viewDigest": "05c6a75f019af1c68811a100547f16122fe8b0dc5177d154e0cddcdbcf2de832"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 7,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "main",
+            "component": "Details",
+            "variant": null
+          },
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 257,
+              "length": 26,
+              "line": 11,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "061d19b1ed6f2c15bb7c64d828422cbe9d550fdb814745503c51868d5299d027"
+        },
+        "branch": null
+      },
+      "afterDigest": "0dacc3d389e651956f5087fac6b0742cc3d59f54fdfddc97df2ecb5a8a15096e",
+      "observations": [
+        {
+          "viewDigest": "2026dbd0dad2eb4113589fc76eb45d8117ca029d3c984f9ed4fce979caef09ee"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 8,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "b",
+            "component": "Notice",
+            "variant": "Idle"
+          },
+          "source": {
+            "module": "b",
+            "span": {
+              "offset": 23,
+              "length": 23,
+              "line": 4,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "overlay:[\"b\",\"Notice\"]",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "187df98b92182c179ecbb1b4cdfb2ae5c7bd63bb5f57d0fc16f74a6e1d87aed2"
+        },
+        "branch": null
+      },
+      "afterDigest": "c8cff9a07cf8e3be56969087d800e3d237b3932ca924a500bde1703e81a13a20",
+      "observations": [
+        {
+          "viewDigest": "2317835aa09276f286842ac4d3e69cc010e49a07e5c05550860a70890ad39ffc"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "overlays"
+        ]
+      },
+      "outputDigest": "4cd0a0d95765a7a1eec8255f5780ce1e54ff9288607da9d7d9a2932dd2be1e59"
+    }
+  ],
+  "final": {
+    "view": {
+      "view": {
+        "location": {
+          "module": "a",
+          "component": "Home",
+          "variant": null
+        },
+        "state": {
+          "frames": [
+            {
+              "id": 0,
+              "parentId": null,
+              "stack": [
+                {
+                  "module": "main",
+                  "component": "Screen",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                },
+                {
+                  "module": "a",
+                  "component": "Home",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                }
+              ],
+              "barrier": false,
+              "beginsSession": null,
+              "origin": "root"
+            }
+          ],
+          "activeFrameId": 0,
+          "nextFrameId": 1,
+          "activePath": [
+            0
+          ],
+          "overlays": [
+            {
+              "module": "a",
+              "component": "Controller",
+              "variant": null,
+              "singleton": false,
+              "scope": "overlay-entry",
+              "origin": "initial"
+            }
+          ],
+          "sharedVariants": [],
+          "testVariants": [],
+          "componentValues": [
+            {
+              "module": "a",
+              "component": "Controller",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "a",
+              "component": "Home",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "a",
+              "component": "Notice",
+              "variant": "Idle",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "b",
+              "component": "Home",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "b",
+              "component": "Notice",
+              "variant": "Idle",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "main",
+              "component": "Details",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "main",
+              "component": "Screen",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            }
+          ],
+          "gateTargets": [],
+          "inclusion": {
+            "main": {
+              "module": "a",
+              "component": "Home",
+              "root": "main",
+              "variant": null,
+              "singleton": false,
+              "scope": "frame-location",
+              "origin": "initial",
+              "source": {
+                "module": "a",
+                "span": {
+                  "offset": 0,
+                  "length": 6,
+                  "line": 1,
+                  "col": 1
+                }
+              },
+              "children": [
+                {
+                  "name": "ALabel",
+                  "root": "main",
+                  "path": [
+                    0
+                  ],
+                  "source": {
+                    "module": "a",
+                    "span": {
+                      "offset": 7,
+                      "length": 6,
+                      "line": 2,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "a",
+                    "component": "ALabel"
+                  },
+                  "kind": "unresolved",
+                  "children": []
+                }
+              ]
+            },
+            "overlays": [
+              {
+                "module": "a",
+                "component": "Controller",
+                "root": "overlay:[\"a\",\"Controller\"]",
+                "variant": null,
+                "singleton": false,
+                "scope": "overlay-entry",
+                "origin": "initial",
+                "source": {
+                  "module": "a",
+                  "span": {
+                    "offset": 108,
+                    "length": 12,
+                    "line": 10,
+                    "col": 1
+                  }
+                },
+                "children": []
+              }
+            ]
+          }
+        },
+        "actions": {
+          "items": [
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "a",
+                  "component": "Controller",
+                  "variant": null
+                },
+                "source": {
+                  "module": "a",
+                  "span": {
+                    "offset": 121,
+                    "length": 23,
+                    "line": 11,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "overlay:[\"a\",\"Controller\"]",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "9b6e2f6ee543cb7182f7afa8f16346008988b5c2fb6e30476d7d3a66d9ff62b0"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            }
+          ],
+          "back": {
+            "enabled": true,
+            "reason": null
+          }
+        }
+      },
+      "timeline": [
+        {
+          "resultIndex": null,
+          "source": null,
+          "kind": "transition",
+          "label": "起動",
+          "location": {
+            "module": "main",
+            "component": "Screen",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 0,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 51,
+              "length": 26,
+              "line": 5,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "show(Notice)",
+          "location": {
+            "module": "main",
+            "component": "Screen",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 1,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 78,
+              "length": 26,
+              "line": 6,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "hide(Notice)",
+          "location": {
+            "module": "main",
+            "component": "Screen",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 2,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 105,
+              "length": 47,
+              "line": 7,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "show(Notice)",
+          "location": {
+            "module": "main",
+            "component": "Screen",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 3,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 105,
+              "length": 47,
+              "line": 7,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "show(Controller)",
+          "location": {
+            "module": "main",
+            "component": "Screen",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 3,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 153,
+              "length": 33,
+              "line": 8,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "show(Notice)",
+          "location": {
+            "module": "main",
+            "component": "Screen",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 4,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "a",
+            "span": {
+              "offset": 121,
+              "length": 23,
+              "line": 11,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "hide(Notice)",
+          "location": {
+            "module": "main",
+            "component": "Screen",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 5,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 187,
+              "length": 59,
+              "line": 9,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "push → Home",
+          "location": {
+            "module": "a",
+            "component": "Home",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 6,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 187,
+              "length": 59,
+              "line": 9,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "push → Home",
+          "location": {
+            "module": "b",
+            "component": "Home",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 6,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 2,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 187,
+              "length": 59,
+              "line": 9,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "push → Details",
+          "location": {
+            "module": "main",
+            "component": "Details",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 6,
+            "observation": 2
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 257,
+              "length": 26,
+              "line": 11,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "back → Home",
+          "location": {
+            "module": "a",
+            "component": "Home",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 7,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "b",
+            "span": {
+              "offset": 23,
+              "length": 23,
+              "line": 4,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "hide(Notice)",
+          "location": {
+            "module": "a",
+            "component": "Home",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 8,
+            "observation": 0
+          }
+        }
+      ],
+      "cursor": {
+        "step": 8,
+        "observation": 0
+      }
+    },
+    "digest": "c8cff9a07cf8e3be56969087d800e3d237b3932ca924a500bde1703e81a13a20"
+  }
+}

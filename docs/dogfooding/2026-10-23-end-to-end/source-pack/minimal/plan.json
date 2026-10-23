@@ -1,0 +1,394 @@
+[
+  {
+    "id": "19-cross-collection-valid",
+    "intent": "Use a collection of regular library Cards while a local singleton happens to be named Card.",
+    "why": "Modules intentionally permit same names; unrelated local singleton must not affect imported regular component.",
+    "expected": "check should have no E028 for *lib::Card because lib Card is regular.",
+    "model": "19-cross-collection-valid/main.shitae",
+    "steps": [
+      {
+        "query": [
+          "state",
+          "actions",
+          "metadata"
+        ]
+      }
+    ],
+    "check_only": false,
+    "spec_assertions": {
+      "exit": 0,
+      "E028": false
+    },
+    "known_failure_at_pinned_sha": true
+  },
+  {
+    "id": "20-cross-collection-invalid",
+    "intent": "Declare imported singleton Card as a collection.",
+    "why": "Catch a real singleton-collection modeling contradiction across modules.",
+    "expected": "check must emit E028 even without same-named local singleton.",
+    "model": "20-cross-collection-invalid/main.shitae",
+    "steps": [],
+    "check_only": true,
+    "spec_assertions": {
+      "exit": 1,
+      "E028": true
+    },
+    "known_failure_at_pinned_sha": true
+  },
+  {
+    "id": "25-local-collection-invalid",
+    "intent": "Reject direct collection of a local singleton.",
+    "why": "Positive control isolates a module resolution bug from a completely missing E028 checker.",
+    "expected": "E028 for local *Card.",
+    "model": "25-local-collection-invalid/main.shitae",
+    "steps": [],
+    "check_only": true,
+    "spec_assertions": {
+      "exit": 1,
+      "E028": true
+    },
+    "known_failure_at_pinned_sha": false
+  },
+  {
+    "id": "26-cross-action-valid",
+    "intent": "Permit collection-wide action on regular imported Card despite local same-named singleton.",
+    "why": "The declaration error should not be generalized to all cross-module E028 paths.",
+    "expected": "No E028 for > Tap(*lib::Card).",
+    "model": "26-cross-action-valid/main.shitae",
+    "steps": [],
+    "check_only": true,
+    "spec_assertions": {
+      "exit": 0,
+      "E028": false
+    },
+    "known_failure_at_pinned_sha": false
+  },
+  {
+    "id": "27-cross-action-invalid",
+    "intent": "Reject collection-wide action on imported singleton.",
+    "why": "Negative control for a distinct checker path.",
+    "expected": "E028 for > Tap(*lib::Card) resolving lib singleton.",
+    "model": "27-cross-action-invalid/main.shitae",
+    "steps": [],
+    "check_only": true,
+    "spec_assertions": {
+      "exit": 1,
+      "E028": true
+    },
+    "known_failure_at_pinned_sha": false
+  },
+  {
+    "id": "31-component-show-control",
+    "intent": "Show a singleton with explicit variant from a component.",
+    "why": "Positive diagnostic control for 30.",
+    "expected": "W106 warns that show mutates shared state.",
+    "model": "31-component-show-control/main.shitae",
+    "steps": [
+      {
+        "query": [
+          "state",
+          "actions",
+          "metadata"
+        ]
+      },
+      {
+        "action": "Notify"
+      },
+      {
+        "query": [
+          "state",
+          "actions"
+        ]
+      }
+    ],
+    "check_only": false,
+    "spec_assertions": {
+      "exit": 0,
+      "W106": true
+    },
+    "known_failure_at_pinned_sha": false
+  },
+  {
+    "id": "38-common-show-rollback",
+    "intent": "Save Status, then receive a global notification which should only display status.",
+    "why": "Moving a per-screen show handler into document common is normal deduplication; an explicit initial variant in a display call can reset shared state.",
+    "expected": "Author intended display-only, but code explicitly requests Clean; runtime should reset Saved→Clean. Missing W106 is the diagnostic defect, not the state change.",
+    "model": "38-common-show-rollback/main.shitae",
+    "steps": [
+      {
+        "query": [
+          "state",
+          "actions",
+          "metadata"
+        ]
+      },
+      {
+        "action": "Save"
+      },
+      {
+        "query": [
+          "state",
+          "actions"
+        ]
+      },
+      {
+        "action": "Next"
+      },
+      {
+        "action": "Notify",
+        "detail": true
+      },
+      {
+        "query": [
+          "state",
+          "actions"
+        ]
+      }
+    ],
+    "check_only": false,
+    "spec_assertions": {
+      "exit": 0,
+      "W106": true,
+      "shared": [
+        "main",
+        "Status",
+        "Clean"
+      ]
+    },
+    "known_failure_at_pinned_sha": true
+  },
+  {
+    "id": "39-common-show-retain",
+    "intent": "After saving, display current Status using show(Status).",
+    "why": "Correct display-only counterpart for 38.",
+    "expected": "No W106, Saved survives and overlay shows Saved.",
+    "model": "39-common-show-retain/main.shitae",
+    "steps": [
+      {
+        "query": [
+          "state",
+          "actions",
+          "metadata"
+        ]
+      },
+      {
+        "action": "Save"
+      },
+      {
+        "query": [
+          "state",
+          "actions"
+        ]
+      },
+      {
+        "action": "Next"
+      },
+      {
+        "action": "Notify"
+      },
+      {
+        "query": [
+          "state",
+          "actions"
+        ]
+      }
+    ],
+    "check_only": false,
+    "spec_assertions": {
+      "exit": 0,
+      "W106": false,
+      "shared": [
+        "main",
+        "Status",
+        "Saved"
+      ]
+    },
+    "known_failure_at_pinned_sha": false
+  },
+  {
+    "id": "40-common-show-regular",
+    "intent": "Display a normal overlay in chosen variant from document common.",
+    "why": "Explicit variant for a non-singleton overlay is legitimate, so warning must not become overbroad.",
+    "expected": "No W106; overlay Displayed changes only its own overlay variant.",
+    "model": "40-common-show-regular/main.shitae",
+    "steps": [
+      {
+        "query": [
+          "state",
+          "actions",
+          "metadata"
+        ]
+      },
+      {
+        "action": "Notify"
+      },
+      {
+        "query": [
+          "state",
+          "actions"
+        ]
+      }
+    ],
+    "check_only": false,
+    "spec_assertions": {
+      "exit": 0,
+      "W106": false
+    },
+    "known_failure_at_pinned_sha": false
+  },
+  {
+    "id": "49-qualified-back-collision",
+    "intent": "Return to A Home after passing through same-named B Home.",
+    "why": "Modular features naturally each define Home or Detail; explicit module qualification is how the language promises to distinguish them.",
+    "expected": "back(a::Home) must return a::Home, discarding b::Home and Details; not return closest name regardless of module.",
+    "model": "49-qualified-back-collision/main.shitae",
+    "steps": [
+      {
+        "query": [
+          "state",
+          "actions",
+          "metadata"
+        ]
+      },
+      {
+        "action": "Open"
+      },
+      {
+        "query": [
+          "state",
+          "actions"
+        ]
+      },
+      {
+        "action": "ReturnA",
+        "detail": true
+      },
+      {
+        "query": [
+          "state",
+          "actions"
+        ]
+      }
+    ],
+    "check_only": false,
+    "spec_assertions": {
+      "exit": 0,
+      "location": [
+        "a",
+        "Home"
+      ]
+    },
+    "known_failure_at_pinned_sha": true
+  },
+  {
+    "id": "50-qualified-back-absent",
+    "intent": "Target B Home when only A Home is in current history.",
+    "why": "A stale navigation route should warn rather than accidentally navigate to a different feature with the same screen name.",
+    "expected": "back(b::Home) must no-op with R004; B Home exists as definition but not in history.",
+    "model": "50-qualified-back-absent/main.shitae",
+    "steps": [
+      {
+        "query": [
+          "state",
+          "actions",
+          "metadata"
+        ]
+      },
+      {
+        "action": "Open"
+      },
+      {
+        "action": "ReturnB"
+      },
+      {
+        "query": [
+          "state",
+          "actions"
+        ]
+      }
+    ],
+    "check_only": false,
+    "spec_assertions": {
+      "exit": 0,
+      "location": [
+        "main",
+        "Details"
+      ]
+    },
+    "known_failure_at_pinned_sha": true
+  },
+  {
+    "id": "51-qualified-back-unique-control",
+    "intent": "Return to A Home when B screen has a distinct name.",
+    "why": "Benign control confirms ordinary named back works without collisions.",
+    "expected": "back(a::Home) correctly returns a::Home.",
+    "model": "51-qualified-back-unique-control/main.shitae",
+    "steps": [
+      {
+        "query": [
+          "state",
+          "actions",
+          "metadata"
+        ]
+      },
+      {
+        "action": "Open"
+      },
+      {
+        "action": "ReturnA"
+      },
+      {
+        "query": [
+          "state",
+          "actions"
+        ]
+      }
+    ],
+    "check_only": false,
+    "spec_assertions": {
+      "exit": 0,
+      "location": [
+        "a",
+        "Home"
+      ]
+    },
+    "known_failure_at_pinned_sha": false
+  },
+  {
+    "id": "58-back-samefile-alias-control",
+    "intent": "Return to same file Home using a different import alias.",
+    "why": "A fix must compare canonical module identity, not import alias spelling.",
+    "expected": "Home pushed via x and back via y are same component; correctly return shared::Home.",
+    "model": "58-back-samefile-alias-control/main.shitae",
+    "steps": [
+      {
+        "query": [
+          "state",
+          "actions",
+          "metadata"
+        ]
+      },
+      {
+        "action": "Open"
+      },
+      {
+        "action": "Return"
+      },
+      {
+        "query": [
+          "state",
+          "actions"
+        ]
+      }
+    ],
+    "check_only": false,
+    "spec_assertions": {
+      "exit": 0,
+      "location": [
+        "shared",
+        "Home"
+      ]
+    },
+    "known_failure_at_pinned_sha": false
+  }
+]

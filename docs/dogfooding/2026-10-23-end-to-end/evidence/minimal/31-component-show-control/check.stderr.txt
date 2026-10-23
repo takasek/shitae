@@ -1,0 +1,1 @@
+/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/minimal/models/31-component-show-control/main.shitae:2: [warning] W106: show(Status##Clean) は singleton の共有状態を書き換える（表示だけなら show(Status)、遷移せず書き換えるなら set(Status##Clean) ; show(Status) に分解できる。「オーバーレイ」参照）

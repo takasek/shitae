@@ -1,0 +1,9 @@
+{"id": "1", "command": "query", "select": ["actions"]}
+{"id": "2", "command": "dispatch", "handle": "de0819d1-3fc3-40c8-8d83-a2091f2254f3:0:0"}
+{"id": "3", "command": "query", "select": ["actions"]}
+{"id": "4", "command": "dispatch", "handle": "de0819d1-3fc3-40c8-8d83-a2091f2254f3:1:1"}
+{"id": "5", "command": "query", "select": ["state", "metadata"]}
+{"id": "6", "command": "query", "select": ["actions"]}
+{"id": "7", "command": "dispatch", "handle": "de0819d1-3fc3-40c8-8d83-a2091f2254f3:2:2"}
+{"id": "8", "command": "query", "select": ["state", "metadata"]}
+{"id": "9", "command": "exportScenario"}

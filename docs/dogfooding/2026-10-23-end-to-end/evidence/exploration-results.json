@@ -1,0 +1,22 @@
+[
+  {
+    "version": "r2_1",
+    "policy": "same-origin",
+    "pass": true
+  },
+  {
+    "version": "r2_1",
+    "policy": "other-origin",
+    "pass": true
+  },
+  {
+    "version": "refactor_candidate",
+    "policy": "same-origin",
+    "pass": true
+  },
+  {
+    "version": "refactor_candidate",
+    "policy": "other-origin",
+    "pass": true
+  }
+]

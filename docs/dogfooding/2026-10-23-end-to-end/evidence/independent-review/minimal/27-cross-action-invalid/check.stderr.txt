@@ -1,0 +1,1 @@
+/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/minimal/models/27-cross-action-invalid/main.shitae:3: [error] E028: singleton 'Card' に collection の * は付けられない（単一インスタンス。「singleton component」参照）

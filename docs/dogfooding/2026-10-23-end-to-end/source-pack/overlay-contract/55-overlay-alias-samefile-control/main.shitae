@@ -1,0 +1,6 @@
+import a as x
+import a as y
+# Screen
+> ShowX -> show(x::Notice)
+> ShowY -> show(y::Notice)
+> HideX -> hide(x::Notice)

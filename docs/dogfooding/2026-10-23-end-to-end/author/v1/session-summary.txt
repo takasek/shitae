@@ -1,0 +1,8 @@
+詳細を見る {"location": {"module": "visit", "component": "施設詳細", "variant": null}, "cursorObservationId": 2, "latestObservationId": 2, "observationCount": 2}
+見学を予約する {"location": {"module": "visit", "component": "予約確認", "variant": "現地案内"}, "cursorObservationId": 3, "latestObservationId": 3, "observationCount": 3}
+オンライン案内を選ぶ {"location": {"module": "visit", "component": "予約確認", "variant": "オンライン案内"}, "cursorObservationId": 4, "latestObservationId": 4, "observationCount": 4}
+取り消す {"location": {"module": "visit", "component": "施設詳細", "variant": null}, "cursorObservationId": 5, "latestObservationId": 5, "observationCount": 5}
+見学を予約する {"location": {"module": "visit", "component": "予約確認", "variant": "現地案内"}, "cursorObservationId": 6, "latestObservationId": 6, "observationCount": 6}
+確定する {"location": {"module": "visit", "component": "施設詳細", "variant": null}, "cursorObservationId": 8, "latestObservationId": 8, "observationCount": 8}
+一覧へ戻る {"location": {"module": "visit", "component": "施設一覧", "variant": null}, "cursorObservationId": 9, "latestObservationId": 9, "observationCount": 9}
+詳細を見る {"location": {"module": "visit", "component": "施設詳細", "variant": null}, "cursorObservationId": 10, "latestObservationId": 10, "observationCount": 10}

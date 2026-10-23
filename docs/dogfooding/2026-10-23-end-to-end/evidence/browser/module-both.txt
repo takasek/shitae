@@ -1,0 +1,98 @@
+- text: "操作を続ける位置: 記録4「Again」 / 試した条件：なし / 結果1 / 状態1 / Screen"
+- button "現在の操作位置を一覧で見る"
+- status
+- complementary:
+  - generic: 操作来歴（統合ログ）
+  - generic: ナビゲーション履歴。実行された遷移の列を操作ごとに表示します。新しい記録が上。記録の見出しで詳細を開閉し、結果ごとに画面を閲覧できます。操作を続ける位置の変更は別の確認で確定します。文章のみの地点は閲覧・再開できません。
+  - checkbox "イベントを表示" [checked]
+  - text: イベントを表示
+  - paragraph: effect・状態変更・診断などの状態点を切り替えます。操作・位置変更の記録は消しません。
+  - paragraph: 記録には位置の変更・reset前・手動試験も含みます。再開できる地点は、一つの結果の途中も含む保存された状態です。
+  - generic "技術詳細：履歴の保持件数"
+  - text: 現在まで 6地点 / 後の履歴 0地点 / 文章のみ 0地点
+  - button "記録4 · 操作 · Again"
+  - paragraph: 試した条件：なし / 結果 1件 / 閲覧・再開可
+  - 'button "この操作の最後に保存された状態を見る: 記録4「Again」 / 試した条件：なし / 結果1 / 状態1 / Screen"'
+  - button "記録3 · 操作 · Both"
+  - paragraph: 試した条件：なし / 結果 2件 / 閲覧・再開可
+  - 'button "この操作の最後に保存された状態を見る: 記録3「Both」 / 試した条件：なし / 結果2 / 状態1 / Screen"'
+  - button "記録2 · 操作 · HideB"
+  - paragraph: 試した条件：なし / 結果 1件 / 閲覧・再開可
+  - 'button "この操作の最後に保存された状態を見る: 記録2「HideB」 / 試した条件：なし / 結果1 / 状態1 / Screen"'
+  - button "記録1 · 操作 · ShowA"
+  - paragraph: 試した条件：なし / 結果 1件 / 閲覧・再開可
+  - 'button "この操作の最後に保存された状態を見る: 記録1「ShowA」 / 試した条件：なし / 結果1 / 状態1 / Screen"'
+  - paragraph: "起点: 起動 / Screen · 閲覧・再開可"
+  - button "画面を見る"
+  - button "この時点から続ける…"
+  - paragraph: 検討手順は、修正版を人が試し直すための文章です。自動移行や初回入門用ではありません。
+  - paragraph:
+    - button "検討手順を表示"
+    - button "検討手順を書出し"
+- main:
+  - generic: 操作を続ける画面
+  - paragraph: 操作して、表示・戻り先・状態の残り方を確かめるUIフローの下書きです。商品や入力内容は模式表示です。
+  - generic "下書き・残り方・試し方を理解する"
+  - button "操作の再生ファイルを保存"
+  - text: 操作の再生ファイルを読み込む
+  - button "操作の再生ファイルを読み込む"
+  - generic "保存範囲・版・再開方法"
+  - generic: Screen
+  - button "ShowA 定義内の共通操作（component common）":
+    - generic: ShowA
+    - generic "この画面・部品の定義（component）の全状態パターンに共通する操作。対象の存在判定は別に行います": 定義内の共通操作（component common）
+  - generic "操作の詳細"
+  - button "HideB 定義内の共通操作（component common）":
+    - generic: HideB
+    - generic "この画面・部品の定義（component）の全状態パターンに共通する操作。対象の存在判定は別に行います": 定義内の共通操作（component common）
+  - generic "操作の詳細"
+  - button "Both 定義内の共通操作（component common）":
+    - generic: Both
+    - generic "この画面・部品の定義（component）の全状態パターンに共通する操作。対象の存在判定は別に行います": 定義内の共通操作（component common）
+  - generic "操作の詳細"
+  - button "Again 定義内の共通操作（component common）" [active]:
+    - generic: Again
+    - generic "この画面・部品の定義（component）の全状態パターンに共通する操作。対象の存在判定は別に行います": 定義内の共通操作（component common）
+  - generic "操作の詳細"
+  - button "BackFlow 定義内の共通操作（component common）":
+    - generic: BackFlow
+    - generic "この画面・部品の定義（component）の全状態パターンに共通する操作。対象の存在判定は別に行います": 定義内の共通操作（component common）
+  - generic "操作の詳細"
+  - generic: 独立表示中（hide するまで残ります）
+  - generic: a::Notice
+  - generic: "## Ready"
+  - generic: signal
+  - button "Check(signal) 定義内の共通操作（component common）":
+    - generic: Check(signal)
+    - generic "この画面・部品の定義（component）の全状態パターンに共通する操作。対象の存在判定は別に行います": 定義内の共通操作（component common）
+  - generic "操作の詳細"
+  - button "Close 定義内の共通操作（component common）":
+    - generic: Close
+    - generic "この画面・部品の定義（component）の全状態パターンに共通する操作。対象の存在判定は別に行います": 定義内の共通操作（component common）
+  - generic "操作の詳細"
+  - generic: 独立表示中（hide するまで残ります）
+  - generic: b::Notice
+  - generic: "## Idle"
+  - generic: BLabel
+  - button "Close 定義内の共通操作（component common）":
+    - generic: Close
+    - generic "この画面・部品の定義（component）の全状態パターンに共通する操作。対象の存在判定は別に行います": 定義内の共通操作（component common）
+  - generic "操作の詳細"
+  - generic: 独立表示中（hide するまで残ります）
+  - generic: Controller
+  - button "HideA 定義内の共通操作（component common）":
+    - generic: HideA
+    - generic "この画面・部品の定義（component）の全状態パターンに共通する操作。対象の存在判定は別に行います": 定義内の共通操作（component common）
+  - generic "操作の詳細"
+  - generic "表示設定・検討用に状態を設定"
+  - button "初期状態から新しく試す…"
+  - generic "現在の操作位置のスタック"
+  - generic: 今積み重なっている画面。プッシュダウン構成として読める。上が現在地
+  - generic: Screen
+  - generic "残っている作業（現在の経路外 0件）"
+  - generic "遷移マップ"
+  - generic: 定義から得られる関係の静的な概観です。状態遷移図として読める一方、back・dismiss の戻り先や set による状態変更を含む、現在の試行の完全な実行経路ではありません。戻り先は操作と履歴、状態変更は状態表示、残存作業は「残っている作業」で確認します。
+  - generic: 遷移関係自体は閲覧専用です（ノードをクリックしても画面は遷移しません）。既定は現在の画面から近い範囲だけを表示し（近傍表示）、「全体を見る」で全ノードへ切替わります。現在の画面.本体に対応するノードを強調表示します。ノードにカーソルを合わせると詳細を表示し、クリックすると詳細を固定表示できます（variant を持つノードは、固定表示した詳細から分割 / 統合を切り替えられます）。
+  - button "設定を保存"
+  - checkbox "全体を見る"
+  - text: 全体を見る

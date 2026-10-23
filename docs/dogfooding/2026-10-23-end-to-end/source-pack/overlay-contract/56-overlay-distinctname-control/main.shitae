@@ -1,0 +1,6 @@
+import a as a
+import b as b
+# Screen
+> ShowA -> show(a::Notice)
+> ShowB -> show(b::Banner)
+> HideA -> hide(a::Notice)

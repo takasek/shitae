@@ -1,0 +1,5 @@
+{"id": "1", "command": "query", "select": ["state", "actions", "metadata"]}
+{"id": "2", "command": "query", "select": ["actions"]}
+{"id": "3", "command": "dispatch", "handle": "633611fa-9983-4512-8ee4-be8f35097ab9:0:0"}
+{"id": "4", "command": "query", "select": ["state", "actions"]}
+{"id": "5", "command": "query", "select": ["state"]}

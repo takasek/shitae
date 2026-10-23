@@ -1,0 +1,3 @@
+{"id": "1", "command": "query", "select": ["state", "actions", "metadata"]}
+{"id": "2", "command": "exportScenario"}
+{"id": "3", "command": "exportScenario"}

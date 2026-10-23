@@ -1,0 +1,30 @@
+{"id": "1", "command": "query", "select": ["state", "actions", "metadata"]}
+{"id": "2", "command": "exportScenario"}
+{"id": "3", "command": "query", "select": ["state", "actions"]}
+{"id": "4", "command": "dispatch", "handle": "59d24af1-a95c-42c0-b849-c6302a2efb05:9:1"}
+{"id": "5", "command": "query", "select": ["state", "actions"]}
+{"id": "6", "command": "query", "select": ["state", "actions"]}
+{"id": "7", "command": "dispatch", "handle": "59d24af1-a95c-42c0-b849-c6302a2efb05:10:2"}
+{"id": "8", "command": "query", "select": ["state", "actions"]}
+{"id": "9", "command": "query", "select": ["state", "actions"]}
+{"id": "10", "command": "dispatch", "handle": "59d24af1-a95c-42c0-b849-c6302a2efb05:11:0"}
+{"id": "11", "command": "query", "select": ["state", "actions"]}
+{"id": "12", "command": "query", "select": ["state", "actions"]}
+{"id": "13", "command": "dispatch", "handle": "59d24af1-a95c-42c0-b849-c6302a2efb05:12:1"}
+{"id": "14", "command": "query", "select": ["state", "actions"]}
+{"id": "15", "command": "query", "select": ["state", "actions"]}
+{"id": "16", "command": "dispatch", "handle": "59d24af1-a95c-42c0-b849-c6302a2efb05:13:2"}
+{"id": "17", "command": "query", "select": ["state", "actions"]}
+{"id": "18", "command": "query", "select": ["state", "actions"]}
+{"id": "19", "command": "dispatch", "handle": "59d24af1-a95c-42c0-b849-c6302a2efb05:14:1"}
+{"id": "20", "command": "query", "select": ["state", "actions"]}
+{"id": "21", "command": "query", "select": ["state", "actions"]}
+{"id": "22", "command": "dispatch", "handle": "59d24af1-a95c-42c0-b849-c6302a2efb05:15:2"}
+{"id": "23", "command": "query", "select": ["state", "actions"]}
+{"id": "24", "command": "query", "select": ["state", "actions"]}
+{"id": "25", "command": "dispatch", "handle": "59d24af1-a95c-42c0-b849-c6302a2efb05:16:0"}
+{"id": "26", "command": "query", "select": ["state", "actions"]}
+{"id": "27", "command": "query", "select": ["state", "actions"]}
+{"id": "28", "command": "dispatch", "handle": "59d24af1-a95c-42c0-b849-c6302a2efb05:17:0"}
+{"id": "29", "command": "query", "select": ["state", "actions"]}
+{"id": "30", "command": "exportScenario"}

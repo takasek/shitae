@@ -1,0 +1,215 @@
+{
+  "id": "4",
+  "ok": true,
+  "protocolVersion": 1,
+  "revision": 8,
+  "summary": {
+    "location": {
+      "module": "a",
+      "component": "Home",
+      "variant": null
+    },
+    "cursorObservationId": 12,
+    "latestObservationId": 12,
+    "observationCount": 12
+  },
+  "data": {
+    "state": {
+      "frames": [
+        {
+          "id": 0,
+          "parentId": null,
+          "stack": [
+            {
+              "module": "main",
+              "component": "Screen",
+              "variant": null,
+              "singleton": false,
+              "scope": "frame-location",
+              "origin": "initial"
+            },
+            {
+              "module": "a",
+              "component": "Home",
+              "variant": null,
+              "singleton": false,
+              "scope": "frame-location",
+              "origin": "initial"
+            }
+          ],
+          "barrier": false,
+          "beginsSession": null,
+          "origin": "root"
+        }
+      ],
+      "activeFrameId": 0,
+      "nextFrameId": 1,
+      "activePath": [
+        0
+      ],
+      "overlays": [
+        {
+          "module": "a",
+          "component": "Controller",
+          "variant": null,
+          "singleton": false,
+          "scope": "overlay-entry",
+          "origin": "initial"
+        }
+      ],
+      "sharedVariants": [],
+      "testVariants": [],
+      "componentValues": [
+        {
+          "module": "main",
+          "component": "Screen",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "main",
+          "component": "Details",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "a",
+          "component": "Home",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "a",
+          "component": "Notice",
+          "variant": "Idle",
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "a",
+          "component": "Controller",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "b",
+          "component": "Home",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "b",
+          "component": "Notice",
+          "variant": "Idle",
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        }
+      ],
+      "gateTargets": [],
+      "inclusion": {
+        "main": {
+          "module": "a",
+          "component": "Home",
+          "root": "main",
+          "variant": null,
+          "singleton": false,
+          "scope": "frame-location",
+          "origin": "initial",
+          "source": {
+            "module": "a",
+            "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/stress-test/cases/module-identity-20261023/a.shitae",
+            "span": {
+              "offset": 0,
+              "length": 6,
+              "line": 1,
+              "col": 1
+            }
+          },
+          "children": [
+            {
+              "name": "ALabel",
+              "root": "main",
+              "path": [
+                0
+              ],
+              "source": {
+                "module": "a",
+                "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/stress-test/cases/module-identity-20261023/a.shitae",
+                "span": {
+                  "offset": 7,
+                  "length": 6,
+                  "line": 2,
+                  "col": 1
+                }
+              },
+              "collection": false,
+              "reference": {
+                "module": "a",
+                "component": "ALabel"
+              },
+              "kind": "unresolved",
+              "children": []
+            }
+          ]
+        },
+        "overlays": [
+          {
+            "module": "a",
+            "component": "Controller",
+            "root": "overlay:[\"a\",\"Controller\"]",
+            "variant": null,
+            "singleton": false,
+            "scope": "overlay-entry",
+            "origin": "initial",
+            "source": {
+              "module": "a",
+              "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/stress-test/cases/module-identity-20261023/a.shitae",
+              "span": {
+                "offset": 108,
+                "length": 12,
+                "line": 10,
+                "col": 1
+              }
+            },
+            "children": []
+          }
+        ]
+      }
+    },
+    "metadata": {
+      "engineVersion": "683237908597a9e4f75adbb85d54f4a48397f388a4d5d60fb45f9a8b1ad950c7",
+      "entryModule": "main",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "a",
+          "sourceSha256": "c387d8cd9de34f17ff1a62d0e899061c5d297298b00b1de3e79cc2f3d92f2df3",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/stress-test/cases/module-identity-20261023/a.shitae"
+        },
+        {
+          "module": "b",
+          "sourceSha256": "49ee26767532f9e9c074af1eea91ac700bb64e173409c0a8cebb5c0978442836",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/stress-test/cases/module-identity-20261023/b.shitae"
+        },
+        {
+          "module": "main",
+          "sourceSha256": "1c55a4d2aa9c484b7cbe5410d43a0f27a1288a93f7392574028d60ae9943fc07",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/stress-test/cases/module-identity-20261023/main.shitae"
+        }
+      ],
+      "modelId": "a0aafb42614ce449c93c650b85ff494e37cd660f0c94d63ccd49d63eebd4a845"
+    }
+  }
+}

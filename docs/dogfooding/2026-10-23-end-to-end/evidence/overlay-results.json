@@ -1,0 +1,18 @@
+[
+  {
+    "case": "54-hide-unposted-module",
+    "pass": true
+  },
+  {
+    "case": "55-overlay-alias-samefile-control",
+    "pass": true
+  },
+  {
+    "case": "56-overlay-distinctname-control",
+    "pass": true
+  },
+  {
+    "case": "58-overlay-source-lexical-hide",
+    "pass": true
+  }
+]

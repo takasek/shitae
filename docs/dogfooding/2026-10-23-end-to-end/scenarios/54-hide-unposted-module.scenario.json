@@ -1,0 +1,395 @@
+{
+  "format": "shitae-scenario",
+  "formatVersion": 1,
+  "protocolVersion": 1,
+  "model": {
+    "engineVersion": "683237908597a9e4f75adbb85d54f4a48397f388a4d5d60fb45f9a8b1ad950c7",
+    "modelId": "e22370e13c6fa1e2b06ffe0e97d5fd46967ec04e793cfb0e2e47db642a48f231",
+    "entryModule": "main",
+    "sourceBasis": "source-bytes",
+    "manifest": [
+      {
+        "module": "a",
+        "sourceSha256": "e101e968c331177f663b3d57ef3c0292de150e08f2979484ee53e1e853fc3c8a"
+      },
+      {
+        "module": "b",
+        "sourceSha256": "93871968e1c643d2187ccd5b6b47fd1e50a99df3e1edb95c21201bb2632e8bbd"
+      },
+      {
+        "module": "main",
+        "sourceSha256": "5b172f89847e486bc621c087611ac70eb78ffbf72d6c8ed0a9e7c84c02730574"
+      }
+    ]
+  },
+  "initialDigest": "dac1aa9954313a2d230d20cd0d7e0993154dfc72c317df83fbfd082d08fbb8bb",
+  "steps": [
+    {
+      "step": 1,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "main",
+            "component": "Screen",
+            "variant": null
+          },
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 37,
+              "length": 26,
+              "line": 4,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "70189d61f7dc67a53e9f5d4d92d25a9c51ffe0c56512f183c0dfe8765aa82d46"
+        },
+        "branch": null
+      },
+      "afterDigest": "d9f9729e7105cbda9d8f96ad6a91410f17e7f5622f83131d982f3264acbf6e3d",
+      "observations": [
+        {
+          "viewDigest": "852f1328cd662e15962ede489053955bcd90478a79d454af71599ac731f7d0cd"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "overlays"
+        ]
+      },
+      "outputDigest": "4cd0a0d95765a7a1eec8255f5780ce1e54ff9288607da9d7d9a2932dd2be1e59"
+    },
+    {
+      "step": 2,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "main",
+            "component": "Screen",
+            "variant": null
+          },
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 64,
+              "length": 26,
+              "line": 5,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "627718850ea81d444b273394d962de1a44b6f0094cb44417b7fb4fe4dd4ba568"
+        },
+        "branch": null
+      },
+      "afterDigest": "0bd9ddf029b576b7847587709226fdafef1c831fad35bddee254f631fe3049d6",
+      "observations": [
+        {
+          "viewDigest": "852f1328cd662e15962ede489053955bcd90478a79d454af71599ac731f7d0cd"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": []
+      },
+      "outputDigest": "c33095ad62b7fb0a29ae3d9c4e0b01d455089050ac2d8ff127636b9790682af3"
+    }
+  ],
+  "final": {
+    "view": {
+      "view": {
+        "location": {
+          "module": "main",
+          "component": "Screen",
+          "variant": null
+        },
+        "state": {
+          "frames": [
+            {
+              "id": 0,
+              "parentId": null,
+              "stack": [
+                {
+                  "module": "main",
+                  "component": "Screen",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                }
+              ],
+              "barrier": false,
+              "beginsSession": null,
+              "origin": "root"
+            }
+          ],
+          "activeFrameId": 0,
+          "nextFrameId": 1,
+          "activePath": [
+            0
+          ],
+          "overlays": [
+            {
+              "module": "a",
+              "component": "Notice",
+              "variant": null,
+              "singleton": false,
+              "scope": "overlay-entry",
+              "origin": "initial"
+            }
+          ],
+          "sharedVariants": [],
+          "testVariants": [],
+          "componentValues": [
+            {
+              "module": "a",
+              "component": "Notice",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "b",
+              "component": "Notice",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "main",
+              "component": "Screen",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            }
+          ],
+          "gateTargets": [],
+          "inclusion": {
+            "main": {
+              "module": "main",
+              "component": "Screen",
+              "root": "main",
+              "variant": null,
+              "singleton": false,
+              "scope": "frame-location",
+              "origin": "initial",
+              "source": {
+                "module": "main",
+                "span": {
+                  "offset": 28,
+                  "length": 8,
+                  "line": 3,
+                  "col": 1
+                }
+              },
+              "children": []
+            },
+            "overlays": [
+              {
+                "module": "a",
+                "component": "Notice",
+                "root": "overlay:[\"a\",\"Notice\"]",
+                "variant": null,
+                "singleton": false,
+                "scope": "overlay-entry",
+                "origin": "initial",
+                "source": {
+                  "module": "a",
+                  "span": {
+                    "offset": 0,
+                    "length": 8,
+                    "line": 1,
+                    "col": 1
+                  }
+                },
+                "children": [
+                  {
+                    "name": "ANotice",
+                    "root": "overlay:[\"a\",\"Notice\"]",
+                    "path": [
+                      0
+                    ],
+                    "source": {
+                      "module": "a",
+                      "span": {
+                        "offset": 9,
+                        "length": 7,
+                        "line": 2,
+                        "col": 1
+                      }
+                    },
+                    "collection": false,
+                    "reference": {
+                      "module": "a",
+                      "component": "ANotice"
+                    },
+                    "kind": "unresolved",
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "actions": {
+          "items": [
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "main",
+                  "component": "Screen",
+                  "variant": null
+                },
+                "source": {
+                  "module": "main",
+                  "span": {
+                    "offset": 37,
+                    "length": 26,
+                    "line": 4,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "70189d61f7dc67a53e9f5d4d92d25a9c51ffe0c56512f183c0dfe8765aa82d46"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "main",
+                  "component": "Screen",
+                  "variant": null
+                },
+                "source": {
+                  "module": "main",
+                  "span": {
+                    "offset": 64,
+                    "length": 26,
+                    "line": 5,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "627718850ea81d444b273394d962de1a44b6f0094cb44417b7fb4fe4dd4ba568"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            }
+          ],
+          "back": {
+            "enabled": false,
+            "reason": "no-return-location"
+          }
+        }
+      },
+      "timeline": [
+        {
+          "resultIndex": null,
+          "source": null,
+          "kind": "transition",
+          "label": "起動",
+          "location": {
+            "module": "main",
+            "component": "Screen",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 0,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 37,
+              "length": 26,
+              "line": 4,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "show(Notice)",
+          "location": {
+            "module": "main",
+            "component": "Screen",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 1,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 64,
+              "length": 26,
+              "line": 5,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "hide(Notice)",
+          "location": {
+            "module": "main",
+            "component": "Screen",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 2,
+            "observation": 0
+          }
+        }
+      ],
+      "cursor": {
+        "step": 2,
+        "observation": 0
+      }
+    },
+    "digest": "0bd9ddf029b576b7847587709226fdafef1c831fad35bddee254f631fe3049d6"
+  }
+}

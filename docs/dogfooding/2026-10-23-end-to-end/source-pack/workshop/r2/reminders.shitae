@@ -1,0 +1,25 @@
+import nav as nav
+import records as records
+
+// 会員限定の固定代表通知。一度に掲示するバナーは一つ。
+#! 会員リマインダー
+> リマインダーを閉じる -> hide(会員リマインダー)
+## A
+予約A・Clay工房の私的リマインダー
+> リマインダーを開く -> hide(会員リマインダー) ; push(リマインダー詳細##A)
+## B
+予約B・Robotics工房の私的リマインダー
+> リマインダーを開く -> hide(会員リマインダー) ; push(リマインダー詳細##B)
+
+// push先のローカルvariantにidentityを固定。通知バナーの共有値とは別。
+# リマインダー詳細
+会員操作: nav::会員操作
+この詳細は閲覧専用・閉じる前に二つ目の詳細を開かない
+> 詳細を閉じる -> back()
+> 通常の戻る -> back()
+## A
+予約A・Clay工房・CedarRoomの通知詳細
+確定: records::予約A
+## B
+予約B・Robotics工房・IndigoRoomの通知詳細
+確定: records::予約B

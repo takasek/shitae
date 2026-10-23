@@ -1,0 +1,6 @@
+import a as a
+import b as b
+# Start
+> Open -> push(a::Home) ; push(Details)
+# Details
+> ReturnB -> back(b::Home)

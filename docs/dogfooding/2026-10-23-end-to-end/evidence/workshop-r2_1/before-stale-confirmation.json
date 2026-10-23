@@ -1,0 +1,789 @@
+{
+  "id": "27",
+  "ok": true,
+  "protocolVersion": 1,
+  "revision": 13,
+  "summary": {
+    "location": {
+      "module": "work",
+      "component": "遠隔破棄確認A",
+      "variant": "Bookings"
+    },
+    "cursorObservationId": 27,
+    "latestObservationId": 27,
+    "observationCount": 27
+  },
+  "data": {
+    "state": {
+      "frames": [
+        {
+          "id": 0,
+          "parentId": null,
+          "stack": [
+            {
+              "module": "main",
+              "component": "サインイン",
+              "variant": null,
+              "singleton": false,
+              "scope": "frame-location",
+              "origin": "initial"
+            }
+          ],
+          "barrier": false,
+          "beginsSession": null,
+          "origin": "root"
+        },
+        {
+          "id": 1,
+          "parentId": 0,
+          "stack": [
+            {
+              "module": "nav",
+              "component": "会員領域",
+              "variant": null,
+              "singleton": false,
+              "scope": "frame-location",
+              "origin": "initial"
+            }
+          ],
+          "barrier": true,
+          "beginsSession": {
+            "name": "member"
+          },
+          "origin": "present"
+        },
+        {
+          "id": 2,
+          "parentId": 1,
+          "stack": [
+            {
+              "module": "rooms",
+              "component": "部屋一覧",
+              "variant": null,
+              "singleton": false,
+              "scope": "frame-location",
+              "origin": "initial"
+            }
+          ],
+          "barrier": true,
+          "beginsSession": {
+            "name": "rooms"
+          },
+          "origin": "switch"
+        },
+        {
+          "id": 3,
+          "parentId": 1,
+          "stack": [
+            {
+              "module": "bookings",
+              "component": "予約一覧",
+              "variant": null,
+              "singleton": false,
+              "scope": "frame-location",
+              "origin": "initial"
+            },
+            {
+              "module": "bookings",
+              "component": "予約B詳細",
+              "variant": null,
+              "singleton": false,
+              "scope": "frame-location",
+              "origin": "initial"
+            }
+          ],
+          "barrier": true,
+          "beginsSession": {
+            "name": "bookings"
+          },
+          "origin": "switch"
+        },
+        {
+          "id": 5,
+          "parentId": 1,
+          "stack": [
+            {
+              "module": "work",
+              "component": "進行中一覧",
+              "variant": null,
+              "singleton": false,
+              "scope": "frame-location",
+              "origin": "initial"
+            },
+            {
+              "module": "work",
+              "component": "遠隔破棄確認A",
+              "variant": "Bookings",
+              "singleton": false,
+              "scope": "frame-location",
+              "origin": "dsl"
+            }
+          ],
+          "barrier": true,
+          "beginsSession": {
+            "name": "progress"
+          },
+          "origin": "switch"
+        },
+        {
+          "id": 7,
+          "parentId": 3,
+          "stack": [
+            {
+              "module": "booking_b",
+              "component": "枠選択",
+              "variant": "原枠",
+              "singleton": false,
+              "scope": "frame-location",
+              "origin": "initial"
+            }
+          ],
+          "barrier": true,
+          "beginsSession": {
+            "name": "bookingB"
+          },
+          "origin": "present"
+        }
+      ],
+      "activeFrameId": 5,
+      "nextFrameId": 8,
+      "activePath": [
+        0,
+        1,
+        5
+      ],
+      "overlays": [],
+      "sharedVariants": [
+        {
+          "module": "work",
+          "component": "進行A",
+          "variant": "なし",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "dsl"
+        },
+        {
+          "module": "work",
+          "component": "進行B",
+          "variant": "Bookings変更",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "dsl"
+        },
+        {
+          "module": "nav",
+          "component": "Rooms復帰",
+          "variant": "通常",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "dsl"
+        },
+        {
+          "module": "nav",
+          "component": "Bookings復帰",
+          "variant": "B変更",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "dsl"
+        },
+        {
+          "module": "reminders",
+          "component": "会員リマインダー",
+          "variant": "A",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "initial"
+        },
+        {
+          "module": "records",
+          "component": "予約A",
+          "variant": "原枠",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "initial"
+        },
+        {
+          "module": "records",
+          "component": "予約B",
+          "variant": "原枠",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "initial"
+        }
+      ],
+      "testVariants": [],
+      "componentValues": [
+        {
+          "module": "main",
+          "component": "サインイン",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "work",
+          "component": "進行中一覧",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "work",
+          "component": "進行A",
+          "variant": "なし",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "dsl"
+        },
+        {
+          "module": "work",
+          "component": "遠隔破棄確認A",
+          "variant": "Rooms",
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "work",
+          "component": "進行B",
+          "variant": "Bookings変更",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "dsl"
+        },
+        {
+          "module": "work",
+          "component": "遠隔破棄確認B",
+          "variant": "Rooms",
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "nav",
+          "component": "会員領域",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "nav",
+          "component": "会員操作",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "nav",
+          "component": "公共バナー",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "nav",
+          "component": "Rooms復帰",
+          "variant": "通常",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "dsl"
+        },
+        {
+          "module": "nav",
+          "component": "Bookings復帰",
+          "variant": "B変更",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "dsl"
+        },
+        {
+          "module": "reminders",
+          "component": "会員リマインダー",
+          "variant": "A",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "initial"
+        },
+        {
+          "module": "reminders",
+          "component": "リマインダー詳細",
+          "variant": "A",
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "records",
+          "component": "予約A",
+          "variant": "原枠",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "initial"
+        },
+        {
+          "module": "records",
+          "component": "予約B",
+          "variant": "原枠",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "initial"
+        },
+        {
+          "module": "rooms",
+          "component": "部屋一覧",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "rooms",
+          "component": "Cedar詳細",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "rooms",
+          "component": "Indigo詳細",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "rooms",
+          "component": "予約A詳細",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "rooms",
+          "component": "予約B詳細",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "room_a",
+          "component": "枠選択",
+          "variant": "原枠",
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "room_a",
+          "component": "レビュー",
+          "variant": "原枠",
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "room_a",
+          "component": "破棄確認",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "room_b",
+          "component": "枠選択",
+          "variant": "原枠",
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "room_b",
+          "component": "レビュー",
+          "variant": "原枠",
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "room_b",
+          "component": "破棄確認",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "bookings",
+          "component": "予約一覧",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "bookings",
+          "component": "予約A詳細",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "bookings",
+          "component": "予約B詳細",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "booking_a",
+          "component": "枠選択",
+          "variant": "原枠",
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "booking_a",
+          "component": "レビュー",
+          "variant": "原枠",
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "booking_a",
+          "component": "破棄確認",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "booking_b",
+          "component": "枠選択",
+          "variant": "原枠",
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "booking_b",
+          "component": "レビュー",
+          "variant": "原枠",
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "booking_b",
+          "component": "破棄確認",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        }
+      ],
+      "gateTargets": [
+        {
+          "module": "work",
+          "component": "進行A",
+          "variant": "なし",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "dsl",
+          "variants": [
+            "なし",
+            "Rooms変更",
+            "Rooms確認",
+            "Bookings変更",
+            "Bookings確認"
+          ]
+        },
+        {
+          "module": "work",
+          "component": "進行B",
+          "variant": "Bookings変更",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "dsl",
+          "variants": [
+            "なし",
+            "Rooms変更",
+            "Rooms確認",
+            "Bookings変更",
+            "Bookings確認"
+          ]
+        }
+      ],
+      "inclusion": {
+        "main": {
+          "module": "work",
+          "component": "遠隔破棄確認A",
+          "root": "main",
+          "variant": "Bookings",
+          "singleton": false,
+          "scope": "frame-location",
+          "origin": "dsl",
+          "source": {
+            "module": "work",
+            "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/work.shitae",
+            "span": {
+              "offset": 790,
+              "length": 9,
+              "line": 37,
+              "col": 1
+            }
+          },
+          "children": [
+            {
+              "name": "会員操作",
+              "root": "main",
+              "path": [
+                0
+              ],
+              "source": {
+                "module": "work",
+                "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/work.shitae",
+                "span": {
+                  "offset": 800,
+                  "length": 15,
+                  "line": 38,
+                  "col": 1
+                }
+              },
+              "collection": false,
+              "reference": {
+                "module": "nav",
+                "component": "会員操作"
+              },
+              "kind": "component",
+              "value": {
+                "variant": null,
+                "singleton": false,
+                "scope": "inclusion-initial",
+                "origin": "initial"
+              },
+              "componentSource": {
+                "module": "nav",
+                "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/nav.shitae",
+                "span": {
+                  "offset": 225,
+                  "length": 6,
+                  "line": 14,
+                  "col": 1
+                }
+              },
+              "children": [
+                {
+                  "name": "Rooms復帰",
+                  "root": "main",
+                  "path": [
+                    0,
+                    0
+                  ],
+                  "source": {
+                    "module": "nav",
+                    "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/nav.shitae",
+                    "span": {
+                      "offset": 232,
+                      "length": 7,
+                      "line": 15,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "nav",
+                    "component": "Rooms復帰"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": "通常",
+                    "singleton": true,
+                    "scope": "singleton-shared",
+                    "origin": "dsl"
+                  },
+                  "componentSource": {
+                    "module": "nav",
+                    "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/nav.shitae",
+                    "span": {
+                      "offset": 815,
+                      "length": 10,
+                      "line": 28,
+                      "col": 1
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "name": "Bookings復帰",
+                  "root": "main",
+                  "path": [
+                    0,
+                    1
+                  ],
+                  "source": {
+                    "module": "nav",
+                    "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/nav.shitae",
+                    "span": {
+                      "offset": 240,
+                      "length": 10,
+                      "line": 16,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "nav",
+                    "component": "Bookings復帰"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": "B変更",
+                    "singleton": true,
+                    "scope": "singleton-shared",
+                    "origin": "dsl"
+                  },
+                  "componentSource": {
+                    "module": "nav",
+                    "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/nav.shitae",
+                    "span": {
+                      "offset": 1087,
+                      "length": 13,
+                      "line": 40,
+                      "col": 1
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "name": "予約Aの下書きを離れた場所から破棄するか・確定予約は維持",
+              "root": "main",
+              "path": [
+                1
+              ],
+              "source": {
+                "module": "work",
+                "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/work.shitae",
+                "span": {
+                  "offset": 816,
+                  "length": 28,
+                  "line": 39,
+                  "col": 1
+                }
+              },
+              "collection": false,
+              "reference": {
+                "module": "work",
+                "component": "予約Aの下書きを離れた場所から破棄するか・確定予約は維持"
+              },
+              "kind": "unresolved",
+              "children": []
+            },
+            {
+              "name": "対象作業が終了または別の入口へ移った場合は確定できない・一覧へ戻って選び直す",
+              "root": "main",
+              "path": [
+                2
+              ],
+              "source": {
+                "module": "work",
+                "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/work.shitae",
+                "span": {
+                  "offset": 845,
+                  "length": 38,
+                  "line": 40,
+                  "col": 1
+                }
+              },
+              "collection": false,
+              "reference": {
+                "module": "work",
+                "component": "対象作業が終了または別の入口へ移った場合は確定できない・一覧へ戻って選び直す"
+              },
+              "kind": "unresolved",
+              "children": []
+            }
+          ]
+        },
+        "overlays": []
+      }
+    },
+    "metadata": {
+      "engineVersion": "683237908597a9e4f75adbb85d54f4a48397f388a4d5d60fb45f9a8b1ad950c7",
+      "entryModule": "main",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "booking_a",
+          "sourceSha256": "43731852a0517ad76c9408047284a2a6fbcc80ba7b88f9e5d71a04209d8a45e9",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/booking_a.shitae"
+        },
+        {
+          "module": "booking_b",
+          "sourceSha256": "60d80b3c7431fd7a01dab4a8027708574333a418282b3ed97c2cb0e631fb4960",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/booking_b.shitae"
+        },
+        {
+          "module": "bookings",
+          "sourceSha256": "2470596c53434b478a27f495e297ee18942b5f578bf62b7e811ecd9fea083a20",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/bookings.shitae"
+        },
+        {
+          "module": "main",
+          "sourceSha256": "3e9823dff680b63ed85b540aa5ddc0ed4c561b2bb94055c322a8773d8569d4c8",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/main.shitae"
+        },
+        {
+          "module": "nav",
+          "sourceSha256": "ec264fa33c980b809ed7525ffbef0248e63472a7eda5753a325d605bc7163d1c",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/nav.shitae"
+        },
+        {
+          "module": "records",
+          "sourceSha256": "0cb89533d84cf112a898165c586d1933e6a91edf9bd31faf756ef84b1e0b4727",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/records.shitae"
+        },
+        {
+          "module": "reminders",
+          "sourceSha256": "627cf7e0952a6d0d5bf3b842a0ac687c515c69d327d05b278e76201c93513618",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/reminders.shitae"
+        },
+        {
+          "module": "room_a",
+          "sourceSha256": "2f17ac1ac306fbd1f0d8477dc506bdaaded90a1929b4332d10328fa5304dc76a",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/room_a.shitae"
+        },
+        {
+          "module": "room_b",
+          "sourceSha256": "4199bf7642ddac9ef36d3fd1547554c241a99e1670e5ccf2b8c90061faee034f",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/room_b.shitae"
+        },
+        {
+          "module": "rooms",
+          "sourceSha256": "542c694aba70070e8643dd69f6ebdfd2cf41895e2bfa7719ceb066c4222ea875",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/rooms.shitae"
+        },
+        {
+          "module": "work",
+          "sourceSha256": "c9dcff1878bfcf5d6edaf9e88024f26aa7eb6d1e3b85dd93133ce3bf08036c27",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/work.shitae"
+        }
+      ],
+      "modelId": "93b2f92826ceea888ca7b89300efb303cbbf52e707cc6bffb9128ccdce5dd309"
+    }
+  }
+}

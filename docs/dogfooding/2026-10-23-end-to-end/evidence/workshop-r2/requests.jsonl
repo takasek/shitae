@@ -1,0 +1,32 @@
+{"id": "1", "command": "query", "select": ["actions"]}
+{"id": "2", "command": "dispatch", "handle": "40464181-be25-4441-9881-5eaa7a073647:0:0"}
+{"id": "3", "command": "query", "select": ["actions"]}
+{"id": "4", "command": "dispatch", "handle": "40464181-be25-4441-9881-5eaa7a073647:1:9"}
+{"id": "5", "command": "query", "select": ["actions"]}
+{"id": "6", "command": "dispatch", "handle": "40464181-be25-4441-9881-5eaa7a073647:2:0"}
+{"id": "7", "command": "query", "select": ["actions"]}
+{"id": "8", "command": "dispatch", "handle": "40464181-be25-4441-9881-5eaa7a073647:3:0"}
+{"id": "9", "command": "query", "select": ["actions"]}
+{"id": "10", "command": "dispatch", "handle": "40464181-be25-4441-9881-5eaa7a073647:4:4"}
+{"id": "11", "command": "query", "select": ["actions"]}
+{"id": "12", "command": "dispatch", "handle": "40464181-be25-4441-9881-5eaa7a073647:5:9"}
+{"id": "13", "command": "query", "select": ["actions"]}
+{"id": "14", "command": "dispatch", "handle": "40464181-be25-4441-9881-5eaa7a073647:6:9"}
+{"id": "15", "command": "query", "select": ["actions"]}
+{"id": "16", "command": "dispatch", "handle": "40464181-be25-4441-9881-5eaa7a073647:7:0"}
+{"id": "17", "command": "query", "select": ["actions"]}
+{"id": "18", "command": "dispatch", "handle": "40464181-be25-4441-9881-5eaa7a073647:8:1"}
+{"id": "19", "command": "query", "select": ["actions"]}
+{"id": "20", "command": "dispatch", "handle": "40464181-be25-4441-9881-5eaa7a073647:9:1"}
+{"id": "21", "command": "query", "select": ["actions"]}
+{"id": "22", "command": "dispatch", "handle": "40464181-be25-4441-9881-5eaa7a073647:10:1"}
+{"id": "23", "command": "query", "select": ["actions"]}
+{"id": "24", "command": "dispatch", "handle": "40464181-be25-4441-9881-5eaa7a073647:11:0"}
+{"id": "25", "command": "query", "select": ["actions"]}
+{"id": "26", "command": "dispatch", "handle": "40464181-be25-4441-9881-5eaa7a073647:12:4"}
+{"id": "27", "command": "query", "select": ["state", "metadata"]}
+{"id": "28", "command": "query", "select": ["actions"]}
+{"id": "29", "command": "query", "select": ["actions"]}
+{"id": "30", "command": "dispatch", "handle": "40464181-be25-4441-9881-5eaa7a073647:13:1"}
+{"id": "31", "command": "query", "select": ["state", "metadata"]}
+{"id": "32", "command": "exportScenario"}

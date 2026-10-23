@@ -1,0 +1,69 @@
+import nav as nav
+import room_a as roomA
+import room_b as roomB
+import booking_a as bookingA
+import booking_b as bookingB
+
+# 進行中一覧
+会員操作: nav::会員操作
+変更の下書き一覧・確定済み予約の取消ではない
+A: 進行A
+B: 進行B
+
+#! 進行A
+## なし
+予約Aの変更作業なし
+## Rooms変更
+予約Aの未完了下書きあり・まだ確定とは限らない
+> Aを再開 -> switch(roomA::枠選択, @roomA)
+> Aを遠隔破棄 -> push(遠隔破棄確認A##Rooms)
+## Rooms確認
+予約Aの未完了下書きあり・まだ確定とは限らない
+> Aを再開 -> switch(roomA::破棄確認, @roomADiscard)
+> Aを遠隔破棄 -> push(遠隔破棄確認A##Rooms)
+## Bookings変更
+予約Aの未完了下書きあり・まだ確定とは限らない
+> Aを再開 -> switch(bookingA::枠選択, @bookingA)
+> Aを遠隔破棄 -> push(遠隔破棄確認A##Bookings)
+## Bookings確認
+予約Aの未完了下書きあり・まだ確定とは限らない
+> Aを再開 -> switch(bookingA::破棄確認, @bookingADiscard)
+> Aを遠隔破棄 -> push(遠隔破棄確認A##Bookings)
+
+# 遠隔破棄確認A
+会員操作: nav::会員操作
+予約Aの下書きを離れた場所から破棄するか・確定予約は維持
+> 下書きを保持する -> back()
+## Rooms
+> 遠隔破棄を確定する -> exit(@roomA) ; set(nav::Rooms復帰##通常) ; set(進行A##なし) ; back()
+## Bookings
+> 遠隔破棄を確定する -> exit(@bookingA) ; set(nav::Bookings復帰##通常) ; set(進行A##なし) ; back()
+
+#! 進行B
+## なし
+予約Bの変更作業なし
+## Rooms変更
+予約Bの未完了下書きあり・まだ確定とは限らない
+> Bを再開 -> switch(roomB::枠選択, @roomB)
+> Bを遠隔破棄 -> push(遠隔破棄確認B##Rooms)
+## Rooms確認
+予約Bの未完了下書きあり・まだ確定とは限らない
+> Bを再開 -> switch(roomB::破棄確認, @roomBDiscard)
+> Bを遠隔破棄 -> push(遠隔破棄確認B##Rooms)
+## Bookings変更
+予約Bの未完了下書きあり・まだ確定とは限らない
+> Bを再開 -> switch(bookingB::枠選択, @bookingB)
+> Bを遠隔破棄 -> push(遠隔破棄確認B##Bookings)
+## Bookings確認
+予約Bの未完了下書きあり・まだ確定とは限らない
+> Bを再開 -> switch(bookingB::破棄確認, @bookingBDiscard)
+> Bを遠隔破棄 -> push(遠隔破棄確認B##Bookings)
+
+# 遠隔破棄確認B
+会員操作: nav::会員操作
+予約Bの下書きを離れた場所から破棄するか・確定予約は維持
+> 下書きを保持する -> back()
+## Rooms
+> 遠隔破棄を確定する -> exit(@roomB) ; set(nav::Rooms復帰##通常) ; set(進行B##なし) ; back()
+## Bookings
+> 遠隔破棄を確定する -> exit(@bookingB) ; set(nav::Bookings復帰##通常) ; set(進行B##なし) ; back()

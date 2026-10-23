@@ -1,0 +1,25 @@
+[
+  {
+    "case": "r2",
+    "pass": true,
+    "guarded": false
+  },
+  {
+    "case": "r2_1",
+    "pass": true,
+    "guarded": true
+  },
+  {
+    "case": "refactor_candidate",
+    "pass": true,
+    "guarded": true
+  },
+  {
+    "case": "GUI-save-to-CLI-replay-and-continue",
+    "pass": true
+  },
+  {
+    "case": "old-engine-rejection",
+    "pass": true
+  }
+]

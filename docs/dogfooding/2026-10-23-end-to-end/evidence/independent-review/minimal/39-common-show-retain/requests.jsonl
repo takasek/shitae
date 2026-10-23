@@ -1,0 +1,10 @@
+{"id": "1", "command": "query", "select": ["state", "actions", "metadata"]}
+{"id": "2", "command": "query", "select": ["actions"]}
+{"id": "3", "command": "dispatch", "handle": "43d089b4-cb31-4bef-9bc6-ca398c09f20d:0:1"}
+{"id": "4", "command": "query", "select": ["state", "actions"]}
+{"id": "5", "command": "query", "select": ["actions"]}
+{"id": "6", "command": "dispatch", "handle": "43d089b4-cb31-4bef-9bc6-ca398c09f20d:1:2"}
+{"id": "7", "command": "query", "select": ["actions"]}
+{"id": "8", "command": "dispatch", "handle": "43d089b4-cb31-4bef-9bc6-ca398c09f20d:2:0"}
+{"id": "9", "command": "query", "select": ["state", "actions"]}
+{"id": "10", "command": "query", "select": ["state"]}

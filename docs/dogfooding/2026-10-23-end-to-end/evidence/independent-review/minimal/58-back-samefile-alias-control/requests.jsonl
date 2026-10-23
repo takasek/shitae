@@ -1,0 +1,7 @@
+{"id": "1", "command": "query", "select": ["state", "actions", "metadata"]}
+{"id": "2", "command": "query", "select": ["actions"]}
+{"id": "3", "command": "dispatch", "handle": "1b3bbb73-40e0-49cf-9ab1-2e038b3ad801:0:0"}
+{"id": "4", "command": "query", "select": ["actions"]}
+{"id": "5", "command": "dispatch", "handle": "1b3bbb73-40e0-49cf-9ab1-2e038b3ad801:1:0"}
+{"id": "6", "command": "query", "select": ["state", "actions"]}
+{"id": "7", "command": "query", "select": ["state"]}

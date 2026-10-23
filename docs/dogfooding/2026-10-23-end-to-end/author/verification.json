@@ -1,0 +1,22 @@
+[
+  {
+    "version": "v1",
+    "checkExit": 0,
+    "checkStdout": "",
+    "checkStderr": "",
+    "htmlBytes": 236387,
+    "modelBytes": 779,
+    "scenarioBytes": 24387,
+    "replayExit": 0
+  },
+  {
+    "version": "v2",
+    "checkExit": 0,
+    "checkStdout": "",
+    "checkStderr": "",
+    "htmlBytes": 238094,
+    "modelBytes": 902,
+    "scenarioBytes": 27157,
+    "replayExit": 0
+  }
+]
