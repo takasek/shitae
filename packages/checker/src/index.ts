@@ -231,7 +231,7 @@ function checkBareVariantGoto(
       diags.push({
         severity: 'warning',
         code: 'W105',
-        message: `goto(##${target.name}) の '${target.name}' は '${active.name}' に定義されていない variant`,
+        message: `goto(##${target.name}) の '${target.name}' は '${active.name}' に定義されていない variant（静的検査: 操作開始時は定義元を作用先と仮定し、結果列を逐次追跡。包含部品・overlay の呼出元は解析しない）`,
         span: body.span,
       });
     }

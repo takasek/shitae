@@ -15,7 +15,7 @@ shitae は「操作して、表示・戻り先・状態の残り方を確かめ�
 - すべての名前は**対等**。特権的な組み込み component はない（`button` と書いても「ボタンという名の component を置いた」だけで特別な意味はない）。定義があれば自作、なければ未定義（ラフに置いただけ）。
 - **ラフであることが機能**。未定・穴は専用記法を使わず**自然文**で書く。
 - 構造は明示的な記号で表し、**インデントに意味はない**。
-- 実行の起点：**エントリポイントはファイル先頭の component**。variant を複数持つ component の**initial variant は最初に定義された `##`**。
+- 実行の起点：**エントリポイントはファイル先頭の component**。**initial variant は最初に定義された `##`**（`##` が無ければ単一 variant）。通常 component を variant 指定なしで新しく開くときの既定であり、singleton は保持中の共有 variant を優先する。残っている画面へ戻る場合はその画面の状態が残る。
 - 通常の component（`#`）を複数箇所に置いたとき、各インスタンスの**variant は独立**（インスタンス間の同期は実装の領分。設計上重要なら自然文で注記）。**状態を共有する部品（singleton、`#!`）** は単一インスタンスとして全所在で variant を共有する。永続保存ではない。共有の単位は定義ファイルで、別モジュールの同名 component とは無関係（[SPEC: singleton component](SPEC.md#singleton-component)）。
 
 ## 記号と予約語
@@ -64,7 +64,7 @@ import auth as auth             ← モジュール（ファイル）読み込�
 
 - **`push(X)`** … X へ進む（積む。`back` で 1 つずつ戻れる）。
 - **`back()` / `back(X)`** … 直前へ／component X まで戻る。**引数は常に component**。
-- **`goto(X)`** … 現在を X に置き換える（積まない、戻れない）。実行時にアクティブな component の variant change `goto(##variant)` にも、別 component への置換 `goto(ホーム)` にも使う。
+- **`goto(X)`** … 現在を X に置き換える（積まない、戻れない）。各結果を適用する時点のアクティブ画面の variant change `goto(##variant)` にも、別 component への置換 `goto(ホーム)` にも使う。包含部品・overlay の定義元自身とは限らず、先行結果で作用先も変わる（[例](#子に書いた操作はどこを変えるか)）。
 - **`exit(@S)`** … セッション @S を破棄して begin 地点へ戻る。**引数は常にセッション**。
 - **`present(X)` / `present(X, @S)`** … ひとまとまりの作業に入る。通常の `back` で外へ出ない境界を作るが、ほかの操作を一律に禁止する機能ではない。barrier ありセッションを一語で表す compound verb（`push` 単体では barrier を表せない）。
 - **`dismiss()` / `dismiss(@S)`** … 直近の無名の作業を閉じる／指定した @S と内側の作業を破棄する。`dismiss()` は名前付きの作業を飛ばして探す。`dismiss(@S)` は `exit(@S)` と同義。
@@ -72,7 +72,9 @@ import auth as auth             ← モジュール（ファイル）読み込�
 
 `back`（画面方向）と `exit`（セッション方向）は予約語で役割が決まる（`@` で見分けるのではない）。`dismiss`（無名・引数なし）と `exit`（名前付き・@S 必須）は別物。
 
-裸の `goto(##variant)` の receiver（作用先）は、**実行時にアクティブな component（アクティブフレームの最上段）**。包含部品や overlay の定義内に書いても、その部品自身の variant を変える指定にはならない。singleton を指定して状態だけ変えるなら `set(部品名##variant)` を使う（[SPEC: variant の参照は必ず `##`](SPEC.md#variant-の参照は必ず-)）。
+裸の `goto(##variant)` の receiver（作用先）は、**各結果を適用する時点のアクティブ画面（アクティブフレームの最上段）**。包含部品や overlay の定義内に書いても、その部品自身の variant を変える指定にはならない。先行結果で画面が変われば作用先も変わる。singleton を指定して状態だけ変えるなら `set(部品名##variant)` を使う（[SPEC: variant の参照は必ず `##`](SPEC.md#variant-の参照は必ず-)）。
+
+`check` の **W105** は裸 `goto` の結果列を逐次追跡するが、**操作開始時は定義元 component を作用先と仮定**し、包含部品・overlay の呼出元は解析しない。このため実行時の作用先と異なる component への警告や、実際には存在しない variant の見逃しがありうる。`back` / `exit` / `dismiss` / `switch` 後の履歴依存の作用先は保留し、明示的な component 遷移で検査を再開する。実行時の作用先は、次の例と `simulate` の観測で確かめる。`set(X##v)` の W105 は指定先 X を検査する。
 
 ### 子に書いた操作は、どこを変えるか
 

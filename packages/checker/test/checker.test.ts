@@ -254,6 +254,15 @@ describe('r4 B4: W106 — singleton への show(X##v)（明示 variant）', () =
 
 
 describe('issue #42: 逐次適用後の裸 goto の W105', () => {
+  it('explains the initial definition-host assumption for included and overlay actions', () => {
+    const { document } = parse('# Screen\nPart\n> Show -> show(Part)\n## Ready\n# Part\n> Change -> goto(##Ready)\n## Idle\n');
+    const diags = check(document, resolve(document)).filter(d => d.code === 'W105');
+    expect(diags).toHaveLength(1);
+    expect(diags[0].message).toContain("'Part'");
+    expect(diags[0].message).toContain('操作開始時は定義元を作用先と仮定');
+    expect(diags[0].message).toContain('包含部品・overlay の呼出元は解析しない');
+  });
+
   function warnings(results: string) {
     const source = `# 元
 ## 初期

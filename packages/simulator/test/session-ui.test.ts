@@ -19,6 +19,22 @@ function gui(source: string, extras: Record<string, string> = {}) {
   return { html, app, run, view: () => JSON.parse(run('JSON.stringify(SESSION.query({select:["state","actions","history"]}))')) };
 }
 describe('GUI consumes the common Session', () => {
+  it('counts only frames outside the current path as retained work', () => {
+    const g = gui('# Home\n> A -> switch(A, @a)\n# A\n> Child -> present(Child, @child)\n# Child\n> B -> switch(B, @b)\n# B\n> Child -> switch(Child, @child)\n');
+    g.run("handleInteraction('component',0,0)");
+    g.run("handleInteraction('component',0,0)");
+    expect(g.view().data.state.frames).toHaveLength(3);
+    expect(g.app.innerHTML).toContain('残っている作業（現在の経路外 0件）');
+    expect(g.app.innerHTML).toContain('現在の経路の祖先は件数に含めません');
+    g.run("handleInteraction('component',0,0)");
+    expect(g.view().data.state.frames).toHaveLength(4);
+    expect(g.app.innerHTML).toContain('残っている作業（現在の経路外 2件）');
+    expect(g.app.innerHTML.match(/現在の経路外で保持/g)).toHaveLength(2);
+    g.run("handleInteraction('component',0,0)");
+    expect(g.view().summary.location.component).toBe('Child');
+    expect(g.app.innerHTML).toContain('残っている作業（現在の経路外 1件）');
+  });
+
   it('qualifies ambiguous component modules and does not repeat equal element/component names', () => {
     const g = gui('import left as l\nimport right as r\n# Home\none: l::Card\ntwo: r::Card\nCard\nPlain\n# Card\n## Local\nbody\n# Plain\nbody\n', {
       left: '# Card\n## Left\nbody\n', right: '# Card\n## Right\nbody\n',
