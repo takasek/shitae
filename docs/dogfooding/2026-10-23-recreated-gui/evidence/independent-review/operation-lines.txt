@@ -1,0 +1,61 @@
+r2_1
+1. > デモでサインイン -> set(nav::Rooms復帰##通常) ; set(nav::Bookings復帰##通常) ; set(work::進行A##なし) ; set(work::進行B##なし) ; present(nav::会員領域, @member) ; switch(rooms::部屋一覧, @rooms) None
+2. > Cedarを見る -> push(Cedar詳細) None
+3. > 予約Aを見る -> push(予約A詳細) None
+4. > Aの変更を始める -> present(editA::枠選択, @roomA) ; set(nav::Rooms復帰##A変更) ; set(work::進行A##Rooms変更) None
+5. > 進行中タブへ -> switch(work::進行中一覧, @progress) None
+6. > Aを遠隔破棄 -> push(遠隔破棄確認A##Rooms) None
+7. > Roomsタブへ -> switch(roomA::枠選択, @roomA) None
+8. > 変更を取り消す -> present(破棄確認, @roomADiscard) ; set(nav::Rooms復帰##A破棄確認) ; set(work::進行A##Rooms確認) None
+9. > 下書きを破棄する -> exit(@roomA) ; set(nav::Rooms復帰##通常) ; set(work::進行A##なし) None
+10. > 部屋詳細へ戻る -> back() None
+11. > 部屋一覧へ戻る -> back() None
+12. > Indigoを見る -> push(Indigo詳細) None
+13. > 予約Bを見る -> push(予約B詳細) None
+14. > Bの変更を始める -> present(editB::枠選択, @roomB) ; set(nav::Rooms復帰##B変更) ; set(work::進行B##Rooms変更) None
+15. > 代替枠に変える -> goto(##代替枠) None
+16. > レビューへ -> push(レビュー##代替枠) None
+17. > 進行中タブへ -> switch(work::進行中一覧, @progress) None
+18. > Roomsタブへ -> switch(roomB::枠選択, @roomB) None
+19. > 進行中タブへ -> switch(work::進行中一覧, @progress) None
+20. > 下書きを保持する -> back() None
+21. > Bを再開 -> switch(roomB::枠選択, @roomB) None
+22. > 確認結果を試す -> [accepted] set(records::予約B##代替枠) ; exit(@roomB) ; set(nav::Rooms復帰##通常) ; set(work::進行B##なし) ; [rejected] goto(##代替枠拒否) accepted
+23. > Bookingsタブへ -> switch(bookings::予約一覧, @bookings) None
+24. > 予約Aを見る -> push(予約A詳細) None
+25. > Aの変更を始める -> present(editA::枠選択, @bookingA) ; set(nav::Bookings復帰##A変更) ; set(work::進行A##Bookings変更) None
+26. > 代替枠に変える -> goto(##代替枠) None
+27. > レビューへ -> push(レビュー##代替枠) None
+28. > 確認結果を試す -> [accepted] set(records::予約A##代替枠) ; exit(@bookingA) ; set(nav::Bookings復帰##通常) ; set(work::進行A##なし) ; [rejected] goto(##代替枠拒否) rejected
+29. > 変更を取り消す -> present(破棄確認, @bookingADiscard) ; set(nav::Bookings復帰##A破棄確認) ; set(work::進行A##Bookings確認) None
+30. > Roomsタブへ -> switch(rooms::部屋一覧, @rooms) None
+31. > Bの変更を始める -> present(editB::枠選択, @roomB) ; set(nav::Rooms復帰##B変更) ; set(work::進行B##Rooms変更) None
+32. > レビューへ -> push(レビュー##原枠) None
+33. > 進行中タブへ -> switch(work::進行中一覧, @progress) None
+34. > Bを遠隔破棄 -> push(遠隔破棄確認B##Rooms) None
+35. > 公共のお知らせが届く -> show(公共バナー) None
+36. > Aのリマインダーが届く -> set(reminders::会員リマインダー##A) ; show(reminders::会員リマインダー) None
+37. > リマインダーを開く -> hide(会員リマインダー) ; push(リマインダー詳細##A) None
+38. > Bのリマインダーが届く -> set(reminders::会員リマインダー##B) ; show(reminders::会員リマインダー) None
+39. > 通常の戻る -> back() None
+40. > 遠隔破棄を確定する(進行B.Rooms作業?) -> exit(@roomB) ; set(nav::Rooms復帰##通常) ; set(進行B##なし) ; back() None
+41. > Aを再開 -> switch(bookingA::破棄確認, @bookingADiscard) None
+42. > 通常の戻る -> back() None
+43. > 編集を続ける -> exit(@bookingADiscard) ; set(nav::Bookings復帰##A変更) ; set(work::進行A##Bookings変更) None
+44. > リマインダーを開く -> hide(会員リマインダー) ; push(リマインダー詳細##B) None
+45. > Aのリマインダーが届く -> set(reminders::会員リマインダー##A) ; show(reminders::会員リマインダー) None
+46. > セッションが期限切れになる -> set(Rooms復帰##通常) ; set(Bookings復帰##通常) ; set(work::進行A##なし) ; set(work::進行B##なし) ; hide(reminders::会員リマインダー) ; exit(@member) None
+47. > デモでサインイン -> set(nav::Rooms復帰##通常) ; set(nav::Bookings復帰##通常) ; set(work::進行A##なし) ; set(work::進行B##なし) ; present(nav::会員領域, @member) ; switch(rooms::部屋一覧, @rooms) None
+48. > 進行中タブへ -> switch(work::進行中一覧, @progress) None
+refactor_candidate
+1. > デモでサインイン -> set(nav::Rooms復帰##通常) ; set(nav::Bookings復帰##通常) ; set(work::進行A##なし) ; set(work::進行B##なし) ; present(nav::会員領域, @member) ; switch(rooms::部屋一覧, @rooms) None
+2. > Cedarを見る -> push(Cedar詳細) None
+3. > 予約Aを見る -> push(予約A詳細) None
+4. > Aの変更を始める -> present(editA::枠選択, @roomA) ; set(nav::Rooms復帰##A変更) ; set(work::進行A##Rooms変更) None
+5. > 変更を取り消す -> present(破棄確認, @roomADiscard) ; set(nav::Rooms復帰##A破棄確認) ; set(work::進行A##Rooms確認) None
+6. > 編集を続ける -> exit(@roomADiscard) ; set(nav::Rooms復帰##A変更) ; set(work::進行A##Rooms変更) None
+7. > 代替枠に変える -> goto(##代替枠) None
+8. > レビューへ -> push(レビュー##代替枠) None
+9. > 確認結果を試す -> [accepted] set(records::予約A##代替枠) ; exit(@roomA) ; set(nav::Rooms復帰##通常) ; set(work::進行A##なし) ; [rejected] goto(##代替枠拒否) rejected
+10. > 変更を取り消す -> present(破棄確認, @roomADiscard) ; set(nav::Rooms復帰##A破棄確認) ; set(work::進行A##Rooms確認) None
+11. > 編集を続ける -> exit(@roomADiscard) ; set(nav::Rooms復帰##A変更) ; set(work::進行A##Rooms変更) None

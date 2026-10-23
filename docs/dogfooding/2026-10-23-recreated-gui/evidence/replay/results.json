@@ -1,0 +1,162 @@
+[
+  {
+    "version": "r2_1",
+    "dispatch": 48,
+    "legacyReplayExit": 0,
+    "scenarioExactEquality": true,
+    "location": {
+      "module": "work",
+      "component": "進行中一覧",
+      "variant": null
+    },
+    "shared": [
+      {
+        "module": "work",
+        "component": "進行A",
+        "variant": "なし",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "work",
+        "component": "進行B",
+        "variant": "なし",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "nav",
+        "component": "Rooms復帰",
+        "variant": "通常",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "nav",
+        "component": "Bookings復帰",
+        "variant": "通常",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "reminders",
+        "component": "会員リマインダー",
+        "variant": "A",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "records",
+        "component": "予約A",
+        "variant": "原枠",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "initial"
+      },
+      {
+        "module": "records",
+        "component": "予約B",
+        "variant": "代替枠",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      }
+    ],
+    "continuation": "公共バナーを閉じる",
+    "continuationLocation": {
+      "module": "work",
+      "component": "進行中一覧",
+      "variant": null
+    },
+    "currentReplayExit": 1,
+    "currentError": "ENGINE_MISMATCH",
+    "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+    "modelId": "88789ce38767530fd605c87247e26ed1a0d5122317222a6f1a10a695561f8a68",
+    "scenarioSha256": "d231ebd15c917fb0095fac35bf935f430b41e6bf3645a2d4301b1486eaa45dd2"
+  },
+  {
+    "version": "refactor_candidate",
+    "dispatch": 11,
+    "legacyReplayExit": 0,
+    "scenarioExactEquality": true,
+    "location": {
+      "module": "room_a",
+      "component": "レビュー",
+      "variant": "代替枠拒否"
+    },
+    "shared": [
+      {
+        "module": "work",
+        "component": "進行A",
+        "variant": "Rooms変更",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "work",
+        "component": "進行B",
+        "variant": "なし",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "nav",
+        "component": "Rooms復帰",
+        "variant": "A変更",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "nav",
+        "component": "Bookings復帰",
+        "variant": "通常",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "reminders",
+        "component": "会員リマインダー",
+        "variant": "A",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "initial"
+      },
+      {
+        "module": "records",
+        "component": "予約A",
+        "variant": "原枠",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "initial"
+      },
+      {
+        "module": "records",
+        "component": "予約B",
+        "variant": "原枠",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "initial"
+      }
+    ],
+    "continuation": "選択へ戻る",
+    "continuationLocation": {
+      "module": "room_a",
+      "component": "枠選択",
+      "variant": "代替枠"
+    },
+    "currentReplayExit": 1,
+    "currentError": "ENGINE_MISMATCH",
+    "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+    "modelId": "4414378de007989846245b95fbd8488f675ae52ebb9259485b0915bafb8e433e",
+    "scenarioSha256": "b6f8c413877c7fa0077c07517d5dbe829251ad07e469228d6178efbf180f4cf5"
+  }
+]

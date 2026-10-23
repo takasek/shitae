@@ -35,8 +35,8 @@ python3 docs/dogfooding/2026-10-23-gui-followup/tools/verify-gui.py /private/tmp
 
 GUIの再現手順と操作前の期待は [expectations.md](expectations.md)。初期状態から ShowA → Both → Again → BackFlow → ReturnA、記録4を展開し結果1の「この時点から続ける…」→確認の「この時点から続ける」、保存する。新しいHTMLを開き、実ファイル選択で読込、b::NoticeのCloseを選び保存する。a::NoticeのCloseと取り違えない。
 
-## 残る資料不足と人の評価
+## 資料不足の経緯・再作成版の追加受領と人の評価
 
-[archive-inspection.json](evidence/archive-inspection.json) は利用者が示した `shitae-deep-repro-20261023.zip` を直接確認した結果。収録scenarioは15/38/14/38/22 stepで、元レポートの48操作地点・保守版11操作地点のGUI実保存物は含まれない。新規の成功で過去の回収欠落を埋めない。元資料の保存場所が判明するまでは資料不足として残す。
+[archive-inspection.json](evidence/archive-inspection.json) は利用者が示した `shitae-deep-repro-20261023.zip` を直接確認した結果。収録scenarioは15/38/14/38/22 stepで、元レポートの48操作地点・保守版11操作地点のGUI実保存物は含まれない。新規の成功で過去の回収欠落を埋めない。その後、利用者から同版HTMLでやり直した48/11操作の再作成GUI保存物を受領し、正確な旧版CLIで再生・再export全体一致・継続を確認した。詳細は [再作成版の検証](../2026-10-23-recreated-gui/README.md)。当時の原物を回収したという主張には変更しない。
 
 人向けには既存の見学予約v2を読込んだ画面を準備して質問した（evidence/browser/human-start.txt）。利用者は受取評価をまだ行わずAI用とする方針を明示したため、人の評価は未実施のまま保留し、画面と配信を終了した。#27/#35/#44の人向け受入を達成済みにせず、今回のAI評価の待機条件にも含めない。

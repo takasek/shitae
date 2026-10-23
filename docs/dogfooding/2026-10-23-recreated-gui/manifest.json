@@ -1,0 +1,120 @@
+{
+  "zipSha256": "4cc3c5a624e554c25d332e5906e1741a1d5106e8a0084c809624863e5026f8d7",
+  "files": [
+    {
+      "path": "OPERATIONS-ja.md",
+      "sha256": "9e953671b043e6d65703e29a56b6f06f3f1db9e2b6e58ffaecdce2532df3b631"
+    },
+    {
+      "path": "README-ja.md",
+      "sha256": "0f63619022ce7486cfa297b5c5d6d31d354b26fc2efad920cffd597b165f8c26"
+    },
+    {
+      "path": "html/refactor_candidate.html",
+      "sha256": "819a481950a43b5ea6d6d1a8dfd669f49bf99d5d878631e2b30d1feca270a580"
+    },
+    {
+      "path": "html/r2_1.html",
+      "sha256": "beef718efb854398ea7246d815839ad25089df47a8bf0ce1e0a4b461c08ab14d"
+    },
+    {
+      "path": "exports/refactor-candidate-gui11-recreated-20261023.scenario.json",
+      "sha256": "b6f8c413877c7fa0077c07517d5dbe829251ad07e469228d6178efbf180f4cf5"
+    },
+    {
+      "path": "exports/r2_1-gui48-recreated-20261023.scenario.json",
+      "sha256": "d231ebd15c917fb0095fac35bf935f430b41e6bf3645a2d4301b1486eaa45dd2"
+    },
+    {
+      "path": "models/r2_1/room_b.shitae",
+      "sha256": "4199bf7642ddac9ef36d3fd1547554c241a99e1670e5ccf2b8c90061faee034f"
+    },
+    {
+      "path": "models/r2_1/bookings.shitae",
+      "sha256": "2470596c53434b478a27f495e297ee18942b5f578bf62b7e811ecd9fea083a20"
+    },
+    {
+      "path": "models/r2_1/records.shitae",
+      "sha256": "0cb89533d84cf112a898165c586d1933e6a91edf9bd31faf756ef84b1e0b4727"
+    },
+    {
+      "path": "models/r2_1/booking_a.shitae",
+      "sha256": "43731852a0517ad76c9408047284a2a6fbcc80ba7b88f9e5d71a04209d8a45e9"
+    },
+    {
+      "path": "models/r2_1/reminders.shitae",
+      "sha256": "627cf7e0952a6d0d5bf3b842a0ac687c515c69d327d05b278e76201c93513618"
+    },
+    {
+      "path": "models/r2_1/work.shitae",
+      "sha256": "c9dcff1878bfcf5d6edaf9e88024f26aa7eb6d1e3b85dd93133ce3bf08036c27"
+    },
+    {
+      "path": "models/r2_1/main.shitae",
+      "sha256": "3e9823dff680b63ed85b540aa5ddc0ed4c561b2bb94055c322a8773d8569d4c8"
+    },
+    {
+      "path": "models/r2_1/room_a.shitae",
+      "sha256": "2f17ac1ac306fbd1f0d8477dc506bdaaded90a1929b4332d10328fa5304dc76a"
+    },
+    {
+      "path": "models/r2_1/rooms.shitae",
+      "sha256": "542c694aba70070e8643dd69f6ebdfd2cf41895e2bfa7719ceb066c4222ea875"
+    },
+    {
+      "path": "models/r2_1/booking_b.shitae",
+      "sha256": "60d80b3c7431fd7a01dab4a8027708574333a418282b3ed97c2cb0e631fb4960"
+    },
+    {
+      "path": "models/r2_1/nav.shitae",
+      "sha256": "ec264fa33c980b809ed7525ffbef0248e63472a7eda5753a325d605bc7163d1c"
+    },
+    {
+      "path": "models/refactor_candidate/room_b.shitae",
+      "sha256": "c6f92db1e31e9c2f80330352d8e6789e6e09b49f66908f9c959c3ddfddc6575c"
+    },
+    {
+      "path": "models/refactor_candidate/bookings.shitae",
+      "sha256": "2470596c53434b478a27f495e297ee18942b5f578bf62b7e811ecd9fea083a20"
+    },
+    {
+      "path": "models/refactor_candidate/records.shitae",
+      "sha256": "0cb89533d84cf112a898165c586d1933e6a91edf9bd31faf756ef84b1e0b4727"
+    },
+    {
+      "path": "models/refactor_candidate/booking_a.shitae",
+      "sha256": "1d442d471b196d73417db0a77ea61312b854416ecb10c1a27e915914dc817433"
+    },
+    {
+      "path": "models/refactor_candidate/reminders.shitae",
+      "sha256": "627cf7e0952a6d0d5bf3b842a0ac687c515c69d327d05b278e76201c93513618"
+    },
+    {
+      "path": "models/refactor_candidate/work.shitae",
+      "sha256": "c9dcff1878bfcf5d6edaf9e88024f26aa7eb6d1e3b85dd93133ce3bf08036c27"
+    },
+    {
+      "path": "models/refactor_candidate/main.shitae",
+      "sha256": "3e9823dff680b63ed85b540aa5ddc0ed4c561b2bb94055c322a8773d8569d4c8"
+    },
+    {
+      "path": "models/refactor_candidate/room_a.shitae",
+      "sha256": "754124dfec59bc9c743de100c5a9c451a07da905c4d79cdfa1a6c0b18d63a944"
+    },
+    {
+      "path": "models/refactor_candidate/rooms.shitae",
+      "sha256": "542c694aba70070e8643dd69f6ebdfd2cf41895e2bfa7719ceb066c4222ea875"
+    },
+    {
+      "path": "models/refactor_candidate/booking_b.shitae",
+      "sha256": "9675b96e289baa334e4a27ad6fdedfc38ea4d448d7aa3d9d028985dffab1268d"
+    },
+    {
+      "path": "models/refactor_candidate/nav.shitae",
+      "sha256": "ec264fa33c980b809ed7525ffbef0248e63472a7eda5753a325d605bc7163d1c"
+    }
+  ],
+  "sourceFileMatches": 22,
+  "htmlMatches": 2,
+  "prefixMatches": 38
+}
