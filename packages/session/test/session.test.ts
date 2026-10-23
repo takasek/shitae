@@ -27,6 +27,25 @@ const details = (s: Session) => ({ ...actions(s), items: actions(s).items.map(a 
 }) });
 
 describe('Session first CLI slice', () => {
+  it('annotates every suppressed default at its actual placement without changing compact actions or historical reads', () => {
+    const s = session('import widgets as w\n# Parent\nbox: { w::Child }\ndirect: w::Child\n> Tap(w::Child.button) -> overridden\n', {
+      widgets: '# Child\nbutton\n> Tap(button) -> common\n## On\n> Tap(button) -> specific\n',
+    });
+    expect(actions(s).items.map(op => op.actionText)).toEqual(['Tap(w::Child.button)']);
+    const op = details(s).items[0]!;
+    expect(op.overrides).toMatchObject([
+      { host: { module: 'widgets', component: 'Child', variant: 'On' }, placement: { root: 'main', path: [0, 0] }, source: { module: 'widgets', span: { line: 5 } } },
+      { host: { module: 'widgets', component: 'Child', variant: 'On' }, placement: { root: 'main', path: [1] }, source: { module: 'widgets', span: { line: 5 } } },
+    ]);
+    expect(actions(s).items[0]).not.toHaveProperty('overrides');
+    const before = s.query();
+    const past = s.query({ select: ['observation'], observationId: before.summary.cursorObservationId }).data!.observation!;
+    expect(past.view.actions.items[0]!.overrides).toEqual(op.overrides);
+    op.overrides.length = 0;
+    expect(details(s).items[0]!.overrides).toHaveLength(2);
+    expect(s.query()).toEqual(before);
+  });
+
   it('resolves inventory once per revision across per-action detail reads', () => {
     const s = session(model);
     const resolution = vi.spyOn(s as unknown as { indexedResults: (...args: unknown[]) => unknown }, 'indexedResults');
