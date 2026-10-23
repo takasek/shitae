@@ -1,0 +1,53 @@
+{
+  "checks": [
+    {
+      "pair": [
+        "continued",
+        "resumed"
+      ],
+      "scenarioExactEquality": true,
+      "stepCount": 12,
+      "finalLocation": {
+        "module": "visit",
+        "component": "施設詳細",
+        "variant": null
+      },
+      "sharedVariants": [
+        {
+          "module": "visit",
+          "component": "予約状態",
+          "variant": "予約済",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "dsl"
+        }
+      ],
+      "overlays": []
+    },
+    {
+      "pair": [
+        "changed",
+        "changed-resumed"
+      ],
+      "scenarioExactEquality": true,
+      "stepCount": 9,
+      "finalLocation": {
+        "module": "visit",
+        "component": "施設詳細",
+        "variant": null
+      },
+      "sharedVariants": [
+        {
+          "module": "visit",
+          "component": "予約状態",
+          "variant": "予約済",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "dsl"
+        }
+      ],
+      "overlays": []
+    }
+  ],
+  "confirmObservationVerified": true
+}

@@ -10,7 +10,7 @@ PR #76 のマージ後、[前回評価](../2026-10-23-end-to-end/README.md)で�
 - 登録済みcheckout: `/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae`。新規ブランチ `codex/issue-69-gui-evidence` を更新済み origin/main から作成し固定した。
 - macOS 27.0.1 arm64、Node v26.5.0、pnpm 10.33.2。固定lockfileから再install・build（evidence/install.log、build.log）。engineVersionは前回と同じ `683237908597a9e4f75adbb85d54f4a48397f388a4d5d60fb45f9a8b1ad950c7`。
 - Codex in-app browser（版番号未取得）で実操作。モデルと保存物を内部関数へ注入せず、実ダウンロードとfile chooserを使った。保存処理の一呼出しが長く待ったが、製品速度とは切り分けていない。
-- 同一の親agentが追試。人による受取評価は開始画面を別に用意し、回答・操作の結果が揃うまで未完了とする。AIによる操作やfile chooserの補助を人の理解度と混同しない。
+- 同一の親agentが追試。人による受取評価の開始画面は用意したが、利用者が「まだしない。AI用とする」と明示したため保留した。人の回答待ちをこの作業の完了条件にせず、[初見AIによる評価](../2026-10-23-ai-first-use/README.md)へ切り替える。AI利用の成功を人の理解度へ換算しない。
 
 ## 対応する保存物
 
@@ -39,4 +39,4 @@ GUIの再現手順と操作前の期待は [expectations.md](expectations.md)。
 
 [archive-inspection.json](evidence/archive-inspection.json) は利用者が示した `shitae-deep-repro-20261023.zip` を直接確認した結果。収録scenarioは15/38/14/38/22 stepで、元レポートの48操作地点・保守版11操作地点のGUI実保存物は含まれない。新規の成功で過去の回収欠落を埋めない。元資料の保存場所が判明するまでは資料不足として残す。
 
-人向けには、既存の見学予約v2のHTMLと対応scenarioを読込んだ画面を用意した。操作列・作者の答え・モデル本文を追加提示せず、画面と履歴からの説明、次の一操作と保存、迷った表示を質問した。開始画面は evidence/browser/human-start.txt。人の回答が得られるまでは受入成功としない。CLIのhandle転記負担（#44）や、モデル一式を受け取って再生成・派生設計を検討する工程は別に残る。
+人向けには既存の見学予約v2を読込んだ画面を準備して質問した（evidence/browser/human-start.txt）。利用者は受取評価をまだ行わずAI用とする方針を明示したため、人の評価は未実施のまま保留し、画面と配信を終了した。#27/#35/#44の人向け受入を達成済みにせず、今回のAI評価の待機条件にも含めない。

@@ -1,0 +1,94 @@
+{
+  "replay": [
+    {
+      "case": "author-v1",
+      "checkExit": 0,
+      "replayExit": 0,
+      "exactExport": true,
+      "dispatchCount": 9,
+      "summary": {
+        "location": {
+          "module": "equipment",
+          "component": "備品詳細",
+          "variant": null
+        },
+        "cursorObservationId": 11,
+        "latestObservationId": 11,
+        "observationCount": 11
+      }
+    },
+    {
+      "case": "author-v2",
+      "checkExit": 0,
+      "replayExit": 0,
+      "exactExport": true,
+      "dispatchCount": 8,
+      "summary": {
+        "location": {
+          "module": "equipment",
+          "component": "備品詳細",
+          "variant": null
+        },
+        "cursorObservationId": 10,
+        "latestObservationId": 10,
+        "observationCount": 10
+      }
+    },
+    {
+      "case": "recipient-continued",
+      "checkExit": 0,
+      "replayExit": 0,
+      "exactExport": true,
+      "dispatchCount": 12,
+      "summary": {
+        "location": {
+          "module": "visit",
+          "component": "施設詳細",
+          "variant": null
+        },
+        "cursorObservationId": 15,
+        "latestObservationId": 15,
+        "observationCount": 15
+      }
+    },
+    {
+      "case": "recipient-changed",
+      "checkExit": 0,
+      "replayExit": 0,
+      "exactExport": true,
+      "dispatchCount": 9,
+      "summary": {
+        "location": {
+          "module": "visit",
+          "component": "施設詳細",
+          "variant": null
+        },
+        "cursorObservationId": 12,
+        "latestObservationId": 12,
+        "observationCount": 12
+      }
+    },
+    {
+      "case": "author-mismatch",
+      "exit": 1,
+      "modelMismatch": true
+    },
+    {
+      "case": "recipient-mismatch",
+      "exit": 1,
+      "modelMismatch": true
+    }
+  ],
+  "authorLiveCounts": {
+    "v1": {
+      "query": 10,
+      "dispatch": 9,
+      "exportScenario": 1
+    },
+    "v2": {
+      "query": 9,
+      "dispatch": 8,
+      "exportScenario": 1
+    }
+  }
+}
