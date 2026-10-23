@@ -1,4 +1,4 @@
-import type { Document, Component, Body, Diagnostic, Span, Interaction } from '@shitae/ast';
+import type { Document, Component, Body, Diagnostic, Span, Interaction, ElementLine, Ref } from '@shitae/ast';
 import type { ResolveResult, ProjectResolveResult } from '@shitae/resolver';
 import { effectiveResults, resolveModuleRef } from '@shitae/resolver';
 
@@ -19,14 +19,21 @@ export function check(
 
   // singleton 名の集合（同一ファイル内）
   const singletons = singletonNamesOf(resolved);
+  const collectionScope: CollectionScope = {
+    resolved,
+    imported(alias) {
+      const canonical = resolveModuleRef(alias, document);
+      return canonical ? importedCollectionScope(canonical, projectCtx) : undefined;
+    },
+  };
 
   // document common: set は対象 component を明示するので host なしでも判定できる。
   // 裸 goto(##X) は host が実行時にしか決まらないため対象外（SPEC「variant の参照は必ず ##」）。
   for (const it of document.common.interactions) {
     checkStateWrites(it, document, resolved, projectCtx, diags);
-    checkSingletonCollectionTarget(it, document, singletons, projectCtx, diags);
+    checkSingletonExplicitShow(it, document, singletons, projectCtx, diags);
   }
-  checkSingletonCollectionElements(document.common, singletons, diags);
+  checkSingletonCollections(document.common, collectionScope, diags);
 
   for (const comp of document.components) {
     // W103: empty body
@@ -58,12 +65,9 @@ export function check(
     }
 
     // E028: singleton × collection（宣言側要素行・参照側行動対象。ADR-0016）
-    checkSingletonCollectionElements(comp.common, singletons, diags);
+    checkSingletonCollections(comp.common, collectionScope, diags);
     for (const v of comp.variants) {
-      checkSingletonCollectionElements(v.body, singletons, diags);
-    }
-    for (const it of interactionsOf(comp)) {
-      checkSingletonCollectionTarget(it, document, singletons, projectCtx, diags);
+      checkSingletonCollections(v.body, collectionScope, diags);
     }
 
     // W105（goto(##X) の未定義 variant）・W105/E030（set）
@@ -295,52 +299,93 @@ function checkStateWrites(
   }
 }
 
-/** E028: singleton を collection 宣言した要素行（*バッジ / *手札: バッジ）。ADR-0016 */
-function checkSingletonCollectionElements(
-  body: Body,
-  singletons: Set<string>,
-  diags: Diagnostic[]
-): void {
-  for (const el of body.elements) {
-    if (!el.collection) continue;
-    if (el.value.kind !== 'ref') continue;
-    if (singletons.has(el.value.name)) {
-      diags.push({
-        severity: 'error',
-        code: 'E028',
-        message: `singleton '${el.value.name}' に collection の * は付けられない（単一インスタンス。「singleton component」参照）`,
-        span: el.span,
-      });
-    }
-  }
+/** E028 の参照元。import alias は参照を書いた定義ファイルで解決する。 */
+interface CollectionScope {
+  resolved: ResolveResult;
+  imported(alias: string): CollectionScope | undefined;
 }
 
-/** E028: singleton への collection 参照（行動対象 *バッジ）。ADR-0016 */
-function checkSingletonCollectionTarget(
-  interaction: Interaction,
-  document: Document,
-  singletons: Set<string>,
-  projectCtx: ProjectCheckContext | undefined,
-  diags: Diagnostic[]
-): void {
-  const ref = interaction.action.target;
-  if (!ref || !ref.collection) return;
+function importedCollectionScope(
+  canonical: string,
+  projectCtx: ProjectCheckContext | undefined
+): CollectionScope | undefined {
+  const project = projectCtx?.project;
+  const resolved = project?.getModule(canonical);
+  if (!project || !resolved) return undefined;
+  return {
+    resolved,
+    imported(alias) {
+      const target = project.getByAlias(canonical, alias);
+      if (!target) return undefined;
+      // ProjectResolveResult が保持する正準名を使い、参照元側の import 表を混ぜない。
+      const name = [...project.modules].find(([, module]) => module === target)?.[0];
+      return name === undefined ? undefined : importedCollectionScope(name, projectCtx);
+    },
+  };
+}
 
-  let targetSingletons: Set<string>;
-  if (ref.module === null) {
-    targetSingletons = singletons;
-  } else {
-    const cross = resolveCrossModule(ref.module, document, projectCtx);
-    if (!cross) return; // projectCtx なし・alias/module 未解決なら従来どおり skip
-    targetSingletons = singletonNamesOf(cross);
-  }
+function collectionDefinition(ref: Pick<Ref, 'module' | 'name'>, scope: CollectionScope) {
+  const targetScope = ref.module === null ? scope : scope.imported(ref.module);
+  const component = targetScope?.resolved.componentIndex.get(ref.name);
+  return component && targetScope ? { component, scope: targetScope } : undefined;
+}
 
-  if (targetSingletons.has(ref.name)) {
+/** 要素宣言と行動対象の * を、名前の一致ではなく参照先の定義で検査する。 */
+function checkSingletonCollections(body: Body, scope: CollectionScope, diags: Diagnostic[]): void {
+  function report(component: Component | undefined, span: Span): void {
+    if (!component?.singleton) return;
     diags.push({
       severity: 'error',
       code: 'E028',
-      message: `singleton '${ref.name}' に collection の * は付けられない（単一インスタンス。「singleton component」参照）`,
-      span: ref.span,
+      message: `singleton '${component.name}' に collection の * は付けられない（単一インスタンス。「singleton component」参照）`,
+      span,
     });
+  }
+
+  function elements(lines: ElementLine[]): void {
+    for (const el of lines) {
+      if (el.value.kind === 'inline') {
+        // 外側の * は入れ物だけに掛かる。子は各自の宣言を検査する。
+        elements(el.value.elements);
+      } else if (el.collection) {
+        report(collectionDefinition(el.value, scope)?.component, el.span);
+      }
+    }
+  }
+  elements(body.elements);
+
+  for (const interaction of body.interactions) {
+    const ref = interaction.action.target;
+    if (!ref?.collection) continue;
+    // alias は interaction の single-body 内だけ。alias の参照先を再び alias として引かない。
+    const alias = ref.module === null ? body.elements.find(el => el.alias === ref.name) : undefined;
+    const target = alias?.value ?? { kind: 'ref' as const, module: ref.module, name: ref.name, span: ref.span };
+    if (ref.member === null) {
+      if (target.kind !== 'inline') report(collectionDefinition(target, scope)?.component, ref.span);
+      continue;
+    }
+
+    if (target.kind === 'inline') {
+      const member = target.elements.find(el => el.alias === ref.member);
+      if (member?.value.kind === 'ref') report(collectionDefinition(member.value, scope)?.component, ref.span);
+      continue;
+    }
+
+    const owner = collectionDefinition(target, scope);
+    if (!owner) continue;
+    // member は参照先の現在 variant の実効 body で解決される。静的検査では各 variant を
+    // 調べ、singleton を指す経路があれば元の行動対象に一度だけ報告する。
+    const { component, scope: ownerScope } = owner;
+    const bodies = component.variants.length ? component.variants.map(v => v.body) : [component.common];
+    for (const variantBody of bodies) {
+      const member = variantBody.elements.find(el => el.alias === ref.member)
+        ?? component.common.elements.find(el => el.alias === ref.member);
+      const definition = member?.value.kind === 'ref'
+        ? collectionDefinition(member.value, ownerScope)?.component : undefined;
+      if (definition?.singleton) {
+        report(definition, ref.span);
+        break;
+      }
+    }
   }
 }

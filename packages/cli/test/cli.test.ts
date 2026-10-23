@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
-import { writeFileSync, unlinkSync, mkdirSync, rmSync } from 'fs';
+import { writeFileSync, unlinkSync, mkdirSync, rmSync, mkdtempSync } from 'fs';
+import { tmpdir } from 'os';
 import { join } from 'path';
 
 const execFileAsync = promisify(execFile);
@@ -9,6 +10,29 @@ const CLI = join(import.meta.dirname, '../dist/index.js');
 const BATTLE = join(import.meta.dirname, '../../../docs/examples/battle.shitae');
 const ECOMMERCE = join(import.meta.dirname, '../../../docs/examples/ecommerce.shitae');
 const SMARTHOME_MAIN = join(import.meta.dirname, '../../../docs/examples/smarthome/main.shitae');
+
+describe('issue #65: public check W106', () => {
+  it.each([
+    ['show(Status##Clean)', '#!', 1],
+    ['show(Status)', '#!', 0],
+    ['show(Status##Clean)', '#', 0],
+    ['show(ui::Status##Clean)', '#!', 1],
+  ])('%s (%s) reports %i warning', async (result, header, count) => {
+    const dir = mkdtempSync(join(tmpdir(), 'shitae-65-'));
+    const main = join(dir, 'main.shitae');
+    const definition = `${header} Status\n## Clean\nCleanLabel\n## Saved\nSavedLabel\n`;
+    writeFileSync(join(dir, 'library.shitae'), definition);
+    writeFileSync(main, `import library as ui\n> Notify -> ${result}\n# Editor\nLabel\n# Preview\nLabel\n${definition}`);
+    try {
+      const { code, stderr } = await runCli(['check', main]);
+      expect(code).toBe(0);
+      expect(stderr.match(/W106/g) ?? []).toHaveLength(count);
+      if (count) expect(stderr).toContain(`${main}:2:`);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
 
 async function runCli(args: string[]): Promise<{ stdout: string; stderr: string; code: number }> {
   try {
@@ -18,6 +42,33 @@ async function runCli(args: string[]): Promise<{ stdout: string; stderr: string;
     return { stdout: e.stdout ?? '', stderr: e.stderr ?? '', code: e.code ?? 1 };
   }
 }
+
+describe('issue #64: public check E028', () => {
+  it.each([
+    ['*ui::Card', '#', '#!', 0],
+    ['*ui::Card', '#!', '#', 1],
+    ['panel: { *ui::Card }', '#!', '#', 1],
+    ['*panel: { badge: ui::Card }', '#!', '#', 0],
+    ['badge: ui::Card\n> Tap(*badge) -> Done', '#!', '#', 1],
+    ['Card: Regular\n> Tap(*Card) -> Done', '#', '#!', 0],
+    ['panel: { badge: ui::Card }\n> Tap(*panel.badge) -> Done', '#!', '#', 1],
+    ['> Tap(*ui::Card) -> Done', '#', '#!', 0],
+    ['> Tap(*ui::Card) -> Done', '#!', '#', 1],
+  ])('%s (import %s / local %s) exits %i', async (body, remoteHeader, localHeader, code) => {
+    const dir = mkdtempSync(join(tmpdir(), 'shitae-64-'));
+    const main = join(dir, 'main.shitae');
+    writeFileSync(join(dir, 'library.shitae'), `${remoteHeader} Card\nLabel\n`);
+    writeFileSync(main, `import library as ui\n# Screen\n${body}\n${localHeader} Card\nLabel\n# Regular\nLabel\n`);
+    try {
+      const result = await runCli(['check', main]);
+      expect(result.code).toBe(code);
+      expect(result.stderr.match(/E028/g) ?? []).toHaveLength(code);
+      if (code) expect(result.stderr).toContain(main);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
 
 describe('shitae check', () => {
   it('battle サンプルで exit 0', async () => {
