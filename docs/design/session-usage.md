@@ -1,5 +1,7 @@
 # 共通 Session の使い方と実装状況
 
+CLI/API の **Session はシミュレーション全体**を管理する実行単位です。DSL の **session（`@S`）はその内部で開始・終了する作業範囲**を指します。一つの Session の中に複数の `@S` が生存でき、`exit(@S)` はシミュレーション全体を終了する操作ではありません。API 名は `Session` のまま使います。
+
 Issue #18 の実装版。CLI と生成 GUI は同じ Session/runtime を使う。状態遷移、実効操作、gate、手動試験値、結果ごとの観測点と復元は Session が担当し、GUI は照会結果を描画する。build 時の通常 bundle を埋め込み、配布は自己完結 HTML 一枚を維持した。
 
 ## CLI

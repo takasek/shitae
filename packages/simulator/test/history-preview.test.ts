@@ -229,11 +229,11 @@ describe('addendum warning and remaining-work inspection', () => {
     for (let n=0;n<4;n++) g.run("handleInteraction('component',0,0)");
     const before=g.snapshot(), saved=await g.run('buildScenarioJson()');
     const panel=g.run('renderRemainingWork()');
-    expect(panel).toContain('残っている作業（画面外 1件）');
+    expect(panel).toContain('残っている作業（現在の経路外 1件）');
     expect(panel).toContain('main::Confirm');
     expect(panel).toContain('@confirm');
     expect(panel).toContain('親: #2');
-    expect(panel).toContain('画面外で保持');
+    expect(panel).toContain('現在の経路外で保持');
     expect(panel).toContain('現在の経路');
     expect(panel).not.toMatch(/onclick|onchange|seek|switch\(/);
     expect(g.snapshot()).toBe(before); expect(await g.run('buildScenarioJson()')).toBe(saved);
@@ -243,7 +243,7 @@ describe('addendum warning and remaining-work inspection', () => {
     g.run('endHistoryPreview(); handleInteraction("component",1,0)');
     const after=g.run('renderRemainingWork()');
     expect(after).not.toContain('main::Confirm'); expect(after).not.toContain('@member');
-    expect(after).toContain('画面外 0件');
+    expect(after).toContain('現在の経路外 0件');
   });
   it('keeps independent displays and shared state separate from ended work', () => {
     const g=gui('# Home\n> Start -> present(Work, @member) ; show(Notice) ; set(State##Ready)\n# Work\n> End -> exit(@member)\n# Notice\nnotice\n#! State\n## Idle\n## Ready\n');

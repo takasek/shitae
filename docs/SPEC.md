@@ -341,17 +341,17 @@ shitae は任意の条件式や値比較を評価しない。presence gate で�
 | `goto(X)` | 現在を X に置き換える（積まない） | ✗ |
 | `exit(@S)` | @S セッションを破棄（begin した地点へ戻る）。戻り先が無ければ no-op | — |
 | `present(X)` / `present(X, @S)` | モードに入る（モーダル・ログイン後フロー等）。back barrier あり＋セッションを束ねた compound verb | △ |
-| `dismiss()` / `dismiss(@S)` | 直近のモーダルを閉じる／@S を破棄。戻り先が無ければ no-op | — |
+| `dismiss()` / `dismiss(@S)` | `dismiss()` は直近の無名作業を閉じる。`dismiss(@S)` は指定作業 @S と子孫を破棄し、`exit(@S)` と同義。戻り先が無ければ no-op | — |
+| `switch(X, @S)` | フレームの中断と復帰（タブ等の並行文脈）。@S が生きていれば中断位置へ復帰、無ければ X で新規開始（resume-or-create）。back barrier あり | △ |
 
 無名 `dismiss()` が探すのは**無名セッション（`present(X)` が開始したもの）だけ**——`push(X, @S)` で begin した named session は畳まない（素通りする named session は道連れで消えることはあるが、`dismiss()` 自身の対象にはならない）。push-begin の `@S` を畳むのは `exit(@S)`（`dismiss(@S)` も同義）。
-| `switch(X, @S)` | フレームの中断と復帰（タブ等の並行文脈）。@S が生きていれば中断位置へ復帰、無ければ X で新規開始（resume-or-create）。back barrier あり | △ |
 
 `back` は **画面スタックを戻る**（引数は常に component）。`exit` は **セッションを終える**（引数は常にセッション `@S`）。役割が違うので予約語を分ける——`back(X)` の X は必ず画面、`exit(@S)` の @S は必ずセッション。`@` で見分けるのではなく、語で意味が確定する。
 
 ### push / goto と行き先
 
 - **`goto`** は「積まない置き換え（ジャンプ）」。対象は同一 component の variant でも別 component でもよい。
-  - `goto(##表示)` … 同一 component の別の variant へ（variant change。`##` で variant を明示、component 名は省略）
+  - `goto(##表示)` … 各結果を適用する時点のアクティブ画面の variant へ（variant change。包含部品・overlay の定義元自身とは限らず、先行結果で作用先も変わる。[詳説](#variant-の参照は必ず-)と[既存例](AI_GUIDE.md#子に書いた操作はどこを変えるか)を参照）
   - `goto(ホーム)` … 別 component へ、戻れない置き換え（ログイン→ホーム等）
 - `goto` は**セッションを開始できない**（`goto(X, @S)` は不可）。セッションは「begin した地点に戻る」ために、begin 時点でフレーム上の新しい一位置を必要とするが、`goto` は積まずに現在フレームの最上段を置き換えるだけなので、新しい begin 地点を作れない（畳む基点になれない）。
   この規則は、goto が**既存の** begin マーカー（現在フレームがすでに begin しているセッション）を保つかどうかとは独立——`goto` は新規セッションを開始できないが、現在フレームがすでに持っている begin マーカーは壊さずそのまま残す（「フレーム木」を参照）。
@@ -367,13 +367,13 @@ variant を参照するときは常に **`##variant`** と書く。定義の `##
 
 同一 component 内では component 名を省略できるが、**variant 名を component 名のように裸で書いてはいけない**。`goto(表示)` は「表示という component へ」の意味になり、variant change にならない。variant change は `goto(##表示)`。
 
-裸 `##variant` の「同一 component」は**実行時にアクティブな component**（アクティブフレームの最上段）を指す——書かれた場所（字句上のホスト）ではない。document common から継承した interaction の `goto(##v)` は、発火時にアクティブな画面の variant を切り替える。掲示中 overlay の interaction でも同じ（overlay 自身の variant を変えたいときは再 `show`。「オーバーレイ」を参照）。
+裸 `##variant` の「同一 component」は**各結果を適用する時点のアクティブ画面**（アクティブフレームの最上段）を指す——書かれた場所（字句上のホスト）ではない。包含部品や掲示中 overlay の interaction でも同じで、先行結果で画面が変われば作用先も変わる。たとえば `push(次) ; goto(##表示)` は先に開いた `次` の variant を変える（[包含部品の既存例](AI_GUIDE.md#子に書いた操作はどこを変えるか)も参照）。overlay 自身の表示 variant を変えたいときは再 `show` を使う（「オーバーレイ」を参照）。
 
 フレームを新規作成する形（`push(##v, @S)` / `present(##v[, @S])` / `switch(##v, @S)`）に裸 variant を書くのは**構文エラー**（E023）——variant 切替のつもりで書いた読者の前でフレームが増える驚きを防ぐ。switch が実行時に resume するか新規作成するかによらず、構文段階で一律に禁止する。document common に裸 `##variant` を書くのも従来どおり禁止で、E022 として検出される。
 
 ### initial variant とエントリポイント
 
-variant 指定なしの遷移（`push(X)` / `goto(X)` / `present(X)` 等、`##variant` を伴わないもの）は、X の**最初に定義された variant**（最初の `## variant`。variant を持たない component ならその単一 variant）で開く（singleton は除く——初回以降は最後に遷移した variant で開く。「singleton component」を参照）。
+**initial variant** は、component の**最初に定義された variant**（最初の `## variant`。`##` が無ければその単一 variant）。通常 component を variant 指定なしの遷移（`push(X)` / `goto(X)` / `present(X)` 等）で新しく開くときの既定である。singleton は保持中の共有 variant を優先する（「singleton component」を参照）。既存の画面へ戻る／生存する作業へ復帰するときは initial に戻さず、保持していた状態を使う（「フレーム木」を参照）。
 
 ドキュメント全体のエントリポイントは**ファイル先頭の component**。モジュール分割時は、エントリファイル（起点となる `.shitae` ファイル）の先頭 component がエントリポイントになる。component を 1 つも持たない文書は不正（エントリポイントが定まらない）。
 
@@ -771,6 +771,8 @@ condition label は**結果**に付く記法であり、要素行の名前を `[
 | E031 | `goto()` / `push()`（session なし）の遷移先が module 修飾つき裸 `##variant`（`goto(mod::##v)` / `push(mod::##v)`。「mod のアクティブ component」が定まらないため不正。裸 `##v`（module 修飾なし）は同一 component 内の variant change として合法。「variant の参照は必ず ##」参照） | error |
 
 ### プロジェクト単位の検査
+
+W105 の裸 `goto(##v)` 検査は、操作開始時に**定義元 component を作用先と仮定**して結果列を逐次追跡する。包含部品・overlay の呼出元は解析しないため、この仮定と実行時のアクティブ画面が異なる場合は誤警告・見逃しがありうる。`back` / `exit` / `dismiss` / `switch` 後は履歴依存として検査を保留し、明示的な component 遷移で再開する。`set(X##v)` は指定先 X を検査する。W105 の有無だけで実行時の作用先や業務要件の妥当性を判定しない。
 
 `check`（診断報告）は**プロジェクト単位**で行う——エントリファイルだけでなく、エントリ + 全 import 先の parse/check 診断を報告し、いずれかに error があれば不正な文書として扱う。E030 / W105 / E028 は、module 修飾つき参照（他モジュールで定義された component への `set` / `goto` / singleton `*` 等）に対しても、その定義先モジュールの情報を使って検査する——モジュール境界を越えたからといって検査対象から外れることはない。
 

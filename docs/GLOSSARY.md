@@ -20,9 +20,9 @@ shitae の概念語の正準名。SPEC・AI_GUIDE・スキル・examples はこ�
 |------|------|------|
 | **component** | `#` | 画面・部品の定義。遷移先に使えば画面、別の定義の要素に置けば部品として使う同じ定義単位。組み込みの特権 component は無い |
 | **variant** | `##` | 状態パターン。その状態で何が見え、どの操作が定義されるかの組合せ（読込中／表示中、未予約／予約済など）。共通部分も含む。操作可否には presence gate も関わる。旧称: 姿 |
-| **initial variant** | — | variant 指定なしの遷移で開く、最初に定義された variant |
+| **initial variant** | — | 最初に定義された variant（`##` が無ければ単一 variant）。通常 component を variant 指定なしで新しく開く既定。singleton は保持中の共有 variant を優先する（[SPEC](SPEC.md#initial-variant-とエントリポイント)） |
 | **single variant** | — | `##` を 1 つも書かない component が持つ、ただ 1 つの variant（＝従来の画面） |
-| **variant change** | `goto(##X)` | 同一 component 内で variant を切り替えること。旧称: 姿替え |
+| **variant change** | `goto(##X)` | 各結果を適用する時点のアクティブ画面の variant を切り替えること。包含部品・overlay の定義元自身とは限らず、先行結果で作用先も変わる（[例](AI_GUIDE.md#子に書いた操作はどこを変えるか)）。旧称: 姿替え |
 | **two-layer model** | `#` / `##` | component と variant の 2 階層で shitae ができているという構図 |
 | **element line** | 行頭 `>` なし | その variant で何が見えるかを書く行（要素行） |
 | **interaction line** | 行頭 `>` | その variant で何ができるかを書く行（インタラクション行） |
@@ -36,6 +36,16 @@ shitae の概念語の正準名。SPEC・AI_GUIDE・スキル・examples はこ�
 | **inline component** | `{ ... }` | その場限りの component（要素のみ。variant・interaction は持てない） |
 | **quoted name** | `"..."` | 空白を含む名前を囲む（エスケープ機構なし） |
 | **module / namespace** | `import` / `::` | ファイル＝モジュール＝名前空間。`import x as y` で読み込み `y::component` で参照 |
+
+## 名前の識別単位
+
+| 名前・表示 | 識別するもの・範囲 |
+|---|---|
+| 定義ファイル＋component 名 | component 定義の識別単位。同一ファイルを別 import alias で参照しても同じ定義。別ファイルの同名 component は別定義。singleton の共有単位もこの組 |
+| `@作業名` | 実行中の作業範囲を探す名前。同名で複数回 begin でき、一意な instance ID でも module 固有名でもない。探索順は [SPEC のフレーム木](SPEC.md#フレーム木)を参照 |
+| body 内の alias（`呼び名: 部品`） | その body 内の要素の呼び名。表示だけでなく、操作対象や `部品.呼び名` などの参照にも使う（[記号一覧のスコープと優先順位](SPEC.md#記号一覧これで全部)） |
+| 表示文字列 | UI に見える文字列だけでは定義や実行中の instance を一意に識別できない。定義ファイル・component・作業位置などを合わせて読む |
+| overlay | 解決済みの定義ファイル＋component 名で識別。variant は ID に含まない。同一ファイルへの別 import alias は同じ overlay、別ファイルの同名 component は別 overlay（[SPEC](SPEC.md#オーバーレイshow--hide)、[ADR-0026](adr/0026-overlay-identity-is-module-component.md)） |
 
 ## 遷移
 

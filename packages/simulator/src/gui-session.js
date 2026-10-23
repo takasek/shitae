@@ -531,10 +531,10 @@ function renderRemainingWork() {
   const outside = state.frames.filter(f => !active.has(f.id)).length;
   const location = v => esc(v.module + '::' + locationLabel(v));
   const values = items => items.length ? '<ul>' + items.map(v => '<li>' + location(v) + ' · ' + valueDescription(v) + '</li>').join('') + '</ul>' : '<p>なし</p>';
-  return '<details class="remaining-work" data-state-key="remaining-work"><summary class="pane-title">残っている作業（画面外 ' + outside + '件）</summary>' +
-    '<p>現在の操作位置に対応する全ての作業です。履歴の閲覧中も現在の状態を示します。開閉は閲覧だけで、画面移動や履歴からの再開はしません。</p>' +
+  return '<details class="remaining-work" data-state-key="remaining-work"><summary class="pane-title">残っている作業（現在の経路外 ' + outside + '件）</summary>' +
+    '<p>現在の操作位置に対応する全ての作業です。件数は現在の経路（activePath）の外で保持するフレーム数です。画面に見えなくても、現在の経路の祖先は件数に含めません。履歴の閲覧中も現在の状態を示します。開閉は閲覧だけで、画面移動や履歴からの再開はしません。</p>' +
     state.frames.map(f => {
-      const status = f.id === state.activeFrameId ? '操作中' : active.has(f.id) ? '現在の経路' : '画面外で保持';
+      const status = f.id === state.activeFrameId ? '操作中' : active.has(f.id) ? '現在の経路' : '現在の経路外で保持';
       const name = f.beginsSession ? (f.beginsSession.name ? '@' + f.beginsSession.name : '無名の作業区切り') : '起点';
       return '<details data-state-key="work:' + sessionGeneration + ':' + f.id + '"><summary>#' + f.id + ' · ' + esc(name) + ' · ' + status + ' · ' + location(f.stack.at(-1)) + '</summary>' +
         '<p>親: ' + (f.parentId === null ? 'なし' : '#' + f.parentId) + ' / back の境界: ' + (f.barrier ? 'あり' : 'なし') + '</p>' +
