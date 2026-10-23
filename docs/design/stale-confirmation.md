@@ -98,12 +98,15 @@ guarded の StartB の直後に、手動試験で RowA を Desk に変えると�
 pnpm install --frozen-lockfile
 pnpm build
 node docs/design/stale-confirmation/verify.mjs
+node --test docs/design/stale-confirmation/verify.test.mjs
 node packages/cli/dist/index.js session docs/design/stale-confirmation/guarded.shitae
 ```
 
 verify.mjs は公開 check と session の CLI を子 process として起動します。
 操作ごとに actions を再取得し、overlay の操作を選び、通常経路と手動試験を区別して state を検査します。
 [results.json](stale-confirmation/results.json) は本変更で保存した9ケースの結果です。
+取消後の作業・現在画面・全共有値・確認表示を期待値と照合します。
+verify.test.mjs は正常な9ケースの記録一致と、行の誤更新または確認の閉じ忘れを入れた4変異が検証に失敗することを確認します。
 check は各模型で error なしですが、内容を省略した CommittedA と Marker の W103 は残ります。
 固定経路の成功は、模型全体の正しさ、人間の初学者の理解度、実ブラウザーでの保存・読込の受入を意味しません。
 

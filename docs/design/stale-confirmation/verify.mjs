@@ -52,10 +52,11 @@ async function run(model, next, { corrupt = false, local = false } = {}) {
     if (local) {
       await action('DiscardA');
       const after = await state();
-      assert.deepEqual(after.work, []);
-      assert.equal(after.values.RowA, 'None');
-      assert.equal(after.values.ReturnIndex, 'None');
-      assert.equal(after.values.CommittedA, 'Unreserved');
+      assert.deepEqual(after, {
+        work: [], active: 'Home',
+        values: { RowA: 'None', RowB: 'None', ReturnIndex: 'None', CommittedA: 'Unreserved' },
+        overlays: [],
+      });
       results.push({ model, path: 'local cancellation', after });
       return;
     }
@@ -82,19 +83,16 @@ async function run(model, next, { corrupt = false, local = false } = {}) {
     const reply = await request('dispatch', { handle: a.handle });
     assert.equal(reply.ok, permitted);
     const after = await state();
-    assert.equal(after.values.CommittedA, 'Reserved');
     if (!permitted) {
       assert.deepEqual(after, before);
-    } else if (next === 'StartB') {
-      assert.deepEqual(after.work, ['workB']);
-      assert.equal(after.active, 'DraftB');
-      assert.equal(after.values.RowB, 'Desk');
-      assert.equal(after.values.ReturnIndex, 'None');
-      assert.match(JSON.stringify(reply), /R002/);
-    } else if (next === 'StartA') {
-      assert.deepEqual(after.work, []);
-      assert.equal(after.values.RowA, 'None');
-      assert.equal(after.values.ReturnIndex, 'None');
+    } else {
+      assert.deepEqual(after, {
+        work: next === 'StartB' ? ['workB'] : [],
+        active: next === 'StartB' ? 'DraftB' : 'Home',
+        values: { RowA: 'None', RowB: next === 'StartB' ? 'Desk' : 'None', ReturnIndex: 'None', CommittedA: 'Reserved' },
+        overlays: [],
+      });
+      if (next === 'StartB') assert.match(JSON.stringify(reply), /R002/);
     }
     results.push({ model, path: next, kind: corrupt ? 'manual-test' : 'normal', enabled: a.enabled, before, after });
   } finally {
