@@ -2719,9 +2719,9 @@ problem: Diagnostics
     expect(countB).toBe(1);
   });
 
-  it('部品の裸 gate は部品自身の表示 variant の実効 body で判定される（overlay の hostCtx 方式を流用。受入基準c）', () => {
+  it('部品共通の裸 gate は親の同名要素ではなく部品自身の現在 variant で有効・無効が切り替わる', () => {
     const doc = parseOk(
-      '# ホーム\nスイッチ\n\n# スイッチ\n## オン\nランプ\n> タップ(ランプ?) -> back()\n## オフ\n本体\n',
+      '# ホーム\nスイッチ\nランプ\n> 確認(スイッチ.ランプ?) -> confirmed\n\n# スイッチ\n> タップ(ランプ?) -> back()\n## オン\nランプ\n## オフ\n本体\n',
     );
     const html = toSimulator(new Map([['main', doc]]), 'main');
     const context = runSimulatorScript(html);
@@ -2729,9 +2729,13 @@ problem: Diagnostics
     const before = vm.runInContext('app.innerHTML', context);
     expect(before).toContain('タップ(ランプ)');
     // 部品自身の表示 variant をオフへ切替（ホーム側の variant ではない）→ ランプ不在で gate が無効になる
-    vm.runInContext("fixtureTrial('main', 'スイッチ', 'オフ'); render()", context);
+    vm.runInContext("setInstanceVariant('main', 'スイッチ', 'オフ')", context);
+    expect(vm.runInContext('sessionError', context)).toBe('');
     const after = vm.runInContext('app.innerHTML', context);
     expect(after).not.toContain('タップ(ランプ)');
+    expect(vm.runInContext("view.data.actions.items.find(op => op.action.text === 'タップ').enabled", context)).toBe(false);
+    vm.runInContext("setInstanceVariant('main', 'スイッチ', 'オン')", context);
+    expect(vm.runInContext('app.innerHTML', context)).toContain('タップ(ランプ)');
   });
 
   it('cross-module: 部品 interaction の遷移先は定義ファイル基準で正準化済みのまま、実行はアクティブフレーム基準で効く（受入基準e）', () => {

@@ -20,6 +20,6 @@ export function loadModel(entryPath: string) {
     return module;
   }
   const entryModule = load(entryFile);
-  return { documents, entryModule, modulePaths: files, diagnostics, sources, failed: false,
+  return { documents, entryModule, modulePaths: files, diagnostics, sources,
     metadata: createMetadata(documents, entryModule, files, sources) };
 }

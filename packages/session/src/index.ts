@@ -29,6 +29,8 @@ export interface Operation {
   source: Source;
   placement: { root: string; path: number[]; source: Source | null };
   host: Location;
+  /** Defaults suppressed by this operation, resolved at each included placement. Read-only explanation data. */
+  overrides: Array<{ source: Source; host: Location; placement: Operation['placement'] }>;
   enabled: boolean;
   gate: { kind: 'host' | 'member'; name: string; enabled: boolean; unresolved: boolean; module?: string; targetComponent?: string; value?: VariantValue } | null;
   prelude: ResultRef[];
@@ -236,7 +238,7 @@ export class Session {
     if (context === this.context && this.currentInventory?.revision === this.revision && this.currentInventory.context === context) return this.currentInventory.value;
     const entries: Entry[] = [];
     const collect = (host: Location, root: string, path: number[], placementSource: Source | null,
-      includeDocument: boolean, visited: Set<string>, overrides: Interaction[] = []) => {
+      includeDocument: boolean, visited: Set<string>, overrides: Entry[] = []) => {
       const module = host.module!;
       const key = singletonKey(module, host.component);
       if (visited.has(key)) return;
@@ -246,12 +248,18 @@ export class Session {
       const variant = comp?.variants.find((v) => v.name === host.variant);
       const own = mergeInteractions(comp?.common.interactions ?? [], variant?.body.interactions ?? []);
       const list = includeDocument ? mergeInteractions(doc?.common.interactions ?? [], own) : own;
-      const effective = list.filter((i) => !overrides.some((o) => {
-        const a = i.action, outer = o.action;
-        return a.target != null && outer.target?.member === a.target.name && a.target.module == null &&
-          a.target.member == null && a.target.collection === outer.target.collection &&
-          a.text.replace(/\s+/g, ' ').trim() === outer.text.replace(/\s+/g, ' ').trim();
-      }));
+      const effective = list.filter((i) => {
+        const matched = overrides.filter((o) => {
+          const a = i.action, outer = o.interaction.action;
+          return a.target != null && outer.target?.member === a.target.name && a.target.module == null &&
+            a.target.member == null && a.target.collection === outer.target.collection &&
+            a.text.replace(/\s+/g, ' ').trim() === outer.text.replace(/\s+/g, ' ').trim();
+        });
+        for (const entry of matched) entry.operation.overrides.push({ source: this.source(module, i.span), host,
+          placement: { root, path, source: placementSource } });
+        return matched.length === 0;
+      });
+      const ownEntries: Entry[] = [];
       for (const interaction of effective) {
         const resultRefs = this.indexedResults(module, interaction);
         const branches: Branch[] = [];
@@ -263,13 +271,14 @@ export class Session {
         const gate = this.gate(module, interaction, host, includeDocument, context);
         const a = interaction.action, target = a.target;
         const actionText = a.text + (target ? `(${target.collection ? '*' : ''}${target.module ? target.module + '::' : ''}${target.name}${target.member ? '.' + target.member : ''}${target.existsGated ? '?' : ''})` : '');
-        entries.push({ interaction, module, operation: {
+        const entry: Entry = { interaction, module, operation: {
           handle: this.handle(entries.length), action: a, actionText,
           scope: doc?.common.interactions.includes(interaction) ? 'document' : variant?.body.interactions.includes(interaction) ? 'variant' : 'component',
-          source: this.source(module, interaction.span), placement: { root, path, source: placementSource }, host,
+          source: this.source(module, interaction.span), placement: { root, path, source: placementSource }, host, overrides: [],
           enabled: gate?.enabled ?? true, gate,
           prelude: resultRefs.filter((r) => r.label == null).map(({ resultIndex, source }) => ({ resultIndex, source })), branches,
-        } });
+        } };
+        entries.push(entry); ownEntries.push(entry);
       }
       const walkElements = (els: ElementLine[], basePath: number[]) => els.forEach((el, index) => {
         const childPath = [...basePath, index];
@@ -280,7 +289,7 @@ export class Session {
         const variant = this.value(childModule, child.name, null, 'inclusion-initial', context).variant;
         collect(this.display({ module: childModule, component: child.name, variant }), root, childPath,
           this.source(module, el.span), false, nextVisited,
-          effective.filter((i) => this.targetsPlacement(module, i, el)));
+          ownEntries.filter((entry) => this.targetsPlacement(module, entry.interaction, el)));
       });
       walkElements(this.elements(host, includeDocument), path);
     };

@@ -27,13 +27,26 @@ export function check(
     },
   };
 
-  // document common: set は対象 component を明示するので host なしでも判定できる。
-  // 裸 goto(##X) は host が実行時にしか決まらないため対象外（SPEC「variant の参照は必ず ##」）。
-  for (const it of document.common.interactions) {
-    checkStateWrites(it, document, resolved, projectCtx, diags);
-    checkSingletonExplicitShow(it, document, singletons, projectCtx, diags);
+  // すべての single-body に同じ検査を適用する。component ごとの診断順は保つ。
+  // document common は字句 host を持たないので、裸 goto の対象だけ推定しない。
+  function checkBodies(bodies: Array<{ body: Body; label: string }>, host?: Component): void {
+    for (const { body, label } of bodies) checkDuplicateAlias(body, label, diags);
+    for (const { body } of bodies) checkVariantAsComponent(body, document, resolved, projectCtx, diags);
+    for (const { body } of bodies) checkSingletonCollections(body, collectionScope, diags);
+    for (const { body } of bodies) {
+      for (const interaction of body.interactions) {
+        if (host) checkBareVariantGoto(interaction, host, document, resolved, projectCtx, diags);
+        checkStateWrites(interaction, document, resolved, projectCtx, diags);
+      }
+    }
+    for (const { body } of bodies) {
+      for (const interaction of body.interactions) {
+        checkSingletonExplicitShow(interaction, document, singletons, projectCtx, diags);
+      }
+    }
   }
-  checkSingletonCollections(document.common, collectionScope, diags);
+
+  checkBodies([{ body: document.common, label: 'document common' }]);
 
   for (const comp of document.components) {
     // W103: empty body
@@ -52,34 +65,10 @@ export function check(
       });
     }
 
-    // W101: duplicate alias in each body
-    checkDuplicateAlias(comp.common, comp.name, diags);
-    for (const v of comp.variants) {
-      checkDuplicateAlias(v.body, `${comp.name}##${v.name}`, diags);
-    }
-
-    // W102: variant-as-component in nav targets
-    checkVariantAsComponent(comp.common, document, resolved, projectCtx, diags);
-    for (const v of comp.variants) {
-      checkVariantAsComponent(v.body, document, resolved, projectCtx, diags);
-    }
-
-    // E028: singleton × collection（宣言側要素行・参照側行動対象。ADR-0016）
-    checkSingletonCollections(comp.common, collectionScope, diags);
-    for (const v of comp.variants) {
-      checkSingletonCollections(v.body, collectionScope, diags);
-    }
-
-    // W105（goto(##X) の未定義 variant）・W105/E030（set）
-    for (const it of interactionsOf(comp)) {
-      checkBareVariantGoto(it, comp, document, resolved, projectCtx, diags);
-      checkStateWrites(it, document, resolved, projectCtx, diags);
-    }
-
-    // W106: singleton への show(X##v)（明示 variant）。ADR-0021 B4
-    for (const it of interactionsOf(comp)) {
-      checkSingletonExplicitShow(it, document, singletons, projectCtx, diags);
-    }
+    checkBodies([
+      { body: comp.common, label: comp.name },
+      ...comp.variants.map(v => ({ body: v.body, label: `${comp.name}##${v.name}` })),
+    ], comp);
   }
 
   return diags;
@@ -144,11 +133,6 @@ function resolveCrossModule(
   const canonical = resolveModuleRef(moduleAlias, document);
   if (!canonical) return undefined;
   return projectCtx.project.getModule(canonical);
-}
-
-function* interactionsOf(comp: Component): Generator<Interaction> {
-  yield* comp.common.interactions;
-  for (const v of comp.variants) yield* v.body.interactions;
 }
 
 function checkDuplicateAlias(body: Body, label: string, diags: Diagnostic[]): void {

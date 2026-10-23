@@ -95,6 +95,8 @@ resolver の shadow 規則を使い、アクティブ画面、アクティブ mo
 
 詳細は `query({select:["action"],handle})` で現在の一操作だけを照会する。DSL 操作では一覧情報に加え、行動と対象の構造、定義／配置 source、gate の判定/対象/値の scope/origin、prelude と branch の resultIndex/source、元の interaction AST `definition`（action、全 results、span）を返す。元の module 修飾や結果の順序・ラベルを維持し、`source.module` が字句解決の基準になる。source component と作用する runtime 現在地は別の概念。条件の評価や実行は行わない。詳細は detached で、照会は state/revision/cursor/history/operation counter を変えない。
 
+外側上書きを行う操作の詳細には、実際に除外した既定操作の `source`、`host`、`placement` を `overrides` 配列で添える。inline 内を含む配置ごとに記録し、該当しなければ空配列を返す。過去 observation でもその時点の実効操作から同じ注釈を得る。GUI はこの注釈を説明に使い、上書きの一致規則を再計算しない。注釈は compact な `actions` 一覧と scenario の保存・digest 射影には含めない。
+
 `action` 選択には文字列 handle が必須で、他の選択だけのときに handle を指定したら `INVALID_REQUEST`。不明・別 Session の handle は `UNKNOWN_HANDLE`、失効した handle は `STALE_HANDLE`。無効操作も現在の handle で詳細を読める。dispatch と同じ寿命であり、過去 observation の説明を現在の実行 handle に変換しない。
 
 包含・overlay の裸 gate はその表示 component の実効 body、document common の裸 gate はアクティブ画面の実効 bodyで判定する。member gate は定義 module と上表の値を読む。判定不能なモデル参照は SPEC の方針に従い有効とし、未解決であることを詳細 query に示す。host gate の無効操作も一覧には `enabled:false` として含め、理由は詳細で読む。GUI は既存どおり host gate の無効行を隠し、member gate の無効行は表示して disabled にする。GUI は必要な gate/対象/source 表示を詳細 query で読み、判定を独自に再計算しない。

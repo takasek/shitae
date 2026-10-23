@@ -22,7 +22,6 @@ export const shitaeAliases = {
 export default defineConfig({
   test: {
     include: ['test/**/*.test.ts'],
-    passWithNoTests: true,
   },
   resolve: { alias: shitaeAliases },
 });

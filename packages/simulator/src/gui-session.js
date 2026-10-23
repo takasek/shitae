@@ -119,20 +119,13 @@ function operationDetails(op, state = view.data.state, context = 'live') {
   const definition = definitionAt(op.source);
   if (!definition) return '';
   const origin = op.source.module + (definition.component ? '::' + definition.component : '（文書共通）') + (definition.variant ? ' / ' + definition.variant : '');
-  const placed = placementNode(op.placement, state);
   const pathNames = []; let path = [];
   for (const index of op.placement.path) { path.push(index); pathNames.push(placementNode({ ...op.placement, path }, state)?.name ?? String(index)); }
   let role = op.placement.path.length ? '部品の既定操作' : 'この定義の操作';
-  const target = op.action.target;
-  if (target?.member) {
-    const alias = target.module == null ? definition.body.elements.find(e => e.alias === target.name) : null;
-    const child = placed?.children.find(n => alias ? n.source.module === op.source.module && n.source.span.offset === alias.span.offset : n.reference?.component === target.name && n.reference.module === sourceModule(op.source.module, target.module));
-    const ref = child?.reference;
-    const comp = ref && MODEL.documents.find(([module]) => module === ref.module)?.[1].components.find(c => c.name === ref.component);
-    const defaults = comp ? [...comp.common.interactions, ...(comp.variants.find(v => v.name === child.value?.variant)?.body.interactions ?? [])] : [];
-    const actionText = text => text.replace(/\s+/g, ' ').trim();
-    if (defaults.some(({ action: a }) => a.target?.name === target.member && a.target.module == null && a.target.member == null && a.target.collection === target.collection && actionText(a.text) === actionText(op.action.text))) role = '局所上書き: ' + ref.module + '::' + ref.component + ' の既定操作';
-  }
+  // Session resolves both suppression and its explanation at the same placement.
+  // Missing annotations in an older view mean no resolved override information.
+  const overridden = [...new Set((op.overrides ?? []).map(o => o.host.module + '::' + o.host.component))];
+  if (overridden.length) role = '局所上書き: ' + overridden.join('、') + ' の既定操作';
   return '<details class="operation-details" data-state-key="operation:' + esc(context + ':' + operationKey(op)) + '"><summary>操作の詳細</summary>' +
     '<p>' + esc('定義元: ' + origin) + '</p><p>' + esc(role) + '</p><p>' + esc('配置: ' + op.placement.root + (pathNames.length ? ' / ' + pathNames.join(' / ') : '（画面・独立表示の本体）')) + '</p>' +
     '<p>定義元・配置と作用先は別です。goto(##状態) は各結果の適用時点のアクティブ画面を変えます。包含部品自身の局所状態を変える指定ではありません。singleton 化すると共有範囲も変わります。</p>' +

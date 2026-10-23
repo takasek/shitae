@@ -43,6 +43,23 @@ describe('operation definition and actual result targets', () => {
     expect(g.app.innerHTML).not.toContain('定義元: main::Child');
   });
 
+  it('reports the resolved override inside inline groups in both current and recorded details', async () => {
+    const g = gui('# Parent\nbox: { Child }\n> Tap(Child.button) -> push(Done)\n# Child\nbutton\n> Tap(button) -> default\n# Done\n> Finish -> effect\n');
+    expect(g.run('view.data.actions.items.map(op => op.actionText)')).toEqual(['Tap(Child.button)']);
+    expect(g.run('view.data.actions.items[0].overrides')).toMatchObject([
+      { host: { module: 'main', component: 'Child' }, placement: { root: 'main', path: [0, 0] }, source: { module: 'main', span: { line: 6 } } },
+    ]);
+    expect(g.app.innerHTML).toContain('局所上書き: main::Child の既定操作');
+    expect(g.run('operationDetails({...view.data.actions.items[0], overrides: undefined})')).not.toContain('局所上書き:');
+    g.run("handleInteraction('component',0,0)");
+    expect(g.app.innerHTML).not.toContain('局所上書き:');
+    expect(g.run('view.data.actions.items[0].overrides')).toEqual([]);
+    g.run('toggleProvenanceStep(1)');
+    expect(g.app.innerHTML).toContain('局所上書き: main::Child の既定操作');
+    expect(g.app.innerHTML).toContain('定義元: main::Parent');
+    expect(await g.run('buildScenarioJson()')).not.toContain('"overrides"');
+  });
+
   it('matches override action whitespace and collection identity like Session', () => {
     const collection = gui('# Parent\ncard: Child\n> Tap(*card.button) -> effect\n# Child\nbutton\n> Tap(button) -> default\n');
     expect(collection.app.innerHTML).not.toContain('局所上書き:');
