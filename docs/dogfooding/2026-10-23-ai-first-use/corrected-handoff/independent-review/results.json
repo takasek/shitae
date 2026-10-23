@@ -1,0 +1,23 @@
+{
+  "inputUnchanged": [
+    {
+      "path": "docs/dogfooding/2026-10-23-ai-first-use/author/v2/equipment.shitae",
+      "unchangedFromHEAD": true,
+      "sha256": "ca1e6011267db773d89b921f429112bf105acfafd25f87635666bae0fd9b7db8"
+    },
+    {
+      "path": "docs/dogfooding/2026-10-23-ai-first-use/author/v2/equipment.html",
+      "unchangedFromHEAD": true,
+      "sha256": "50b990c3f15dd4bb3d4fb53195ad0c3cf5bff33a9445e4641bbf52ab902ae528"
+    },
+    {
+      "path": "docs/dogfooding/2026-10-23-ai-first-use/author/v2/confirmed.scenario.json",
+      "unchangedFromHEAD": true,
+      "sha256": "0454119c7d9027df22cd0e88d41aa2ad8654576236990d5e92347681a2ebedd3"
+    }
+  ],
+  "replayedOriginal": true,
+  "historicalCancellationAndDefaultVerified": true,
+  "meaningfulContinuationDispatches": 6,
+  "secondProcessReplayAndExportEqual": true
+}
