@@ -1043,14 +1043,14 @@ describe('ADR-0017: overlay エントリの module（module 修飾 singleton の
     let s = initialState(loc('ホーム'), [{ module: 'mod', name: 'バナー' }]);
     s = reduce(s, ov('show', 'バナー', '表示', 'mod')).state;
     expect(s.sharedVariants.get(singletonKey('mod', 'バナー'))).toBe('表示');
-    expect(overlayVariant(s, 'バナー')).toBe('表示');
+    expect(overlayVariant(s, 'バナー', 'mod')).toBe('表示');
   });
 
   it('掲示中の module 修飾 singleton は他所の書換に追随する', () => {
     let s = initialState(loc('ホーム'), [{ module: 'mod', name: 'バナー' }]);
     s = reduce(s, ov('show', 'バナー', undefined, 'mod')).state;
     s = reduce(s, tr('push', navComp('バナー', '非表示', 'mod'))).state;
-    expect(overlayVariant(s, 'バナー')).toBe('非表示');
+    expect(overlayVariant(s, 'バナー', 'mod')).toBe('非表示');
   });
 
   it('show の module 省略はアクティブフレームの module を継承する', () => {
@@ -1058,7 +1058,7 @@ describe('ADR-0017: overlay エントリの module（module 修飾 singleton の
     s = reduce(s, tr('push', navComp('画面', undefined, 'mod'))).state; // アクティブ module = mod
     s = reduce(s, ov('show', 'バナー', '表示')).state;
     expect(s.sharedVariants.get(singletonKey('mod', 'バナー'))).toBe('表示');
-    expect(overlayVariant(s, 'バナー')).toBe('表示');
+    expect(overlayVariant(s, 'バナー', 'mod')).toBe('表示');
   });
 
   it('非 singleton の overlay 挙動は不変（表示 variant を保持・再 show 上書き）', () => {
@@ -1067,5 +1067,74 @@ describe('ADR-0017: overlay エントリの module（module 修飾 singleton の
     expect(overlayVariant(s, 'ミニ')).toBe('再生中');
     s = reduce(s, ov('show', 'ミニ', '一時停止')).state;
     expect(overlayVariant(s, 'ミニ')).toBe('一時停止');
+  });
+});
+
+
+describe('issue #63: canonical module back targets', () => {
+  it('returns to the matching module regardless of variant and drops later locations', () => {
+    let s = initialState(loc('Start', undefined, 'main'));
+    for (const module of ['a', 'b']) s = reduce(s, tr('push', navComp('Home', 'Visited', module))).state;
+    s = reduce(s, tr('push', navComp('Details', undefined, 'main'))).state;
+    const r = reduce(s, tr('back', navComp('Home', 'Ignored', 'a')));
+    expect(activeLocation(r.state)).toEqual(loc('Home', 'Visited', 'a'));
+    expect(activeFrame(r.state).stack).toHaveLength(2);
+    expect(r.diagnostics).toEqual([]);
+  });
+  it('keeps the complete state and warns R004 for an unvisited module', () => {
+    let s = initialState(loc('Home', undefined, 'a'));
+    s = reduce(s, tr('push', navComp('Details', undefined, 'main'))).state;
+    const r = reduce(s, tr('back', navComp('Home', undefined, 'b')));
+    expect(r.state).toBe(s);
+    expect(r.diagnostics.map(d => d.code)).toEqual(['R004']);
+  });
+  it('crosses unbarriered child frames and removes their suspended descendants', () => {
+    let s = initialState(loc('Home', undefined, 'a'));
+    s = reduce(s, tr('push', navComp('Home', undefined, 'b'), { name: 'flow' })).state;
+    s = reduce(s, tr('switch', navComp('Tab'), { name: 'tab' })).state;
+    s = reduce(s, tr('switch', navComp('Home', undefined, 'b'), { name: 'flow' })).state;
+    expect(s.frames).toHaveLength(3);
+    expect(s.frames.some(f => f.beginsSession?.name === 'tab')).toBe(true);
+    s = reduce(s, tr('push', navComp('Child'), { name: 'child' })).state;
+    const r = reduce(s, tr('back', navComp('Home', undefined, 'a')));
+    expect(r.state.frames).toHaveLength(1);
+    expect(activeLocation(r.state)).toEqual(loc('Home', undefined, 'a'));
+    expect(r.diagnostics).toEqual([]);
+  });
+  it('does not mistake a different module inside a barrier for the outer target', () => {
+    let s = initialState(loc('Home', undefined, 'a'));
+    s = reduce(s, tr('present', navComp('Home', undefined, 'b'))).state;
+    const r = reduce(s, tr('back', navComp('Home', undefined, 'a')));
+    expect(r.state).toBe(s);
+    expect(r.diagnostics.map(d => d.code)).toEqual(['R003']);
+    expect(reduce(s, tr('back', navComp('Home', undefined, 'b'))).diagnostics).toEqual([]);
+    expect(reduce(s, tr('back')).state).toBe(s);
+  });
+});
+
+
+describe('issue #66: module overlay identity', () => {
+  it('keeps other modules on hide, coexists and re-shows only the same definition', () => {
+    let s = initialState(loc('Screen', undefined, 'main'));
+    s = reduce(s, ov('show', 'Notice', 'Ready', 'a')).state;
+    expect(reduce(s, ov('hide', 'Notice', undefined, 'b')).state).toBe(s);
+    s = reduce(s, ov('show', 'Notice', 'Idle', 'b')).state;
+    expect(s.overlays.size).toBe(2);
+    s = reduce(s, ov('show', 'Notice', 'Changed', 'a')).state;
+    expect(s.overlays.size).toBe(2);
+    expect(s.overlays.get(singletonKey('a', 'Notice'))?.variant).toBe('Changed');
+    expect(s.overlays.get(singletonKey('b', 'Notice'))?.variant).toBe('Idle');
+    s = reduce(s, ov('hide', 'Notice', undefined, 'a')).state;
+    expect([...s.overlays.keys()]).toEqual([singletonKey('b', 'Notice')]);
+  });
+  it('resolves omitted hide module in the same way as show and retains overlays after exit', () => {
+    let s = initialState(loc('Screen', undefined, 'main'));
+    s = reduce(s, tr('push', navComp('Screen', undefined, 'a'), { name: 'work' })).state;
+    s = reduce(s, ov('show', 'Notice')).state;
+    s = reduce(s, ov('show', 'Notice', undefined, 'b')).state;
+    s = reduce(s, ov('hide', 'Notice')).state;
+    expect([...s.overlays.keys()]).toEqual([singletonKey('b', 'Notice')]);
+    s = reduce(s, tr('exit', undefined, { name: 'work' })).state;
+    expect(s.overlays.size).toBe(1);
   });
 });

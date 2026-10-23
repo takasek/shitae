@@ -48,8 +48,8 @@ export interface RuntimeState {
   frames: Frame[];
   activeFrameId: number;
   nextFrameId: number;
-  /** 掲示中 component → 掲示エントリ。SPEC「オーバーレイ」ADR-0009。
-   *  フレーム木の走査対象には入らない。ID は component 名が兼ねる。
+  /** 定義ファイル＋component のキー → 掲示エントリ（ADR-0026）。
+   *  フレーム木の走査対象には入らない。ID は singletonKey(module, component) で表す。
    *  module は掲示時に解決した正準モジュール（singleton の共有解決に使う。ADR-0017） */
   overlays: ReadonlyMap<string, OverlayEntry>;
   /** singleton component キーの集合（`#!`。定義ファイル内で単一インスタンス）。SPEC「singleton component」ADR-0011/0013。
@@ -69,6 +69,7 @@ export interface SingletonRef {
 /** 掲示エントリ（ADR-0009 の (component, 表示 variant) + ADR-0017 の module） */
 export interface OverlayEntry {
   module: string | null;
+  component: string;
   /** 表示 variant（null は initial の含意）。singleton は無視され共有レジストリが優先 */
   variant: string | null;
 }
@@ -124,8 +125,8 @@ export function initialState(
 /** 掲示中 component の表示 variant を返す（未掲示なら null。SPEC「オーバーレイ」ADR-0009）。
  *  singleton は掲示中に限り共有レジストリの現在値へ解決する（ADR-0011。initial 上書き規則は不適用）。
  *  singleton 解決には掲示時に解決した module を使う（ADR-0017）。 */
-export function overlayVariant(state: RuntimeState, name: string): string | null {
-  const entry = state.overlays.get(name);
+export function overlayVariant(state: RuntimeState, name: string, module: string | null = null): string | null {
+  const entry = state.overlays.get(singletonKey(module, name));
   if (entry === undefined) return null;
   const key = singletonKey(entry.module, name);
   if (state.singletons.has(key)) return state.sharedVariants.get(key) ?? null;
@@ -304,14 +305,14 @@ type BackSearchResult =
   | { kind: 'blocked' }
   | { kind: 'not-found' };
 
-function findBackTarget(state: RuntimeState, targetComponent: string): BackSearchResult {
+function findBackTarget(state: RuntimeState, target: Location): BackSearchResult {
   const crossed: number[] = [];
   let frameId = state.activeFrameId;
   for (;;) {
     const f = getFrame(state, frameId);
     let index = -1;
     for (let i = f.stack.length - 1; i >= 0; i--) {
-      if (f.stack[i]!.component === targetComponent) {
+      if (f.stack[i]!.module === target.module && f.stack[i]!.component === target.component) {
         index = i;
         break;
       }
@@ -418,6 +419,8 @@ function reduceStateWrite(state: RuntimeState, action: StateWrite): ReduceResult
 
 function reduceOverlay(state: RuntimeState, overlay: Overlay): ReduceResult {
   const name = overlay.target.name;
+  const module = overlay.target.module ?? activeLocation(state).module;
+  const key = singletonKey(module, name);
   if (overlay.verb === 'show') {
     // 掲示 / 再掲示とも表示 variant を上書き（ADR-0009。省略時は null = initial の含意）。
     // singleton は overlays の値を読まず共有解決される（overlayVariant 参照）ため、ここでの
@@ -425,19 +428,18 @@ function reduceOverlay(state: RuntimeState, overlay: Overlay): ReduceResult {
     // module 省略はアクティブフレームの module を継承（nav の相対解決と同じ規約。ADR-0017）。
     // module 解決は呼び手責務（ADR-0018）——この fallback は extract を経由しない
     // 呼び出しに対する最後の防衛。
-    const module = overlay.target.module ?? activeLocation(state).module;
     const overlays = new Map(state.overlays);
-    overlays.set(name, { module, variant: overlay.target.variant ?? null });
+    overlays.set(key, { module, component: name, variant: overlay.target.variant ?? null });
     const loc: Location = { module, component: name, variant: overlay.target.variant ?? null };
     const sharedVariants = writeShared(state, loc);
     return { state: { ...state, overlays, sharedVariants }, diagnostics: [] };
   }
   // hide
-  if (!state.overlays.has(name)) {
+  if (!state.overlays.has(key)) {
     return { state, diagnostics: [] };
   }
   const overlays = new Map(state.overlays);
-  overlays.delete(name);
+  overlays.delete(key);
   return { state: { ...state, overlays }, diagnostics: [] };
 }
 
@@ -522,7 +524,7 @@ function reduceTransition(state: RuntimeState, transition: Transition): ReduceRe
 
       // back(X)
       const targetLoc = navTargetToLocation(target, current);
-      const result = findBackTarget(state, targetLoc.component);
+      const result = findBackTarget(state, targetLoc);
       if (result.kind === 'found') {
         let newState = state;
         for (const id of result.crossed) {

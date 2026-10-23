@@ -542,7 +542,7 @@ root ─ A[@S]                      ← アクティブ（@S は無傷）
 
 「アクティブなフレームは常に 1 つ」の外側に、常時表示されうる component がある——ミニプレイヤー、PiP、着信バナー、トーストなど。これらはフレーム木のどこか 1 点に属する画面ではなく、フレームをまたいで画面の上に乗り続ける。
 
-処理系は実行時状態として**オーバーレイ集合**を持つ。エントリは **(component 名, 表示 variant)** の組——ID は component 名が兼ねる（同一 component の多重掲示は扱わない）。
+処理系は実行時状態として**オーバーレイ集合**を持つ。エントリは **(定義ファイル, component 名, 表示 variant)** の組。ID は **解決済みの定義ファイル＋component 名** であり、variant は ID に含めない。同一ファイルを別 import alias で参照しても同じ overlay を指し、別ファイルの同名 component は別の overlay として共存する（ADR-0026）。
 
 - result として `show(X)` / `show(X##v)` / `hide(X)` と書ける。どの interaction の結果列からでも、掲示の追加・除去ができる。
 - `show(X##v)` は表示 variant を v にして掲示する。`show(X)`（variant 省略）は **X の initial variant** で掲示する。
@@ -553,7 +553,7 @@ root ─ A[@S]                      ← アクティブ（@S は無傷）
 - overlay の interaction に書いた**無修飾 component 参照**（`set` / `show` / `hide` / nav-target）の module 帰属は、**overlay 自身が定義されたファイル**（レキシカル）で解決する——発火時にどの画面がアクティブかとは無関係（「モジュール化」を参照）。裸 `##variant`（自己再 show 等）はこの規則の対象外——同一 component 内の variant 切替は引き続きアクティブフレーム側の動的解決のまま（「variant の参照は必ず ##」を参照）。
   例：モジュール `mod` で定義した `#! 状態` を掲示中の component が持つ interaction に無修飾 `set(状態##停止)` と書いた場合、掲示元の画面がどのモジュールでアクティブでも `mod` の共有状態が書き換わる——`mod::状態` と明示したのと同じ意味になる。
 - オーバーレイは**フレームではない**——`back` / `exit` / `dismiss` の走査対象に入らない。消えるのは明示的な `hide(X)` のときだけ（フレームが破棄されても連動しては消えない）。
-- ID は component 名が兼ねる。同一 component の多重掲示は初版では扱わない（実需が出るまで別 ID は導入しない）。
+- 追加記法・専用の定義ファイル・ID 宣言は不要。1 ファイルなら従来どおり `show(通知)` / `hide(通知)`、module 分割時は既存の `show(a::通知)` 等を使う。同一定義の多重掲示やユーザー指定 ID は扱わない。
 - 引数は component 1 つ——collection の `*` は書けない（`show(*X)` は E024）。裸 `##variant` も書けない（母体が無い。E027）。
 - テキストだけの一時的なヒント（トースト等）に専用機構は用意しない。**本文がそのテキストである component を `show` する**ことで表す。
 - gate（presence gate）とは**別軸**。gate は「その variant の実効 body に対象があるか」だけを見て、掲示状態は見ない。オーバーレイの interaction の有効性は gate ではなくこの節の規則による。

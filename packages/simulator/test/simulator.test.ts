@@ -554,7 +554,7 @@ problem: Diagnostics
     // アクティブ画面はホーム（曲名を持たない）。ミニを ## 再生（曲名を持つ）で掲示中 → gate on。
     const onActionTexts = JSON.parse(
       vm.runInContext(
-        "fixtureOverlay('ミニ', { variant: '再生', module: 'main' }); JSON.stringify(overlayInteractions('ミニ').map(i => i.actionText))",
+        "fixtureOverlay('ミニ', { variant: '再生', module: 'main' }); JSON.stringify(overlayInteractions(JSON.stringify(['main', 'ミニ'])).map(i => i.actionText))",
         context,
       ),
     );
@@ -563,7 +563,7 @@ problem: Diagnostics
     // ## 一時停止（曲名を持たない）を掲示中なら gate off。アクティブ画面（ホーム）の body は無関係。
     const offActionTexts = JSON.parse(
       vm.runInContext(
-        "fixtureOverlay('ミニ', { variant: '一時停止', module: 'main' }); JSON.stringify(overlayInteractions('ミニ').map(i => i.actionText))",
+        "fixtureOverlay('ミニ', { variant: '一時停止', module: 'main' }); JSON.stringify(overlayInteractions(JSON.stringify(['main', 'ミニ'])).map(i => i.actionText))",
         context,
       ),
     );

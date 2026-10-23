@@ -377,7 +377,7 @@ function syncView() {
     return f.stack.map((loc, i) => ({ ...loc, frameId: id, wall: i === 0 && f.barrier,
       sessionName: i === 0 ? f.beginsSession?.name ?? null : null, beginsSession: i === 0 ? f.beginsSession : null }));
   });
-  overlays = new Map(s.overlays.map(o => [o.component, o]));
+  overlays = new Map(s.overlays.map(o => [JSON.stringify([o.module, o.component]), o]));
   sharedVariants = new Map(s.componentValues.map(c => [skey(c.module, c.component), c.variant]));
   GATE_TARGETS = s.gateTargets.map(c => ({ ...c, name: c.component }));
   timeline = [];

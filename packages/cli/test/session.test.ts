@@ -275,3 +275,69 @@ describe('shitae session persistent JSON Lines', () => {
     expect(await s.finish()).toMatchObject({ code: 0, stderr: '' });
   });
 });
+
+
+describe('canonical module back via public Session/CLI', () => {
+  it.each([
+    ['push(a::Home) ; push(b::Home) ; push(Details)', 'a::Home', 'a', null],
+    ['push(a::Home) ; push(Details)', 'b::Home', 'main', 'R004'],
+    ['push(a::Home) ; push(Details)', 'x::Home', 'a', null],
+    ['push(a::Home) ; present(b::Home) ; push(Details)', 'a::Home', 'main', 'R003'],
+  ])('%s then back(%s)', async (open, target, module, diagnostic) => {
+    const file = fixture({
+      'main.shitae': `import a as a\nimport a as x\nimport b as b\n# Start\n> Open -> ${open}\n# Details\n> Return -> back(${target})\n`,
+      'a.shitae': '# Home\nALabel\n', 'b.shitae': '# Home\nBLabel\n',
+    });
+    const cli = start(file);
+    const act = async (text: string) => {
+      const q = await cli.request({ id: 'probe', command: 'query', select: ['actions'] });
+      const op = q.data.actions.items.find((a: { actionText: string }) => a.actionText === text);
+      return cli.request({ id: 'probe', command: 'dispatch', handle: op.handle });
+    };
+    await act('Open');
+    const before = await cli.request({ id: 'probe', command: 'query', select: ['state'] });
+    const result = await act('Return');
+    expect(result.summary.location.module).toBe(module);
+    if (diagnostic) {
+      expect(JSON.stringify(result)).toContain(diagnostic);
+      expect((await cli.request({ id: 'probe', command: 'query', select: ['state'] })).data.state).toEqual(before.data.state);
+    } else expect(result.summary.location.component).toBe('Home');
+    expect((await cli.finish()).code).toBe(0);
+  });
+});
+
+
+describe('issue #66: public CLI overlay replay and continuation', () => {
+  it('preserves separate definitions, canonical aliases, singleton variants and lexical hides across processes', async () => {
+    const file = fixture({
+      'main.shitae': 'import a as a\nimport a as x\nimport b as b\n# Screen\n> Show -> show(a::Notice) ; show(b::Notice) ; show(a::Controller)\n> Again -> show(x::Notice##Ready) ; show(b::Banner)\n> Omit -> show(a::Notice)\n> HideA -> hide(x::Notice)\n> Flow -> push(Work, @work) ; show(b::Banner) ; exit(@work)\n# Work\nwork\n',
+      'a.shitae': '#! Notice\n> Close -> hide(Notice)\n## Idle\na label\n## Ready\nsignal\n# Controller\n> Hide -> hide(Notice)\n',
+      'b.shitae': '# Notice\n> Close -> hide(Notice)\n## Idle\nb label\n## Ready\nsignal\n# Banner\nbanner\n',
+    });
+    const first = start(file);
+    const act = async (cli: ReturnType<typeof start>, text: string, module?: string) => {
+      const q = await cli.request({ id: 'actions', command: 'query', select: ['actions'] });
+      const op = q.data.actions.items.find((a: any) => a.actionText === text && (!module || a.host.module === module));
+      expect(op).toBeDefined();
+      return cli.request({ id: 'act', command: 'dispatch', handle: op.handle });
+    };
+    const state = async (cli: ReturnType<typeof start>) => (await cli.request({ id: 'state', command: 'query', select: ['state'] })).data.state;
+    await act(first, 'Show'); await act(first, 'Again'); await act(first, 'Omit'); await act(first, 'Flow');
+    const before = await state(first);
+    expect(before.overlays.map((o: any) => [o.module, o.component, o.variant])).toEqual([
+      ['a', 'Notice', 'Ready'], ['b', 'Notice', 'Idle'], ['a', 'Controller', null], ['b', 'Banner', null],
+    ]);
+    const saved = await first.request({ id: 'save', command: 'exportScenario' });
+    const sidecar = join(dirname(file), 'saved.scenario.json'); writeFileSync(sidecar, JSON.stringify(saved.scenario));
+    expect((await first.finish()).code).toBe(0);
+    const second = start(file, ['--replay', sidecar]);
+    expect(await state(second)).toEqual(before);
+    await act(second, 'Hide', 'a');
+    expect((await state(second)).overlays.map((o: any) => [o.module, o.component])).toEqual([['b', 'Notice'], ['a', 'Controller'], ['b', 'Banner']]);
+    await act(second, 'Show'); await act(second, 'HideA');
+    expect((await state(second)).overlays.filter((o: any) => o.component === 'Notice').map((o: any) => o.module)).toEqual(['b']);
+    await act(second, 'Close', 'b');
+    expect((await state(second)).overlays.map((o: any) => o.component)).toEqual(['Controller', 'Banner']);
+    expect((await second.finish()).code).toBe(0);
+  });
+});

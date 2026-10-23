@@ -481,11 +481,11 @@ function renderOverlayCard(name, cardIdx) {
   const buildOnclick = (scope, idx, choiceIdx) =>
     "handleOverlayInteraction(" + cardIdx + ",'" + scope + "'," + idx + "," + choiceIdx + ")";
   const { elementsHtml, actionsHtml } = renderElementsAndActions(
-    els, items, buildOnclick, new Set([skey(entry.module, name)]), cardIdx, [],
+    els, items, buildOnclick, new Set([skey(entry.module, entry.component)]), cardIdx, [],
   );
 
   return renderScreenCard({
-    title: name,
+    title: (componentNameCounts.get(entry.component) > 1 ? entry.module + '::' : '') + entry.component,
     variant: v,
     stateHtml: rootStateLabel(view.data.state.inclusion.overlays[cardIdx]),
     elementsHtml,
