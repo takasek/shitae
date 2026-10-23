@@ -1,0 +1,54 @@
+// Entry creates the switch anchor before entering Home.
+# Boot
+> Boot -> present(Home, @home)
+
+// Fixed A/B representatives; no persistence or arbitrary booking IDs.
+# Home
+Controls
+> StartA(ReturnIndex.free?) -> set(RowA##Desk) ; set(ReturnIndex##A) ; switch(DraftA, @workA)
+> StartAOther(ReturnIndex.free?) -> set(RowA##Phone) ; set(ReturnIndex##A) ; switch(DraftA, @workA)
+> StartB(ReturnIndex.free?) -> set(RowB##Desk) ; set(ReturnIndex##B) ; switch(DraftB, @workB)
+> ResumeA(ReturnIndex.a?) -> switch(DraftA, @workA)
+> ResumeB(ReturnIndex.b?) -> switch(DraftB, @workB)
+
+# Controls
+> Home -> switch(Home, @home)
+
+# DraftA
+Controls
+> DiscardA(RowA.desk?) -> exit(@workA) ; set(RowA##None) ; set(ReturnIndex##None) ; hide(ConfirmA)
+> AskDiscardA -> show(ConfirmA)
+> FinishA -> exit(@workA) ; set(RowA##None) ; set(ReturnIndex##None) ; set(CommittedA##Reserved)
+
+# DraftB
+Controls
+
+# ConfirmA
+> DiscardA(RowA.desk?) -> exit(@workA) ; set(RowA##None) ; set(ReturnIndex##None) ; hide(ConfirmA)
+
+#! RowA
+## None
+## Desk
+desk: Marker
+## Phone
+phone: Marker
+
+#! RowB
+## None
+## Desk
+desk: Marker
+
+#! ReturnIndex
+## None
+free: Marker
+## A
+a: Marker
+## B
+b: Marker
+
+#! CommittedA
+## Unreserved
+## Reserved
+
+# Marker
+
