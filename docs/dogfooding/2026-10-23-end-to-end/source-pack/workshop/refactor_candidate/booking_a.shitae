@@ -1,0 +1,51 @@
+import work as work
+import nav as nav
+import records as records
+
+# 枠選択
+nav::会員操作
+確定: records::予約A
+予約A・Clay工房・CedarRoomの変更
+新しく開いた変更作業は常に原枠を下書きにする・確定枠から自動コピーしない
+取消操作
+> 通常の戻る -> back()
+## 原枠
+下書きは月曜10時
+> 代替枠に変える -> goto(##代替枠)
+> レビューへ -> push(レビュー##原枠)
+## 代替枠
+下書きは月曜14時
+> 原枠に変える -> goto(##原枠)
+> レビューへ -> push(レビュー##代替枠)
+
+# レビュー
+nav::会員操作
+確定: records::予約A
+予約A・Clay工房・CedarRoomの確認
+> 選択へ戻る -> back()
+取消操作
+## 原枠
+提案は月曜10時
+> 確認結果を試す -> [accepted] set(records::予約A##原枠) ; exit(@bookingA) ; set(nav::Bookings復帰##通常) ; set(work::進行A##なし) ; [rejected] goto(##原枠拒否)
+## 原枠拒否
+提案は月曜10時
+変更が拒否された案内・確定枠は変わっていない・もう一度試せる
+> 確認結果を試す -> [accepted] set(records::予約A##原枠) ; exit(@bookingA) ; set(nav::Bookings復帰##通常) ; set(work::進行A##なし) ; [rejected] goto(##原枠拒否)
+## 代替枠
+提案は月曜14時
+> 確認結果を試す -> [accepted] set(records::予約A##代替枠) ; exit(@bookingA) ; set(nav::Bookings復帰##通常) ; set(work::進行A##なし) ; [rejected] goto(##代替枠拒否)
+## 代替枠拒否
+提案は月曜14時
+変更が拒否された案内・確定枠は変わっていない・もう一度試せる
+> 確認結果を試す -> [accepted] set(records::予約A##代替枠) ; exit(@bookingA) ; set(nav::Bookings復帰##通常) ; set(work::進行A##なし) ; [rejected] goto(##代替枠拒否)
+
+# 破棄確認
+nav::会員操作
+予約Aの変更下書きを破棄するか・予約そのものは取り消さない
+> 編集を続ける -> exit(@bookingADiscard) ; set(nav::Bookings復帰##A変更) ; set(work::進行A##Bookings変更)
+> 下書きを破棄する -> exit(@bookingA) ; set(nav::Bookings復帰##通常) ; set(work::進行A##なし)
+> 通常の戻る -> back()
+
+// 選択とレビューで同じ取消政策を共有する。作業の所有先はこのworkflowのまま。
+# 取消操作
+> 変更を取り消す -> present(破棄確認, @bookingADiscard) ; set(nav::Bookings復帰##A破棄確認) ; set(work::進行A##Bookings確認)

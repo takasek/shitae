@@ -1,0 +1,11 @@
+# Home
+ALabel
+# Notice
+> Close -> hide(Notice)
+> Check(signal?) -> checked A
+## Idle
+ALabel
+## Ready
+signal
+# Controller
+> HideA -> hide(Notice)

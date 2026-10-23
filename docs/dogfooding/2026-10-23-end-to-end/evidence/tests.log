@@ -1,0 +1,133 @@
+Scope: 10 of 11 workspace projects
+packages/parser test$ vitest run
+packages/parser test:  RUN  v3.2.4 /Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/packages/parser
+packages/parser test:  ✓ test/lexer.test.ts (37 tests) 3ms
+packages/parser test:  ✓ test/integration.test.ts (36 tests) 13ms
+packages/parser test:  ✓ test/parser.test.ts (173 tests) 13ms
+packages/parser test:  Test Files  3 passed (3)
+packages/parser test:       Tests  246 passed (246)
+packages/parser test:    Start at  15:25:10
+packages/parser test:    Duration  242ms (transform 92ms, setup 0ms, collect 163ms, tests 29ms, environment 0ms, prepare 116ms)
+packages/parser test: Done
+packages/runtime test$ vitest run
+packages/resolver test$ vitest run
+packages/runtime test:  RUN  v3.2.4 /Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/packages/runtime
+packages/resolver test:  RUN  v3.2.4 /Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/packages/resolver
+packages/runtime test:  ✓ test/runtime.test.ts (103 tests) 9ms
+packages/resolver test:  ✓ test/resolver.test.ts (37 tests) 5ms
+packages/resolver test:  Test Files  1 passed (1)
+packages/resolver test:       Tests  37 passed (37)
+packages/resolver test:    Start at  15:25:11
+packages/runtime test:  Test Files  1 passed (1)
+packages/runtime test:       Tests  103 passed (103)
+packages/runtime test:    Start at  15:25:11
+packages/runtime test:    Duration  335ms (transform 50ms, setup 0ms, collect 51ms, tests 9ms, environment 0ms, prepare 44ms)
+packages/resolver test:    Duration  335ms (transform 52ms, setup 0ms, collect 58ms, tests 5ms, environment 0ms, prepare 37ms)
+packages/resolver test: Done
+packages/runtime test: Done
+packages/checker test$ vitest run
+packages/session pretest$ node scripts/build-engine.mjs
+packages/transpiler-mermaid test$ vitest run
+packages/transpiler-xstate test$ vitest run
+packages/session pretest: Done
+packages/session test$ vitest run
+packages/transpiler-xstate test:  RUN  v3.2.4 /Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/packages/transpiler-xstate
+packages/transpiler-mermaid test:  RUN  v3.2.4 /Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/packages/transpiler-mermaid
+packages/checker test:  RUN  v3.2.4 /Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/packages/checker
+packages/session test:  RUN  v3.2.4 /Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/packages/session
+packages/transpiler-xstate test:  ✓ test/transpiler.test.ts (24 tests) 4ms
+packages/transpiler-xstate test:  ✓ test/integration.test.ts (11 tests) 4ms
+packages/transpiler-xstate test:  Test Files  2 passed (2)
+packages/transpiler-xstate test:       Tests  35 passed (35)
+packages/transpiler-xstate test:    Start at  15:25:11
+packages/transpiler-xstate test:    Duration  668ms (transform 170ms, setup 0ms, collect 323ms, tests 8ms, environment 0ms, prepare 110ms)
+packages/checker test:  ✓ test/checker.test.ts (51 tests) 10ms
+packages/checker test:  ✓ test/singleton-collection.test.ts (20 tests) 12ms
+packages/transpiler-mermaid test:  ✓ test/mermaid.test.ts (20 tests) 7ms
+packages/checker test:  ✓ test/singleton-show.test.ts (4 tests) 7ms
+packages/transpiler-mermaid test:  Test Files  1 passed (1)
+packages/transpiler-mermaid test:       Tests  20 passed (20)
+packages/transpiler-mermaid test:    Start at  15:25:11
+packages/transpiler-mermaid test:    Duration  710ms (transform 88ms, setup 0ms, collect 121ms, tests 7ms, environment 0ms, prepare 55ms)
+packages/checker test:  Test Files  3 passed (3)
+packages/checker test:       Tests  75 passed (75)
+packages/checker test:    Start at  15:25:11
+packages/checker test:    Duration  734ms (transform 167ms, setup 0ms, collect 391ms, tests 29ms, environment 0ms, prepare 260ms)
+packages/transpiler-xstate test: Done
+packages/transpiler-mermaid test: Done
+packages/session test:  ✓ test/model.test.ts (1 test) 6ms
+packages/session test:  ✓ test/tutorial.test.ts (5 tests) 10ms
+packages/session test:  ✓ test/history.test.ts (6 tests) 18ms
+packages/checker test: Done
+packages/session test:  ✓ test/session.test.ts (13 tests) 35ms
+packages/session test:  ✓ test/provenance.test.ts (4 tests) 41ms
+packages/session test:  ✓ test/scenario.test.ts (11 tests) 165ms
+packages/session test:  ✓ test/acceptance.test.ts (3 tests) 203ms
+packages/session test:  Test Files  7 passed (7)
+packages/session test:       Tests  43 passed (43)
+packages/session test:    Start at  15:25:12
+packages/session test:    Duration  859ms (transform 244ms, setup 0ms, collect 1.19s, tests 479ms, environment 1ms, prepare 530ms)
+packages/session test: Done
+packages/simulator pretest$ pnpm --filter "@shitae/simulator..." build
+packages/simulator pretest: Scope: 6 of 11 workspace projects
+packages/simulator pretest: ../ast build$ tsc
+packages/simulator pretest: ../ast build: Done
+packages/simulator pretest: ../parser build$ tsc
+packages/simulator pretest: ../parser build: Done
+packages/simulator pretest: ../resolver build$ tsc
+packages/simulator pretest: ../runtime build$ tsc
+packages/simulator pretest: ../resolver build: Done
+packages/simulator pretest: ../runtime build: Done
+packages/simulator pretest: ../session build$ node scripts/build-engine.mjs && tsc
+packages/simulator pretest: ../session build: Done
+packages/simulator pretest: . build$ node scripts/build-browser.mjs && tsc
+packages/simulator pretest: . build: Done
+packages/simulator pretest: Done
+packages/simulator test$ vitest run
+packages/simulator test:  RUN  v3.2.4 /Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/packages/simulator
+packages/simulator test:  ✓ test/portable-files.test.ts (3 tests) 5ms
+packages/simulator test:  ✓ test/presentation.test.ts (1 test) 11ms
+packages/simulator test:  ✓ test/extract.test.ts (75 tests) 20ms
+packages/simulator test:  ✓ test/session-ui.test.ts (7 tests) 55ms
+packages/simulator test:  ✓ test/operation-details.test.ts (12 tests) 167ms
+packages/simulator test:  ✓ test/scenario-ui.test.ts (8 tests) 210ms
+packages/simulator test:  ✓ test/history-preview.test.ts (23 tests) 256ms
+packages/simulator test:  ✓ test/load-summary.test.ts (13 tests) 354ms
+packages/simulator test:  ✓ test/simulator.test.ts (143 tests) 516ms
+packages/simulator test:  Test Files  9 passed (9)
+packages/simulator test:       Tests  285 passed (285)
+packages/simulator test:    Start at  15:25:14
+packages/simulator test:    Duration  786ms (transform 337ms, setup 0ms, collect 1.05s, tests 1.59s, environment 1ms, prepare 392ms)
+packages/simulator test: Done
+packages/cli pretest$ pnpm --filter "@shitae/cli..." build
+packages/cli pretest: Scope: 9 of 11 workspace projects
+packages/cli pretest: ../ast build$ tsc
+packages/cli pretest: ../ast build: Done
+packages/cli pretest: ../parser build$ tsc
+packages/cli pretest: ../parser build: Done
+packages/cli pretest: ../resolver build$ tsc
+packages/cli pretest: ../runtime build$ tsc
+packages/cli pretest: ../resolver build: Done
+packages/cli pretest: ../runtime build: Done
+packages/cli pretest: ../transpiler-mermaid build$ tsc
+packages/cli pretest: ../checker build$ tsc
+packages/cli pretest: ../session build$ node scripts/build-engine.mjs && tsc
+packages/cli pretest: ../transpiler-mermaid build: Done
+packages/cli pretest: ../checker build: Done
+packages/cli pretest: ../session build: Done
+packages/cli pretest: ../simulator build$ node scripts/build-browser.mjs && tsc
+packages/cli pretest: ../simulator build: Done
+packages/cli pretest: . build$ tsc
+packages/cli pretest: . build: Done
+packages/cli pretest: Done
+packages/cli test$ vitest run
+packages/cli test:  RUN  v2.1.9 /Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/packages/cli
+packages/cli test:  ✓ test/portable-html.test.ts (6 tests) 267ms
+packages/cli test:  ✓ test/stdout.test.ts (2 tests) 446ms
+packages/cli test:  ✓ test/cli.test.ts (30 tests) 1243ms
+packages/cli test:  ✓ test/session.test.ts (16 tests) 1332ms
+packages/cli test:  Test Files  4 passed (4)
+packages/cli test:       Tests  54 passed (54)
+packages/cli test:    Start at  15:25:17
+packages/cli test:    Duration  1.56s (transform 130ms, setup 0ms, collect 233ms, tests 3.29s, environment 0ms, prepare 120ms)
+packages/cli test: Done

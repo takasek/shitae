@@ -1,0 +1,28 @@
+{"id": "1", "command": "query", "select": ["actions"]}
+{"id": "2", "command": "dispatch", "handle": "df7b3dc2-e6af-486b-9c89-d781bbf8ffff:0:0"}
+{"id": "3", "command": "query", "select": ["actions"]}
+{"id": "4", "command": "dispatch", "handle": "df7b3dc2-e6af-486b-9c89-d781bbf8ffff:1:9"}
+{"id": "5", "command": "query", "select": ["actions"]}
+{"id": "6", "command": "dispatch", "handle": "df7b3dc2-e6af-486b-9c89-d781bbf8ffff:2:0"}
+{"id": "7", "command": "query", "select": ["actions"]}
+{"id": "8", "command": "dispatch", "handle": "df7b3dc2-e6af-486b-9c89-d781bbf8ffff:3:0"}
+{"id": "9", "command": "query", "select": ["actions"]}
+{"id": "10", "command": "dispatch", "handle": "df7b3dc2-e6af-486b-9c89-d781bbf8ffff:4:3"}
+{"id": "11", "command": "query", "select": ["actions"]}
+{"id": "12", "command": "dispatch", "handle": "df7b3dc2-e6af-486b-9c89-d781bbf8ffff:5:9"}
+{"id": "13", "command": "query", "select": ["actions"]}
+{"id": "14", "command": "dispatch", "handle": "df7b3dc2-e6af-486b-9c89-d781bbf8ffff:6:9"}
+{"id": "15", "command": "query", "select": ["actions"]}
+{"id": "16", "command": "dispatch", "handle": "df7b3dc2-e6af-486b-9c89-d781bbf8ffff:7:11"}
+{"id": "17", "command": "query", "select": ["actions"]}
+{"id": "18", "command": "dispatch", "handle": "df7b3dc2-e6af-486b-9c89-d781bbf8ffff:8:1"}
+{"id": "19", "command": "query", "select": ["actions"]}
+{"id": "20", "command": "dispatch", "handle": "df7b3dc2-e6af-486b-9c89-d781bbf8ffff:9:0"}
+{"id": "21", "command": "query", "select": ["actions"]}
+{"id": "22", "command": "dispatch", "handle": "df7b3dc2-e6af-486b-9c89-d781bbf8ffff:10:3"}
+{"id": "23", "command": "query", "select": ["state", "metadata"]}
+{"id": "24", "command": "query", "select": ["actions"]}
+{"id": "25", "command": "query", "select": ["actions"]}
+{"id": "26", "command": "dispatch", "handle": "df7b3dc2-e6af-486b-9c89-d781bbf8ffff:11:1"}
+{"id": "27", "command": "query", "select": ["state", "metadata"]}
+{"id": "28", "command": "exportScenario"}

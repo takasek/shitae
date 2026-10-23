@@ -1,0 +1,7 @@
+import work as work
+import nav as nav
+import rooms as rooms
+
+# サインイン
+架空の会員デモ
+> デモでサインイン -> set(nav::Rooms復帰##通常) ; set(nav::Bookings復帰##通常) ; set(work::進行A##なし) ; set(work::進行B##なし) ; present(nav::会員領域, @member) ; switch(rooms::部屋一覧, @rooms)

@@ -1,0 +1,7 @@
+# Editor
+> Notify -> show(Status##Clean)
+#! Status
+## Clean
+CleanLabel
+## Saved
+SavedLabel

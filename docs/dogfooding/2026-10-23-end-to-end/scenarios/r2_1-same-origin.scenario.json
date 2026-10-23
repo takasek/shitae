@@ -1,0 +1,2510 @@
+{
+  "format": "shitae-scenario",
+  "formatVersion": 1,
+  "protocolVersion": 1,
+  "model": {
+    "engineVersion": "683237908597a9e4f75adbb85d54f4a48397f388a4d5d60fb45f9a8b1ad950c7",
+    "modelId": "93b2f92826ceea888ca7b89300efb303cbbf52e707cc6bffb9128ccdce5dd309",
+    "entryModule": "main",
+    "sourceBasis": "source-bytes",
+    "manifest": [
+      {
+        "module": "booking_a",
+        "sourceSha256": "43731852a0517ad76c9408047284a2a6fbcc80ba7b88f9e5d71a04209d8a45e9"
+      },
+      {
+        "module": "booking_b",
+        "sourceSha256": "60d80b3c7431fd7a01dab4a8027708574333a418282b3ed97c2cb0e631fb4960"
+      },
+      {
+        "module": "bookings",
+        "sourceSha256": "2470596c53434b478a27f495e297ee18942b5f578bf62b7e811ecd9fea083a20"
+      },
+      {
+        "module": "main",
+        "sourceSha256": "3e9823dff680b63ed85b540aa5ddc0ed4c561b2bb94055c322a8773d8569d4c8"
+      },
+      {
+        "module": "nav",
+        "sourceSha256": "ec264fa33c980b809ed7525ffbef0248e63472a7eda5753a325d605bc7163d1c"
+      },
+      {
+        "module": "records",
+        "sourceSha256": "0cb89533d84cf112a898165c586d1933e6a91edf9bd31faf756ef84b1e0b4727"
+      },
+      {
+        "module": "reminders",
+        "sourceSha256": "627cf7e0952a6d0d5bf3b842a0ac687c515c69d327d05b278e76201c93513618"
+      },
+      {
+        "module": "room_a",
+        "sourceSha256": "2f17ac1ac306fbd1f0d8477dc506bdaaded90a1929b4332d10328fa5304dc76a"
+      },
+      {
+        "module": "room_b",
+        "sourceSha256": "4199bf7642ddac9ef36d3fd1547554c241a99e1670e5ccf2b8c90061faee034f"
+      },
+      {
+        "module": "rooms",
+        "sourceSha256": "542c694aba70070e8643dd69f6ebdfd2cf41895e2bfa7719ceb066c4222ea875"
+      },
+      {
+        "module": "work",
+        "sourceSha256": "c9dcff1878bfcf5d6edaf9e88024f26aa7eb6d1e3b85dd93133ce3bf08036c27"
+      }
+    ]
+  },
+  "initialDigest": "9d41789b58dd3a10e03982a5e22f70a2516a9159c50fd6db03e78c76c3dc63ff",
+  "steps": [
+    {
+      "step": 1,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "main",
+            "component": "サインイン",
+            "variant": null
+          },
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 77,
+              "length": 164,
+              "line": 7,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "287c3780b650b360c5e231fa7f63adba4d90226ec2afe66c584eecbb0b78455a"
+        },
+        "branch": null
+      },
+      "afterDigest": "0e0f531e8256f4b8813261afa0c3797cb2d8ac23b912e38ed2218601d3c0433c",
+      "observations": [
+        {
+          "viewDigest": "f8ec3b0f1f808a35a930bb9fd3bd0f34fe857d6404a12e18689ab8a2aa2be7c7"
+        },
+        {
+          "viewDigest": "02aa3871de012f37efe86f3d40cfffd8c5ba6a9afc30f536eaaf14dbc0d29606"
+        },
+        {
+          "viewDigest": "531117df25f8d2ffeb47f0827a66a2c2a4d6537eab394778b4275d10ebae0e9f"
+        },
+        {
+          "viewDigest": "a2457152593934c2fa96e8d742ae7b6a7f3a29fbfc773a47e96029200e379ac5"
+        },
+        {
+          "viewDigest": "aa5672f8a746931472f13ac1634a0fc2ba636e64b5ec046b51f54a64068a8243"
+        },
+        {
+          "viewDigest": "294a2d0886375a2a140551d3fdb6035df91e2aa70785bc5650b48e30365ecf4d"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames",
+          "sharedVariants",
+          "origins"
+        ]
+      },
+      "outputDigest": "27c020a580dd146bbfd58ed553a07bb17d39788327efcd8c69e4c314ba723908"
+    },
+    {
+      "step": 2,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "variant",
+          "host": {
+            "module": "nav",
+            "component": "Bookings復帰",
+            "variant": "通常"
+          },
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 1107,
+              "length": 50,
+              "line": 42,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [
+              0,
+              1
+            ],
+            "source": {
+              "module": "nav",
+              "span": {
+                "offset": 240,
+                "length": 10,
+                "line": 16,
+                "col": 1
+              }
+            }
+          },
+          "definitionDigest": "60aa0570f944907e545d30ac0f668093dd0667f6f2c53ffa9cf635d4d893f421"
+        },
+        "branch": null
+      },
+      "afterDigest": "1c8a8d010e00367c5a69fc3c0ee0b34247f042dc72018178391050d8bf5d68da",
+      "observations": [
+        {
+          "viewDigest": "3884acc8ce841c21180de7cc543791a8ff1f768ed532cec297992987574d5259"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 3,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "bookings",
+            "component": "予約一覧",
+            "variant": null
+          },
+          "source": {
+            "module": "bookings",
+            "span": {
+              "offset": 166,
+              "length": 23,
+              "line": 11,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "b6fb828f1c47eb14f75195ec1ea3bc28d50eb8849cb7505f5b2ec9f39322d0db"
+        },
+        "branch": null
+      },
+      "afterDigest": "52588ad1588ae6cbae0556615c82ce06c7a7bdcc67bc0c50818ded44a9e8dd97",
+      "observations": [
+        {
+          "viewDigest": "d52448c624e37f32bd31b24a64cbde062d9244d5b66575efa910c9b893f3e2c9"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 4,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "bookings",
+            "component": "予約A詳細",
+            "variant": null
+          },
+          "source": {
+            "module": "bookings",
+            "span": {
+              "offset": 250,
+              "length": 101,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "180f0d414b0aff4519fe332124812d707cd91a3eab45302fabec21d79758e7af"
+        },
+        "branch": null
+      },
+      "afterDigest": "e5ea863239439b458b80bcc9584311eb27a8cfc9c2779e90d282ae4e364dd9f5",
+      "observations": [
+        {
+          "viewDigest": "d6574636ac7f997503fdcda3508f9a6db940837fdedf075546eff393d54e4cd7"
+        },
+        {
+          "viewDigest": "e1721f00fb6b314dbc8a930ae3c22b525829279cb3c193712ebf5fb3e88d29c7"
+        },
+        {
+          "viewDigest": "64f0851e205933c9ea0a353b9dcc37e306067c0f04cd2c3e283a1723daabcb44"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames",
+          "sharedVariants"
+        ]
+      },
+      "outputDigest": "190b05f17767928ee2767909e00985a86d7bdbd6cf98ff9339b809dd25330de6"
+    },
+    {
+      "step": 5,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "nav",
+            "component": "会員操作",
+            "variant": null
+          },
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 251,
+              "length": 42,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [
+              0
+            ],
+            "source": {
+              "module": "booking_a",
+              "span": {
+                "offset": 71,
+                "length": 9,
+                "line": 6,
+                "col": 1
+              }
+            }
+          },
+          "definitionDigest": "3c5d2ad1082bba1d1a82ed664a6c93236ea895b459ed91bc154b85cd347f8d52"
+        },
+        "branch": null
+      },
+      "afterDigest": "e95be88bf6072f30cb86f210800e99273c9c1c1a499552485e367df046a1a0c1",
+      "observations": [
+        {
+          "viewDigest": "b540ce5a958ca6dd7bc415fe91a35f88db9b745dde3af4d1951591e31326a1c7"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 6,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "variant",
+          "host": {
+            "module": "work",
+            "component": "進行A",
+            "variant": "Bookings変更"
+          },
+          "source": {
+            "module": "work",
+            "span": {
+              "offset": 595,
+              "length": 35,
+              "line": 30,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [
+              2
+            ],
+            "source": {
+              "module": "work",
+              "span": {
+                "offset": 170,
+                "length": 6,
+                "line": 10,
+                "col": 1
+              }
+            }
+          },
+          "definitionDigest": "7debc5227ec58f48e5d066ae0eb1b2f4f80433b365ea507e830f237399a60a01"
+        },
+        "branch": null
+      },
+      "afterDigest": "fc544c6f89bfff1b70bbc8005576c0420d53f168943c109ea232d850525883ec",
+      "observations": [
+        {
+          "viewDigest": "952af954c85bed2a865c1dd00f2d3196a7ace6dce386544dfa6038702932e4de"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 7,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "variant",
+          "host": {
+            "module": "nav",
+            "component": "Bookings復帰",
+            "variant": "A変更"
+          },
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 1165,
+              "length": 49,
+              "line": 44,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [
+              0,
+              1
+            ],
+            "source": {
+              "module": "nav",
+              "span": {
+                "offset": 240,
+                "length": 10,
+                "line": 16,
+                "col": 1
+              }
+            }
+          },
+          "definitionDigest": "492595ef81e86f4d868e5a1d1bf33885a973ed359533effdf8357993c6e9e4e3"
+        },
+        "branch": null
+      },
+      "afterDigest": "209b7131fffd71f1c5f7a29a7e85979d4699df0712e4fbc5ffd0984747ae25df",
+      "observations": [
+        {
+          "viewDigest": "9bb5fe3b42e769cbd5921c7cabdeb0a9cb0e03bcea0e6fba3dd0b39aaa670361"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 8,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "booking_a",
+            "component": "枠選択",
+            "variant": "原枠"
+          },
+          "source": {
+            "module": "booking_a",
+            "span": {
+              "offset": 159,
+              "length": 103,
+              "line": 10,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "91089f34cce47447cbadb68273123c06e14e1f6eac76fc3f20567a06336f3797"
+        },
+        "branch": null
+      },
+      "afterDigest": "0b5982ae34928c47cb8ed6b9da44e19111359ac53d0fed421579e9a3446d6ddb",
+      "observations": [
+        {
+          "viewDigest": "cd682a39b7a6418b5296cdd3693a02bbaf6630addde5ddf7fcb1aa395a23ae4c"
+        },
+        {
+          "viewDigest": "c7a7bc2daf148c122cdcd4b0d7265eeff2c25be501f65ca1312e44a5115f0933"
+        },
+        {
+          "viewDigest": "b17ce20dd508df4178980c4bb46fd69468e9af233b6ce570c2eee32fa0e99412"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames",
+          "sharedVariants"
+        ]
+      },
+      "outputDigest": "190b05f17767928ee2767909e00985a86d7bdbd6cf98ff9339b809dd25330de6"
+    },
+    {
+      "step": 9,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "booking_a",
+            "component": "破棄確認",
+            "variant": null
+          },
+          "source": {
+            "module": "booking_a",
+            "span": {
+              "offset": 1420,
+              "length": 77,
+              "line": 46,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "7db8b4c190690c458f224ca3c70b89464988a831cd1ec03ff43ec3c9d7e9aaa2"
+        },
+        "branch": null
+      },
+      "afterDigest": "b4e09a10a8b088fe41fc0dae30862deb77c2132fba24c25ef7e638cfaaaf5126",
+      "observations": [
+        {
+          "viewDigest": "5c9145b3486ec00d82bf069c4c42b81769e4dab62b71e2a06a875b9c9d24e052"
+        },
+        {
+          "viewDigest": "ef6640436d96a78030ce73ba0581f0dcb9ae22fa0516daf31484c699dde648be"
+        },
+        {
+          "viewDigest": "34e96d0c7f0af59aff56ff283b8f121e9317429aeeb794dd1230db96f8e9092c"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames",
+          "sharedVariants"
+        ]
+      },
+      "outputDigest": "190b05f17767928ee2767909e00985a86d7bdbd6cf98ff9339b809dd25330de6"
+    },
+    {
+      "step": 10,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "bookings",
+            "component": "予約A詳細",
+            "variant": null
+          },
+          "source": {
+            "module": "bookings",
+            "span": {
+              "offset": 250,
+              "length": 101,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "180f0d414b0aff4519fe332124812d707cd91a3eab45302fabec21d79758e7af"
+        },
+        "branch": null
+      },
+      "afterDigest": "1b2b246091bb306dda00e7983c8d9c6b6abe830ab1b1ca78100173b9d80661aa",
+      "observations": [
+        {
+          "viewDigest": "14c6edd808862f4703a8e36bd98061abc789955317917467d55a02c44543c1e7"
+        },
+        {
+          "viewDigest": "4edf9310df3030334cd66a4388c6a1f5c6d2fa3590fc513a2ad0baa3aeacd810"
+        },
+        {
+          "viewDigest": "3ae9d9c40339748d0c42c8122af27422cdb12fae6e645ce5b044aa62a2d15dbb"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames",
+          "sharedVariants"
+        ]
+      },
+      "outputDigest": "190b05f17767928ee2767909e00985a86d7bdbd6cf98ff9339b809dd25330de6"
+    },
+    {
+      "step": 11,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "nav",
+            "component": "会員操作",
+            "variant": null
+          },
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 251,
+              "length": 42,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [
+              0
+            ],
+            "source": {
+              "module": "booking_a",
+              "span": {
+                "offset": 71,
+                "length": 9,
+                "line": 6,
+                "col": 1
+              }
+            }
+          },
+          "definitionDigest": "3c5d2ad1082bba1d1a82ed664a6c93236ea895b459ed91bc154b85cd347f8d52"
+        },
+        "branch": null
+      },
+      "afterDigest": "25afea262f7b85d0490da0434e99072f30829fc502f53cd1f671185eef5d859b",
+      "observations": [
+        {
+          "viewDigest": "cfca78d99040cfb0d075341d5ecce55d39bd82362c55649a8434b857ab11b087"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 12,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "variant",
+          "host": {
+            "module": "work",
+            "component": "遠隔破棄確認A",
+            "variant": "Bookings"
+          },
+          "source": {
+            "module": "work",
+            "span": {
+              "offset": 1016,
+              "length": 98,
+              "line": 45,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "34bf817b8bef4998e6aba418bf993f845756f1f57ba4f0baab1679a157035f11"
+        },
+        "branch": null
+      },
+      "afterDigest": "da57c1c10dbb321b4f92dd4f1b7dda22ac32c2e0b676b113ffe2857a29e5d6fd",
+      "observations": [
+        {
+          "viewDigest": "62d06822925d2963b86ff06838a19718c6e515c204e889f8802d9f1435226339"
+        },
+        {
+          "viewDigest": "22607fa4337db6a7df45f32028df9d1e9331f74b0f637916ab375c4d9913a9d2"
+        },
+        {
+          "viewDigest": "76224aec1da77de8f7a86931c8177d7ef8573101f19815285166791e040f20e2"
+        },
+        {
+          "viewDigest": "46b9b29157a6446a5bcc0148bf0e6a7aa1fd17b93921290ea6b5ed6ef99dde8a"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames",
+          "sharedVariants"
+        ]
+      },
+      "outputDigest": "190b05f17767928ee2767909e00985a86d7bdbd6cf98ff9339b809dd25330de6"
+    }
+  ],
+  "final": {
+    "view": {
+      "view": {
+        "location": {
+          "module": "work",
+          "component": "進行中一覧",
+          "variant": null
+        },
+        "state": {
+          "frames": [
+            {
+              "id": 0,
+              "parentId": null,
+              "stack": [
+                {
+                  "module": "main",
+                  "component": "サインイン",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                }
+              ],
+              "barrier": false,
+              "beginsSession": null,
+              "origin": "root"
+            },
+            {
+              "id": 1,
+              "parentId": 0,
+              "stack": [
+                {
+                  "module": "nav",
+                  "component": "会員領域",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                }
+              ],
+              "barrier": true,
+              "beginsSession": {
+                "name": "member"
+              },
+              "origin": "present"
+            },
+            {
+              "id": 2,
+              "parentId": 1,
+              "stack": [
+                {
+                  "module": "rooms",
+                  "component": "部屋一覧",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                }
+              ],
+              "barrier": true,
+              "beginsSession": {
+                "name": "rooms"
+              },
+              "origin": "switch"
+            },
+            {
+              "id": 3,
+              "parentId": 1,
+              "stack": [
+                {
+                  "module": "bookings",
+                  "component": "予約一覧",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                },
+                {
+                  "module": "bookings",
+                  "component": "予約A詳細",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                }
+              ],
+              "barrier": true,
+              "beginsSession": {
+                "name": "bookings"
+              },
+              "origin": "switch"
+            },
+            {
+              "id": 5,
+              "parentId": 1,
+              "stack": [
+                {
+                  "module": "work",
+                  "component": "進行中一覧",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                }
+              ],
+              "barrier": true,
+              "beginsSession": {
+                "name": "progress"
+              },
+              "origin": "switch"
+            }
+          ],
+          "activeFrameId": 5,
+          "nextFrameId": 8,
+          "activePath": [
+            0,
+            1,
+            5
+          ],
+          "overlays": [],
+          "sharedVariants": [
+            {
+              "module": "nav",
+              "component": "Bookings復帰",
+              "variant": "通常",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "nav",
+              "component": "Rooms復帰",
+              "variant": "通常",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "records",
+              "component": "予約A",
+              "variant": "原枠",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "initial"
+            },
+            {
+              "module": "records",
+              "component": "予約B",
+              "variant": "原枠",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "initial"
+            },
+            {
+              "module": "reminders",
+              "component": "会員リマインダー",
+              "variant": "A",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "initial"
+            },
+            {
+              "module": "work",
+              "component": "進行A",
+              "variant": "なし",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "work",
+              "component": "進行B",
+              "variant": "なし",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            }
+          ],
+          "testVariants": [],
+          "componentValues": [
+            {
+              "module": "booking_a",
+              "component": "レビュー",
+              "variant": "原枠",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "booking_a",
+              "component": "枠選択",
+              "variant": "原枠",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "booking_a",
+              "component": "破棄確認",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "booking_b",
+              "component": "レビュー",
+              "variant": "原枠",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "booking_b",
+              "component": "枠選択",
+              "variant": "原枠",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "booking_b",
+              "component": "破棄確認",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "bookings",
+              "component": "予約A詳細",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "bookings",
+              "component": "予約B詳細",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "bookings",
+              "component": "予約一覧",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "main",
+              "component": "サインイン",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "nav",
+              "component": "Bookings復帰",
+              "variant": "通常",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "nav",
+              "component": "Rooms復帰",
+              "variant": "通常",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "nav",
+              "component": "会員操作",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "nav",
+              "component": "会員領域",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "nav",
+              "component": "公共バナー",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "records",
+              "component": "予約A",
+              "variant": "原枠",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "initial"
+            },
+            {
+              "module": "records",
+              "component": "予約B",
+              "variant": "原枠",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "initial"
+            },
+            {
+              "module": "reminders",
+              "component": "リマインダー詳細",
+              "variant": "A",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "reminders",
+              "component": "会員リマインダー",
+              "variant": "A",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "initial"
+            },
+            {
+              "module": "room_a",
+              "component": "レビュー",
+              "variant": "原枠",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "room_a",
+              "component": "枠選択",
+              "variant": "原枠",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "room_a",
+              "component": "破棄確認",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "room_b",
+              "component": "レビュー",
+              "variant": "原枠",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "room_b",
+              "component": "枠選択",
+              "variant": "原枠",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "room_b",
+              "component": "破棄確認",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "rooms",
+              "component": "Cedar詳細",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "rooms",
+              "component": "Indigo詳細",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "rooms",
+              "component": "予約A詳細",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "rooms",
+              "component": "予約B詳細",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "rooms",
+              "component": "部屋一覧",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "work",
+              "component": "進行A",
+              "variant": "なし",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "work",
+              "component": "進行B",
+              "variant": "なし",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "work",
+              "component": "進行中一覧",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "work",
+              "component": "遠隔破棄確認A",
+              "variant": "Rooms",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "work",
+              "component": "遠隔破棄確認B",
+              "variant": "Rooms",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            }
+          ],
+          "gateTargets": [
+            {
+              "module": "work",
+              "component": "進行A",
+              "variant": "なし",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl",
+              "variants": [
+                "なし",
+                "Rooms変更",
+                "Rooms確認",
+                "Bookings変更",
+                "Bookings確認"
+              ]
+            },
+            {
+              "module": "work",
+              "component": "進行B",
+              "variant": "なし",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl",
+              "variants": [
+                "なし",
+                "Rooms変更",
+                "Rooms確認",
+                "Bookings変更",
+                "Bookings確認"
+              ]
+            }
+          ],
+          "inclusion": {
+            "main": {
+              "module": "work",
+              "component": "進行中一覧",
+              "root": "main",
+              "variant": null,
+              "singleton": false,
+              "scope": "frame-location",
+              "origin": "initial",
+              "source": {
+                "module": "work",
+                "span": {
+                  "offset": 123,
+                  "length": 7,
+                  "line": 7,
+                  "col": 1
+                }
+              },
+              "children": [
+                {
+                  "name": "会員操作",
+                  "root": "main",
+                  "path": [
+                    0
+                  ],
+                  "source": {
+                    "module": "work",
+                    "span": {
+                      "offset": 131,
+                      "length": 15,
+                      "line": 8,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "nav",
+                    "component": "会員操作"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  "componentSource": {
+                    "module": "nav",
+                    "span": {
+                      "offset": 225,
+                      "length": 6,
+                      "line": 14,
+                      "col": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "name": "Rooms復帰",
+                      "root": "main",
+                      "path": [
+                        0,
+                        0
+                      ],
+                      "source": {
+                        "module": "nav",
+                        "span": {
+                          "offset": 232,
+                          "length": 7,
+                          "line": 15,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "nav",
+                        "component": "Rooms復帰"
+                      },
+                      "kind": "component",
+                      "value": {
+                        "variant": "通常",
+                        "singleton": true,
+                        "scope": "singleton-shared",
+                        "origin": "dsl"
+                      },
+                      "componentSource": {
+                        "module": "nav",
+                        "span": {
+                          "offset": 815,
+                          "length": 10,
+                          "line": 28,
+                          "col": 1
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "name": "Bookings復帰",
+                      "root": "main",
+                      "path": [
+                        0,
+                        1
+                      ],
+                      "source": {
+                        "module": "nav",
+                        "span": {
+                          "offset": 240,
+                          "length": 10,
+                          "line": 16,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "nav",
+                        "component": "Bookings復帰"
+                      },
+                      "kind": "component",
+                      "value": {
+                        "variant": "通常",
+                        "singleton": true,
+                        "scope": "singleton-shared",
+                        "origin": "dsl"
+                      },
+                      "componentSource": {
+                        "module": "nav",
+                        "span": {
+                          "offset": 1087,
+                          "length": 13,
+                          "line": 40,
+                          "col": 1
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "name": "変更の下書き一覧・確定済み予約の取消ではない",
+                  "root": "main",
+                  "path": [
+                    1
+                  ],
+                  "source": {
+                    "module": "work",
+                    "span": {
+                      "offset": 147,
+                      "length": 22,
+                      "line": 9,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "work",
+                    "component": "変更の下書き一覧・確定済み予約の取消ではない"
+                  },
+                  "kind": "unresolved",
+                  "children": []
+                },
+                {
+                  "name": "A",
+                  "root": "main",
+                  "path": [
+                    2
+                  ],
+                  "source": {
+                    "module": "work",
+                    "span": {
+                      "offset": 170,
+                      "length": 6,
+                      "line": 10,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "work",
+                    "component": "進行A"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": "なし",
+                    "singleton": true,
+                    "scope": "singleton-shared",
+                    "origin": "dsl"
+                  },
+                  "componentSource": {
+                    "module": "work",
+                    "span": {
+                      "offset": 185,
+                      "length": 6,
+                      "line": 13,
+                      "col": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "name": "予約Aの変更作業なし",
+                      "root": "main",
+                      "path": [
+                        2,
+                        0
+                      ],
+                      "source": {
+                        "module": "work",
+                        "span": {
+                          "offset": 198,
+                          "length": 10,
+                          "line": 15,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "work",
+                        "component": "予約Aの変更作業なし"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "name": "B",
+                  "root": "main",
+                  "path": [
+                    3
+                  ],
+                  "source": {
+                    "module": "work",
+                    "span": {
+                      "offset": 177,
+                      "length": 6,
+                      "line": 11,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "work",
+                    "component": "進行B"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": "なし",
+                    "singleton": true,
+                    "scope": "singleton-shared",
+                    "origin": "dsl"
+                  },
+                  "componentSource": {
+                    "module": "work",
+                    "span": {
+                      "offset": 1116,
+                      "length": 6,
+                      "line": 47,
+                      "col": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "name": "予約Bの変更作業なし",
+                      "root": "main",
+                      "path": [
+                        3,
+                        0
+                      ],
+                      "source": {
+                        "module": "work",
+                        "span": {
+                          "offset": 1129,
+                          "length": 10,
+                          "line": 49,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "work",
+                        "component": "予約Bの変更作業なし"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            "overlays": []
+          }
+        },
+        "actions": {
+          "items": [
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "nav",
+                  "component": "会員操作",
+                  "variant": null
+                },
+                "source": {
+                  "module": "nav",
+                  "span": {
+                    "offset": 251,
+                    "length": 42,
+                    "line": 17,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [
+                    0
+                  ],
+                  "source": {
+                    "module": "work",
+                    "span": {
+                      "offset": 131,
+                      "length": 15,
+                      "line": 8,
+                      "col": 1
+                    }
+                  }
+                },
+                "definitionDigest": "3c5d2ad1082bba1d1a82ed664a6c93236ea895b459ed91bc154b85cd347f8d52"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "nav",
+                  "component": "会員操作",
+                  "variant": null
+                },
+                "source": {
+                  "module": "nav",
+                  "span": {
+                    "offset": 294,
+                    "length": 72,
+                    "line": 18,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [
+                    0
+                  ],
+                  "source": {
+                    "module": "work",
+                    "span": {
+                      "offset": 131,
+                      "length": 15,
+                      "line": 8,
+                      "col": 1
+                    }
+                  }
+                },
+                "definitionDigest": "efc1de9477fa93fdbd8959be3042708503504d54618bac0d0f9105964e185e20"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "nav",
+                  "component": "会員操作",
+                  "variant": null
+                },
+                "source": {
+                  "module": "nav",
+                  "span": {
+                    "offset": 367,
+                    "length": 72,
+                    "line": 19,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [
+                    0
+                  ],
+                  "source": {
+                    "module": "work",
+                    "span": {
+                      "offset": 131,
+                      "length": 15,
+                      "line": 8,
+                      "col": 1
+                    }
+                  }
+                },
+                "definitionDigest": "51c36bf7865b25ce1cccb81936b508f9f62ecadcc9e01b7db54822b76ea4a4fc"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "nav",
+                  "component": "会員操作",
+                  "variant": null
+                },
+                "source": {
+                  "module": "nav",
+                  "span": {
+                    "offset": 440,
+                    "length": 27,
+                    "line": 20,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [
+                    0
+                  ],
+                  "source": {
+                    "module": "work",
+                    "span": {
+                      "offset": 131,
+                      "length": 15,
+                      "line": 8,
+                      "col": 1
+                    }
+                  }
+                },
+                "definitionDigest": "21995e4931b426444d7bb4fe739c973c44b2e5193ac35533e240d22cb891d574"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "nav",
+                  "component": "会員操作",
+                  "variant": null
+                },
+                "source": {
+                  "module": "nav",
+                  "span": {
+                    "offset": 468,
+                    "length": 143,
+                    "line": 21,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [
+                    0
+                  ],
+                  "source": {
+                    "module": "work",
+                    "span": {
+                      "offset": 131,
+                      "length": 15,
+                      "line": 8,
+                      "col": 1
+                    }
+                  }
+                },
+                "definitionDigest": "858e4ac6ca72db82447e9ef9057ee99e3aa109a3e0a37a9d96154c6d7e0bf64d"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "nav",
+                  "component": "会員操作",
+                  "variant": null
+                },
+                "source": {
+                  "module": "nav",
+                  "span": {
+                    "offset": 612,
+                    "length": 136,
+                    "line": 22,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [
+                    0
+                  ],
+                  "source": {
+                    "module": "work",
+                    "span": {
+                      "offset": 131,
+                      "length": 15,
+                      "line": 8,
+                      "col": 1
+                    }
+                  }
+                },
+                "definitionDigest": "a2aeb73c85283c106fd86e5ef89ce6f9e1b8c4ec5a5a6ffbf0e71e591fccc2b5"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "variant",
+                "host": {
+                  "module": "nav",
+                  "component": "Rooms復帰",
+                  "variant": "通常"
+                },
+                "source": {
+                  "module": "nav",
+                  "span": {
+                    "offset": 832,
+                    "length": 41,
+                    "line": 30,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [
+                    0,
+                    0
+                  ],
+                  "source": {
+                    "module": "nav",
+                    "span": {
+                      "offset": 232,
+                      "length": 7,
+                      "line": 15,
+                      "col": 1
+                    }
+                  }
+                },
+                "definitionDigest": "47be90ce820335c9328ca54e60f0686437a0dea74182d41a0467a51e52c4c39c"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "variant",
+                "host": {
+                  "module": "nav",
+                  "component": "Bookings復帰",
+                  "variant": "通常"
+                },
+                "source": {
+                  "module": "nav",
+                  "span": {
+                    "offset": 1107,
+                    "length": 50,
+                    "line": 42,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [
+                    0,
+                    1
+                  ],
+                  "source": {
+                    "module": "nav",
+                    "span": {
+                      "offset": 240,
+                      "length": 10,
+                      "line": 16,
+                      "col": 1
+                    }
+                  }
+                },
+                "definitionDigest": "60aa0570f944907e545d30ac0f668093dd0667f6f2c53ffa9cf635d4d893f421"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            }
+          ],
+          "back": {
+            "enabled": false,
+            "reason": "barrier"
+          }
+        }
+      },
+      "timeline": [
+        {
+          "resultIndex": null,
+          "source": null,
+          "kind": "transition",
+          "label": "起動",
+          "location": {
+            "module": "main",
+            "component": "サインイン",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 0,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 77,
+              "length": 164,
+              "line": 7,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(Rooms復帰)",
+          "location": {
+            "module": "main",
+            "component": "サインイン",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 1,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 77,
+              "length": 164,
+              "line": 7,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(Bookings復帰)",
+          "location": {
+            "module": "main",
+            "component": "サインイン",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 1,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 2,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 77,
+              "length": 164,
+              "line": 7,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(進行A)",
+          "location": {
+            "module": "main",
+            "component": "サインイン",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 1,
+            "observation": 2
+          }
+        },
+        {
+          "resultIndex": 3,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 77,
+              "length": 164,
+              "line": 7,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(進行B)",
+          "location": {
+            "module": "main",
+            "component": "サインイン",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 1,
+            "observation": 3
+          }
+        },
+        {
+          "resultIndex": 4,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 77,
+              "length": 164,
+              "line": 7,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "present → 会員領域",
+          "location": {
+            "module": "nav",
+            "component": "会員領域",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 1,
+            "observation": 4
+          }
+        },
+        {
+          "resultIndex": 5,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 77,
+              "length": 164,
+              "line": 7,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "switch → 部屋一覧",
+          "location": {
+            "module": "rooms",
+            "component": "部屋一覧",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 1,
+            "observation": 5
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 1107,
+              "length": 50,
+              "line": 42,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "switch → 予約一覧",
+          "location": {
+            "module": "bookings",
+            "component": "予約一覧",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 2,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "bookings",
+            "span": {
+              "offset": 166,
+              "length": 23,
+              "line": 11,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "push → 予約A詳細",
+          "location": {
+            "module": "bookings",
+            "component": "予約A詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 3,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "bookings",
+            "span": {
+              "offset": 250,
+              "length": 101,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "present → 枠選択 / 原枠",
+          "location": {
+            "module": "booking_a",
+            "component": "枠選択",
+            "variant": "原枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 4,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "bookings",
+            "span": {
+              "offset": 250,
+              "length": 101,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(Bookings復帰)",
+          "location": {
+            "module": "booking_a",
+            "component": "枠選択",
+            "variant": "原枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 4,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 2,
+          "source": {
+            "module": "bookings",
+            "span": {
+              "offset": 250,
+              "length": 101,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(進行A)",
+          "location": {
+            "module": "booking_a",
+            "component": "枠選択",
+            "variant": "原枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 4,
+            "observation": 2
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 251,
+              "length": 42,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "switch → 進行中一覧",
+          "location": {
+            "module": "work",
+            "component": "進行中一覧",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 5,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "work",
+            "span": {
+              "offset": 595,
+              "length": 35,
+              "line": 30,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "push → 遠隔破棄確認A / Bookings",
+          "location": {
+            "module": "work",
+            "component": "遠隔破棄確認A",
+            "variant": "Bookings"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 6,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 1165,
+              "length": 49,
+              "line": 44,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "switch → 枠選択 / 原枠",
+          "location": {
+            "module": "booking_a",
+            "component": "枠選択",
+            "variant": "原枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 7,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "booking_a",
+            "span": {
+              "offset": 159,
+              "length": 103,
+              "line": 10,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "present → 破棄確認",
+          "location": {
+            "module": "booking_a",
+            "component": "破棄確認",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 8,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "booking_a",
+            "span": {
+              "offset": 159,
+              "length": 103,
+              "line": 10,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(Bookings復帰)",
+          "location": {
+            "module": "booking_a",
+            "component": "破棄確認",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 8,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 2,
+          "source": {
+            "module": "booking_a",
+            "span": {
+              "offset": 159,
+              "length": 103,
+              "line": 10,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(進行A)",
+          "location": {
+            "module": "booking_a",
+            "component": "破棄確認",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 8,
+            "observation": 2
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "booking_a",
+            "span": {
+              "offset": 1420,
+              "length": 77,
+              "line": 46,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "exit → 予約A詳細",
+          "location": {
+            "module": "bookings",
+            "component": "予約A詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 9,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "booking_a",
+            "span": {
+              "offset": 1420,
+              "length": 77,
+              "line": 46,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(Bookings復帰)",
+          "location": {
+            "module": "bookings",
+            "component": "予約A詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 9,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 2,
+          "source": {
+            "module": "booking_a",
+            "span": {
+              "offset": 1420,
+              "length": 77,
+              "line": 46,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(進行A)",
+          "location": {
+            "module": "bookings",
+            "component": "予約A詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 9,
+            "observation": 2
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "bookings",
+            "span": {
+              "offset": 250,
+              "length": 101,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "present → 枠選択 / 原枠",
+          "location": {
+            "module": "booking_a",
+            "component": "枠選択",
+            "variant": "原枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 10,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "bookings",
+            "span": {
+              "offset": 250,
+              "length": 101,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(Bookings復帰)",
+          "location": {
+            "module": "booking_a",
+            "component": "枠選択",
+            "variant": "原枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 10,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 2,
+          "source": {
+            "module": "bookings",
+            "span": {
+              "offset": 250,
+              "length": 101,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(進行A)",
+          "location": {
+            "module": "booking_a",
+            "component": "枠選択",
+            "variant": "原枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 10,
+            "observation": 2
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 251,
+              "length": 42,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "switch → 遠隔破棄確認A / Bookings",
+          "location": {
+            "module": "work",
+            "component": "遠隔破棄確認A",
+            "variant": "Bookings"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 11,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "work",
+            "span": {
+              "offset": 1016,
+              "length": 98,
+              "line": 45,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "exit → 遠隔破棄確認A / Bookings",
+          "location": {
+            "module": "work",
+            "component": "遠隔破棄確認A",
+            "variant": "Bookings"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 12,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "work",
+            "span": {
+              "offset": 1016,
+              "length": 98,
+              "line": 45,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(Bookings復帰)",
+          "location": {
+            "module": "work",
+            "component": "遠隔破棄確認A",
+            "variant": "Bookings"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 12,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 2,
+          "source": {
+            "module": "work",
+            "span": {
+              "offset": 1016,
+              "length": 98,
+              "line": 45,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(進行A)",
+          "location": {
+            "module": "work",
+            "component": "遠隔破棄確認A",
+            "variant": "Bookings"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 12,
+            "observation": 2
+          }
+        },
+        {
+          "resultIndex": 3,
+          "source": {
+            "module": "work",
+            "span": {
+              "offset": 1016,
+              "length": 98,
+              "line": 45,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "back → 進行中一覧",
+          "location": {
+            "module": "work",
+            "component": "進行中一覧",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 12,
+            "observation": 3
+          }
+        }
+      ],
+      "cursor": {
+        "step": 12,
+        "observation": 3
+      }
+    },
+    "digest": "da57c1c10dbb321b4f92dd4f1b7dda22ac32c2e0b676b113ffe2857a29e5d6fd"
+  }
+}

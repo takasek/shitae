@@ -1,0 +1,9 @@
+{"id": "1", "command": "query", "select": ["state", "actions", "metadata"]}
+{"id": "2", "command": "query", "select": ["actions"]}
+{"id": "3", "command": "dispatch", "handle": "a082f460-63b0-4949-a917-5e616fc344c6:0:0"}
+{"id": "4", "command": "query", "select": ["state", "actions"]}
+{"id": "5", "command": "query", "select": ["actions"]}
+{"id": "6", "command": "query", "select": ["action"], "handle": "a082f460-63b0-4949-a917-5e616fc344c6:1:0"}
+{"id": "7", "command": "dispatch", "handle": "a082f460-63b0-4949-a917-5e616fc344c6:1:0"}
+{"id": "8", "command": "query", "select": ["state", "actions"]}
+{"id": "9", "command": "query", "select": ["state"]}

@@ -1,0 +1,175 @@
+{
+  "id": "7",
+  "ok": true,
+  "protocolVersion": 1,
+  "revision": 3,
+  "summary": {
+    "location": {
+      "module": "main",
+      "component": "Screen",
+      "variant": null
+    },
+    "cursorObservationId": 4,
+    "latestObservationId": 4,
+    "observationCount": 4
+  },
+  "data": {
+    "state": {
+      "frames": [
+        {
+          "id": 0,
+          "parentId": null,
+          "stack": [
+            {
+              "module": "main",
+              "component": "Screen",
+              "variant": null,
+              "singleton": false,
+              "scope": "frame-location",
+              "origin": "initial"
+            }
+          ],
+          "barrier": false,
+          "beginsSession": null,
+          "origin": "root"
+        }
+      ],
+      "activeFrameId": 0,
+      "nextFrameId": 1,
+      "activePath": [
+        0
+      ],
+      "overlays": [
+        {
+          "module": "b",
+          "component": "Banner",
+          "variant": null,
+          "singleton": false,
+          "scope": "overlay-entry",
+          "origin": "initial"
+        }
+      ],
+      "sharedVariants": [],
+      "testVariants": [],
+      "componentValues": [
+        {
+          "module": "main",
+          "component": "Screen",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "a",
+          "component": "Notice",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "b",
+          "component": "Banner",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        }
+      ],
+      "gateTargets": [],
+      "inclusion": {
+        "main": {
+          "module": "main",
+          "component": "Screen",
+          "root": "main",
+          "variant": null,
+          "singleton": false,
+          "scope": "frame-location",
+          "origin": "initial",
+          "source": {
+            "module": "main",
+            "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/overlay-contract/56-overlay-distinctname-control/main.shitae",
+            "span": {
+              "offset": 28,
+              "length": 8,
+              "line": 3,
+              "col": 1
+            }
+          },
+          "children": []
+        },
+        "overlays": [
+          {
+            "module": "b",
+            "component": "Banner",
+            "root": "overlay:[\"b\",\"Banner\"]",
+            "variant": null,
+            "singleton": false,
+            "scope": "overlay-entry",
+            "origin": "initial",
+            "source": {
+              "module": "b",
+              "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/overlay-contract/56-overlay-distinctname-control/b.shitae",
+              "span": {
+                "offset": 0,
+                "length": 8,
+                "line": 1,
+                "col": 1
+              }
+            },
+            "children": [
+              {
+                "name": "BBanner",
+                "root": "overlay:[\"b\",\"Banner\"]",
+                "path": [
+                  0
+                ],
+                "source": {
+                  "module": "b",
+                  "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/overlay-contract/56-overlay-distinctname-control/b.shitae",
+                  "span": {
+                    "offset": 9,
+                    "length": 7,
+                    "line": 2,
+                    "col": 1
+                  }
+                },
+                "collection": false,
+                "reference": {
+                  "module": "b",
+                  "component": "BBanner"
+                },
+                "kind": "unresolved",
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "metadata": {
+      "engineVersion": "683237908597a9e4f75adbb85d54f4a48397f388a4d5d60fb45f9a8b1ad950c7",
+      "entryModule": "main",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "a",
+          "sourceSha256": "e101e968c331177f663b3d57ef3c0292de150e08f2979484ee53e1e853fc3c8a",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/overlay-contract/56-overlay-distinctname-control/a.shitae"
+        },
+        {
+          "module": "b",
+          "sourceSha256": "6b4e2cb5e02ee5df099edfb6820a8c42d54f6448e10347d583859a26a6968d2e",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/overlay-contract/56-overlay-distinctname-control/b.shitae"
+        },
+        {
+          "module": "main",
+          "sourceSha256": "352f8c7f43097b98b4a0bb0e47ab93e8a5252b5fef5ad66519ab9e182db376b0",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/overlay-contract/56-overlay-distinctname-control/main.shitae"
+        }
+      ],
+      "modelId": "2b5f1cc9e7949de38d8e1ef833d81f807b6ac9e09059302f32464b4a416cf1ef"
+    }
+  }
+}

@@ -1,0 +1,275 @@
+[
+  {
+    "tag": "v1",
+    "pid": 5466,
+    "exitCode": 0,
+    "checks": [
+      {
+        "check": "replayed final digest",
+        "pass": true,
+        "digest": "85f8ef1224b07398939669f204c401652765d9a9d05abea551bdca5770cc135b"
+      }
+    ],
+    "steps": 8,
+    "finalDigest": "85f8ef1224b07398939669f204c401652765d9a9d05abea551bdca5770cc135b"
+  },
+  {
+    "tag": "v2-continued",
+    "pid": 5467,
+    "exitCode": 0,
+    "checks": [
+      {
+        "check": "replayed final digest",
+        "pass": true,
+        "digest": "9aa1b2e0355f8f6aacbc2fd9cc905177cace6b2ba5c902115afded18eb7fab39"
+      },
+      {
+        "action": "見学を予約する",
+        "summary": {
+          "location": {
+            "module": "visit",
+            "component": "予約確認",
+            "variant": "現地案内"
+          },
+          "cursorObservationId": 13,
+          "latestObservationId": 13,
+          "observationCount": 13
+        },
+        "shared": [
+          {
+            "module": "visit",
+            "component": "予約状態",
+            "variant": "予約済",
+            "singleton": true,
+            "scope": "singleton-shared",
+            "origin": "dsl"
+          }
+        ],
+        "overlays": []
+      },
+      {
+        "action": "オンライン案内を選ぶ",
+        "summary": {
+          "location": {
+            "module": "visit",
+            "component": "予約確認",
+            "variant": "オンライン案内"
+          },
+          "cursorObservationId": 14,
+          "latestObservationId": 14,
+          "observationCount": 14
+        },
+        "shared": [
+          {
+            "module": "visit",
+            "component": "予約状態",
+            "variant": "予約済",
+            "singleton": true,
+            "scope": "singleton-shared",
+            "origin": "dsl"
+          }
+        ],
+        "overlays": []
+      },
+      {
+        "action": "取り消す",
+        "summary": {
+          "location": {
+            "module": "visit",
+            "component": "施設詳細",
+            "variant": null
+          },
+          "cursorObservationId": 15,
+          "latestObservationId": 15,
+          "observationCount": 15
+        },
+        "shared": [
+          {
+            "module": "visit",
+            "component": "予約状態",
+            "variant": "予約済",
+            "singleton": true,
+            "scope": "singleton-shared",
+            "origin": "dsl"
+          }
+        ],
+        "overlays": []
+      },
+      {
+        "action": "見学を予約する",
+        "summary": {
+          "location": {
+            "module": "visit",
+            "component": "予約確認",
+            "variant": "現地案内"
+          },
+          "cursorObservationId": 16,
+          "latestObservationId": 16,
+          "observationCount": 16
+        },
+        "shared": [
+          {
+            "module": "visit",
+            "component": "予約状態",
+            "variant": "予約済",
+            "singleton": true,
+            "scope": "singleton-shared",
+            "origin": "dsl"
+          }
+        ],
+        "overlays": []
+      },
+      {
+        "action": "オンライン案内を選ぶ",
+        "summary": {
+          "location": {
+            "module": "visit",
+            "component": "予約確認",
+            "variant": "オンライン案内"
+          },
+          "cursorObservationId": 17,
+          "latestObservationId": 17,
+          "observationCount": 17
+        },
+        "shared": [
+          {
+            "module": "visit",
+            "component": "予約状態",
+            "variant": "予約済",
+            "singleton": true,
+            "scope": "singleton-shared",
+            "origin": "dsl"
+          }
+        ],
+        "overlays": []
+      },
+      {
+        "action": "確定する",
+        "summary": {
+          "location": {
+            "module": "visit",
+            "component": "施設詳細",
+            "variant": null
+          },
+          "cursorObservationId": 20,
+          "latestObservationId": 20,
+          "observationCount": 20
+        },
+        "shared": [
+          {
+            "module": "visit",
+            "component": "予約状態",
+            "variant": "予約済",
+            "singleton": true,
+            "scope": "singleton-shared",
+            "origin": "dsl"
+          }
+        ],
+        "overlays": [
+          {
+            "module": "visit",
+            "component": "確定通知",
+            "variant": null,
+            "singleton": false,
+            "scope": "overlay-entry",
+            "origin": "initial"
+          }
+        ]
+      },
+      {
+        "action": "通知を閉じる",
+        "summary": {
+          "location": {
+            "module": "visit",
+            "component": "施設詳細",
+            "variant": null
+          },
+          "cursorObservationId": 21,
+          "latestObservationId": 21,
+          "observationCount": 21
+        },
+        "shared": [
+          {
+            "module": "visit",
+            "component": "予約状態",
+            "variant": "予約済",
+            "singleton": true,
+            "scope": "singleton-shared",
+            "origin": "dsl"
+          }
+        ],
+        "overlays": []
+      },
+      {
+        "action": "一覧へ戻る",
+        "summary": {
+          "location": {
+            "module": "visit",
+            "component": "施設一覧",
+            "variant": null
+          },
+          "cursorObservationId": 22,
+          "latestObservationId": 22,
+          "observationCount": 22
+        },
+        "shared": [
+          {
+            "module": "visit",
+            "component": "予約状態",
+            "variant": "予約済",
+            "singleton": true,
+            "scope": "singleton-shared",
+            "origin": "dsl"
+          }
+        ],
+        "overlays": []
+      },
+      {
+        "action": "詳細を見る",
+        "summary": {
+          "location": {
+            "module": "visit",
+            "component": "施設詳細",
+            "variant": null
+          },
+          "cursorObservationId": 23,
+          "latestObservationId": 23,
+          "observationCount": 23
+        },
+        "shared": [
+          {
+            "module": "visit",
+            "component": "予約状態",
+            "variant": "予約済",
+            "singleton": true,
+            "scope": "singleton-shared",
+            "origin": "dsl"
+          }
+        ],
+        "overlays": []
+      }
+    ],
+    "steps": 18,
+    "finalDigest": "7ba20425d1098a1942de5d73526e8574ab3fc9dd60f6625cececdddeee1f0506"
+  },
+  {
+    "tag": "v2-continued-replayed",
+    "pid": 5468,
+    "exitCode": 0,
+    "checks": [
+      {
+        "check": "replayed final digest",
+        "pass": true,
+        "digest": "7ba20425d1098a1942de5d73526e8574ab3fc9dd60f6625cececdddeee1f0506"
+      }
+    ],
+    "steps": 18,
+    "finalDigest": "7ba20425d1098a1942de5d73526e8574ab3fc9dd60f6625cececdddeee1f0506"
+  },
+  {
+    "tag": "v1-scenario-on-v2",
+    "exitCode": 1,
+    "expected": "MODEL_MISMATCH",
+    "pass": true
+  }
+]

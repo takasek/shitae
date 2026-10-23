@@ -1,0 +1,36 @@
+import work as work
+import nav as nav
+import records as records
+import room_a as editA
+import room_b as editB
+
+# 部屋一覧
+nav::会員操作
+CedarRoom
+IndigoRoom
+> Cedarを見る -> push(Cedar詳細)
+> Indigoを見る -> push(Indigo詳細)
+
+# Cedar詳細
+nav::会員操作
+CedarRoomの説明
+> 予約Aを見る -> push(予約A詳細)
+> 部屋一覧へ戻る -> back()
+
+# Indigo詳細
+nav::会員操作
+IndigoRoomの説明
+> 予約Bを見る -> push(予約B詳細)
+> 部屋一覧へ戻る -> back()
+
+# 予約A詳細
+nav::会員操作
+確定: records::予約A
+> Aの変更を始める -> present(editA::枠選択, @roomA) ; set(nav::Rooms復帰##A変更) ; set(work::進行A##Rooms変更)
+> 部屋詳細へ戻る -> back()
+
+# 予約B詳細
+nav::会員操作
+確定: records::予約B
+> Bの変更を始める -> present(editB::枠選択, @roomB) ; set(nav::Rooms復帰##B変更) ; set(work::進行B##Rooms変更)
+> 部屋詳細へ戻る -> back()

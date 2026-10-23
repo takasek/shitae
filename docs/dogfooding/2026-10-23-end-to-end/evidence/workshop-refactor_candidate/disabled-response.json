@@ -1,0 +1,10 @@
+{
+  "id": "29",
+  "ok": false,
+  "protocolVersion": 1,
+  "error": {
+    "code": "DISABLED_ACTION",
+    "message": "Operation is disabled"
+  },
+  "revision": 13
+}

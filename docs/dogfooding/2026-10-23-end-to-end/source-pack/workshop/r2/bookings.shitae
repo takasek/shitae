@@ -1,0 +1,24 @@
+import work as work
+import nav as nav
+import records as records
+import booking_a as editA
+import booking_b as editB
+
+# 予約一覧
+nav::会員操作
+A: records::予約A
+B: records::予約B
+> 予約Aを見る -> push(予約A詳細)
+> 予約Bを見る -> push(予約B詳細)
+
+# 予約A詳細
+nav::会員操作
+確定: records::予約A
+> Aの変更を始める -> present(editA::枠選択, @bookingA) ; set(nav::Bookings復帰##A変更) ; set(work::進行A##Bookings変更)
+> 予約一覧へ戻る -> back()
+
+# 予約B詳細
+nav::会員操作
+確定: records::予約B
+> Bの変更を始める -> present(editB::枠選択, @bookingB) ; set(nav::Bookings復帰##B変更) ; set(work::進行B##Bookings変更)
+> 予約一覧へ戻る -> back()

@@ -1,0 +1,869 @@
+[
+  {
+    "case": "module-gui",
+    "exit": 0,
+    "steps": 7,
+    "location": {
+      "module": "a",
+      "component": "Home",
+      "variant": null
+    },
+    "shared": [],
+    "overlays": [
+      {
+        "module": "b",
+        "component": "Notice",
+        "variant": "Idle",
+        "singleton": false,
+        "scope": "overlay-entry",
+        "origin": "initial"
+      },
+      {
+        "module": "a",
+        "component": "Controller",
+        "variant": null,
+        "singleton": false,
+        "scope": "overlay-entry",
+        "origin": "initial"
+      }
+    ],
+    "digest": {
+      "engineVersion": "683237908597a9e4f75adbb85d54f4a48397f388a4d5d60fb45f9a8b1ad950c7",
+      "entryModule": "main",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "a",
+          "sourceSha256": "c387d8cd9de34f17ff1a62d0e899061c5d297298b00b1de3e79cc2f3d92f2df3",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/models/module/a.shitae"
+        },
+        {
+          "module": "b",
+          "sourceSha256": "49ee26767532f9e9c074af1eea91ac700bb64e173409c0a8cebb5c0978442836",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/models/module/b.shitae"
+        },
+        {
+          "module": "main",
+          "sourceSha256": "1c55a4d2aa9c484b7cbe5410d43a0f27a1288a93f7392574028d60ae9943fc07",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/models/module/main.shitae"
+        }
+      ],
+      "modelId": "a0aafb42614ce449c93c650b85ff494e37cd660f0c94d63ccd49d63eebd4a845"
+    },
+    "stateEqualsEvidence": false
+  },
+  {
+    "case": "module-continued",
+    "exit": 0,
+    "steps": 8,
+    "location": {
+      "module": "a",
+      "component": "Home",
+      "variant": null
+    },
+    "shared": [],
+    "overlays": [
+      {
+        "module": "a",
+        "component": "Controller",
+        "variant": null,
+        "singleton": false,
+        "scope": "overlay-entry",
+        "origin": "initial"
+      }
+    ],
+    "digest": {
+      "engineVersion": "683237908597a9e4f75adbb85d54f4a48397f388a4d5d60fb45f9a8b1ad950c7",
+      "entryModule": "main",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "a",
+          "sourceSha256": "c387d8cd9de34f17ff1a62d0e899061c5d297298b00b1de3e79cc2f3d92f2df3",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/models/module/a.shitae"
+        },
+        {
+          "module": "b",
+          "sourceSha256": "49ee26767532f9e9c074af1eea91ac700bb64e173409c0a8cebb5c0978442836",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/models/module/b.shitae"
+        },
+        {
+          "module": "main",
+          "sourceSha256": "1c55a4d2aa9c484b7cbe5410d43a0f27a1288a93f7392574028d60ae9943fc07",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/models/module/main.shitae"
+        }
+      ],
+      "modelId": "a0aafb42614ce449c93c650b85ff494e37cd660f0c94d63ccd49d63eebd4a845"
+    },
+    "stateEqualsEvidence": false
+  },
+  {
+    "case": "r2",
+    "exit": 0,
+    "steps": 14,
+    "location": {
+      "module": "work",
+      "component": "進行中一覧",
+      "variant": null
+    },
+    "shared": [
+      {
+        "module": "work",
+        "component": "進行A",
+        "variant": "なし",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "work",
+        "component": "進行B",
+        "variant": "Bookings変更",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "nav",
+        "component": "Rooms復帰",
+        "variant": "通常",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "nav",
+        "component": "Bookings復帰",
+        "variant": "通常",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "reminders",
+        "component": "会員リマインダー",
+        "variant": "A",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "initial"
+      },
+      {
+        "module": "records",
+        "component": "予約A",
+        "variant": "原枠",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "initial"
+      },
+      {
+        "module": "records",
+        "component": "予約B",
+        "variant": "原枠",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "initial"
+      }
+    ],
+    "overlays": [],
+    "digest": {
+      "engineVersion": "683237908597a9e4f75adbb85d54f4a48397f388a4d5d60fb45f9a8b1ad950c7",
+      "entryModule": "main",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "booking_a",
+          "sourceSha256": "43731852a0517ad76c9408047284a2a6fbcc80ba7b88f9e5d71a04209d8a45e9",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2/booking_a.shitae"
+        },
+        {
+          "module": "booking_b",
+          "sourceSha256": "60d80b3c7431fd7a01dab4a8027708574333a418282b3ed97c2cb0e631fb4960",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2/booking_b.shitae"
+        },
+        {
+          "module": "bookings",
+          "sourceSha256": "2470596c53434b478a27f495e297ee18942b5f578bf62b7e811ecd9fea083a20",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2/bookings.shitae"
+        },
+        {
+          "module": "main",
+          "sourceSha256": "3e9823dff680b63ed85b540aa5ddc0ed4c561b2bb94055c322a8773d8569d4c8",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2/main.shitae"
+        },
+        {
+          "module": "nav",
+          "sourceSha256": "ec264fa33c980b809ed7525ffbef0248e63472a7eda5753a325d605bc7163d1c",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2/nav.shitae"
+        },
+        {
+          "module": "records",
+          "sourceSha256": "0cb89533d84cf112a898165c586d1933e6a91edf9bd31faf756ef84b1e0b4727",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2/records.shitae"
+        },
+        {
+          "module": "reminders",
+          "sourceSha256": "627cf7e0952a6d0d5bf3b842a0ac687c515c69d327d05b278e76201c93513618",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2/reminders.shitae"
+        },
+        {
+          "module": "room_a",
+          "sourceSha256": "2f17ac1ac306fbd1f0d8477dc506bdaaded90a1929b4332d10328fa5304dc76a",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2/room_a.shitae"
+        },
+        {
+          "module": "room_b",
+          "sourceSha256": "4199bf7642ddac9ef36d3fd1547554c241a99e1670e5ccf2b8c90061faee034f",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2/room_b.shitae"
+        },
+        {
+          "module": "rooms",
+          "sourceSha256": "542c694aba70070e8643dd69f6ebdfd2cf41895e2bfa7719ceb066c4222ea875",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2/rooms.shitae"
+        },
+        {
+          "module": "work",
+          "sourceSha256": "c1d2afe724d3220536c9458ed2daa9ba954c3a55c5ab09c0763918ade01d3bd7",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2/work.shitae"
+        }
+      ],
+      "modelId": "fcd2be0a7b228b970c1da3b6fd429bcf2812d1198b48a77256e8b188ca9ebb6e"
+    },
+    "stateEqualsEvidence": true
+  },
+  {
+    "case": "r2_1",
+    "exit": 0,
+    "steps": 14,
+    "location": {
+      "module": "booking_b",
+      "component": "枠選択",
+      "variant": "原枠"
+    },
+    "shared": [
+      {
+        "module": "work",
+        "component": "進行A",
+        "variant": "なし",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "work",
+        "component": "進行B",
+        "variant": "Bookings変更",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "nav",
+        "component": "Rooms復帰",
+        "variant": "通常",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "nav",
+        "component": "Bookings復帰",
+        "variant": "B変更",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "reminders",
+        "component": "会員リマインダー",
+        "variant": "A",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "initial"
+      },
+      {
+        "module": "records",
+        "component": "予約A",
+        "variant": "原枠",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "initial"
+      },
+      {
+        "module": "records",
+        "component": "予約B",
+        "variant": "原枠",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "initial"
+      }
+    ],
+    "overlays": [],
+    "digest": {
+      "engineVersion": "683237908597a9e4f75adbb85d54f4a48397f388a4d5d60fb45f9a8b1ad950c7",
+      "entryModule": "main",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "booking_a",
+          "sourceSha256": "43731852a0517ad76c9408047284a2a6fbcc80ba7b88f9e5d71a04209d8a45e9",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/booking_a.shitae"
+        },
+        {
+          "module": "booking_b",
+          "sourceSha256": "60d80b3c7431fd7a01dab4a8027708574333a418282b3ed97c2cb0e631fb4960",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/booking_b.shitae"
+        },
+        {
+          "module": "bookings",
+          "sourceSha256": "2470596c53434b478a27f495e297ee18942b5f578bf62b7e811ecd9fea083a20",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/bookings.shitae"
+        },
+        {
+          "module": "main",
+          "sourceSha256": "3e9823dff680b63ed85b540aa5ddc0ed4c561b2bb94055c322a8773d8569d4c8",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/main.shitae"
+        },
+        {
+          "module": "nav",
+          "sourceSha256": "ec264fa33c980b809ed7525ffbef0248e63472a7eda5753a325d605bc7163d1c",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/nav.shitae"
+        },
+        {
+          "module": "records",
+          "sourceSha256": "0cb89533d84cf112a898165c586d1933e6a91edf9bd31faf756ef84b1e0b4727",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/records.shitae"
+        },
+        {
+          "module": "reminders",
+          "sourceSha256": "627cf7e0952a6d0d5bf3b842a0ac687c515c69d327d05b278e76201c93513618",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/reminders.shitae"
+        },
+        {
+          "module": "room_a",
+          "sourceSha256": "2f17ac1ac306fbd1f0d8477dc506bdaaded90a1929b4332d10328fa5304dc76a",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/room_a.shitae"
+        },
+        {
+          "module": "room_b",
+          "sourceSha256": "4199bf7642ddac9ef36d3fd1547554c241a99e1670e5ccf2b8c90061faee034f",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/room_b.shitae"
+        },
+        {
+          "module": "rooms",
+          "sourceSha256": "542c694aba70070e8643dd69f6ebdfd2cf41895e2bfa7719ceb066c4222ea875",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/rooms.shitae"
+        },
+        {
+          "module": "work",
+          "sourceSha256": "c9dcff1878bfcf5d6edaf9e88024f26aa7eb6d1e3b85dd93133ce3bf08036c27",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/work.shitae"
+        }
+      ],
+      "modelId": "93b2f92826ceea888ca7b89300efb303cbbf52e707cc6bffb9128ccdce5dd309"
+    },
+    "stateEqualsEvidence": true
+  },
+  {
+    "case": "r2_1-continued",
+    "exit": 0,
+    "steps": 17,
+    "location": {
+      "module": "bookings",
+      "component": "予約B詳細",
+      "variant": null
+    },
+    "shared": [
+      {
+        "module": "work",
+        "component": "進行A",
+        "variant": "なし",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "work",
+        "component": "進行B",
+        "variant": "なし",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "nav",
+        "component": "Rooms復帰",
+        "variant": "通常",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "nav",
+        "component": "Bookings復帰",
+        "variant": "通常",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "reminders",
+        "component": "会員リマインダー",
+        "variant": "A",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "initial"
+      },
+      {
+        "module": "records",
+        "component": "予約A",
+        "variant": "原枠",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "initial"
+      },
+      {
+        "module": "records",
+        "component": "予約B",
+        "variant": "代替枠",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      }
+    ],
+    "overlays": [],
+    "digest": {
+      "engineVersion": "683237908597a9e4f75adbb85d54f4a48397f388a4d5d60fb45f9a8b1ad950c7",
+      "entryModule": "main",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "booking_a",
+          "sourceSha256": "43731852a0517ad76c9408047284a2a6fbcc80ba7b88f9e5d71a04209d8a45e9",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/booking_a.shitae"
+        },
+        {
+          "module": "booking_b",
+          "sourceSha256": "60d80b3c7431fd7a01dab4a8027708574333a418282b3ed97c2cb0e631fb4960",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/booking_b.shitae"
+        },
+        {
+          "module": "bookings",
+          "sourceSha256": "2470596c53434b478a27f495e297ee18942b5f578bf62b7e811ecd9fea083a20",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/bookings.shitae"
+        },
+        {
+          "module": "main",
+          "sourceSha256": "3e9823dff680b63ed85b540aa5ddc0ed4c561b2bb94055c322a8773d8569d4c8",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/main.shitae"
+        },
+        {
+          "module": "nav",
+          "sourceSha256": "ec264fa33c980b809ed7525ffbef0248e63472a7eda5753a325d605bc7163d1c",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/nav.shitae"
+        },
+        {
+          "module": "records",
+          "sourceSha256": "0cb89533d84cf112a898165c586d1933e6a91edf9bd31faf756ef84b1e0b4727",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/records.shitae"
+        },
+        {
+          "module": "reminders",
+          "sourceSha256": "627cf7e0952a6d0d5bf3b842a0ac687c515c69d327d05b278e76201c93513618",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/reminders.shitae"
+        },
+        {
+          "module": "room_a",
+          "sourceSha256": "2f17ac1ac306fbd1f0d8477dc506bdaaded90a1929b4332d10328fa5304dc76a",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/room_a.shitae"
+        },
+        {
+          "module": "room_b",
+          "sourceSha256": "4199bf7642ddac9ef36d3fd1547554c241a99e1670e5ccf2b8c90061faee034f",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/room_b.shitae"
+        },
+        {
+          "module": "rooms",
+          "sourceSha256": "542c694aba70070e8643dd69f6ebdfd2cf41895e2bfa7719ceb066c4222ea875",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/rooms.shitae"
+        },
+        {
+          "module": "work",
+          "sourceSha256": "c9dcff1878bfcf5d6edaf9e88024f26aa7eb6d1e3b85dd93133ce3bf08036c27",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/r2_1/work.shitae"
+        }
+      ],
+      "modelId": "93b2f92826ceea888ca7b89300efb303cbbf52e707cc6bffb9128ccdce5dd309"
+    },
+    "stateEqualsEvidence": true
+  },
+  {
+    "case": "refactor_candidate",
+    "exit": 0,
+    "steps": 14,
+    "location": {
+      "module": "booking_b",
+      "component": "枠選択",
+      "variant": "原枠"
+    },
+    "shared": [
+      {
+        "module": "work",
+        "component": "進行A",
+        "variant": "なし",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "work",
+        "component": "進行B",
+        "variant": "Bookings変更",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "nav",
+        "component": "Rooms復帰",
+        "variant": "通常",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "nav",
+        "component": "Bookings復帰",
+        "variant": "B変更",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "reminders",
+        "component": "会員リマインダー",
+        "variant": "A",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "initial"
+      },
+      {
+        "module": "records",
+        "component": "予約A",
+        "variant": "原枠",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "initial"
+      },
+      {
+        "module": "records",
+        "component": "予約B",
+        "variant": "原枠",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "initial"
+      }
+    ],
+    "overlays": [],
+    "digest": {
+      "engineVersion": "683237908597a9e4f75adbb85d54f4a48397f388a4d5d60fb45f9a8b1ad950c7",
+      "entryModule": "main",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "booking_a",
+          "sourceSha256": "1d442d471b196d73417db0a77ea61312b854416ecb10c1a27e915914dc817433",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/refactor_candidate/booking_a.shitae"
+        },
+        {
+          "module": "booking_b",
+          "sourceSha256": "9675b96e289baa334e4a27ad6fdedfc38ea4d448d7aa3d9d028985dffab1268d",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/refactor_candidate/booking_b.shitae"
+        },
+        {
+          "module": "bookings",
+          "sourceSha256": "2470596c53434b478a27f495e297ee18942b5f578bf62b7e811ecd9fea083a20",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/refactor_candidate/bookings.shitae"
+        },
+        {
+          "module": "main",
+          "sourceSha256": "3e9823dff680b63ed85b540aa5ddc0ed4c561b2bb94055c322a8773d8569d4c8",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/refactor_candidate/main.shitae"
+        },
+        {
+          "module": "nav",
+          "sourceSha256": "ec264fa33c980b809ed7525ffbef0248e63472a7eda5753a325d605bc7163d1c",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/refactor_candidate/nav.shitae"
+        },
+        {
+          "module": "records",
+          "sourceSha256": "0cb89533d84cf112a898165c586d1933e6a91edf9bd31faf756ef84b1e0b4727",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/refactor_candidate/records.shitae"
+        },
+        {
+          "module": "reminders",
+          "sourceSha256": "627cf7e0952a6d0d5bf3b842a0ac687c515c69d327d05b278e76201c93513618",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/refactor_candidate/reminders.shitae"
+        },
+        {
+          "module": "room_a",
+          "sourceSha256": "754124dfec59bc9c743de100c5a9c451a07da905c4d79cdfa1a6c0b18d63a944",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/refactor_candidate/room_a.shitae"
+        },
+        {
+          "module": "room_b",
+          "sourceSha256": "c6f92db1e31e9c2f80330352d8e6789e6e09b49f66908f9c959c3ddfddc6575c",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/refactor_candidate/room_b.shitae"
+        },
+        {
+          "module": "rooms",
+          "sourceSha256": "542c694aba70070e8643dd69f6ebdfd2cf41895e2bfa7719ceb066c4222ea875",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/refactor_candidate/rooms.shitae"
+        },
+        {
+          "module": "work",
+          "sourceSha256": "c9dcff1878bfcf5d6edaf9e88024f26aa7eb6d1e3b85dd93133ce3bf08036c27",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/refactor_candidate/work.shitae"
+        }
+      ],
+      "modelId": "435d71322ccc58b611b14d3b96b6f6eee14bb9fa6b2ac1f18e580835299f7ec9"
+    },
+    "stateEqualsEvidence": true
+  },
+  {
+    "case": "refactor_candidate-continued",
+    "exit": 0,
+    "steps": 17,
+    "location": {
+      "module": "bookings",
+      "component": "予約B詳細",
+      "variant": null
+    },
+    "shared": [
+      {
+        "module": "work",
+        "component": "進行A",
+        "variant": "なし",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "work",
+        "component": "進行B",
+        "variant": "なし",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "nav",
+        "component": "Rooms復帰",
+        "variant": "通常",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "nav",
+        "component": "Bookings復帰",
+        "variant": "通常",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      },
+      {
+        "module": "reminders",
+        "component": "会員リマインダー",
+        "variant": "A",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "initial"
+      },
+      {
+        "module": "records",
+        "component": "予約A",
+        "variant": "原枠",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "initial"
+      },
+      {
+        "module": "records",
+        "component": "予約B",
+        "variant": "代替枠",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      }
+    ],
+    "overlays": [],
+    "digest": {
+      "engineVersion": "683237908597a9e4f75adbb85d54f4a48397f388a4d5d60fb45f9a8b1ad950c7",
+      "entryModule": "main",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "booking_a",
+          "sourceSha256": "1d442d471b196d73417db0a77ea61312b854416ecb10c1a27e915914dc817433",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/refactor_candidate/booking_a.shitae"
+        },
+        {
+          "module": "booking_b",
+          "sourceSha256": "9675b96e289baa334e4a27ad6fdedfc38ea4d448d7aa3d9d028985dffab1268d",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/refactor_candidate/booking_b.shitae"
+        },
+        {
+          "module": "bookings",
+          "sourceSha256": "2470596c53434b478a27f495e297ee18942b5f578bf62b7e811ecd9fea083a20",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/refactor_candidate/bookings.shitae"
+        },
+        {
+          "module": "main",
+          "sourceSha256": "3e9823dff680b63ed85b540aa5ddc0ed4c561b2bb94055c322a8773d8569d4c8",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/refactor_candidate/main.shitae"
+        },
+        {
+          "module": "nav",
+          "sourceSha256": "ec264fa33c980b809ed7525ffbef0248e63472a7eda5753a325d605bc7163d1c",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/refactor_candidate/nav.shitae"
+        },
+        {
+          "module": "records",
+          "sourceSha256": "0cb89533d84cf112a898165c586d1933e6a91edf9bd31faf756ef84b1e0b4727",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/refactor_candidate/records.shitae"
+        },
+        {
+          "module": "reminders",
+          "sourceSha256": "627cf7e0952a6d0d5bf3b842a0ac687c515c69d327d05b278e76201c93513618",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/refactor_candidate/reminders.shitae"
+        },
+        {
+          "module": "room_a",
+          "sourceSha256": "754124dfec59bc9c743de100c5a9c451a07da905c4d79cdfa1a6c0b18d63a944",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/refactor_candidate/room_a.shitae"
+        },
+        {
+          "module": "room_b",
+          "sourceSha256": "c6f92db1e31e9c2f80330352d8e6789e6e09b49f66908f9c959c3ddfddc6575c",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/refactor_candidate/room_b.shitae"
+        },
+        {
+          "module": "rooms",
+          "sourceSha256": "542c694aba70070e8643dd69f6ebdfd2cf41895e2bfa7719ceb066c4222ea875",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/refactor_candidate/rooms.shitae"
+        },
+        {
+          "module": "work",
+          "sourceSha256": "c9dcff1878bfcf5d6edaf9e88024f26aa7eb6d1e3b85dd93133ce3bf08036c27",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/source-pack/workshop/refactor_candidate/work.shitae"
+        }
+      ],
+      "modelId": "435d71322ccc58b611b14d3b96b6f6eee14bb9fa6b2ac1f18e580835299f7ec9"
+    },
+    "stateEqualsEvidence": true
+  },
+  {
+    "case": "v1",
+    "exit": 0,
+    "steps": 8,
+    "location": {
+      "module": "visit",
+      "component": "施設詳細",
+      "variant": null
+    },
+    "shared": [
+      {
+        "module": "visit",
+        "component": "予約状態",
+        "variant": "予約済",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      }
+    ],
+    "overlays": [],
+    "digest": {
+      "engineVersion": "683237908597a9e4f75adbb85d54f4a48397f388a4d5d60fb45f9a8b1ad950c7",
+      "entryModule": "visit",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "visit",
+          "sourceSha256": "1ba80370398b343c174150a3f7e98b60aaf02238e94b3a903cfcdc65afdc7ed3",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/author/v1/visit.shitae"
+        }
+      ],
+      "modelId": "2bfff28c6cd105712e0162367504f167cbf3bb96a909a438d6101e6e0bb2d952"
+    },
+    "stateEqualsEvidence": true
+  },
+  {
+    "case": "v2",
+    "exit": 0,
+    "steps": 9,
+    "location": {
+      "module": "visit",
+      "component": "施設詳細",
+      "variant": null
+    },
+    "shared": [
+      {
+        "module": "visit",
+        "component": "予約状態",
+        "variant": "予約済",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      }
+    ],
+    "overlays": [],
+    "digest": {
+      "engineVersion": "683237908597a9e4f75adbb85d54f4a48397f388a4d5d60fb45f9a8b1ad950c7",
+      "entryModule": "visit",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "visit",
+          "sourceSha256": "dea714b8e174477ba9de45dca5a6144d86b0f242dcdd4323e920ff70c40a2b43",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/author/v2/visit.shitae"
+        }
+      ],
+      "modelId": "7ef9850699ebed510a533e2a94cce1a08855549befe37d496cb201c7b86f9963"
+    },
+    "stateEqualsEvidence": true
+  },
+  {
+    "case": "recipient",
+    "exit": 0,
+    "steps": 18,
+    "location": {
+      "module": "visit",
+      "component": "施設詳細",
+      "variant": null
+    },
+    "shared": [
+      {
+        "module": "visit",
+        "component": "予約状態",
+        "variant": "予約済",
+        "singleton": true,
+        "scope": "singleton-shared",
+        "origin": "dsl"
+      }
+    ],
+    "overlays": [],
+    "digest": {
+      "engineVersion": "683237908597a9e4f75adbb85d54f4a48397f388a4d5d60fb45f9a8b1ad950c7",
+      "entryModule": "visit",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "visit",
+          "sourceSha256": "dea714b8e174477ba9de45dca5a6144d86b0f242dcdd4323e920ff70c40a2b43",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/author/v2/visit.shitae"
+        }
+      ],
+      "modelId": "7ef9850699ebed510a533e2a94cce1a08855549befe37d496cb201c7b86f9963"
+    }
+  }
+]

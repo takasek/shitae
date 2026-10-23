@@ -1,0 +1,8 @@
+> Notify -> show(Notice##Displayed)
+# Editor
+EditorLabel
+# Notice
+## Hidden
+HiddenLabel
+## Displayed
+DisplayedLabel

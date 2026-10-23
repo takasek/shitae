@@ -1,0 +1,23 @@
+{"id": "r1", "command": "query", "select": ["state", "actions", "metadata"]}
+{"id": "r2", "command": "query", "select": ["actions"]}
+{"id": "r3", "command": "dispatch", "handle": "90b5a92f-e388-4f24-b0b1-1015b428918c:0:0"}
+{"id": "r4", "command": "query", "select": ["actions"]}
+{"id": "r5", "command": "dispatch", "handle": "90b5a92f-e388-4f24-b0b1-1015b428918c:1:1"}
+{"id": "r6", "command": "query", "select": ["actions"]}
+{"id": "r7", "command": "dispatch", "handle": "90b5a92f-e388-4f24-b0b1-1015b428918c:2:2"}
+{"id": "r8", "command": "query", "select": ["state", "actions", "metadata"]}
+{"id": "r9", "command": "query", "select": ["actions"]}
+{"id": "r10", "command": "dispatch", "handle": "90b5a92f-e388-4f24-b0b1-1015b428918c:3:0"}
+{"id": "r11", "command": "query", "select": ["state", "actions", "metadata"]}
+{"id": "r12", "command": "query", "select": ["actions"]}
+{"id": "r13", "command": "dispatch", "handle": "90b5a92f-e388-4f24-b0b1-1015b428918c:4:1"}
+{"id": "r14", "command": "query", "select": ["state", "actions", "metadata"]}
+{"id": "r15", "command": "query", "select": ["actions"]}
+{"id": "r16", "command": "dispatch", "handle": "90b5a92f-e388-4f24-b0b1-1015b428918c:5:1"}
+{"id": "r17", "command": "query", "select": ["state", "actions", "metadata"]}
+{"id": "r18", "command": "query", "select": ["actions"]}
+{"id": "r19", "command": "dispatch", "handle": "90b5a92f-e388-4f24-b0b1-1015b428918c:6:0"}
+{"id": "r20", "command": "query", "select": ["actions"]}
+{"id": "r21", "command": "dispatch", "handle": "90b5a92f-e388-4f24-b0b1-1015b428918c:7:0"}
+{"id": "r22", "command": "query", "select": ["state", "actions", "metadata"]}
+{"id": "r23", "command": "exportScenario"}

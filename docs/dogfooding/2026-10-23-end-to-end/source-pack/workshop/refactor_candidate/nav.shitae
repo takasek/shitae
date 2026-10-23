@@ -1,0 +1,50 @@
+import work as work
+import reminders as reminders
+import rooms as rooms
+import bookings as bookings
+import room_a as roomA
+import room_b as roomB
+import booking_a as bookingA
+import booking_b as bookingB
+
+# 会員領域
+会員作業の親
+会員操作
+
+# 会員操作
+Rooms復帰
+Bookings復帰
+> 進行中タブへ -> switch(work::進行中一覧, @progress)
+> Aのリマインダーが届く -> set(reminders::会員リマインダー##A) ; show(reminders::会員リマインダー)
+> Bのリマインダーが届く -> set(reminders::会員リマインダー##B) ; show(reminders::会員リマインダー)
+> 公共のお知らせが届く -> show(公共バナー)
+> セッションが期限切れになる -> set(Rooms復帰##通常) ; set(Bookings復帰##通常) ; set(work::進行A##なし) ; set(work::進行B##なし) ; hide(reminders::会員リマインダー) ; exit(@member)
+> サインアウト -> set(Rooms復帰##通常) ; set(Bookings復帰##通常) ; set(work::進行A##なし) ; set(work::進行B##なし) ; hide(reminders::会員リマインダー) ; exit(@member)
+
+# 公共バナー
+センターから公共のお知らせ・会員情報や予約情報は含まない
+> 公共バナーを閉じる -> hide(公共バナー)
+
+#! Rooms復帰
+## 通常
+> Roomsタブへ -> switch(rooms::部屋一覧, @rooms)
+## A変更
+> Roomsタブへ -> switch(roomA::枠選択, @roomA)
+## A破棄確認
+> Roomsタブへ -> switch(roomA::破棄確認, @roomADiscard)
+## B変更
+> Roomsタブへ -> switch(roomB::枠選択, @roomB)
+## B破棄確認
+> Roomsタブへ -> switch(roomB::破棄確認, @roomBDiscard)
+
+#! Bookings復帰
+## 通常
+> Bookingsタブへ -> switch(bookings::予約一覧, @bookings)
+## A変更
+> Bookingsタブへ -> switch(bookingA::枠選択, @bookingA)
+## A破棄確認
+> Bookingsタブへ -> switch(bookingA::破棄確認, @bookingADiscard)
+## B変更
+> Bookingsタブへ -> switch(bookingB::枠選択, @bookingB)
+## B破棄確認
+> Bookingsタブへ -> switch(bookingB::破棄確認, @bookingBDiscard)

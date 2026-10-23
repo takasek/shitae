@@ -1,0 +1,16 @@
+[
+  {
+    "version": "v1",
+    "modelId": "2bfff28c6cd105712e0162367504f167cbf3bb96a909a438d6101e6e0bb2d952",
+    "sourceHashMatches": true,
+    "htmlContainsModelId": true,
+    "externalScriptTags": []
+  },
+  {
+    "version": "v2",
+    "modelId": "7ef9850699ebed510a533e2a94cce1a08855549befe37d496cb201c7b86f9963",
+    "sourceHashMatches": true,
+    "htmlContainsModelId": true,
+    "externalScriptTags": []
+  }
+]

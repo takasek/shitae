@@ -1,0 +1,276 @@
+{
+  "id": "r11",
+  "ok": true,
+  "protocolVersion": 1,
+  "revision": 4,
+  "summary": {
+    "location": {
+      "module": "visit",
+      "component": "施設詳細",
+      "variant": null
+    },
+    "cursorObservationId": 5,
+    "latestObservationId": 5,
+    "observationCount": 5
+  },
+  "data": {
+    "state": {
+      "frames": [
+        {
+          "id": 0,
+          "parentId": null,
+          "stack": [
+            {
+              "module": "visit",
+              "component": "施設一覧",
+              "variant": null,
+              "singleton": false,
+              "scope": "frame-location",
+              "origin": "initial"
+            },
+            {
+              "module": "visit",
+              "component": "施設詳細",
+              "variant": null,
+              "singleton": false,
+              "scope": "frame-location",
+              "origin": "initial"
+            }
+          ],
+          "barrier": false,
+          "beginsSession": null,
+          "origin": "root"
+        }
+      ],
+      "activeFrameId": 0,
+      "nextFrameId": 2,
+      "activePath": [
+        0
+      ],
+      "overlays": [],
+      "sharedVariants": [
+        {
+          "module": "visit",
+          "component": "予約状態",
+          "variant": "未予約",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "initial"
+        }
+      ],
+      "testVariants": [],
+      "componentValues": [
+        {
+          "module": "visit",
+          "component": "施設一覧",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "visit",
+          "component": "施設詳細",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "visit",
+          "component": "予約確認",
+          "variant": "現地案内",
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        },
+        {
+          "module": "visit",
+          "component": "予約状態",
+          "variant": "未予約",
+          "singleton": true,
+          "scope": "singleton-shared",
+          "origin": "initial"
+        },
+        {
+          "module": "visit",
+          "component": "確定通知",
+          "variant": null,
+          "singleton": false,
+          "scope": "inclusion-initial",
+          "origin": "initial"
+        }
+      ],
+      "gateTargets": [],
+      "inclusion": {
+        "main": {
+          "module": "visit",
+          "component": "施設詳細",
+          "root": "main",
+          "variant": null,
+          "singleton": false,
+          "scope": "frame-location",
+          "origin": "initial",
+          "source": {
+            "module": "visit",
+            "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/author/v2/visit.shitae",
+            "span": {
+              "offset": 77,
+              "length": 6,
+              "line": 7,
+              "col": 1
+            }
+          },
+          "children": [
+            {
+              "name": "科学館の見学案内",
+              "root": "main",
+              "path": [
+                0
+              ],
+              "source": {
+                "module": "visit",
+                "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/author/v2/visit.shitae",
+                "span": {
+                  "offset": 84,
+                  "length": 8,
+                  "line": 8,
+                  "col": 1
+                }
+              },
+              "collection": false,
+              "reference": {
+                "module": "visit",
+                "component": "科学館の見学案内"
+              },
+              "kind": "unresolved",
+              "children": []
+            },
+            {
+              "name": "予約状態",
+              "root": "main",
+              "path": [
+                1
+              ],
+              "source": {
+                "module": "visit",
+                "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/author/v2/visit.shitae",
+                "span": {
+                  "offset": 93,
+                  "length": 4,
+                  "line": 9,
+                  "col": 1
+                }
+              },
+              "collection": false,
+              "reference": {
+                "module": "visit",
+                "component": "予約状態"
+              },
+              "kind": "component",
+              "value": {
+                "variant": "未予約",
+                "singleton": true,
+                "scope": "singleton-shared",
+                "origin": "initial"
+              },
+              "componentSource": {
+                "module": "visit",
+                "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/author/v2/visit.shitae",
+                "span": {
+                  "offset": 347,
+                  "length": 7,
+                  "line": 24,
+                  "col": 1
+                }
+              },
+              "children": [
+                {
+                  "name": "見学の予約はまだない",
+                  "root": "main",
+                  "path": [
+                    1,
+                    0
+                  ],
+                  "source": {
+                    "module": "visit",
+                    "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/author/v2/visit.shitae",
+                    "span": {
+                      "offset": 362,
+                      "length": 10,
+                      "line": 26,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "visit",
+                    "component": "見学の予約はまだない"
+                  },
+                  "kind": "unresolved",
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        "overlays": []
+      }
+    },
+    "actions": {
+      "items": [
+        {
+          "handle": "41d4f31e-8b3d-490b-9c55-db90d795f3bb:4:0",
+          "actionText": "一覧へ戻る",
+          "scope": "component",
+          "placement": {
+            "root": "main",
+            "path": []
+          },
+          "host": {
+            "module": "visit",
+            "component": "施設詳細",
+            "variant": null
+          },
+          "enabled": true,
+          "branches": []
+        },
+        {
+          "handle": "41d4f31e-8b3d-490b-9c55-db90d795f3bb:4:1",
+          "actionText": "見学を予約する",
+          "scope": "component",
+          "placement": {
+            "root": "main",
+            "path": []
+          },
+          "host": {
+            "module": "visit",
+            "component": "施設詳細",
+            "variant": null
+          },
+          "enabled": true,
+          "branches": []
+        }
+      ],
+      "controls": {
+        "back": {
+          "handle": "41d4f31e-8b3d-490b-9c55-db90d795f3bb:4:back",
+          "enabled": true
+        }
+      }
+    },
+    "metadata": {
+      "engineVersion": "683237908597a9e4f75adbb85d54f4a48397f388a4d5d60fb45f9a8b1ad950c7",
+      "entryModule": "visit",
+      "sourceBasis": "source-bytes",
+      "manifest": [
+        {
+          "module": "visit",
+          "sourceSha256": "dea714b8e174477ba9de45dca5a6144d86b0f242dcdd4323e920ff70c40a2b43",
+          "file": "/Users/m5/.codex/worktrees/issue-69-reevaluation/shitae/docs/dogfooding/2026-10-23-end-to-end/author/v2/visit.shitae"
+        }
+      ],
+      "modelId": "7ef9850699ebed510a533e2a94cce1a08855549befe37d496cb201c7b86f9963"
+    }
+  }
+}

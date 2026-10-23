@@ -1,0 +1,12 @@
+> Notify -> show(Status)
+# Editor
+Status
+> Save -> set(Status##Saved)
+> Next -> push(Preview)
+# Preview
+Status
+#! Status
+## Clean
+CleanLabel
+## Saved
+SavedLabel

@@ -1,0 +1,6 @@
+import lib as lib
+# Screen
+*lib::Card
+#! Card
+## Ready
+LocalCard

@@ -1,0 +1,12 @@
+// 固定の代表予約2件。実データや永続保存ではない。
+#! 予約A
+## 原枠
+Clay工房・CedarRoom・確定枠は月曜10時
+## 代替枠
+Clay工房・CedarRoom・確定枠は月曜14時
+
+#! 予約B
+## 原枠
+Robotics工房・IndigoRoom・確定枠は火曜10時
+## 代替枠
+Robotics工房・IndigoRoom・確定枠は火曜14時

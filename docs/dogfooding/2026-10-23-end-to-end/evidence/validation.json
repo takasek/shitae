@@ -1,0 +1,10 @@
+{
+  "sha": "1eed5fb0330d8c61206ab8632de8ee1e5085044e",
+  "buildExit": 0,
+  "testExit": 0,
+  "testCount": 898,
+  "typecheckExit": 0,
+  "sourceManifestCount": 79,
+  "sourceManifestMismatch": 0,
+  "engineVersion": "683237908597a9e4f75adbb85d54f4a48397f388a4d5d60fb45f9a8b1ad950c7"
+}

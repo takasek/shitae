@@ -1,0 +1,5081 @@
+{
+  "format": "shitae-scenario",
+  "formatVersion": 1,
+  "protocolVersion": 1,
+  "model": {
+    "engineVersion": "278103a97da5319e8f97bb3218d6508b7cfd2a8d3ebd479aed3faf00f75f5116",
+    "modelId": "4414378de007989846245b95fbd8488f675ae52ebb9259485b0915bafb8e433e",
+    "entryModule": "main",
+    "sourceBasis": "source-bytes",
+    "manifest": [
+      {
+        "module": "booking_a",
+        "sourceSha256": "1d442d471b196d73417db0a77ea61312b854416ecb10c1a27e915914dc817433"
+      },
+      {
+        "module": "booking_b",
+        "sourceSha256": "9675b96e289baa334e4a27ad6fdedfc38ea4d448d7aa3d9d028985dffab1268d"
+      },
+      {
+        "module": "bookings",
+        "sourceSha256": "2470596c53434b478a27f495e297ee18942b5f578bf62b7e811ecd9fea083a20"
+      },
+      {
+        "module": "main",
+        "sourceSha256": "3e9823dff680b63ed85b540aa5ddc0ed4c561b2bb94055c322a8773d8569d4c8"
+      },
+      {
+        "module": "nav",
+        "sourceSha256": "ec264fa33c980b809ed7525ffbef0248e63472a7eda5753a325d605bc7163d1c"
+      },
+      {
+        "module": "records",
+        "sourceSha256": "0cb89533d84cf112a898165c586d1933e6a91edf9bd31faf756ef84b1e0b4727"
+      },
+      {
+        "module": "reminders",
+        "sourceSha256": "627cf7e0952a6d0d5bf3b842a0ac687c515c69d327d05b278e76201c93513618"
+      },
+      {
+        "module": "room_a",
+        "sourceSha256": "754124dfec59bc9c743de100c5a9c451a07da905c4d79cdfa1a6c0b18d63a944"
+      },
+      {
+        "module": "room_b",
+        "sourceSha256": "c6f92db1e31e9c2f80330352d8e6789e6e09b49f66908f9c959c3ddfddc6575c"
+      },
+      {
+        "module": "rooms",
+        "sourceSha256": "542c694aba70070e8643dd69f6ebdfd2cf41895e2bfa7719ceb066c4222ea875"
+      },
+      {
+        "module": "work",
+        "sourceSha256": "c9dcff1878bfcf5d6edaf9e88024f26aa7eb6d1e3b85dd93133ce3bf08036c27"
+      }
+    ]
+  },
+  "initialDigest": "8913ebce21c2a184c4c7502f06ac5a42ff46c216d436da827ca6c7cf19499e0b",
+  "steps": [
+    {
+      "step": 1,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "main",
+            "component": "サインイン",
+            "variant": null
+          },
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 77,
+              "length": 164,
+              "line": 7,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "287c3780b650b360c5e231fa7f63adba4d90226ec2afe66c584eecbb0b78455a"
+        },
+        "branch": null
+      },
+      "afterDigest": "a1a3cbf1685e1899ee0b39a536e51b0eaa15099378b537acebf6102f7b6755e4",
+      "observations": [
+        {
+          "viewDigest": "64cd33db939a241d73434e13d9f59b7ca4f599dab696579f9318de12a286a051"
+        },
+        {
+          "viewDigest": "c2ff5d56b0f56c1f5448584bfd9554ad22c0c4f1f32554e8a9771e7f5e010cad"
+        },
+        {
+          "viewDigest": "85ba25a33c12ea03826bd3358f8a2d98cee2f78710963b951c8fb751b0c79743"
+        },
+        {
+          "viewDigest": "7dff5fbadb7a570e542c3376dc2119aa9dcb1fb5a1e396ec38c4f9473716887e"
+        },
+        {
+          "viewDigest": "584baac07624f66347cacc4b1c4b32ac00e387b55cfe8d9794621cb3b5d432b2"
+        },
+        {
+          "viewDigest": "0735c22f870e2a6fe189cc5a4c23ceb161dd3f4f3ccb451bf91303975cc22f77"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames",
+          "sharedVariants",
+          "origins"
+        ]
+      },
+      "outputDigest": "27c020a580dd146bbfd58ed553a07bb17d39788327efcd8c69e4c314ba723908"
+    },
+    {
+      "step": 2,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "rooms",
+            "component": "部屋一覧",
+            "variant": null
+          },
+          "source": {
+            "module": "rooms",
+            "span": {
+              "offset": 149,
+              "length": 27,
+              "line": 11,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "dedc7aac9fced1a8c85e2658899db3b97c5f57d39de537289da40b1842b36191"
+        },
+        "branch": null
+      },
+      "afterDigest": "d4cdb2dd5e7ceb86f509d1c0735648231143c37e98927b426c9bd222172faa6c",
+      "observations": [
+        {
+          "viewDigest": "f4dedc616a6b0134f64f6377bfabd69fc201302f64cdea76d8e588acb7c2cf60"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 3,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "rooms",
+            "component": "Cedar詳細",
+            "variant": null
+          },
+          "source": {
+            "module": "rooms",
+            "span": {
+              "offset": 241,
+              "length": 23,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "2832b9822bcde4d15eefcf77f1880a8e7be0d120ed42427f1ee73a068e439940"
+        },
+        "branch": null
+      },
+      "afterDigest": "b04313cb4fd4fc511350908a299458eea344d3effb66173696936a24a4f62d5e",
+      "observations": [
+        {
+          "viewDigest": "751a3f2395d449c7bba8e806fb53b8a9e1a2dacf144ceacabd19338a9395cf55"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 4,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "rooms",
+            "component": "予約A詳細",
+            "variant": null
+          },
+          "source": {
+            "module": "rooms",
+            "span": {
+              "offset": 401,
+              "length": 92,
+              "line": 29,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "3244932ab3e149e0b6a252923dc18e00062bd209bc9e747aacef082cb2dabd92"
+        },
+        "branch": null
+      },
+      "afterDigest": "e3d1b1e811981f2fab6b565b88b3e099e2b2ed1ae2a00eea941ffbf617d2b560",
+      "observations": [
+        {
+          "viewDigest": "fc80d1a3591721618765446e1caacbfed5c6bda1ca8af8b89f598397797d9b33"
+        },
+        {
+          "viewDigest": "55a95a9328d1e562aa84679248e764c4c3c6304699fa6a0020b2bc32cb634560"
+        },
+        {
+          "viewDigest": "fb938083136c2c2142692b60111a35466b051b5a50a36b770fd75fc961e5d286"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames",
+          "sharedVariants"
+        ]
+      },
+      "outputDigest": "190b05f17767928ee2767909e00985a86d7bdbd6cf98ff9339b809dd25330de6"
+    },
+    {
+      "step": 5,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "nav",
+            "component": "会員操作",
+            "variant": null
+          },
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 251,
+              "length": 42,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [
+              0
+            ],
+            "source": {
+              "module": "room_a",
+              "span": {
+                "offset": 71,
+                "length": 9,
+                "line": 6,
+                "col": 1
+              }
+            }
+          },
+          "definitionDigest": "3c5d2ad1082bba1d1a82ed664a6c93236ea895b459ed91bc154b85cd347f8d52"
+        },
+        "branch": null
+      },
+      "afterDigest": "da02d32fb9ca43d6c464775c2989977dc851b87db8c6e71b5ff9b5883574046d",
+      "observations": [
+        {
+          "viewDigest": "e3c80b99cef4caaef6af418d034b59d22b38bc6e5e76bf8eeb41ea813ccee541"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 6,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "variant",
+          "host": {
+            "module": "work",
+            "component": "進行A",
+            "variant": "Rooms変更"
+          },
+          "source": {
+            "module": "work",
+            "span": {
+              "offset": 308,
+              "length": 32,
+              "line": 20,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [
+              2
+            ],
+            "source": {
+              "module": "work",
+              "span": {
+                "offset": 170,
+                "length": 6,
+                "line": 10,
+                "col": 1
+              }
+            }
+          },
+          "definitionDigest": "bcf4c3cd0a52a5cd6318d3e940aec400e0f3dd80437f96c870e4e0dae609cc3e"
+        },
+        "branch": null
+      },
+      "afterDigest": "1f98aebba0acccfc5eeb5df3169309e0fc9a157cff8fb094aa02849f88534f54",
+      "observations": [
+        {
+          "viewDigest": "1f3ae1fa0d398c057f4eed0c36666e2d976fae5073686948feedf93b758c24a5"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 7,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "variant",
+          "host": {
+            "module": "nav",
+            "component": "Rooms復帰",
+            "variant": "A変更"
+          },
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 881,
+              "length": 40,
+              "line": 32,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [
+              0,
+              0
+            ],
+            "source": {
+              "module": "nav",
+              "span": {
+                "offset": 232,
+                "length": 7,
+                "line": 15,
+                "col": 1
+              }
+            }
+          },
+          "definitionDigest": "07cb55027b0e46c586ef7e25d97cc552f80c45229a79d11664d2a7032a175ba3"
+        },
+        "branch": null
+      },
+      "afterDigest": "74b8f309bc3e8709932ec4374650b06d5963aec9df5b805f0c0ee3f84d1ad4df",
+      "observations": [
+        {
+          "viewDigest": "c138c646c5e727227bc1d312c541ec772b016566ddfe45451fa9031d119246bc"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 8,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "room_a",
+            "component": "取消操作",
+            "variant": null
+          },
+          "source": {
+            "module": "room_a",
+            "span": {
+              "offset": 1332,
+              "length": 94,
+              "line": 51,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [
+              4
+            ],
+            "source": {
+              "module": "room_a",
+              "span": {
+                "offset": 159,
+                "length": 4,
+                "line": 10,
+                "col": 1
+              }
+            }
+          },
+          "definitionDigest": "8e6a3167c5754b7cf965b10de8ccc941e4fa929b304911199d3fbea6910ce3e9"
+        },
+        "branch": null
+      },
+      "afterDigest": "877a60f10c28d63d62b8550692f369b2f656f42b73647905bc2abd374b2e9f60",
+      "observations": [
+        {
+          "viewDigest": "99a866b25c1b2cee6ac9c45ca76ecc6ab326d7c4b08512c95641ec3c71ff3f0d"
+        },
+        {
+          "viewDigest": "14f2d04f0f58ac88b7663e744b1871b4ea759a53395f88891a3328c4f53f2e59"
+        },
+        {
+          "viewDigest": "968f8a75cabda3cb66e9a2694cd467a0fd11fa935c688a175802909bc5d534a8"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames",
+          "sharedVariants"
+        ]
+      },
+      "outputDigest": "190b05f17767928ee2767909e00985a86d7bdbd6cf98ff9339b809dd25330de6"
+    },
+    {
+      "step": 9,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "room_a",
+            "component": "破棄確認",
+            "variant": null
+          },
+          "source": {
+            "module": "room_a",
+            "span": {
+              "offset": 1189,
+              "length": 71,
+              "line": 46,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "6d82a2a0a3688f085376b1c2a832681045905745b6a2b3c856d56717dcc301ff"
+        },
+        "branch": null
+      },
+      "afterDigest": "9ce8376118726c450ebc247b48b79591a4dc7715fd69ab8d8eefc7861c619e6d",
+      "observations": [
+        {
+          "viewDigest": "db16a63827c981ab43202f50813c8cd4f2b048f0443f59f625359786f9375e72"
+        },
+        {
+          "viewDigest": "b29bcae6673950732ba8281668437523880045c6c9762ac9091fd6195d8e0dc0"
+        },
+        {
+          "viewDigest": "310dbb438724638e74b1e553089eeba31c833ccd66c79bc1b71d9bcf091a1e99"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames",
+          "sharedVariants"
+        ]
+      },
+      "outputDigest": "190b05f17767928ee2767909e00985a86d7bdbd6cf98ff9339b809dd25330de6"
+    },
+    {
+      "step": 10,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "rooms",
+            "component": "予約A詳細",
+            "variant": null
+          },
+          "source": {
+            "module": "rooms",
+            "span": {
+              "offset": 494,
+              "length": 19,
+              "line": 30,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "1c4876ddb2f088d68f8327671354b981dd9c54f5cd95024dd093a5e21354ac69"
+        },
+        "branch": null
+      },
+      "afterDigest": "fe58079f9ad590983cedb858da655efd64399565d37809e303d4dbe3ff3085b2",
+      "observations": [
+        {
+          "viewDigest": "bb64e04fec550db962625cc41077de53e3947c1e134693c3075e2b6c10bb65b4"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 11,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "rooms",
+            "component": "Cedar詳細",
+            "variant": null
+          },
+          "source": {
+            "module": "rooms",
+            "span": {
+              "offset": 265,
+              "length": 19,
+              "line": 18,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "7bcdbad3a2c6716e5e2fadd2e1a48a290f08af1ec2402a44272a1a51b4d2f836"
+        },
+        "branch": null
+      },
+      "afterDigest": "0042e3afc387e2cd5866d7edb4b1b6cf8f881d5c655d7e9f3c700fbe63a2b753",
+      "observations": [
+        {
+          "viewDigest": "cb566fe87c7aaf57c3227f07fdd69681c95d30936879b6e13e0aa640cbbbdb26"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 12,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "rooms",
+            "component": "部屋一覧",
+            "variant": null
+          },
+          "source": {
+            "module": "rooms",
+            "span": {
+              "offset": 177,
+              "length": 29,
+              "line": 12,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "5dbef4777a279fb05b0608c6df926368f29db3cdbf228ba92b1095a71d58325d"
+        },
+        "branch": null
+      },
+      "afterDigest": "f3e7af7df69fcb973613e47e43413bc8fd48f4ae067c4f228f260e18396349b4",
+      "observations": [
+        {
+          "viewDigest": "67ee5a77d75454815a4d847eecbf81e157a2534cead3f53dbc2513b5991df0b7"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 13,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "rooms",
+            "component": "Indigo詳細",
+            "variant": null
+          },
+          "source": {
+            "module": "rooms",
+            "span": {
+              "offset": 321,
+              "length": 23,
+              "line": 23,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "a366ae3b3851f5883dfae561b6954232c7d44ec7fd636192dc1132178fd66a68"
+        },
+        "branch": null
+      },
+      "afterDigest": "7f3c72ead172e3ba64b6875793b55ef60853c9eff701c9de2ccb6f03c07b932a",
+      "observations": [
+        {
+          "viewDigest": "dfcc0e77a994db7986850fa5a24e3ba7709549d9fcd6668004f879a0c8af372d"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 14,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "rooms",
+            "component": "予約B詳細",
+            "variant": null
+          },
+          "source": {
+            "module": "rooms",
+            "span": {
+              "offset": 550,
+              "length": 92,
+              "line": 35,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "2a9c0266957b7f2c613e9c28b5a37dab60756697df0ad816f7ac2ec706b55ab4"
+        },
+        "branch": null
+      },
+      "afterDigest": "dd7abb5183e3097a935828e8c414cac40231dd03d34278cc337fa13e67109a05",
+      "observations": [
+        {
+          "viewDigest": "1c5aee974c7b45ea29837f12ada2699df177b5836f2062692bb993a796cd6c43"
+        },
+        {
+          "viewDigest": "41a40187cec8aa193d1fc6f73c8d01f97e6f5e6dae7c9dfa16ac3d20740ba487"
+        },
+        {
+          "viewDigest": "20e010c39a45b03c2afe336f8fb3ba141e725784100ca2ff0e0768c4a23a7911"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames",
+          "sharedVariants"
+        ]
+      },
+      "outputDigest": "190b05f17767928ee2767909e00985a86d7bdbd6cf98ff9339b809dd25330de6"
+    },
+    {
+      "step": 15,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "variant",
+          "host": {
+            "module": "room_b",
+            "component": "枠選択",
+            "variant": "原枠"
+          },
+          "source": {
+            "module": "room_b",
+            "span": {
+              "offset": 203,
+              "length": 24,
+              "line": 14,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "710cfe7c82f85e4154fb259cc939bf38ee1593e206b7b8c3c440e68649e50cb6"
+        },
+        "branch": null
+      },
+      "afterDigest": "d6060ec2c4fc41440db15cf37af04995ad5fb4c226bed2542e4343854b3ba3ab",
+      "observations": [
+        {
+          "viewDigest": "73e7c9fe7ee85661ad4834575b5f78973f01696e93c11603cf90165bc7f88cf4"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 16,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "variant",
+          "host": {
+            "module": "room_b",
+            "component": "枠選択",
+            "variant": "代替枠"
+          },
+          "source": {
+            "module": "room_b",
+            "span": {
+              "offset": 294,
+              "length": 26,
+              "line": 19,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "e802182c7b2262b8fdfe1aaab7c690c6997ce26b29641c5869a642813b04b105"
+        },
+        "branch": null
+      },
+      "afterDigest": "c9a3e27f761329cbcc62d614cd04e5a32bcd7f10a827b90e9eaa2bacc9b7df54",
+      "observations": [
+        {
+          "viewDigest": "3acc79f47a1e4b0faa4a7d841c0acba4c028c91ce521fd9d01ac57a0d7dd022b"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 17,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "nav",
+            "component": "会員操作",
+            "variant": null
+          },
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 251,
+              "length": 42,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [
+              0
+            ],
+            "source": {
+              "module": "room_b",
+              "span": {
+                "offset": 329,
+                "length": 9,
+                "line": 22,
+                "col": 1
+              }
+            }
+          },
+          "definitionDigest": "3c5d2ad1082bba1d1a82ed664a6c93236ea895b459ed91bc154b85cd347f8d52"
+        },
+        "branch": null
+      },
+      "afterDigest": "c31a3b7c5da5110a435804dde8e6f34d57c79dadb48492c7eb618cf09ca45915",
+      "observations": [
+        {
+          "viewDigest": "92fe95d3723e197eba48c10e653df7b3f797654c6893ebd8749f6a06cd30d9a1"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 18,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "variant",
+          "host": {
+            "module": "nav",
+            "component": "Rooms復帰",
+            "variant": "B変更"
+          },
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 987,
+              "length": 40,
+              "line": 36,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [
+              0,
+              0
+            ],
+            "source": {
+              "module": "nav",
+              "span": {
+                "offset": 232,
+                "length": 7,
+                "line": 15,
+                "col": 1
+              }
+            }
+          },
+          "definitionDigest": "9b9f9d4f1a7b775f53695afdfed0ee14f7a70b73e6e38ce8264459debd625bed"
+        },
+        "branch": null
+      },
+      "afterDigest": "815b5b8d7021200439d3856713290e7490724fa87a006a33a75e3a0ba5e61e5a",
+      "observations": [
+        {
+          "viewDigest": "3acc79f47a1e4b0faa4a7d841c0acba4c028c91ce521fd9d01ac57a0d7dd022b"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 19,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "nav",
+            "component": "会員操作",
+            "variant": null
+          },
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 251,
+              "length": 42,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [
+              0
+            ],
+            "source": {
+              "module": "room_b",
+              "span": {
+                "offset": 329,
+                "length": 9,
+                "line": 22,
+                "col": 1
+              }
+            }
+          },
+          "definitionDigest": "3c5d2ad1082bba1d1a82ed664a6c93236ea895b459ed91bc154b85cd347f8d52"
+        },
+        "branch": null
+      },
+      "afterDigest": "05b9b28f67ede4d01df575342780a857c5d424bcf5c91e65769ec97d7ab3ee02",
+      "observations": [
+        {
+          "viewDigest": "92fe95d3723e197eba48c10e653df7b3f797654c6893ebd8749f6a06cd30d9a1"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 20,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "work",
+            "component": "遠隔破棄確認A",
+            "variant": "Rooms"
+          },
+          "source": {
+            "module": "work",
+            "span": {
+              "offset": 884,
+              "length": 20,
+              "line": 41,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "867a4f395c86a21fbc89a06934f568dc7a0b1156c4e02abe59e81394b76fdecb"
+        },
+        "branch": null
+      },
+      "afterDigest": "a33a5c2832c5e5db4219c941e79dcd47c786f215ebc9d4178ccd3e35b92bfebb",
+      "observations": [
+        {
+          "viewDigest": "3f0f99d7912b976c2aafd32178aa63614185a408d939e2e4fa200e85bde4ce18"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 21,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "variant",
+          "host": {
+            "module": "work",
+            "component": "進行B",
+            "variant": "Rooms変更"
+          },
+          "source": {
+            "module": "work",
+            "span": {
+              "offset": 1202,
+              "length": 36,
+              "line": 53,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [
+              3
+            ],
+            "source": {
+              "module": "work",
+              "span": {
+                "offset": 177,
+                "length": 6,
+                "line": 11,
+                "col": 1
+              }
+            }
+          },
+          "definitionDigest": "a8b64bd0bcf3c6f273ad6bf5bf25ec510133f9b9fa828f2930ccaa2eb7bed3a0"
+        },
+        "branch": null
+      },
+      "afterDigest": "705f7eaaaa02e81ca9d625169d17413c1e286228fe419d5a5deed62bd2dce21c",
+      "observations": [
+        {
+          "viewDigest": "0f1c62730f8eeaad1edb30c8725653e6458cfb72e3df0cf300924395ce16f049"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 22,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "variant",
+          "host": {
+            "module": "room_b",
+            "component": "レビュー",
+            "variant": "代替枠"
+          },
+          "source": {
+            "module": "room_b",
+            "span": {
+              "offset": 751,
+              "length": 133,
+              "line": 36,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "5290236e2b73090df5dec95572a88ff2d8deaf293346576a7e8c96fa48e33872"
+        },
+        "branch": {
+          "label": "accepted",
+          "results": [
+            {
+              "resultIndex": 0,
+              "source": {
+                "module": "room_b",
+                "span": {
+                  "offset": 751,
+                  "length": 133,
+                  "line": 36,
+                  "col": 1
+                }
+              }
+            },
+            {
+              "resultIndex": 1,
+              "source": {
+                "module": "room_b",
+                "span": {
+                  "offset": 751,
+                  "length": 133,
+                  "line": 36,
+                  "col": 1
+                }
+              }
+            },
+            {
+              "resultIndex": 2,
+              "source": {
+                "module": "room_b",
+                "span": {
+                  "offset": 751,
+                  "length": 133,
+                  "line": 36,
+                  "col": 1
+                }
+              }
+            },
+            {
+              "resultIndex": 3,
+              "source": {
+                "module": "room_b",
+                "span": {
+                  "offset": 751,
+                  "length": 133,
+                  "line": 36,
+                  "col": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      "afterDigest": "5692fb29da7fff29731a2fa2d01378bfff2b409f6a1d9accb99762145c1403ed",
+      "observations": [
+        {
+          "viewDigest": "536990a0c188282826f8cfab9bdd2215a43b9fd3f886586decbc0dfe28040586"
+        },
+        {
+          "viewDigest": "3848984f11841fa7a5e79bfa79105115209173deea93133fbbfa05186e30a7f5"
+        },
+        {
+          "viewDigest": "1de8225e191f7a8bbc9a2dae6e115803e2038cabe46001bb63a6f1d61422e15d"
+        },
+        {
+          "viewDigest": "7708c441712a6df88e825951e2651b7b3d27d0f40dc51b017539780832cad0d4"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames",
+          "sharedVariants",
+          "origins"
+        ]
+      },
+      "outputDigest": "27c020a580dd146bbfd58ed553a07bb17d39788327efcd8c69e4c314ba723908"
+    },
+    {
+      "step": 23,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "variant",
+          "host": {
+            "module": "nav",
+            "component": "Bookings復帰",
+            "variant": "通常"
+          },
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 1107,
+              "length": 50,
+              "line": 42,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [
+              0,
+              1
+            ],
+            "source": {
+              "module": "nav",
+              "span": {
+                "offset": 240,
+                "length": 10,
+                "line": 16,
+                "col": 1
+              }
+            }
+          },
+          "definitionDigest": "60aa0570f944907e545d30ac0f668093dd0667f6f2c53ffa9cf635d4d893f421"
+        },
+        "branch": null
+      },
+      "afterDigest": "7302c88e6ed7dace9fef768b972d620b7ad10b93315070cdaccd93ec36ebd144",
+      "observations": [
+        {
+          "viewDigest": "bc2fd3ae2ee14f564f09beeceb594f4bcd2b4cb52febc7e1a73d20224c1bf356"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 24,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "bookings",
+            "component": "予約一覧",
+            "variant": null
+          },
+          "source": {
+            "module": "bookings",
+            "span": {
+              "offset": 166,
+              "length": 23,
+              "line": 11,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "b6fb828f1c47eb14f75195ec1ea3bc28d50eb8849cb7505f5b2ec9f39322d0db"
+        },
+        "branch": null
+      },
+      "afterDigest": "419c880964ad8418e16f990fcf0d363082279f569b1f71c3258500e580cae859",
+      "observations": [
+        {
+          "viewDigest": "ac1385665146b24b4d4e1f6c59275d205697d652cb696d442c55851ee27f5d7b"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 25,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "bookings",
+            "component": "予約A詳細",
+            "variant": null
+          },
+          "source": {
+            "module": "bookings",
+            "span": {
+              "offset": 250,
+              "length": 101,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "180f0d414b0aff4519fe332124812d707cd91a3eab45302fabec21d79758e7af"
+        },
+        "branch": null
+      },
+      "afterDigest": "eeccb4138c81f59e24f1658c86dc474ccd181effac7e4474f597b3a26b0e2812",
+      "observations": [
+        {
+          "viewDigest": "4b4e1c283114a734e596522da8ede7a31e22db5755d11f8838f287328b00170a"
+        },
+        {
+          "viewDigest": "586a22b494544d716f0b0c1046d32fb564fb4f6dbbcc3d41edbeb692ccb8b580"
+        },
+        {
+          "viewDigest": "21df32988077a0cf38975be0005e52022b0a8ce02bdb61af0ee5cb09c7a34086"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames",
+          "sharedVariants"
+        ]
+      },
+      "outputDigest": "190b05f17767928ee2767909e00985a86d7bdbd6cf98ff9339b809dd25330de6"
+    },
+    {
+      "step": 26,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "variant",
+          "host": {
+            "module": "booking_a",
+            "component": "枠選択",
+            "variant": "原枠"
+          },
+          "source": {
+            "module": "booking_a",
+            "span": {
+              "offset": 198,
+              "length": 24,
+              "line": 14,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "d6435b463a41effa3d86107a000eff0cfee1e1b579c615e28db01558cc407674"
+        },
+        "branch": null
+      },
+      "afterDigest": "b18787657f2ace4773e8fd0d2cadba52ca00bc01c01447d6d546367e2cf774ca",
+      "observations": [
+        {
+          "viewDigest": "6a272954e37c3091420f55ffc49962a59117c91e14453a651e6e238f548817ca"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 27,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "variant",
+          "host": {
+            "module": "booking_a",
+            "component": "枠選択",
+            "variant": "代替枠"
+          },
+          "source": {
+            "module": "booking_a",
+            "span": {
+              "offset": 289,
+              "length": 26,
+              "line": 19,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "8f6afcea705ca186a2b320c58286b694786b37cf2e10d10d0ffb00a07305eba2"
+        },
+        "branch": null
+      },
+      "afterDigest": "164808ad03286690736d6e53ed6e09bd1bf8c2c1715aac3853e2db9a247e30bd",
+      "observations": [
+        {
+          "viewDigest": "c9e0899397021f2989c35f8eb16d047d04281fc4cb71b92748ae7d63705e64a8"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 28,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "variant",
+          "host": {
+            "module": "booking_a",
+            "component": "レビュー",
+            "variant": "代替枠"
+          },
+          "source": {
+            "module": "booking_a",
+            "span": {
+              "offset": 753,
+              "length": 139,
+              "line": 36,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "4dafb0fd1a85addd3799cbc417b98b088ad6f2f623f827cf5fc2b06e08426714"
+        },
+        "branch": {
+          "label": "rejected",
+          "results": [
+            {
+              "resultIndex": 4,
+              "source": {
+                "module": "booking_a",
+                "span": {
+                  "offset": 753,
+                  "length": 139,
+                  "line": 36,
+                  "col": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      "afterDigest": "27f0aecf786b873026d410d9d310a81cc6cd89a60608b68aada8342124788b63",
+      "observations": [
+        {
+          "viewDigest": "8ab6cea25c24679d07c2b86544a2ce8da75ba92283f7082ba1f1286552291429"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 29,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "booking_a",
+            "component": "取消操作",
+            "variant": null
+          },
+          "source": {
+            "module": "booking_a",
+            "span": {
+              "offset": 1371,
+              "length": 103,
+              "line": 51,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [
+              3
+            ],
+            "source": {
+              "module": "booking_a",
+              "span": {
+                "offset": 393,
+                "length": 4,
+                "line": 26,
+                "col": 1
+              }
+            }
+          },
+          "definitionDigest": "f5e80671b5974ff98d02849ef3c4ff2455d9dc013882d7ffd3c8822aa840151f"
+        },
+        "branch": null
+      },
+      "afterDigest": "ac8db679aa6c869e685b89be041b71c6458a79ab6c178509aafdbc274b3a7bea",
+      "observations": [
+        {
+          "viewDigest": "4f3ff62270f65f823ae02f86ea0b605ac580cf778ab34c4a0916604c67616312"
+        },
+        {
+          "viewDigest": "71005ee9b2e29f7cd3ad42d1ca2bfca72a39a257acf4d4dde6bd6945bbdf25e2"
+        },
+        {
+          "viewDigest": "4f9d8350671af01545ffd9d383de088c553229ca7cf72efdbe8965122aaaaf19"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames",
+          "sharedVariants"
+        ]
+      },
+      "outputDigest": "190b05f17767928ee2767909e00985a86d7bdbd6cf98ff9339b809dd25330de6"
+    },
+    {
+      "step": 30,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "variant",
+          "host": {
+            "module": "nav",
+            "component": "Rooms復帰",
+            "variant": "通常"
+          },
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 832,
+              "length": 41,
+              "line": 30,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [
+              0,
+              0
+            ],
+            "source": {
+              "module": "nav",
+              "span": {
+                "offset": 232,
+                "length": 7,
+                "line": 15,
+                "col": 1
+              }
+            }
+          },
+          "definitionDigest": "47be90ce820335c9328ca54e60f0686437a0dea74182d41a0467a51e52c4c39c"
+        },
+        "branch": null
+      },
+      "afterDigest": "cab45fd032a0e3c715f2d2c72195e9a3f6d03078bb10a34d9c97337f22d6a006",
+      "observations": [
+        {
+          "viewDigest": "db2c585ff1e46d7f5077af97544f7d809dc5d827cfd54547bdf0545e8e6c45de"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 31,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "rooms",
+            "component": "予約B詳細",
+            "variant": null
+          },
+          "source": {
+            "module": "rooms",
+            "span": {
+              "offset": 550,
+              "length": 92,
+              "line": 35,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "2a9c0266957b7f2c613e9c28b5a37dab60756697df0ad816f7ac2ec706b55ab4"
+        },
+        "branch": null
+      },
+      "afterDigest": "e82d0cdc1a77bc7a374762621b68c66a07bd5ad3ae2267d9d243aea4ca275b02",
+      "observations": [
+        {
+          "viewDigest": "8ce769e836d8bd16f177e6ae790f29b0cbcd0e7fb25e93c6b1adc1cc79607298"
+        },
+        {
+          "viewDigest": "2fcac9e980d8aac50e79877f47efe0fcbef6302d22c871dc8c36d9f7db1f0ab3"
+        },
+        {
+          "viewDigest": "8d2f9b2eedc201b2f25fd3c4a2c459f6bf94bbe0e847a4d560212562a9c7a6ee"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames",
+          "sharedVariants"
+        ]
+      },
+      "outputDigest": "190b05f17767928ee2767909e00985a86d7bdbd6cf98ff9339b809dd25330de6"
+    },
+    {
+      "step": 32,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "variant",
+          "host": {
+            "module": "room_b",
+            "component": "枠選択",
+            "variant": "原枠"
+          },
+          "source": {
+            "module": "room_b",
+            "span": {
+              "offset": 228,
+              "length": 25,
+              "line": 15,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "61592de43d74eba963f1e8a543b7d619a7aa553e844929787d104d7a1eeda5ba"
+        },
+        "branch": null
+      },
+      "afterDigest": "65b4038f009b68751ae81c4cd13b39cd9f4c21ce2328a7cb1852f92b80a8ff09",
+      "observations": [
+        {
+          "viewDigest": "25a8c3f147205390112133cfd3af1e291f73a250bfec8d317de8125f49db532d"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 33,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "nav",
+            "component": "会員操作",
+            "variant": null
+          },
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 251,
+              "length": 42,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [
+              0
+            ],
+            "source": {
+              "module": "room_b",
+              "span": {
+                "offset": 329,
+                "length": 9,
+                "line": 22,
+                "col": 1
+              }
+            }
+          },
+          "definitionDigest": "3c5d2ad1082bba1d1a82ed664a6c93236ea895b459ed91bc154b85cd347f8d52"
+        },
+        "branch": null
+      },
+      "afterDigest": "ebe86906f65e35f872cd80dc13c139192bc7b27954e9e95c8d680527cf72941e",
+      "observations": [
+        {
+          "viewDigest": "9a81bb5526ea6cbeb54fbd6924438d039b05ee81737491312d287cc266376cd5"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 34,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "variant",
+          "host": {
+            "module": "work",
+            "component": "進行B",
+            "variant": "Rooms変更"
+          },
+          "source": {
+            "module": "work",
+            "span": {
+              "offset": 1239,
+              "length": 32,
+              "line": 54,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [
+              3
+            ],
+            "source": {
+              "module": "work",
+              "span": {
+                "offset": 177,
+                "length": 6,
+                "line": 11,
+                "col": 1
+              }
+            }
+          },
+          "definitionDigest": "0668b1f015387bb048baf1eff598c18476c4eaf95f5b357b849fcf77dd04c366"
+        },
+        "branch": null
+      },
+      "afterDigest": "a099a28153c2c06531f17080b6d8107f1cf991970a1f03d085307cd3d60cb9de",
+      "observations": [
+        {
+          "viewDigest": "a2a944bc5f1f6fca90dad5947d0dd442a612da3807a798ced539e2fa5162a5bb"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames"
+        ]
+      },
+      "outputDigest": "39d9e3edeac108a676a910c008ff806b7daab2a1c3a86be060ee9619bb596675"
+    },
+    {
+      "step": 35,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "nav",
+            "component": "会員操作",
+            "variant": null
+          },
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 440,
+              "length": 27,
+              "line": 20,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [
+              0
+            ],
+            "source": {
+              "module": "work",
+              "span": {
+                "offset": 1731,
+                "length": 15,
+                "line": 72,
+                "col": 1
+              }
+            }
+          },
+          "definitionDigest": "21995e4931b426444d7bb4fe739c973c44b2e5193ac35533e240d22cb891d574"
+        },
+        "branch": null
+      },
+      "afterDigest": "cef81751ac15f7f92879aadd10b79a2b5d904c9fd982dcd6851a86384d5aa61a",
+      "observations": [
+        {
+          "viewDigest": "6f687b899a29181449e3f8228286845719f3ce678dc031ab200ef829f520d021"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "overlays"
+        ]
+      },
+      "outputDigest": "4cd0a0d95765a7a1eec8255f5780ce1e54ff9288607da9d7d9a2932dd2be1e59"
+    },
+    {
+      "step": 36,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "nav",
+            "component": "会員操作",
+            "variant": null
+          },
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 294,
+              "length": 72,
+              "line": 18,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [
+              0
+            ],
+            "source": {
+              "module": "work",
+              "span": {
+                "offset": 1731,
+                "length": 15,
+                "line": 72,
+                "col": 1
+              }
+            }
+          },
+          "definitionDigest": "efc1de9477fa93fdbd8959be3042708503504d54618bac0d0f9105964e185e20"
+        },
+        "branch": null
+      },
+      "afterDigest": "397b52ac7c1b1a941454715f91d5e205bf76efb4b54e7c21cd60a8fa792f8281",
+      "observations": [
+        {
+          "viewDigest": "add0918469248fcfc4e9fc3cdcb19106e413ab14ca5e042f3e9953b45766fe8f"
+        },
+        {
+          "viewDigest": "a9aab5c337e9ee79e32bdbbc1ff59470df789ad2e0d89392e78ee98d0cba7c80"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "overlays",
+          "sharedVariants",
+          "origins"
+        ]
+      },
+      "outputDigest": "c56b16529b02c007f28fb5ba5e35771af5e435dbca409c2f9c3eded4df78a5ac"
+    },
+    {
+      "step": 37,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "variant",
+          "host": {
+            "module": "reminders",
+            "component": "会員リマインダー",
+            "variant": "A"
+          },
+          "source": {
+            "module": "reminders",
+            "span": {
+              "offset": 143,
+              "length": 49,
+              "line": 9,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "overlay:会員リマインダー",
+            "path": [],
+            "source": null
+          },
+          "definitionDigest": "ea5f725f7cf716d675b8a34dbab0adf30746f2123ace0c6820cf70dff1c8f12d"
+        },
+        "branch": null
+      },
+      "afterDigest": "76ab9b66fcb32d6f878bb71362f22d6d385775aa2105ab786b0ea7261f2059c7",
+      "observations": [
+        {
+          "viewDigest": "add0918469248fcfc4e9fc3cdcb19106e413ab14ca5e042f3e9953b45766fe8f"
+        },
+        {
+          "viewDigest": "e54d119b35b439b590e1e95a4d80a24218c08a7f082cce371c578347f537dd46"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "frames",
+          "overlays"
+        ]
+      },
+      "outputDigest": "03b6b7e4315e9ca9581dd6133bf0b086060e76021d737592033087a617470315"
+    },
+    {
+      "step": 38,
+      "command": {
+        "kind": "dispatch",
+        "operation": {
+          "kind": "interaction",
+          "scope": "component",
+          "host": {
+            "module": "nav",
+            "component": "会員操作",
+            "variant": null
+          },
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 367,
+              "length": 72,
+              "line": 19,
+              "col": 1
+            }
+          },
+          "placement": {
+            "root": "main",
+            "path": [
+              0
+            ],
+            "source": {
+              "module": "reminders",
+              "span": {
+                "offset": 331,
+                "length": 15,
+                "line": 16,
+                "col": 1
+              }
+            }
+          },
+          "definitionDigest": "51c36bf7865b25ce1cccb81936b508f9f62ecadcc9e01b7db54822b76ea4a4fc"
+        },
+        "branch": null
+      },
+      "afterDigest": "dcbaa4907a0ee50567c740a670a14d85d1bcc57fd72a057864a7279f11d6d755",
+      "observations": [
+        {
+          "viewDigest": "57b833b02f800124e8ebb5c8285dab5a41a38e09ea8032adf897a512a2c289fe"
+        },
+        {
+          "viewDigest": "09d8032c9be7b0c0d663d96f561ce3686191f3441ef22f66c93620ba6f1a70b4"
+        }
+      ],
+      "output": {
+        "effects": [],
+        "diagnostics": [],
+        "changed": [
+          "overlays",
+          "sharedVariants"
+        ]
+      },
+      "outputDigest": "f9dcce72228908374d3e10b3d0a9289fc966e8fe19900ca1e47b79cb35bfaf2b"
+    }
+  ],
+  "final": {
+    "view": {
+      "view": {
+        "location": {
+          "module": "reminders",
+          "component": "リマインダー詳細",
+          "variant": "A"
+        },
+        "state": {
+          "frames": [
+            {
+              "id": 0,
+              "parentId": null,
+              "stack": [
+                {
+                  "module": "main",
+                  "component": "サインイン",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                }
+              ],
+              "barrier": false,
+              "beginsSession": null,
+              "origin": "root"
+            },
+            {
+              "id": 1,
+              "parentId": 0,
+              "stack": [
+                {
+                  "module": "nav",
+                  "component": "会員領域",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                }
+              ],
+              "barrier": true,
+              "beginsSession": {
+                "name": "member"
+              },
+              "origin": "present"
+            },
+            {
+              "id": 2,
+              "parentId": 1,
+              "stack": [
+                {
+                  "module": "rooms",
+                  "component": "部屋一覧",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                },
+                {
+                  "module": "rooms",
+                  "component": "Indigo詳細",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                },
+                {
+                  "module": "rooms",
+                  "component": "予約B詳細",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                }
+              ],
+              "barrier": true,
+              "beginsSession": {
+                "name": "rooms"
+              },
+              "origin": "switch"
+            },
+            {
+              "id": 4,
+              "parentId": 1,
+              "stack": [
+                {
+                  "module": "work",
+                  "component": "進行中一覧",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                },
+                {
+                  "module": "work",
+                  "component": "遠隔破棄確認B",
+                  "variant": "Rooms",
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "reminders",
+                  "component": "リマインダー詳細",
+                  "variant": "A",
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "dsl"
+                }
+              ],
+              "barrier": true,
+              "beginsSession": {
+                "name": "progress"
+              },
+              "origin": "switch"
+            },
+            {
+              "id": 7,
+              "parentId": 1,
+              "stack": [
+                {
+                  "module": "bookings",
+                  "component": "予約一覧",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                },
+                {
+                  "module": "bookings",
+                  "component": "予約A詳細",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                }
+              ],
+              "barrier": true,
+              "beginsSession": {
+                "name": "bookings"
+              },
+              "origin": "switch"
+            },
+            {
+              "id": 8,
+              "parentId": 7,
+              "stack": [
+                {
+                  "module": "booking_a",
+                  "component": "枠選択",
+                  "variant": "代替枠",
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "dsl"
+                },
+                {
+                  "module": "booking_a",
+                  "component": "レビュー",
+                  "variant": "代替枠拒否",
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "dsl"
+                }
+              ],
+              "barrier": true,
+              "beginsSession": {
+                "name": "bookingA"
+              },
+              "origin": "present"
+            },
+            {
+              "id": 9,
+              "parentId": 8,
+              "stack": [
+                {
+                  "module": "booking_a",
+                  "component": "破棄確認",
+                  "variant": null,
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                }
+              ],
+              "barrier": true,
+              "beginsSession": {
+                "name": "bookingADiscard"
+              },
+              "origin": "present"
+            },
+            {
+              "id": 10,
+              "parentId": 2,
+              "stack": [
+                {
+                  "module": "room_b",
+                  "component": "枠選択",
+                  "variant": "原枠",
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "initial"
+                },
+                {
+                  "module": "room_b",
+                  "component": "レビュー",
+                  "variant": "原枠",
+                  "singleton": false,
+                  "scope": "frame-location",
+                  "origin": "dsl"
+                }
+              ],
+              "barrier": true,
+              "beginsSession": {
+                "name": "roomB"
+              },
+              "origin": "present"
+            }
+          ],
+          "activeFrameId": 4,
+          "nextFrameId": 11,
+          "activePath": [
+            0,
+            1,
+            4
+          ],
+          "overlays": [
+            {
+              "module": "nav",
+              "component": "公共バナー",
+              "variant": null,
+              "singleton": false,
+              "scope": "overlay-entry",
+              "origin": "initial"
+            },
+            {
+              "module": "reminders",
+              "component": "会員リマインダー",
+              "variant": "B",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            }
+          ],
+          "sharedVariants": [
+            {
+              "module": "nav",
+              "component": "Bookings復帰",
+              "variant": "A破棄確認",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "nav",
+              "component": "Rooms復帰",
+              "variant": "B変更",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "records",
+              "component": "予約A",
+              "variant": "原枠",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "initial"
+            },
+            {
+              "module": "records",
+              "component": "予約B",
+              "variant": "代替枠",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "reminders",
+              "component": "会員リマインダー",
+              "variant": "B",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "work",
+              "component": "進行A",
+              "variant": "Bookings確認",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "work",
+              "component": "進行B",
+              "variant": "Rooms変更",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            }
+          ],
+          "testVariants": [],
+          "componentValues": [
+            {
+              "module": "booking_a",
+              "component": "レビュー",
+              "variant": "原枠",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "booking_a",
+              "component": "取消操作",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "booking_a",
+              "component": "枠選択",
+              "variant": "原枠",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "booking_a",
+              "component": "破棄確認",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "booking_b",
+              "component": "レビュー",
+              "variant": "原枠",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "booking_b",
+              "component": "取消操作",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "booking_b",
+              "component": "枠選択",
+              "variant": "原枠",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "booking_b",
+              "component": "破棄確認",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "bookings",
+              "component": "予約A詳細",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "bookings",
+              "component": "予約B詳細",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "bookings",
+              "component": "予約一覧",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "main",
+              "component": "サインイン",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "nav",
+              "component": "Bookings復帰",
+              "variant": "A破棄確認",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "nav",
+              "component": "Rooms復帰",
+              "variant": "B変更",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "nav",
+              "component": "会員操作",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "nav",
+              "component": "会員領域",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "nav",
+              "component": "公共バナー",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "records",
+              "component": "予約A",
+              "variant": "原枠",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "initial"
+            },
+            {
+              "module": "records",
+              "component": "予約B",
+              "variant": "代替枠",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "reminders",
+              "component": "リマインダー詳細",
+              "variant": "A",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "reminders",
+              "component": "会員リマインダー",
+              "variant": "B",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "room_a",
+              "component": "レビュー",
+              "variant": "原枠",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "room_a",
+              "component": "取消操作",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "room_a",
+              "component": "枠選択",
+              "variant": "原枠",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "room_a",
+              "component": "破棄確認",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "room_b",
+              "component": "レビュー",
+              "variant": "原枠",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "room_b",
+              "component": "取消操作",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "room_b",
+              "component": "枠選択",
+              "variant": "原枠",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "room_b",
+              "component": "破棄確認",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "rooms",
+              "component": "Cedar詳細",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "rooms",
+              "component": "Indigo詳細",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "rooms",
+              "component": "予約A詳細",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "rooms",
+              "component": "予約B詳細",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "rooms",
+              "component": "部屋一覧",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "work",
+              "component": "進行A",
+              "variant": "Bookings確認",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "work",
+              "component": "進行B",
+              "variant": "Rooms変更",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl"
+            },
+            {
+              "module": "work",
+              "component": "進行中一覧",
+              "variant": null,
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "work",
+              "component": "遠隔破棄確認A",
+              "variant": "Rooms",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            },
+            {
+              "module": "work",
+              "component": "遠隔破棄確認B",
+              "variant": "Rooms",
+              "singleton": false,
+              "scope": "inclusion-initial",
+              "origin": "initial"
+            }
+          ],
+          "gateTargets": [
+            {
+              "module": "work",
+              "component": "進行A",
+              "variant": "Bookings確認",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl",
+              "variants": [
+                "なし",
+                "Rooms変更",
+                "Rooms確認",
+                "Bookings変更",
+                "Bookings確認"
+              ]
+            },
+            {
+              "module": "work",
+              "component": "進行B",
+              "variant": "Rooms変更",
+              "singleton": true,
+              "scope": "singleton-shared",
+              "origin": "dsl",
+              "variants": [
+                "なし",
+                "Rooms変更",
+                "Rooms確認",
+                "Bookings変更",
+                "Bookings確認"
+              ]
+            }
+          ],
+          "inclusion": {
+            "main": {
+              "module": "reminders",
+              "component": "リマインダー詳細",
+              "root": "main",
+              "variant": "A",
+              "singleton": false,
+              "scope": "frame-location",
+              "origin": "dsl",
+              "source": {
+                "module": "reminders",
+                "span": {
+                  "offset": 320,
+                  "length": 10,
+                  "line": 15,
+                  "col": 1
+                }
+              },
+              "children": [
+                {
+                  "name": "会員操作",
+                  "root": "main",
+                  "path": [
+                    0
+                  ],
+                  "source": {
+                    "module": "reminders",
+                    "span": {
+                      "offset": 331,
+                      "length": 15,
+                      "line": 16,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "nav",
+                    "component": "会員操作"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": null,
+                    "singleton": false,
+                    "scope": "inclusion-initial",
+                    "origin": "initial"
+                  },
+                  "componentSource": {
+                    "module": "nav",
+                    "span": {
+                      "offset": 225,
+                      "length": 6,
+                      "line": 14,
+                      "col": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "name": "Rooms復帰",
+                      "root": "main",
+                      "path": [
+                        0,
+                        0
+                      ],
+                      "source": {
+                        "module": "nav",
+                        "span": {
+                          "offset": 232,
+                          "length": 7,
+                          "line": 15,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "nav",
+                        "component": "Rooms復帰"
+                      },
+                      "kind": "component",
+                      "value": {
+                        "variant": "B変更",
+                        "singleton": true,
+                        "scope": "singleton-shared",
+                        "origin": "dsl"
+                      },
+                      "componentSource": {
+                        "module": "nav",
+                        "span": {
+                          "offset": 815,
+                          "length": 10,
+                          "line": 28,
+                          "col": 1
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "name": "Bookings復帰",
+                      "root": "main",
+                      "path": [
+                        0,
+                        1
+                      ],
+                      "source": {
+                        "module": "nav",
+                        "span": {
+                          "offset": 240,
+                          "length": 10,
+                          "line": 16,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "nav",
+                        "component": "Bookings復帰"
+                      },
+                      "kind": "component",
+                      "value": {
+                        "variant": "A破棄確認",
+                        "singleton": true,
+                        "scope": "singleton-shared",
+                        "origin": "dsl"
+                      },
+                      "componentSource": {
+                        "module": "nav",
+                        "span": {
+                          "offset": 1087,
+                          "length": 13,
+                          "line": 40,
+                          "col": 1
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "name": "この詳細は閲覧専用・閉じる前に二つ目の詳細を開かない",
+                  "root": "main",
+                  "path": [
+                    1
+                  ],
+                  "source": {
+                    "module": "reminders",
+                    "span": {
+                      "offset": 347,
+                      "length": 26,
+                      "line": 17,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "reminders",
+                    "component": "この詳細は閲覧専用・閉じる前に二つ目の詳細を開かない"
+                  },
+                  "kind": "unresolved",
+                  "children": []
+                },
+                {
+                  "name": "予約A・Clay工房・CedarRoomの通知詳細",
+                  "root": "main",
+                  "path": [
+                    2
+                  ],
+                  "source": {
+                    "module": "reminders",
+                    "span": {
+                      "offset": 416,
+                      "length": 25,
+                      "line": 21,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "reminders",
+                    "component": "予約A・Clay工房・CedarRoomの通知詳細"
+                  },
+                  "kind": "unresolved",
+                  "children": []
+                },
+                {
+                  "name": "確定",
+                  "root": "main",
+                  "path": [
+                    3
+                  ],
+                  "source": {
+                    "module": "reminders",
+                    "span": {
+                      "offset": 442,
+                      "length": 16,
+                      "line": 22,
+                      "col": 1
+                    }
+                  },
+                  "collection": false,
+                  "reference": {
+                    "module": "records",
+                    "component": "予約A"
+                  },
+                  "kind": "component",
+                  "value": {
+                    "variant": "原枠",
+                    "singleton": true,
+                    "scope": "singleton-shared",
+                    "origin": "initial"
+                  },
+                  "componentSource": {
+                    "module": "records",
+                    "span": {
+                      "offset": 28,
+                      "length": 6,
+                      "line": 2,
+                      "col": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "name": "Clay工房・CedarRoom・確定枠は月曜10時",
+                      "root": "main",
+                      "path": [
+                        3,
+                        0
+                      ],
+                      "source": {
+                        "module": "records",
+                        "span": {
+                          "offset": 41,
+                          "length": 26,
+                          "line": 4,
+                          "col": 1
+                        }
+                      },
+                      "collection": false,
+                      "reference": {
+                        "module": "records",
+                        "component": "Clay工房・CedarRoom・確定枠は月曜10時"
+                      },
+                      "kind": "unresolved",
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            "overlays": [
+              {
+                "module": "nav",
+                "component": "公共バナー",
+                "root": "overlay:公共バナー",
+                "variant": null,
+                "singleton": false,
+                "scope": "overlay-entry",
+                "origin": "initial",
+                "source": {
+                  "module": "nav",
+                  "span": {
+                    "offset": 750,
+                    "length": 7,
+                    "line": 24,
+                    "col": 1
+                  }
+                },
+                "children": [
+                  {
+                    "name": "センターから公共のお知らせ・会員情報や予約情報は含まない",
+                    "root": "overlay:公共バナー",
+                    "path": [
+                      0
+                    ],
+                    "source": {
+                      "module": "nav",
+                      "span": {
+                        "offset": 758,
+                        "length": 28,
+                        "line": 25,
+                        "col": 1
+                      }
+                    },
+                    "collection": false,
+                    "reference": {
+                      "module": "nav",
+                      "component": "センターから公共のお知らせ・会員情報や予約情報は含まない"
+                    },
+                    "kind": "unresolved",
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "module": "reminders",
+                "component": "会員リマインダー",
+                "root": "overlay:会員リマインダー",
+                "variant": "B",
+                "singleton": true,
+                "scope": "singleton-shared",
+                "origin": "dsl",
+                "source": {
+                  "module": "reminders",
+                  "span": {
+                    "offset": 75,
+                    "length": 11,
+                    "line": 5,
+                    "col": 1
+                  }
+                },
+                "children": [
+                  {
+                    "name": "予約B・Robotics工房の私的リマインダー",
+                    "root": "overlay:会員リマインダー",
+                    "path": [
+                      0
+                    ],
+                    "source": {
+                      "module": "reminders",
+                      "span": {
+                        "offset": 198,
+                        "length": 23,
+                        "line": 11,
+                        "col": 1
+                      }
+                    },
+                    "collection": false,
+                    "reference": {
+                      "module": "reminders",
+                      "component": "予約B・Robotics工房の私的リマインダー"
+                    },
+                    "kind": "unresolved",
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "actions": {
+          "items": [
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "reminders",
+                  "component": "リマインダー詳細",
+                  "variant": "A"
+                },
+                "source": {
+                  "module": "reminders",
+                  "span": {
+                    "offset": 374,
+                    "length": 18,
+                    "line": 18,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "43ca8397c4c3f9f65a8a951772573005e63271011180fa34fe65ab5263e8ec86"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "reminders",
+                  "component": "リマインダー詳細",
+                  "variant": "A"
+                },
+                "source": {
+                  "module": "reminders",
+                  "span": {
+                    "offset": 393,
+                    "length": 17,
+                    "line": 19,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "36f011a1c00b5103fcd75f7a17868878ac2480352634b41729fddaecbf757ac5"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "nav",
+                  "component": "会員操作",
+                  "variant": null
+                },
+                "source": {
+                  "module": "nav",
+                  "span": {
+                    "offset": 251,
+                    "length": 42,
+                    "line": 17,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [
+                    0
+                  ],
+                  "source": {
+                    "module": "reminders",
+                    "span": {
+                      "offset": 331,
+                      "length": 15,
+                      "line": 16,
+                      "col": 1
+                    }
+                  }
+                },
+                "definitionDigest": "3c5d2ad1082bba1d1a82ed664a6c93236ea895b459ed91bc154b85cd347f8d52"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "nav",
+                  "component": "会員操作",
+                  "variant": null
+                },
+                "source": {
+                  "module": "nav",
+                  "span": {
+                    "offset": 294,
+                    "length": 72,
+                    "line": 18,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [
+                    0
+                  ],
+                  "source": {
+                    "module": "reminders",
+                    "span": {
+                      "offset": 331,
+                      "length": 15,
+                      "line": 16,
+                      "col": 1
+                    }
+                  }
+                },
+                "definitionDigest": "efc1de9477fa93fdbd8959be3042708503504d54618bac0d0f9105964e185e20"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "nav",
+                  "component": "会員操作",
+                  "variant": null
+                },
+                "source": {
+                  "module": "nav",
+                  "span": {
+                    "offset": 367,
+                    "length": 72,
+                    "line": 19,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [
+                    0
+                  ],
+                  "source": {
+                    "module": "reminders",
+                    "span": {
+                      "offset": 331,
+                      "length": 15,
+                      "line": 16,
+                      "col": 1
+                    }
+                  }
+                },
+                "definitionDigest": "51c36bf7865b25ce1cccb81936b508f9f62ecadcc9e01b7db54822b76ea4a4fc"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "nav",
+                  "component": "会員操作",
+                  "variant": null
+                },
+                "source": {
+                  "module": "nav",
+                  "span": {
+                    "offset": 440,
+                    "length": 27,
+                    "line": 20,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [
+                    0
+                  ],
+                  "source": {
+                    "module": "reminders",
+                    "span": {
+                      "offset": 331,
+                      "length": 15,
+                      "line": 16,
+                      "col": 1
+                    }
+                  }
+                },
+                "definitionDigest": "21995e4931b426444d7bb4fe739c973c44b2e5193ac35533e240d22cb891d574"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "nav",
+                  "component": "会員操作",
+                  "variant": null
+                },
+                "source": {
+                  "module": "nav",
+                  "span": {
+                    "offset": 468,
+                    "length": 143,
+                    "line": 21,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [
+                    0
+                  ],
+                  "source": {
+                    "module": "reminders",
+                    "span": {
+                      "offset": 331,
+                      "length": 15,
+                      "line": 16,
+                      "col": 1
+                    }
+                  }
+                },
+                "definitionDigest": "858e4ac6ca72db82447e9ef9057ee99e3aa109a3e0a37a9d96154c6d7e0bf64d"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "nav",
+                  "component": "会員操作",
+                  "variant": null
+                },
+                "source": {
+                  "module": "nav",
+                  "span": {
+                    "offset": 612,
+                    "length": 136,
+                    "line": 22,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [
+                    0
+                  ],
+                  "source": {
+                    "module": "reminders",
+                    "span": {
+                      "offset": 331,
+                      "length": 15,
+                      "line": 16,
+                      "col": 1
+                    }
+                  }
+                },
+                "definitionDigest": "a2aeb73c85283c106fd86e5ef89ce6f9e1b8c4ec5a5a6ffbf0e71e591fccc2b5"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "variant",
+                "host": {
+                  "module": "nav",
+                  "component": "Rooms復帰",
+                  "variant": "B変更"
+                },
+                "source": {
+                  "module": "nav",
+                  "span": {
+                    "offset": 987,
+                    "length": 40,
+                    "line": 36,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [
+                    0,
+                    0
+                  ],
+                  "source": {
+                    "module": "nav",
+                    "span": {
+                      "offset": 232,
+                      "length": 7,
+                      "line": 15,
+                      "col": 1
+                    }
+                  }
+                },
+                "definitionDigest": "9b9f9d4f1a7b775f53695afdfed0ee14f7a70b73e6e38ce8264459debd625bed"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "variant",
+                "host": {
+                  "module": "nav",
+                  "component": "Bookings復帰",
+                  "variant": "A破棄確認"
+                },
+                "source": {
+                  "module": "nav",
+                  "span": {
+                    "offset": 1224,
+                    "length": 57,
+                    "line": 46,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "main",
+                  "path": [
+                    0,
+                    1
+                  ],
+                  "source": {
+                    "module": "nav",
+                    "span": {
+                      "offset": 240,
+                      "length": 10,
+                      "line": 16,
+                      "col": 1
+                    }
+                  }
+                },
+                "definitionDigest": "4f6d82c670306e87775733161d31aa98f69f999cf6ff1f0626ecc40a8bbb2ef9"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "nav",
+                  "component": "公共バナー",
+                  "variant": null
+                },
+                "source": {
+                  "module": "nav",
+                  "span": {
+                    "offset": 787,
+                    "length": 26,
+                    "line": 26,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "overlay:公共バナー",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "ff2c8507837e7c88a82cc2b7da7e1ac75cbb5a315a3405cf5ff1106c470a3607"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "component",
+                "host": {
+                  "module": "reminders",
+                  "component": "会員リマインダー",
+                  "variant": "B"
+                },
+                "source": {
+                  "module": "reminders",
+                  "span": {
+                    "offset": 87,
+                    "length": 30,
+                    "line": 6,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "overlay:会員リマインダー",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "0429c7146b46e0180d3532f77f82a6405aaf45820aadb413d848926da65ee0d0"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            },
+            {
+              "operation": {
+                "kind": "interaction",
+                "scope": "variant",
+                "host": {
+                  "module": "reminders",
+                  "component": "会員リマインダー",
+                  "variant": "B"
+                },
+                "source": {
+                  "module": "reminders",
+                  "span": {
+                    "offset": 222,
+                    "length": 49,
+                    "line": 12,
+                    "col": 1
+                  }
+                },
+                "placement": {
+                  "root": "overlay:会員リマインダー",
+                  "path": [],
+                  "source": null
+                },
+                "definitionDigest": "57643f7258cea7ed8cec58515a4a20cd53220244b5423d6e32eaae19ecddcaff"
+              },
+              "branches": [],
+              "enabled": true,
+              "gate": null
+            }
+          ],
+          "back": {
+            "enabled": true,
+            "reason": null
+          }
+        }
+      },
+      "timeline": [
+        {
+          "resultIndex": null,
+          "source": null,
+          "kind": "transition",
+          "label": "起動",
+          "location": {
+            "module": "main",
+            "component": "サインイン",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 0,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 77,
+              "length": 164,
+              "line": 7,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(Rooms復帰)",
+          "location": {
+            "module": "main",
+            "component": "サインイン",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 1,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 77,
+              "length": 164,
+              "line": 7,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(Bookings復帰)",
+          "location": {
+            "module": "main",
+            "component": "サインイン",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 1,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 2,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 77,
+              "length": 164,
+              "line": 7,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(進行A)",
+          "location": {
+            "module": "main",
+            "component": "サインイン",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 1,
+            "observation": 2
+          }
+        },
+        {
+          "resultIndex": 3,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 77,
+              "length": 164,
+              "line": 7,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(進行B)",
+          "location": {
+            "module": "main",
+            "component": "サインイン",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 1,
+            "observation": 3
+          }
+        },
+        {
+          "resultIndex": 4,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 77,
+              "length": 164,
+              "line": 7,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "present → 会員領域",
+          "location": {
+            "module": "nav",
+            "component": "会員領域",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 1,
+            "observation": 4
+          }
+        },
+        {
+          "resultIndex": 5,
+          "source": {
+            "module": "main",
+            "span": {
+              "offset": 77,
+              "length": 164,
+              "line": 7,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "switch → 部屋一覧",
+          "location": {
+            "module": "rooms",
+            "component": "部屋一覧",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 1,
+            "observation": 5
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "rooms",
+            "span": {
+              "offset": 149,
+              "length": 27,
+              "line": 11,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "push → Cedar詳細",
+          "location": {
+            "module": "rooms",
+            "component": "Cedar詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 2,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "rooms",
+            "span": {
+              "offset": 241,
+              "length": 23,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "push → 予約A詳細",
+          "location": {
+            "module": "rooms",
+            "component": "予約A詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 3,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "rooms",
+            "span": {
+              "offset": 401,
+              "length": 92,
+              "line": 29,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "present → 枠選択 / 原枠",
+          "location": {
+            "module": "room_a",
+            "component": "枠選択",
+            "variant": "原枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 4,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "rooms",
+            "span": {
+              "offset": 401,
+              "length": 92,
+              "line": 29,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(Rooms復帰)",
+          "location": {
+            "module": "room_a",
+            "component": "枠選択",
+            "variant": "原枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 4,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 2,
+          "source": {
+            "module": "rooms",
+            "span": {
+              "offset": 401,
+              "length": 92,
+              "line": 29,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(進行A)",
+          "location": {
+            "module": "room_a",
+            "component": "枠選択",
+            "variant": "原枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 4,
+            "observation": 2
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 251,
+              "length": 42,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "switch → 進行中一覧",
+          "location": {
+            "module": "work",
+            "component": "進行中一覧",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 5,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "work",
+            "span": {
+              "offset": 308,
+              "length": 32,
+              "line": 20,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "push → 遠隔破棄確認A / Rooms",
+          "location": {
+            "module": "work",
+            "component": "遠隔破棄確認A",
+            "variant": "Rooms"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 6,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 881,
+              "length": 40,
+              "line": 32,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "switch → 枠選択 / 原枠",
+          "location": {
+            "module": "room_a",
+            "component": "枠選択",
+            "variant": "原枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 7,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "room_a",
+            "span": {
+              "offset": 1332,
+              "length": 94,
+              "line": 51,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "present → 破棄確認",
+          "location": {
+            "module": "room_a",
+            "component": "破棄確認",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 8,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "room_a",
+            "span": {
+              "offset": 1332,
+              "length": 94,
+              "line": 51,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(Rooms復帰)",
+          "location": {
+            "module": "room_a",
+            "component": "破棄確認",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 8,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 2,
+          "source": {
+            "module": "room_a",
+            "span": {
+              "offset": 1332,
+              "length": 94,
+              "line": 51,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(進行A)",
+          "location": {
+            "module": "room_a",
+            "component": "破棄確認",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 8,
+            "observation": 2
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "room_a",
+            "span": {
+              "offset": 1189,
+              "length": 71,
+              "line": 46,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "exit → 予約A詳細",
+          "location": {
+            "module": "rooms",
+            "component": "予約A詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 9,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "room_a",
+            "span": {
+              "offset": 1189,
+              "length": 71,
+              "line": 46,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(Rooms復帰)",
+          "location": {
+            "module": "rooms",
+            "component": "予約A詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 9,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 2,
+          "source": {
+            "module": "room_a",
+            "span": {
+              "offset": 1189,
+              "length": 71,
+              "line": 46,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(進行A)",
+          "location": {
+            "module": "rooms",
+            "component": "予約A詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 9,
+            "observation": 2
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "rooms",
+            "span": {
+              "offset": 494,
+              "length": 19,
+              "line": 30,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "back → Cedar詳細",
+          "location": {
+            "module": "rooms",
+            "component": "Cedar詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 10,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "rooms",
+            "span": {
+              "offset": 265,
+              "length": 19,
+              "line": 18,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "back → 部屋一覧",
+          "location": {
+            "module": "rooms",
+            "component": "部屋一覧",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 11,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "rooms",
+            "span": {
+              "offset": 177,
+              "length": 29,
+              "line": 12,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "push → Indigo詳細",
+          "location": {
+            "module": "rooms",
+            "component": "Indigo詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 12,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "rooms",
+            "span": {
+              "offset": 321,
+              "length": 23,
+              "line": 23,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "push → 予約B詳細",
+          "location": {
+            "module": "rooms",
+            "component": "予約B詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 13,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "rooms",
+            "span": {
+              "offset": 550,
+              "length": 92,
+              "line": 35,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "present → 枠選択 / 原枠",
+          "location": {
+            "module": "room_b",
+            "component": "枠選択",
+            "variant": "原枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 14,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "rooms",
+            "span": {
+              "offset": 550,
+              "length": 92,
+              "line": 35,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(Rooms復帰)",
+          "location": {
+            "module": "room_b",
+            "component": "枠選択",
+            "variant": "原枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 14,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 2,
+          "source": {
+            "module": "rooms",
+            "span": {
+              "offset": 550,
+              "length": 92,
+              "line": 35,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(進行B)",
+          "location": {
+            "module": "room_b",
+            "component": "枠選択",
+            "variant": "原枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 14,
+            "observation": 2
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "room_b",
+            "span": {
+              "offset": 203,
+              "length": 24,
+              "line": 14,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "goto → 枠選択 / 代替枠",
+          "location": {
+            "module": "room_b",
+            "component": "枠選択",
+            "variant": "代替枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 15,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "room_b",
+            "span": {
+              "offset": 294,
+              "length": 26,
+              "line": 19,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "push → レビュー / 代替枠",
+          "location": {
+            "module": "room_b",
+            "component": "レビュー",
+            "variant": "代替枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 16,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 251,
+              "length": 42,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "switch → 遠隔破棄確認A / Rooms",
+          "location": {
+            "module": "work",
+            "component": "遠隔破棄確認A",
+            "variant": "Rooms"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 17,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 987,
+              "length": 40,
+              "line": 36,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "switch → レビュー / 代替枠",
+          "location": {
+            "module": "room_b",
+            "component": "レビュー",
+            "variant": "代替枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 18,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 251,
+              "length": 42,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "switch → 遠隔破棄確認A / Rooms",
+          "location": {
+            "module": "work",
+            "component": "遠隔破棄確認A",
+            "variant": "Rooms"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 19,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "work",
+            "span": {
+              "offset": 884,
+              "length": 20,
+              "line": 41,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "back → 進行中一覧",
+          "location": {
+            "module": "work",
+            "component": "進行中一覧",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 20,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "work",
+            "span": {
+              "offset": 1202,
+              "length": 36,
+              "line": 53,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "switch → レビュー / 代替枠",
+          "location": {
+            "module": "room_b",
+            "component": "レビュー",
+            "variant": "代替枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 21,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "room_b",
+            "span": {
+              "offset": 751,
+              "length": 133,
+              "line": 36,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(予約B)",
+          "location": {
+            "module": "room_b",
+            "component": "レビュー",
+            "variant": "代替枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 22,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "room_b",
+            "span": {
+              "offset": 751,
+              "length": 133,
+              "line": 36,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "exit → 予約B詳細",
+          "location": {
+            "module": "rooms",
+            "component": "予約B詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 22,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 2,
+          "source": {
+            "module": "room_b",
+            "span": {
+              "offset": 751,
+              "length": 133,
+              "line": 36,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(Rooms復帰)",
+          "location": {
+            "module": "rooms",
+            "component": "予約B詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 22,
+            "observation": 2
+          }
+        },
+        {
+          "resultIndex": 3,
+          "source": {
+            "module": "room_b",
+            "span": {
+              "offset": 751,
+              "length": 133,
+              "line": 36,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(進行B)",
+          "location": {
+            "module": "rooms",
+            "component": "予約B詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 22,
+            "observation": 3
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 1107,
+              "length": 50,
+              "line": 42,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "switch → 予約一覧",
+          "location": {
+            "module": "bookings",
+            "component": "予約一覧",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 23,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "bookings",
+            "span": {
+              "offset": 166,
+              "length": 23,
+              "line": 11,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "push → 予約A詳細",
+          "location": {
+            "module": "bookings",
+            "component": "予約A詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 24,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "bookings",
+            "span": {
+              "offset": 250,
+              "length": 101,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "present → 枠選択 / 原枠",
+          "location": {
+            "module": "booking_a",
+            "component": "枠選択",
+            "variant": "原枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 25,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "bookings",
+            "span": {
+              "offset": 250,
+              "length": 101,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(Bookings復帰)",
+          "location": {
+            "module": "booking_a",
+            "component": "枠選択",
+            "variant": "原枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 25,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 2,
+          "source": {
+            "module": "bookings",
+            "span": {
+              "offset": 250,
+              "length": 101,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(進行A)",
+          "location": {
+            "module": "booking_a",
+            "component": "枠選択",
+            "variant": "原枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 25,
+            "observation": 2
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "booking_a",
+            "span": {
+              "offset": 198,
+              "length": 24,
+              "line": 14,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "goto → 枠選択 / 代替枠",
+          "location": {
+            "module": "booking_a",
+            "component": "枠選択",
+            "variant": "代替枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 26,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "booking_a",
+            "span": {
+              "offset": 289,
+              "length": 26,
+              "line": 19,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "push → レビュー / 代替枠",
+          "location": {
+            "module": "booking_a",
+            "component": "レビュー",
+            "variant": "代替枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 27,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 4,
+          "source": {
+            "module": "booking_a",
+            "span": {
+              "offset": 753,
+              "length": 139,
+              "line": 36,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "goto → レビュー / 代替枠拒否",
+          "location": {
+            "module": "booking_a",
+            "component": "レビュー",
+            "variant": "代替枠拒否"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 28,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "booking_a",
+            "span": {
+              "offset": 1371,
+              "length": 103,
+              "line": 51,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "present → 破棄確認",
+          "location": {
+            "module": "booking_a",
+            "component": "破棄確認",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 29,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "booking_a",
+            "span": {
+              "offset": 1371,
+              "length": 103,
+              "line": 51,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(Bookings復帰)",
+          "location": {
+            "module": "booking_a",
+            "component": "破棄確認",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 29,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 2,
+          "source": {
+            "module": "booking_a",
+            "span": {
+              "offset": 1371,
+              "length": 103,
+              "line": 51,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(進行A)",
+          "location": {
+            "module": "booking_a",
+            "component": "破棄確認",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 29,
+            "observation": 2
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 832,
+              "length": 41,
+              "line": 30,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "switch → 予約B詳細",
+          "location": {
+            "module": "rooms",
+            "component": "予約B詳細",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 30,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "rooms",
+            "span": {
+              "offset": 550,
+              "length": 92,
+              "line": 35,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "present → 枠選択 / 原枠",
+          "location": {
+            "module": "room_b",
+            "component": "枠選択",
+            "variant": "原枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 31,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "rooms",
+            "span": {
+              "offset": 550,
+              "length": 92,
+              "line": 35,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(Rooms復帰)",
+          "location": {
+            "module": "room_b",
+            "component": "枠選択",
+            "variant": "原枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 31,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 2,
+          "source": {
+            "module": "rooms",
+            "span": {
+              "offset": 550,
+              "length": 92,
+              "line": 35,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(進行B)",
+          "location": {
+            "module": "room_b",
+            "component": "枠選択",
+            "variant": "原枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 31,
+            "observation": 2
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "room_b",
+            "span": {
+              "offset": 228,
+              "length": 25,
+              "line": 15,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "push → レビュー / 原枠",
+          "location": {
+            "module": "room_b",
+            "component": "レビュー",
+            "variant": "原枠"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 32,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 251,
+              "length": 42,
+              "line": 17,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "switch → 進行中一覧",
+          "location": {
+            "module": "work",
+            "component": "進行中一覧",
+            "variant": null
+          },
+          "ghost": false,
+          "ref": {
+            "step": 33,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "work",
+            "span": {
+              "offset": 1239,
+              "length": 32,
+              "line": 54,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "push → 遠隔破棄確認B / Rooms",
+          "location": {
+            "module": "work",
+            "component": "遠隔破棄確認B",
+            "variant": "Rooms"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 34,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 440,
+              "length": 27,
+              "line": 20,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "show(公共バナー)",
+          "location": {
+            "module": "work",
+            "component": "遠隔破棄確認B",
+            "variant": "Rooms"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 35,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 294,
+              "length": 72,
+              "line": 18,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(会員リマインダー)",
+          "location": {
+            "module": "work",
+            "component": "遠隔破棄確認B",
+            "variant": "Rooms"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 36,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 294,
+              "length": 72,
+              "line": 18,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "show(会員リマインダー)",
+          "location": {
+            "module": "work",
+            "component": "遠隔破棄確認B",
+            "variant": "Rooms"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 36,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "reminders",
+            "span": {
+              "offset": 143,
+              "length": 49,
+              "line": 9,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "hide(会員リマインダー)",
+          "location": {
+            "module": "work",
+            "component": "遠隔破棄確認B",
+            "variant": "Rooms"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 37,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "reminders",
+            "span": {
+              "offset": 143,
+              "length": 49,
+              "line": 9,
+              "col": 1
+            }
+          },
+          "kind": "transition",
+          "label": "push → リマインダー詳細 / A",
+          "location": {
+            "module": "reminders",
+            "component": "リマインダー詳細",
+            "variant": "A"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 37,
+            "observation": 1
+          }
+        },
+        {
+          "resultIndex": 0,
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 367,
+              "length": 72,
+              "line": 19,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "set(会員リマインダー)",
+          "location": {
+            "module": "reminders",
+            "component": "リマインダー詳細",
+            "variant": "A"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 38,
+            "observation": 0
+          }
+        },
+        {
+          "resultIndex": 1,
+          "source": {
+            "module": "nav",
+            "span": {
+              "offset": 367,
+              "length": 72,
+              "line": 19,
+              "col": 1
+            }
+          },
+          "kind": "event",
+          "label": "show(会員リマインダー)",
+          "location": {
+            "module": "reminders",
+            "component": "リマインダー詳細",
+            "variant": "A"
+          },
+          "ghost": false,
+          "ref": {
+            "step": 38,
+            "observation": 1
+          }
+        }
+      ],
+      "cursor": {
+        "step": 38,
+        "observation": 1
+      }
+    },
+    "digest": "dcbaa4907a0ee50567c740a670a14d85d1bcc57fd72a057864a7279f11d6d755"
+  }
+}
