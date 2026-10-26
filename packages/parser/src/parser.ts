@@ -210,13 +210,13 @@ export function parseDocument(source: string): { document: Document; diagnostics
     }
 
     // Component header: "# name" / singleton "#! name"
-    const isSingletonHeader = raw.startsWith('#! ') || raw === '#!';
-    if (isSingletonHeader || raw.startsWith('# ') || raw === '#') {
+    const isSingletonHeader = trimmed.startsWith('#! ') || trimmed === '#!';
+    if (isSingletonHeader || trimmed.startsWith('# ') || trimmed === '#') {
       checkEmptyResultList(lastInteraction);
       finalizeVariant();
       finalizeComponent();
       seenFirstComponent = true;
-      const name = stripQuotes(raw.slice(isSingletonHeader ? 3 : 2).trim());
+      const name = stripQuotes(trimmed.slice(isSingletonHeader ? 3 : 2).trim());
       if (name === '') {
         diagnostics.push({
           severity: 'error',
@@ -240,10 +240,10 @@ export function parseDocument(source: string): { document: Document; diagnostics
     }
 
     // Variant header: "## name"
-    if (raw.startsWith('## ') || raw === '##') {
+    if (trimmed.startsWith('## ') || trimmed === '##') {
       checkEmptyResultList(lastInteraction);
       finalizeVariant();
-      const name = stripQuotes(raw.slice(3).trim());
+      const name = stripQuotes(trimmed.slice(3).trim());
       variantBuilder = {
         name,
         span,

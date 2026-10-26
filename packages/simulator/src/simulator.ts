@@ -233,6 +233,7 @@ summary.pane-title { cursor: pointer; }
 .operation-details { margin: 3px 0 10px 12px; font-size: 12px; overflow-wrap: anywhere; }
 .operation-details summary { cursor: pointer; color: #444; }
 .operation-details p, .result-target { margin: 6px 0; line-height: 1.5; }
+.defined-results ol { padding-left: 24px; line-height: 1.6; overflow-wrap: anywhere; }
 .result-target { border-left: 3px solid #768ca1; padding-left: 8px; overflow-wrap: anywhere; }
 </style>
 </head>

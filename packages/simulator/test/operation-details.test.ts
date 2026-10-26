@@ -25,6 +25,46 @@ function gui(source: string, extras: Record<string, string> = {}) {
 }
 
 describe('operation definition and actual result targets', () => {
+  it('shows ordered definition results with inherited conditions without changing the session', async () => {
+    const g = gui('import shared as s\n# Home\n> Try -> prepare <item> ; [OK] set(s::Value##New) ; show(Note) ; [NG] dismiss() ; [OK] push(Done, @work)\n# Done\n# Note\n', { shared: '#! Value\n## Old\n## New\n' });
+    const before = g.run('JSON.stringify(SESSION.query({select:["state","history","provenance"]}))');
+    const saved = await g.run('buildScenarioJson()');
+    const details = g.run('operationDetails(view.data.actions.items[0])');
+    expect(details).toContain('定義された結果（実行前）');
+    expect(details).toContain('自由文: prepare &lt;item&gt;');
+    const rows = [...details.matchAll(/<li>(.*?)<\/li>/g)].map(m => m[1]);
+    expect(rows).toEqual([
+      '条件なし: 自由文: prepare &lt;item&gt;',
+      '[OK]: set(s::Value##New)',
+      '[OK]: show(Note)',
+      '[NG]: dismiss()',
+      '[OK]: push(Done, @work)',
+    ]);
+    expect(details).toContain('自由文は実際の処理を実行しません');
+    g.run('render(); render()');
+    expect(g.run('JSON.stringify(SESSION.query({select:["state","history","provenance"]}))')).toBe(before);
+    expect(await g.run('buildScenarioJson()')).toBe(saved);
+  });
+
+  it('shows the effective override results, quoted names and unnamed session syntax', () => {
+    const g = gui('# Parent\ncard: Child\n> Tap(card.button) -> present("Detail page", @) ; goto(##"New state") ; exit(@) ; back() ; hide("Note box")\n# Child\nbutton\n> Tap(button) -> default effect\n# "Detail page"\n## "New state"\n# "Note box"\n');
+    const details = g.run('operationDetails(view.data.actions.items[0])');
+    expect(details).toContain('present(&quot;Detail page&quot;, @)');
+    expect(details).toContain('goto(##&quot;New state&quot;)');
+    expect(details).toContain('exit(@)');
+    expect(details).toContain('back()');
+    expect(details).toContain('hide(&quot;Note box&quot;)');
+    expect(details).not.toContain('default effect');
+  });
+
+  it('preserves a literal collection marker inside quoted target names', () => {
+    const g = gui('# Home\n> Try -> push("*Details") ; show("*Note") ; set("*State"##New)\n# "*Details"\n# "*Note"\n#! "*State"\n## New\n');
+    const details = g.run('operationDetails(view.data.actions.items[0])');
+    expect(details).toContain('push(&quot;*Details&quot;)');
+    expect(details).toContain('show(&quot;*Note&quot;)');
+    expect(details).toContain('set(&quot;*State&quot;##New)');
+  });
+
   it('distinguishes a child definition from the active parent with the same variants', () => {
     const g = gui('# Parent\nChild\n## Old\n## New\n# Child\n> Change -> goto(##New)\n## Old\n## New\n');
     expect(g.app.innerHTML).toContain('定義元: main::Child');

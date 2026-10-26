@@ -115,6 +115,21 @@ function placementNode(placement, state = view.data.state) {
   for (const index of placement.path) node = node?.children[index];
   return node;
 }
+function definedResultText(body) {
+  if (body.kind === 'effect') return '自由文: ' + body.text;
+  const name = value => /[\s*#(){}.?@,;\[\]:]/.test(value) || value.includes('->') || value.includes('//') ? '"' + value + '"' : value;
+  const target = body.target;
+  const ref = target ? (target.module ? name(target.module) + '::' : '') +
+    (target.kind === 'variant' ? '##' + name(target.name) : name(target.name) + (target.variant ? '##' + name(target.variant) : '')) : '';
+  const session = body.kind === 'transition' && body.session ? (ref ? ', ' : '') + '@' + (body.session.name === null ? '' : name(body.session.name)) : '';
+  return (body.kind === 'transition' ? body.word : body.verb) + '(' + ref + session + ')';
+}
+function definedResultsHtml(op, definition) {
+  // Use Session's resolved branch membership, including inherited/repeated labels.
+  const labels = new Map(op.branches.flatMap(b => b.results.map(r => [r.resultIndex, b.label])));
+  return '<div class="defined-results"><p>定義された結果（実行前）</p><p>操作が有効なとき、条件なしと選んだ条件の結果を上から順に試します。実行後の状態や成功を保証する表示ではありません。自由文は実際の処理を実行しません。</p><ol>' +
+    definition.inter.results.map((r, i) => '<li>' + esc((labels.has(i) ? '[' + labels.get(i) + ']' : '条件なし') + ': ' + definedResultText(r.body)) + '</li>').join('') + '</ol></div>';
+}
 function operationDetails(op, state = view.data.state, context = 'live') {
   const definition = definitionAt(op.source);
   if (!definition) return '';
@@ -129,6 +144,7 @@ function operationDetails(op, state = view.data.state, context = 'live') {
   return '<details class="operation-details" data-state-key="operation:' + esc(context + ':' + operationKey(op)) + '"><summary>操作の詳細</summary>' +
     '<p>' + esc('定義元: ' + origin) + '</p><p>' + esc(role) + '</p><p>' + esc('配置: ' + op.placement.root + (pathNames.length ? ' / ' + pathNames.join(' / ') : '（画面・独立表示の本体）')) + '</p>' +
     '<p>定義元・配置と作用先は別です。goto(##状態) は各結果の適用時点のアクティブ画面を変えます。包含部品自身の局所状態を変える指定ではありません。singleton 化すると共有範囲も変わります。</p>' +
+    definedResultsHtml(op, definition) +
     '<p>' + esc('定義位置: ' + (op.source.file ?? op.source.module) + ':' + op.source.span.line + ':' + op.source.span.col) + '</p></details>';
 }
 function recordedOperationDetails(detail) {
