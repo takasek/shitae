@@ -227,7 +227,7 @@ DiagramPreview
 
 裸の gate（`Mode?`）は member 参照と異なり、host の実効 body（共通＋固有）に `Mode` という名前の要素があるかを見る。この例の Ready に `BareLocal(Mode?)` を書くと common の要素名に一致して有効になるが、`Mode` を `ViewMode` へ解決して内部要素を調べたわけではない。
 
-外側から部品の操作を上書きする member 参照にも、同じ alias スコープが適用される。この例で ViewMode に `Tap(Editor)` を定義した場合、common の `Tap(Mode.Editor)` はその操作を上書きするが、Ready に同じ参照を書いても common の alias を解決できず、部品側の操作が残る。`?` のない操作には gate の詳細がないため、上書きの確認では操作一覧に部品側の操作が残っていないかも照合する。
+外側から部品の操作を上書きする member 参照にも、同じ alias スコープが適用される。この例で ViewMode に `Tap(Editor)` を定義した場合、common の `Tap(Mode.Editor)` はその操作を上書きするが、Ready に同じ参照を書いても common の alias を解決できず、部品側の操作が残る。上書きの確認では、外側の操作の[詳細照会](design/session-usage.md#cli)で `overrides` を読む。上書きした部品側の操作の source・host・placement が入り、この例で上書きが効かない場合は空配列になる。`?` のない操作でも確認できる。意図した操作を上書きしているかを source で照合し、必要なら操作一覧でも部品側の操作の残存を確認する。
 
 ### 分岐の意味論
 
