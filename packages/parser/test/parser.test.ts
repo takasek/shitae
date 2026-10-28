@@ -685,6 +685,21 @@ describe('symbol-in-name enforcement (E024/E025/E026/W104)', () => {
     expect(w104.length).toBeGreaterThan(0);
     expect(w104[0].severity).toBe('warning');
   });
+
+  it('W104: 分岐継続の > 抜けを案内し、要素と warning のまま保持する', () => {
+    const { document, diagnostics } = parseDoc('# Confirm\n> Save -> [Success] saved\n  [Failure] not saved');
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0]).toMatchObject({ code: 'W104', severity: 'warning', span: { line: 3 } });
+    expect(diagnostics[0].message).toContain('分岐の継続なら行頭にも > が必要です');
+    const body = document.components[0].common;
+    expect(body.elements).toHaveLength(1);
+    expect(body.interactions[0].results).toHaveLength(1);
+
+    const corrected = parseDoc('# Confirm\n> Save -> [Success] saved\n> [Failure] not saved');
+    expect(corrected.diagnostics).toEqual([]);
+    expect(corrected.document.components[0].common.elements).toEqual([]);
+    expect(corrected.document.components[0].common.interactions[0].results).toHaveLength(2);
+  });
 });
 
 // ---------------------------------------------------------------------------
