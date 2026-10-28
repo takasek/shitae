@@ -446,8 +446,9 @@ function parseElementLine(
     valueText = valueText.slice(0, -1).trim();
   }
 
-  // W104: 要素名が condition label 風の "[...]" で始まる（条件付き要素の意図なら
-  // variant で分けるか自然文で注記。「未定・分岐」参照）。
+  // W104: 要素名が condition label 風の "[...]" で始まる。
+  // 分岐継続の > 抜けと、条件付き要素（variant 分割／自然文注記）の両方を案内する。
+  // ラベルなしの > 抜けは検出しない。「未定・分岐」参照。
   if (valueText.startsWith('[')) {
     diagnostics.push({
       severity: 'warning',
