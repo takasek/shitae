@@ -202,6 +202,33 @@ B: 代表文書B
 
 document common（最初の `#` より前＝全 component 共通）・component common（`##` より前＝全 variant 共通）・variant 固有節に**同じ (行動, 対象参照) の組**があれば、より特化した側が **shadow**（variant 固有 > component common > document common）。外部からの要素参照が部品定義側の挙動を上書きするのと同じ原理。
 
+### alias のスコープと member gate
+
+member 参照（`alias.要素`）の alias は、その操作と同じ single-body（document common・component common・variant 固有 body のいずれか）で宣言したものを解決する。common の要素が全 variant に含まれることと、そこで宣言した alias を variant 固有の member 参照から解決できることは別である（[SPEC: 記号一覧の alias スコープ](SPEC.md#記号一覧これで全部)）。
+
+```shitae
+# Workbench
+Mode: ViewMode
+> EditCommon(Mode.Editor?) -> 編集する
+> ShowDiagram -> set(ViewMode##Diagram)
+## Ready
+> EditLocal(ViewMode.Editor?) -> 編集する
+
+#! ViewMode
+## Source
+Editor: SourceEditor
+## Diagram
+DiagramPreview
+```
+
+`EditCommon` は同じ common body の `Mode` を解決する。`EditLocal` は variant 固有 body にあるので、直接 component 名の `ViewMode` を使っている。どちらも Source では有効、Diagram では無効になる。この例の `EditLocal` を `Mode.Editor?` にすると、同じ body に alias がなく、`Mode` という component も未定義なので、判定不能として always-on になる。alias を使うなら、その操作と同じ body に宣言する。
+
+意図した gate が効かないときは、[CLI の一操作の詳細照会](design/session-usage.md#cli)で `gate.targetComponent` と `gate.unresolved` を確認する。`unresolved: true` は対象を解決できず有効としていることを表し、要素の存在を確認できたという意味ではない。
+
+裸の gate（`Mode?`）は member 参照と異なり、host の実効 body（共通＋固有）に `Mode` という名前の要素があるかを見る。この例の Ready に `BareLocal(Mode?)` を書くと common の要素名に一致して有効になるが、`Mode` を `ViewMode` へ解決して内部要素を調べたわけではない。
+
+外側から部品の操作を上書きする member 参照にも、同じ alias スコープが適用される。この例で ViewMode に `Tap(Editor)` を定義した場合、common の `Tap(Mode.Editor)` はその操作を上書きするが、Ready に同じ参照を書いても common の alias を解決できず、部品側の操作が残る。上書きの確認では、外側の操作の[詳細照会](design/session-usage.md#cli)で `overrides` を読む。上書きした部品側の操作の source・host・placement が入り、この例で上書きが効かない場合は空配列になる。`?` のない操作でも確認できる。意図した操作を上書きしているかを source で照合し、必要なら操作一覧でも部品側の操作の残存を確認する。
+
 ### 分岐の意味論
 
 結果列は **(条件, 結果) の組の collection**。`[ラベル]` 付きの result は `(そのラベル, 結果)`、ラベルなしの result は直前のラベルを引き継ぐ（最初のラベルより前なら常に成立）。presence gate 付きの行動 `A(C?) -> R` は `(exists(C), R)`（`?` 無しは always-on）。
@@ -212,6 +239,18 @@ document common（最初の `#` より前＝全 component 共通）・component 
 
 矢印 `->` は 1 行に 1 つだけ（`-> R -> R` は構文エラー、`;` で並べる）。`[ラベル]` のスコープは**次のラベルが現れるまでの結果列**（`;` と改行の継続行がともに result の区切り）。最初のラベルより前の result は常に成立。
 
+分岐の継続行にも、必ず行頭に `>` を付ける。インデントだけでは継続にならない。
+
+```shitae
+# Confirm
+> Save -> [Success] saved
+>   [Failure] not saved
+```
+
+最後の行の `>` を落とすと、`[Failure] not saved` は要素行になり、W104 が出る。warning なので `check` が終了コード 0 でも、意図した失敗分岐は追加されていない。条件付きの表示要素を書く意図なら、variant で分けるか自然文で注記する。
+
+W104 は `[` で始まる要素名への警告であり、すべての `>` 抜けを検出するものではない。例えばラベルなしの `  エラーを表示する` は警告なしで要素行になるので、継続する各行の `>` を確認する。
+
 ## チェックリスト（書いたあと確認する）
 
 - [ ] **variant 参照は必ず `##`** か。`goto(表示)` は「表示という component へ」になり variant change にならない。variant change は `goto(##表示)`。
@@ -221,6 +260,7 @@ document common（最初の `#` より前＝全 component 共通）・component 
 - [ ] **裸の `goto(##variant)` の作用先はアクティブ画面でよい**か。包含部品自身への変更と取り違えていないか（[SPEC](SPEC.md#variant-の参照は必ず-)）。
 - [ ] **遷移には transition verb**を書いたか。`-> 完了`（transition verb なし）は副作用（「完了する」）と解釈され、`完了` 画面への遷移にならない。遷移なら `push(完了)`。
 - [ ] **要素参照は alias 名**か。種別名や生の要素名では引けない。参照する要素には alias を付ける。
+- [ ] **member 参照の alias は操作と同じ single-body に宣言した**か。common の alias を variant 固有 body から参照していないか。判定不能な member gate は always-on になり、意図した部品操作の上書きも効かない場合がある。gate 詳細と操作一覧を照合する。
 - [ ] **`present` したものは `dismiss`/`exit` で閉じる**か。モーダル内から `goto(別画面)` すると、そのモーダルが下に残ったまま中身だけ置き換わる。閉じてから遷移するか、variant（`##`）にする。
 - [ ] **セッションの開始は `push`/`present`/`switch`（新規作成時）** か。`goto`/`back` でセッションを開始しない。`back` にセッション（`back(@S)`）を渡さない（破棄は `exit`/`dismiss`）。
 - [ ] **遷移先の component は存在する**か（または未定義を承知で置いているか）。
@@ -230,7 +270,7 @@ document common（最初の `#` より前＝全 component 共通）・component 
 - [ ] 未定を `???`/`(未定)` でなく自然文で書いたか。
 - [ ] 状態を `if`/`guard`/変数でなく variant で表したか。
 - [ ] **インタラクション行に `>` を付けた**か。
-- [ ] 分岐は 1 行 1 ラベルグループの継続行（`->` なしで書く）にすると読みやすい。
+- [ ] 分岐は 1 行 1 ラベルグループの継続行（行頭に `>` を付け、`->` なしで書く）にすると読みやすい。
 - [ ] `?`（presence gate）は opt-in で必要な行だけに付けたか（既定は always-on で `?` 無し）。
 - [ ] タブ（離れても状態が残る並行文脈）は `switch(X, @S)` か。`goto` はタブの状態を捨て、`push` は積み上がる。
 - [ ] `switch` に @S を渡したか（省略不可。resume 専用形は無い）。

@@ -34,6 +34,8 @@ dispatch は summary と今回の receipt、既定 query は summary だけを�
 
 `data.action` は元の定義 AST `definition`（全 results を含む）、source、gate、prelude と branch の結果参照を返す。照会は状態や handle を変えず、一覧からそのまま dispatch してもよい。無効操作の説明も読める。失効した handle は `STALE_HANDLE`、不明・別 Session の handle は `UNKNOWN_HANDLE`。組込み back の詳細は kind:"control"・enabled・reason・source:null で、DSL 定義を持たない。
 
+DSL 操作の詳細には `overrides` も含まれる。その操作が上書きした部品側の操作ごとに、定義位置の `source`（`span.line` で行番号を確認）、部品の `host`、包含位置の `placement` を返す。同じ部品を複数箇所に置いた場合は包含位置ごとに記録する。`?` の有無にかかわらず読めるので、上書きを意図した外側の操作の詳細で、対象の source が入っているかを照合する。空配列 `[]` は上書き対象がないことを表し、上書きの意図自体が正しかったかは判定しない。操作一覧には `overrides` を含めない。
+
 詳細が必要なときだけ select に追加する。複数項目は一度に照会できる。
 
 ```json
