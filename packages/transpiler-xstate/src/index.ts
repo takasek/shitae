@@ -5,7 +5,6 @@ import type {
   Result,
   Action,
   NavTarget,
-  Reference,
 } from '@shitae/ast';
 import { effectiveResults, mergeInteractions } from '@shitae/resolver';
 
@@ -20,20 +19,18 @@ function stateId(componentName: string, variantName?: string | null): string {
   return componentName;
 }
 
-function componentStateIds(comp: Component): string[] {
-  if (comp.variants.length === 0) return [stateId(comp.name)];
-  return comp.variants.map((v) => stateId(comp.name, v.name));
+interface StateDefinition {
+  id: string;
+  interactions: Interaction[];
 }
 
-function allStateIds(doc: Document): string[] {
-  return doc.components.flatMap(componentStateIds);
-}
-
-function initialStateId(doc: Document): string {
-  const first = doc.components[0];
-  if (!first) return '';
-  if (first.variants.length === 0) return stateId(first.name);
-  return stateId(first.name, first.variants[0]!.name);
+function componentStates(comp: Component): StateDefinition[] {
+  const common = comp.common.interactions;
+  if (comp.variants.length === 0) return [{ id: comp.name, interactions: common }];
+  return comp.variants.map(variant => ({
+    id: stateId(comp.name, variant.name),
+    interactions: mergeInteractions(common, variant.body.interactions),
+  }));
 }
 
 // ───── event name ─────────────────────────────────────────────────────
@@ -49,11 +46,11 @@ function eventName(action: Action): string {
 
 function resolveNavTarget(
   target: NavTarget,
-  currentComponent: string,
+  sourceId: string,
   doc: Document,
 ): string {
   if (target.kind === 'variant') {
-    return stateId(currentComponent, target.name);
+    return stateId(sourceId.split('__', 1)[0]!, target.name);
   }
   // kind === 'component'
   if (target.module !== null) {
@@ -74,39 +71,20 @@ function resolveNavTarget(
 
 // ───── push/present predecessors map ─────────────────────────────────
 
-function buildPredecessors(doc: Document): Map<string, string[]> {
+function buildPredecessors(states: StateDefinition[], doc: Document): Map<string, string[]> {
   const pred = new Map<string, string[]>();
 
-  function processInteractions(interactions: Interaction[], sourceId: string) {
+  for (const { id: sourceId, interactions } of states) {
     for (const interaction of interactions) {
       for (const result of interaction.results) {
         if (result.body.kind !== 'transition') continue;
         const tr = result.body;
         if (tr.word !== 'push' && tr.word !== 'present') continue;
         if (!tr.target) continue;
-        const currentComponent = sourceId.includes('__')
-          ? sourceId.split('__')[0]!
-          : sourceId;
-        const targetId = resolveNavTarget(tr.target, currentComponent, doc);
+        const targetId = resolveNavTarget(tr.target, sourceId, doc);
         const list = pred.get(targetId) ?? [];
         if (!list.includes(sourceId)) list.push(sourceId);
         pred.set(targetId, list);
-      }
-    }
-  }
-
-  for (const comp of doc.components) {
-    if (comp.variants.length === 0) {
-      processInteractions(comp.common.interactions, stateId(comp.name));
-    } else {
-      for (const v of comp.variants) {
-        const sid = stateId(comp.name, v.name);
-        // Same shadow merge as state-node generation: a shadowed common
-        // push/present must not register a predecessor edge (v2)
-        processInteractions(
-          mergeInteractions(comp.common.interactions, v.body.interactions),
-          sid,
-        );
       }
     }
   }
@@ -171,10 +149,7 @@ function generateTransition(
 
   if (word === 'goto' || word === 'push' || word === 'present') {
     if (!tr.target) return [`${ind(4)}{}`];
-    const currentComponent = sourceId.includes('__')
-      ? sourceId.split('__')[0]!
-      : sourceId;
-    const targetId = resolveNavTarget(tr.target, currentComponent, doc);
+    const targetId = resolveNavTarget(tr.target, sourceId, doc);
 
     if (word === 'goto') {
       return [`${ind(4)}{ target: ${q(targetId)} }`];
@@ -192,10 +167,7 @@ function generateTransition(
   if (word === 'back' || word === 'exit' || word === 'dismiss') {
     // If an explicit target is provided (back(X)), treat as goto
     if (tr.target) {
-      const currentComponent = sourceId.includes('__')
-        ? sourceId.split('__')[0]!
-        : sourceId;
-      const targetId = resolveNavTarget(tr.target, currentComponent, doc);
+      const targetId = resolveNavTarget(tr.target, sourceId, doc);
       return [`${ind(4)}{ target: ${q(targetId)}, actions: ${generateAssignPop(4)} }`];
     }
     // No explicit target — guard array over predecessors
@@ -251,8 +223,7 @@ function generateInteractionBlock(
 }
 
 function generateStateNode(
-  sourceId: string,
-  interactions: Interaction[],
+  { id: sourceId, interactions }: StateDefinition,
   doc: Document,
   predecessors: Map<string, string[]>,
 ): string {
@@ -265,29 +236,10 @@ function generateStateNode(
 
 export function toXState(doc: Document, options?: XStateOptions): string {
   const id = options?.id ?? 'app';
-  const initial = initialStateId(doc);
-  const predecessors = buildPredecessors(doc);
-
-  const stateNodes: string[] = [];
-
-  for (const comp of doc.components) {
-    if (comp.variants.length === 0) {
-      const sid = stateId(comp.name);
-      const interactions = comp.common.interactions;
-      stateNodes.push(generateStateNode(sid, interactions, doc, predecessors));
-    } else {
-      for (const v of comp.variants) {
-        const sid = stateId(comp.name, v.name);
-        // Common body + variant body, with variant-specific interactions
-        // shadowing common ones on (action.text, target) exact match (v2)
-        const interactions = mergeInteractions(
-          comp.common.interactions,
-          v.body.interactions,
-        );
-        stateNodes.push(generateStateNode(sid, interactions, doc, predecessors));
-      }
-    }
-  }
+  const states = doc.components.flatMap(componentStates);
+  const initial = states[0]?.id ?? '';
+  const predecessors = buildPredecessors(states, doc);
+  const stateNodes = states.map(state => generateStateNode(state, doc, predecessors));
 
   const lines = [
     `import { createMachine, assign } from 'xstate';`,
