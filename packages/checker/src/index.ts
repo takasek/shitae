@@ -20,8 +20,9 @@ export function check(
   const scope: ModuleScope = {
     resolved,
     imported(alias) {
+      if (!projectCtx) return undefined;
       const canonical = resolveModuleRef(alias, document);
-      return canonical ? importedScope(canonical, projectCtx) : undefined;
+      return canonical ? importedScope(canonical, projectCtx.project) : undefined;
     },
   };
 
@@ -221,11 +222,10 @@ interface ModuleScope {
 
 function importedScope(
   canonical: string,
-  projectCtx: ProjectCheckContext | undefined
+  project: ProjectResolveResult
 ): ModuleScope | undefined {
-  const project = projectCtx?.project;
-  const resolved = project?.getModule(canonical);
-  if (!project || !resolved) return undefined;
+  const resolved = project.getModule(canonical);
+  if (!resolved) return undefined;
   return {
     resolved,
     imported(alias) {
@@ -233,7 +233,7 @@ function importedScope(
       if (!target) return undefined;
       // ProjectResolveResult が保持する正準名を使い、参照元側の import 表を混ぜない。
       const name = [...project.modules].find(([, module]) => module === target)?.[0];
-      return name === undefined ? undefined : importedScope(name, projectCtx);
+      return name === undefined ? undefined : importedScope(name, project);
     },
   };
 }
