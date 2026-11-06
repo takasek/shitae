@@ -17,13 +17,12 @@ export function check(
 ): Diagnostic[] {
   const diags: Diagnostic[] = [];
 
-  // singleton 名の集合（同一ファイル内）
-  const singletons = singletonNamesOf(resolved);
-  const collectionScope: CollectionScope = {
+  const scope: ModuleScope = {
     resolved,
     imported(alias) {
+      if (!projectCtx) return undefined;
       const canonical = resolveModuleRef(alias, document);
-      return canonical ? importedCollectionScope(canonical, projectCtx) : undefined;
+      return canonical ? importedScope(canonical, projectCtx.project) : undefined;
     },
   };
 
@@ -31,17 +30,17 @@ export function check(
   // document common は字句 host を持たないので、裸 goto の対象だけ推定しない。
   function checkBodies(bodies: Array<{ body: Body; label: string }>, host?: Component): void {
     for (const { body, label } of bodies) checkDuplicateAlias(body, label, diags);
-    for (const { body } of bodies) checkVariantAsComponent(body, document, resolved, projectCtx, diags);
-    for (const { body } of bodies) checkSingletonCollections(body, collectionScope, diags);
+    for (const { body } of bodies) checkVariantAsComponent(body, scope, diags);
+    for (const { body } of bodies) checkSingletonCollections(body, scope, diags);
     for (const { body } of bodies) {
       for (const interaction of body.interactions) {
-        if (host) checkBareVariantGoto(interaction, host, document, resolved, projectCtx, diags);
-        checkStateWrites(interaction, document, resolved, projectCtx, diags);
+        if (host) checkBareVariantGoto(interaction, host, scope, diags);
+        checkStateWrites(interaction, scope, diags);
       }
     }
     for (const { body } of bodies) {
       for (const interaction of body.interactions) {
-        checkSingletonExplicitShow(interaction, document, singletons, projectCtx, diags);
+        checkSingletonExplicitShow(interaction, scope, diags);
       }
     }
   }
@@ -49,14 +48,11 @@ export function check(
   checkBodies([{ body: document.common, label: 'document common' }]);
 
   for (const comp of document.components) {
-    // W103: empty body
-    const totalElements =
-      comp.common.elements.length +
-      comp.variants.reduce((n, v) => n + v.body.elements.length, 0);
-    const totalInteractions =
-      comp.common.interactions.length +
-      comp.variants.reduce((n, v) => n + v.body.interactions.length, 0);
-    if (totalElements === 0 && totalInteractions === 0) {
+    const bodies = [
+      { body: comp.common, label: comp.name },
+      ...comp.variants.map(v => ({ body: v.body, label: `${comp.name}##${v.name}` })),
+    ];
+    if (bodies.every(({ body }) => body.elements.length === 0 && body.interactions.length === 0)) {
       diags.push({
         severity: 'warning',
         code: 'W103',
@@ -65,10 +61,7 @@ export function check(
       });
     }
 
-    checkBodies([
-      { body: comp.common, label: comp.name },
-      ...comp.variants.map(v => ({ body: v.body, label: `${comp.name}##${v.name}` })),
-    ], comp);
+    checkBodies(bodies, comp);
   }
 
   return diags;
@@ -80,27 +73,16 @@ export function check(
  */
 function checkSingletonExplicitShow(
   interaction: Interaction,
-  document: Document,
-  singletons: Set<string>,
-  projectCtx: ProjectCheckContext | undefined,
+  scope: ModuleScope,
   diags: Diagnostic[]
 ): void {
   for (const result of interaction.results) {
     if (result.body.kind !== 'overlay') continue;
     if (result.body.verb !== 'show') continue;
-    const { module, name, variant } = result.body.target;
+    const { name, variant } = result.body.target;
     if (variant === null) continue;
 
-    let targetSingletons: Set<string>;
-    if (module === null) {
-      targetSingletons = singletons;
-    } else {
-      const cross = resolveCrossModule(module, document, projectCtx);
-      if (!cross) continue; // projectCtx なし・alias/module 未解決なら従来どおり skip
-      targetSingletons = singletonNamesOf(cross);
-    }
-
-    if (!targetSingletons.has(name)) continue;
+    if (!componentDefinition(result.body.target, scope)?.component.singleton) continue;
     diags.push({
       severity: 'warning',
       code: 'W106',
@@ -110,33 +92,8 @@ function checkSingletonExplicitShow(
   }
 }
 
-/** resolved（ResolveResult）から singleton component 名の集合を作る。 */
-function singletonNamesOf(resolved: ResolveResult): Set<string> {
-  const names = new Set<string>();
-  for (const [name, comp] of resolved.componentIndex) {
-    if (comp.singleton) names.add(name);
-  }
-  return names;
-}
-
-/**
- * module 修飾つき参照（alias）を projectCtx 経由で対象モジュールの ResolveResult に解決する。
- * projectCtx が無い・alias が import 表に無い・対象モジュールが存在しない、のいずれかなら
- * undefined（呼び出し側は従来どおり skip する。「判定不能なら素通り」の既定に揃える）。
- */
-function resolveCrossModule(
-  moduleAlias: string,
-  document: Document,
-  projectCtx: ProjectCheckContext | undefined
-): ResolveResult | undefined {
-  if (!projectCtx) return undefined;
-  const canonical = resolveModuleRef(moduleAlias, document);
-  if (!canonical) return undefined;
-  return projectCtx.project.getModule(canonical);
-}
-
 function checkDuplicateAlias(body: Body, label: string, diags: Diagnostic[]): void {
-  const seen = new Map<string, Span>();
+  const seen = new Set<string>();
   for (const el of body.elements) {
     if (!el.alias) continue;
     if (seen.has(el.alias)) {
@@ -147,16 +104,14 @@ function checkDuplicateAlias(body: Body, label: string, diags: Diagnostic[]): vo
         span: el.span,
       });
     } else {
-      seen.set(el.alias, el.span);
+      seen.add(el.alias);
     }
   }
 }
 
 function checkVariantAsComponent(
   body: Body,
-  document: Document,
-  resolved: ResolveResult,
-  projectCtx: ProjectCheckContext | undefined,
+  scope: ModuleScope,
   diags: Diagnostic[]
 ): void {
   for (const interaction of body.interactions) {
@@ -164,16 +119,9 @@ function checkVariantAsComponent(
       if (result.body.kind !== 'transition') continue;
       const target = result.body.target;
       if (!target || target.kind !== 'component') continue;
-      let targetResolved: ResolveResult;
-      if (target.module === null) {
-        targetResolved = resolved;
-      } else {
-        const cross = resolveCrossModule(target.module, document, projectCtx);
-        if (!cross) continue; // projectCtx なし・alias/module 未解決なら従来どおり skip
-        targetResolved = cross;
-      }
+      const targetResolved = scopeFor(target.module, scope)?.resolved;
       const name = target.name;
-      if (targetResolved.componentIndex.has(name)) continue;
+      if (!targetResolved || targetResolved.componentIndex.has(name)) continue;
       // variant として存在するか
       for (const [, varMap] of targetResolved.variantIndex) {
         if (varMap.has(name)) {
@@ -198,9 +146,7 @@ function checkVariantAsComponent(
 function checkBareVariantGoto(
   interaction: Interaction,
   host: Component,
-  document: Document,
-  resolved: ResolveResult,
-  projectCtx: ProjectCheckContext | undefined,
+  scope: ModuleScope,
   diags: Diagnostic[]
 ): void {
   // null は共通の先行結果。同じラベルが再登場した場合もその経路の続きを適用する。
@@ -224,9 +170,7 @@ function checkBareVariantGoto(
         body.word === 'dismiss' || body.word === 'switch') {
       active = undefined;
     } else if (target?.kind === 'component') {
-      const targetResolved = target.module === null
-        ? resolved : resolveCrossModule(target.module, document, projectCtx);
-      active = targetResolved?.componentIndex.get(target.name);
+      active = componentDefinition(target, scope)?.component;
     }
     targets.set(label, active);
   }
@@ -235,9 +179,7 @@ function checkBareVariantGoto(
 /** set（state verb）の対象チェック — E030（非 singleton）・W105（未定義 variant）。ADR-0014 */
 function checkStateWrites(
   interaction: Interaction,
-  document: Document,
-  resolved: ResolveResult,
-  projectCtx: ProjectCheckContext | undefined,
+  scope: ModuleScope,
   diags: Diagnostic[]
 ): void {
   for (const result of interaction.results) {
@@ -249,20 +191,9 @@ function checkStateWrites(
     // 重ねて出すのはノイズなので対象外にする（ADR-0021 A5。findings A5）。
     if (variant === '') continue;
 
-    let targetResolved: ResolveResult;
-    let label: string;
-    if (module === null) {
-      targetResolved = resolved;
-      label = name;
-    } else {
-      const cross = resolveCrossModule(module, document, projectCtx);
-      if (!cross) continue; // projectCtx なし・alias/module 未解決なら従来どおり skip
-      targetResolved = cross;
-      label = `${module}::${name}`;
-    }
-
-    const comp = targetResolved.componentIndex.get(name);
+    const comp = componentDefinition(result.body.target, scope)?.component;
     if (!comp) continue; // 未定義 component への set は素通り（ラフさ優先）
+    const label = module === null ? name : `${module}::${name}`;
     if (!comp.singleton) {
       diags.push({
         severity: 'error',
@@ -283,19 +214,18 @@ function checkStateWrites(
   }
 }
 
-/** E028 の参照元。import alias は参照を書いた定義ファイルで解決する。 */
-interface CollectionScope {
+/** import alias は参照を書いた定義ファイルで解決する。 */
+interface ModuleScope {
   resolved: ResolveResult;
-  imported(alias: string): CollectionScope | undefined;
+  imported(alias: string): ModuleScope | undefined;
 }
 
-function importedCollectionScope(
+function importedScope(
   canonical: string,
-  projectCtx: ProjectCheckContext | undefined
-): CollectionScope | undefined {
-  const project = projectCtx?.project;
-  const resolved = project?.getModule(canonical);
-  if (!project || !resolved) return undefined;
+  project: ProjectResolveResult
+): ModuleScope | undefined {
+  const resolved = project.getModule(canonical);
+  if (!resolved) return undefined;
   return {
     resolved,
     imported(alias) {
@@ -303,19 +233,24 @@ function importedCollectionScope(
       if (!target) return undefined;
       // ProjectResolveResult が保持する正準名を使い、参照元側の import 表を混ぜない。
       const name = [...project.modules].find(([, module]) => module === target)?.[0];
-      return name === undefined ? undefined : importedCollectionScope(name, projectCtx);
+      return name === undefined ? undefined : importedScope(name, project);
     },
   };
 }
 
-function collectionDefinition(ref: Pick<Ref, 'module' | 'name'>, scope: CollectionScope) {
-  const targetScope = ref.module === null ? scope : scope.imported(ref.module);
-  const component = targetScope?.resolved.componentIndex.get(ref.name);
-  return component && targetScope ? { component, scope: targetScope } : undefined;
+function scopeFor(module: string | null, scope: ModuleScope): ModuleScope | undefined {
+  return module === null ? scope : scope.imported(module);
+}
+
+function componentDefinition(ref: Pick<Ref, 'module' | 'name'>, scope: ModuleScope) {
+  const targetScope = scopeFor(ref.module, scope);
+  if (!targetScope) return undefined;
+  const component = targetScope.resolved.componentIndex.get(ref.name);
+  return component ? { component, scope: targetScope } : undefined;
 }
 
 /** 要素宣言と行動対象の * を、名前の一致ではなく参照先の定義で検査する。 */
-function checkSingletonCollections(body: Body, scope: CollectionScope, diags: Diagnostic[]): void {
+function checkSingletonCollections(body: Body, scope: ModuleScope, diags: Diagnostic[]): void {
   function report(component: Component | undefined, span: Span): void {
     if (!component?.singleton) return;
     diags.push({
@@ -332,7 +267,7 @@ function checkSingletonCollections(body: Body, scope: CollectionScope, diags: Di
         // 外側の * は入れ物だけに掛かる。子は各自の宣言を検査する。
         elements(el.value.elements);
       } else if (el.collection) {
-        report(collectionDefinition(el.value, scope)?.component, el.span);
+        report(componentDefinition(el.value, scope)?.component, el.span);
       }
     }
   }
@@ -345,17 +280,17 @@ function checkSingletonCollections(body: Body, scope: CollectionScope, diags: Di
     const alias = ref.module === null ? body.elements.find(el => el.alias === ref.name) : undefined;
     const target = alias?.value ?? { kind: 'ref' as const, module: ref.module, name: ref.name, span: ref.span };
     if (ref.member === null) {
-      if (target.kind !== 'inline') report(collectionDefinition(target, scope)?.component, ref.span);
+      if (target.kind !== 'inline') report(componentDefinition(target, scope)?.component, ref.span);
       continue;
     }
 
     if (target.kind === 'inline') {
       const member = target.elements.find(el => el.alias === ref.member);
-      if (member?.value.kind === 'ref') report(collectionDefinition(member.value, scope)?.component, ref.span);
+      if (member?.value.kind === 'ref') report(componentDefinition(member.value, scope)?.component, ref.span);
       continue;
     }
 
-    const owner = collectionDefinition(target, scope);
+    const owner = componentDefinition(target, scope);
     if (!owner) continue;
     // member は参照先の現在 variant の実効 body で解決される。静的検査では各 variant を
     // 調べ、singleton を指す経路があれば元の行動対象に一度だけ報告する。
@@ -365,7 +300,7 @@ function checkSingletonCollections(body: Body, scope: CollectionScope, diags: Di
       const member = variantBody.elements.find(el => el.alias === ref.member)
         ?? component.common.elements.find(el => el.alias === ref.member);
       const definition = member?.value.kind === 'ref'
-        ? collectionDefinition(member.value, ownerScope)?.component : undefined;
+        ? componentDefinition(member.value, ownerScope)?.component : undefined;
       if (definition?.singleton) {
         report(definition, ref.span);
         break;

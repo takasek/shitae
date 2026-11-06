@@ -1,0 +1,193 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; font-size: 14px; background: #f5f5f5; color: #111; }
+/* 2 カラム全幅グリッド（開発ツールのためレスポンシブ不要。UX round2・設計者フィードバック
+   2026-07-20 に加え、右カラム（gate パネル専用、常に対象なしの文書では空白のまま横幅を
+   占有し続けていた——UX round2 2-4(d)）を廃止しドロワー化。空いた分は中央（1fr）へ還元する
+   （Task 18 項目5）。左 = 統合ログ専用 / 中央 = 現在の画面 → スタック → 遷移マップの縦3領域
+   （ミクロ→マクロ。スタック・マップは折畳み可）。gate パネルはトグルボタンで開く
+   オーバーレイドロワー（.gate-drawer、position: fixed）へ移した——グリッドのカラムには
+   含まれない（レイアウトの外に浮く）。 */
+#app { display: grid; grid-template-columns: 320px minmax(0,1fr); grid-template-rows: auto minmax(0,1fr); height: 100vh; }
+.live-position { grid-column: 1 / -1; padding: 12px 16px; background: #fff; border-bottom: 2px solid #345; }
+.history-point { padding: 8px; border-left: 3px solid #ccc; margin: 6px 0; }
+.history-point.selected { border-color: #285bd4; background: #eef3ff; }
+.history-preview h2 { font-size: 18px; }
+.history-preview p, .history-preview li { margin: 8px 0; }
+.history-preview ul { padding-left: 20px; }
+button:focus-visible { outline: 3px solid #285bd4; }
+
+.pane { padding: 16px; overflow-y: auto; }
+.pane-trace { background: #fff; border-right: 1px solid #e0e0e0; }
+/* 中央ペインは自身を単一スクロール領域にしない（.pane の overflow-y: auto を上書き）——
+   現在の画面（可変・独立スクロール）と、スタック+マップ（まとめて1スクロール領域）の
+   grid rows 2 領域に分割する（Task 9 の後継・Task 14）。上下 1fr/1fr の均等割りは
+   固定高500px相当となり、薄い画面で死んだ空白・濃い画面で掲示中カードの見切れを生んだ
+   （UX round4 §3-1）。下段（スタック・マップ）を content 分の高さ（auto、マップ自身の
+   max-height cap は維持）に縮め、上段（現在の画面）が残り高さを占める可変領域（1fr）に
+   することで両方を解消する（設計者確定 2026-07-21）。版・保存情報と診断を追加した後も
+   上段で操作を続けられるよう、下段全体は最大40vhとして独立スクロールを維持する。 */
+.pane-center { background: #f5f5f5; padding: 0; overflow: hidden; display: grid; grid-template-rows: minmax(0, 1fr) auto; }
+.pane-title { font-size: 13px; font-weight: 700; color: #333; margin-bottom: 2px; }
+summary.pane-title { cursor: pointer; }
+.pane-desc { font-size: 11px; color: #888; margin-bottom: 10px; }
+/* min-height: 0 は grid item の暗黙の最小高さ（auto）を打ち消し overflow-y: auto を効かせるために必須 */
+.screen-section { display: flex; flex-direction: column; overflow-y: auto; min-height: 0; padding: 16px 16px 8px; }
+/* スタック（.stack-section）と遷移マップ（.graph-section）を1つのスクロール領域にまとめる
+   （Task 14）——どちらも折畳み可能な <details> なので、開閉状態によらず縦積みで自然にスクロールする。 */
+.lower-section { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; min-height: 0; max-height: 40vh; padding: 8px 16px 16px; }
+.stack-section { border-top: 1px solid #e0e0e0; padding-top: 8px; }
+.graph-section { border-top: 1px solid #e0e0e0; padding-top: 8px; }
+.stack-list { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #333; margin-top: 6px; }
+.stack-item { padding: 3px 8px; border-radius: 4px; background: #f5f5f5; }
+.stack-item-current { background: #111; color: #fff; }
+.stack-wall { color: #c0392b; margin-right: 2px; }
+.stack-session { color: #2563eb; font-size: 11px; margin-left: 4px; }
+.timeline-log { display: flex; flex-wrap: wrap; gap: 4px 6px; font-size: 12px; color: #666; }
+.timeline-item { background: #e0e0e0; padding: 2px 8px; border-radius: 10px; cursor: pointer; }
+.timeline-item-event { background: #eef0ff; color: #4b4f8f; }
+.timeline-item-screen { font-size: 10px; opacity: .65; margin-right: 2px; }
+.timeline-item.current { background: #111; color: #fff; }
+.timeline-item.ghost { opacity: .4; }
+.timeline-item:hover { background: #ccc; }
+.provenance-step { border-bottom: 1px solid #ddd; padding: 10px 0; }
+.provenance-heading { display: block; width: 100%; text-align: left; font-size: 13px; font-weight: 600; padding: 7px; }
+.provenance-marker { border-left: 3px solid #777; padding-left: 7px; font-size: 12px; }
+.provenance-step .timeline-item { display: block; text-align: left; margin: 5px 0; border: 0; border-radius: 4px; }
+.review-text { width: 100%; box-sizing: border-box; font: inherit; font-size: 12px; }
+.scenario-controls { margin: 8px 0 12px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 12px; }
+.artifact-identity { font-weight: 600; overflow-wrap: anywhere; }
+.scenario-scope { margin: 8px 0; line-height: 1.6; }
+.identity-details { margin: 6px 0; }
+.identity-details summary { cursor: pointer; }
+.identity-details pre { white-space: pre-wrap; overflow-wrap: anywhere; margin: 6px 0; }
+[role="alert"] { white-space: pre-wrap; overflow-wrap: anywhere; color: #a02020; margin-bottom: 10px; }
+.timeline-toggle { display: flex; align-items: center; gap: 4px; margin-bottom: 6px; font-size: 11px; color: #666; }
+.action-toggle { display: flex; align-items: center; gap: 4px; margin-bottom: 8px; font-size: 11px; color: #666; }
+.screen { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+.screen-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.variant-label { font-size: 12px; color: #888; margin-bottom: 12px; }
+.elements { margin-bottom: 16px; }
+.element { padding: 6px 0; border-bottom: 1px solid #f0f0f0; color: #333; }
+.element:last-child { border-bottom: none; }
+.element.collection::before { content: "×N  "; color: #999; font-size: 11px; }
+.element-hierarchy > summary.element { cursor: pointer; }
+.element-children { margin-left: 16px; border-left: 1px solid #eee; padding-left: 8px; }
+.element-cycle { color: #c0392b; font-size: 11px; margin-left: 6px; }
+.element-actions { margin: 2px 0 6px 16px; }
+.scope-badge { font-size: 10px; color: #888; background: #f0f0f0; border-radius: 8px; padding: 1px 6px; white-space: nowrap; }
+.action-flat { border-top: 1px solid #eee; padding-top: 6px; }
+.action-list { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+/* アクション行は「押せるもの」と分かる見た目にし、要素行（.element、静的表示）と視覚的に
+   区別する（UX round2・Task 15）。枠・背景・角丸でボタン風の境界を持たせる。 */
+.action-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding: 8px 10px; margin: 4px 0; background: #eef4ff; border: 1px solid #c7d7f5; border-radius: 8px; }
+.action-row-conditional { background: #fff; border-color: #ddd; }
+.action-row-conditional .action-text { font-weight: 600; }
+/* ラベル無し操作（choices 空）はチップを出さず行全体をボタンにする——「[TRUE] は押せる
+   ボタンなのか内部フラグ表示なのか分からない」という指摘（UX round2）を、行自体に
+   cursor: pointer を与え押せることを明示することで解消する（Task 15）。 */
+.action-row-solo { cursor: pointer; }
+.action-row-solo:hover { background: #d6e4ff; }
+.action-text { font-size: 13px; color: #333; }
+.action-choices { display: flex; flex-wrap: wrap; gap: 6px; }
+.choice-chip { background: #fff; border: 1px solid #a9c2f0; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 12px; }
+.choice-chip:hover { background: #eaf1ff; }
+.back-btn { margin-top: 12px; background: none; border: 1px solid #ccc; border-radius: 6px; padding: 8px 14px; cursor: pointer; font-size: 12px; color: #555; }
+.back-btn:hover { background: #f0f0f0; }
+.no-actions { color: #bbb; font-size: 13px; font-style: italic; }
+.doc-events-section { border-top: 1px solid #e0e0e0; margin-top: 12px; padding-top: 8px; }
+/* member gate 付きアクション行のインラインバッジ・select（Task 18 項目4）。off の行は
+   .action-row-disabled で見た目を沈め（背景を薄く・カーソルを not-allowed に）、行自体は
+   消さない——「gate off で操作が消えて存在に気づけない」の解消が目的のため、視認できる
+   ことが要件。select はバッジと違い操作可能なので pointer-events は殺さない。 */
+.gate-inline-badge { font-size: 10px; color: #7c5cbf; background: #f3f0fb; border-radius: 8px; padding: 1px 6px; white-space: nowrap; }
+.gate-inline-select { font-size: 11px; }
+.gate-inline-setting { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 4px; max-width: 100%; font-size: 11px; }
+.gate-inline-select { max-width: 100%; }
+.gate-off-mark { font-size: 11px; color: #c0392b; }
+.action-row-disabled { background: #f5f5f5; opacity: .7; }
+.action-row-disabled.action-row-solo { cursor: not-allowed; }
+.action-row-disabled .choice-chip { cursor: not-allowed; opacity: .6; }
+.overlay-card { margin-top: 12px; border: 1px dashed #999; }
+.overlay-badge { display: inline-block; font-size: 11px; color: #fff; background: #555; padding: 1px 8px; border-radius: 8px; margin-bottom: 8px; }
+/* gate ドロワー（Task 18 項目5）: 常設の第3カラムだった旧 .gate-panel を廃し、トグルボタン
+   （画面上部）で開くオーバーレイへ移した。トグル本体（.gate-toggle-block）は見出し・説明を
+   常時表示する（旧 Task 12 の empty state 継承——対象ゼロでも白紙に見えないようにする方針を
+   ドロワー化後も保つ）。ドロワー本体（.gate-drawer）だけが開閉に応じて DOM へ出入りする。 */
+.gate-toggle-block { margin: 4px 0 10px; font-size: 12px; }
+.gate-drawer-toggle { background: none; border: 1px solid #ddd; border-radius: 6px; padding: 4px 10px; cursor: pointer; color: #777; font-size: 11px; }
+.gate-panel-desc { margin-top: 6px; font-size: 11px; color: #888; }
+/* position: fixed でグリッドの外に浮かせる（レイアウトに影響しない。他ペインの幅は変わらない）。
+   閉じるボタン + 背景クリック（.gate-drawer-backdrop）のどちらでも解除できる（brief 明記）。 */
+.gate-drawer-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.15); z-index: 20; }
+.gate-drawer { position: fixed; top: 0; right: 0; height: 100vh; width: 320px; max-width: 90vw; background: #fff; z-index: 21; padding: 16px; overflow-y: auto; box-shadow: -2px 0 8px rgba(0,0,0,.2); font-size: 12px; }
+.gate-drawer-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.gate-drawer-close { background: none; border: 1px solid #ccc; border-radius: 6px; padding: 4px 10px; cursor: pointer; color: #555; font-size: 11px; white-space: nowrap; }
+.gate-panel-body { margin-top: 6px; padding: 8px 10px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; display: flex; flex-direction: column; gap: 6px; }
+.gate-row { display: flex; align-items: center; gap: 8px; }
+.gate-row-label { color: #555; min-width: 80px; }
+.gate-host-info { color: #888; }
+/* マップ全体を viewBox で縮小して収めていた旧方式（Task 5〜15）を廃止し（UX round2・fleamarket
+   18ノードで12px級まで縮小し判読不能と実測）、ノード矩形は固定寸法のまま、はみ出た分は
+   このスクロール領域内の横縦スクロールで見る（Task 16 受入基準c）。position: relative は
+   ノード近傍 tooltip（.graph-tooltip）の絶対配置の基準にするため（Task 16 受入基準e）——
+   ノードと tooltip を同じ座標系（このスクロール領域内のローカル座標）に置くことで、マップを
+   スクロールしても tooltip がノードから相対的にズレない。z-index は外クリックで pin を
+   解除するバックドロップ（.graph-tooltip-backdrop、z-index 1）より上に出すため。 */
+/* resize: vertical はマップ高さのツマミ調整（UX round4 §3-1 nice-to-have）——マップの
+   ノード数が多い画面では下段（スタック+マップ）が伸び、現在の画面の取り分（1fr）を圧迫する。
+   ユーザーが右下ハンドルで縦方向に縮められるようにし、直近のリサイズ高さは graphMapHeight
+   （render() をまたいで保持するグローバル変数）へ反映する。max-height 480px は設計者確定の
+   既存 cap のまま変更しない。 */
+.graph-map-scroll { position: relative; z-index: 2; overflow: auto; max-height: 480px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; resize: vertical; }
+.graph-svg { display: block; }
+.graph-svg rect { fill: #fff; stroke: #ccc; }
+.graph-node:hover rect { stroke: #111; fill: #f0f0f0; }
+.graph-node-current rect { fill: #dbeafe; stroke: #2563eb; stroke-width: 2; }
+.graph-svg text { font-size: 10px; fill: #333; pointer-events: none; }
+.graph-svg text.graph-lane-title { font-size: 12px; font-weight: 700; fill: #555; }
+.graph-svg line { stroke: #bbb; stroke-width: 1; }
+.graph-svg marker path { fill: #bbb; }
+/* ノード近傍への絶対配置 tooltip（Task 16 受入基準e）。ペイン上部固定領域だった旧
+   #graph-preview（sticky + min-height 予約、Task 9/12）を廃止し、ホバー中のノードの
+   すぐそば（直下）に出す方式へ切替えた。position: absolute はドキュメントフローから
+   外れるためレイアウトに影響しない（他要素の並び・サイズを変えない）。pointer-events: none
+   は pin されていない間の既定——tooltip が別ノードの矩形に重なっても、マウスイベントは
+   tooltip を素通りして下のノードへ届く。これが Task 12 のフリッカ（tooltip の出現で
+   直下のノードの mouseleave/mouseenter が連鎖する）を構造的に防ぐ根拠になる（旧方式は
+   固定 min-height でレイアウトシフトを止めていたが、今回はそもそも重なっても効かない
+   ようにする、より直接的な対策）。:empty は「何もホバーしていない」既定状態を非表示にする。 */
+.graph-tooltip { position: absolute; z-index: 1; max-width: 220px; padding: 6px 8px; background: #fafafa; border: 1px dashed #ddd; border-radius: 6px; font-size: 11px; line-height: 1.4; color: #555; pointer-events: none; }
+.graph-tooltip:empty { display: none; }
+/* pin（ノードクリックで固定表示）中は分割/統合・閉じるボタンを押せるよう pointer-events を
+   戻し、見た目も「浮いているカード」として実線・影を付けて hover 中の淡いプレビューと区別する。 */
+.graph-tooltip-pinned { pointer-events: auto; border-style: solid; border-color: #ccc; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+.graph-tooltip-title { font-weight: 700; color: #333; }
+.graph-tooltip-actions { display: flex; gap: 6px; margin-top: 6px; }
+.graph-tooltip-gate { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+.graph-tooltip-btn { background: #f0f0f0; border: none; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 12px; }
+.graph-tooltip-btn:hover { background: #e0e0e0; }
+.graph-node { cursor: pointer; }
+/* pin 中だけ現れる透明な外クリック検知用バックドロップ（「外クリックか閉じるで解除」。
+   Task 16 受入基準e）。position: fixed で viewport 全体を覆うが、.graph-map-scroll に
+   z-index: 2（このバックドロップは z-index: 1）を与えているため、マップ内のノード・
+   tooltip はバックドロップより上に出て操作できる——実質「マップの外」をクリックしたときだけ
+   このバックドロップが拾って pin を閉じる、という素直な動作になる。 */
+.graph-tooltip-backdrop { position: fixed; inset: 0; z-index: 1; }
+.graph-save-btn { align-self: flex-start; margin-bottom: 6px; background: none; border: 1px solid #ccc; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 11px; color: #555; }
+.graph-save-btn:hover { background: #f0f0f0; }
+@media (max-width: 680px) {
+  #app { grid-template-columns: minmax(0,1fr); grid-template-rows: auto minmax(0,1fr) minmax(120px,20vh); }
+  #app .pane-center { grid-row: 2; }
+  #app .pane-trace { grid-row: 3; }
+  #app .lower-section { max-height: 15vh; }
+}
+.history-warning { color: #713f00; background: #fff1c2; border-radius: 4px; padding: 2px 5px; }
+.history-diagnostics { border-left: 3px solid #a66b00; padding-left: 8px; }
+.remaining-work { border-top: 1px solid #ddd; padding-top: 8px; font-size: 12px; overflow-wrap: anywhere; }
+.remaining-work details { margin: 8px 0; padding-left: 8px; }
+.remaining-work summary { cursor: pointer; }
+.operation-details { margin: 3px 0 10px 12px; font-size: 12px; overflow-wrap: anywhere; }
+.operation-details summary { cursor: pointer; color: #444; }
+.operation-details p, .result-target { margin: 6px 0; line-height: 1.5; }
+.defined-results ol { padding-left: 24px; line-height: 1.6; overflow-wrap: anywhere; }
+.result-target { border-left: 3px solid #768ca1; padding-left: 8px; overflow-wrap: anywhere; }

@@ -1,3 +1,6 @@
 # Model source bytes participate in saved scenario identities.
 # Preserve committed bytes on checkout, including core.autocrlf=true.
 *.shitae -text
+
+# These files are inlined verbatim into the standalone simulator HTML.
+packages/simulator/src/browser/* text eol=lf

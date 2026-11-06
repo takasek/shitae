@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { parse } from '../../parser/src/index.js';
 import { resolve, resolveProject } from '../../resolver/src/index.js';
 import { check } from '../src/index.js';
@@ -51,6 +51,14 @@ Label
       { code: 'W102', line: source.split('\n').indexOf('> Link -> goto(ui::Ready)') + 1 },
     ]);
     expect(check(document, resolve(document))).toEqual([]);
+  });
+
+  it('skips import lookups for qualified targets when checking a single document', () => {
+    const { document } = parse('import library as ui\n# Host\n> Open -> goto(ui::Screen) ; show(ui::Status##Ready)\n');
+    const resolved = resolve(document);
+    const lookup = vi.spyOn(document.imports, 'find');
+    expect(check(document, resolved)).toEqual([]);
+    expect(lookup).not.toHaveBeenCalled();
   });
 
   it('keeps aliases local to each body, including document common', () => {
